@@ -166,7 +166,7 @@
       </div>
       <div class="actions">
         <button class="secondary" id="addRowBtn">➕ Incluir registro</button>
-        <button class="primary" id="saveBtn">☁️ Salvar na nuvem</button>
+        <button class="primary" id="saveBtn">↑ Salvar na nuvem</button>
         <button class="secondary" id="exportBackupBtn">⬇️ Exportar backup</button>
         <button class="secondary" id="importBackupBtn">⬆️ Importar backup</button>
         <button class="secondary" id="exportWordBtn">📄 Relatório Word</button>
@@ -251,7 +251,7 @@
         <div class="hint">Cole imagens diretamente (Ctrl+V) ou use o botão 🖼️.</div>
       </div>
       <div class="actions" style="margin-top:20px;">
-        <button class="primary" id="btnSalvarDetalhe">☁️ Salvar na nuvem</button>
+        <button class="primary" id="btnSalvarDetalhe">↑ Salvar na nuvem</button>
         <button class="secondary" id="btnFecharDetalhe">✕ Fechar</button>
       </div>
     </div>
@@ -288,11 +288,12 @@
   let categories   = [];
   let activeFilter = '__all__';
   let detailDirty = false;
+  let currentDetailId = null;
 
   function markDetailDirty() {
     if (!detailDirty) {
       detailDirty = true;
-      btnSalvarDetalhe.textContent = '⚠️ Salvar alterações na nuvem';
+      btnSalvarDetalhe.textContent = '⚠ Salvar alterações na nuvem';
       btnSalvarDetalhe.style.background = 'linear-gradient(135deg, #b45309, #d97706)';
       detailsStatus.innerHTML = '✏️ Há alterações não salvas. <span>Clique em "Salvar alterações na nuvem".</span>';
     }
@@ -300,7 +301,7 @@
 
   function clearDetailDirty() {
     detailDirty = false;
-    btnSalvarDetalhe.textContent = '☁️ Salvar na nuvem';
+    btnSalvarDetalhe.textContent = '↑ Salvar na nuvem';
     btnSalvarDetalhe.style.background = '';
   }
 
