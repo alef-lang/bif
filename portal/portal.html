@@ -309,7 +309,6 @@
   const statusMessage    = document.getElementById('statusMessage');
   const cloudBadge       = document.getElementById('cloudBadge');
   const addRowBtn        = document.getElementById('addRowBtn');
-  const saveBtn          = document.getElementById('saveBtn');
   const exportBackupBtn  = document.getElementById('exportBackupBtn');
   const importBackupBtn  = document.getElementById('importBackupBtn');
   const backupFileInput  = document.getElementById('backupFileInput');
@@ -527,7 +526,6 @@
 
   // ── CLOUD ──
   async function saveToCloud() {
-    saveBtn.disabled = true;
     setCloudStatus('loading','Salvando...');
     statusMessage.innerHTML = '⏳ Salvando na nuvem...';
     try {
@@ -541,7 +539,7 @@
       setCloudStatus('error','Erro ao salvar');
       statusMessage.className = 'status error';
       statusMessage.innerHTML = '⚠️ Erro ao salvar. Verifique sua conexão.';
-    } finally { saveBtn.disabled = false; }
+    }
   }
 
   async function loadFromCloud() {
@@ -719,7 +717,6 @@
 
   // ── EVENTOS ──
   addRowBtn.addEventListener('click', () => { tableBody.appendChild(createRow()); markDirty(); });
-  saveBtn.addEventListener('click', saveToCloud);
   exportBackupBtn.addEventListener('click', exportBackup);
   importBackupBtn.addEventListener('click', () => backupFileInput.click());
   backupFileInput.addEventListener('change', handleImportBackupFile);
