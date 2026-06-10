@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <title>Registro de Treinamentos & Transferências Tácitas</title>
+  <title>Centro de Treinamentos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -99,6 +99,9 @@
     input[type="text"], input[type="date"] { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 6px; padding: 6px 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     input[type="text"]:focus, input[type="date"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6) sepia(1) saturate(2) hue-rotate(5deg); }
+    .cell-edit { display: inline-block; min-width: 60px; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 6px; padding: 6px 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; white-space: pre-wrap; word-break: break-word; cursor: text; }
+    .cell-edit:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
+    .cell-edit:empty::before { content: attr(data-placeholder); color: var(--text-muted); pointer-events: none; }
     .row-cats { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
     .row-cat-badge { font-size: 0.65rem; font-family: 'DM Mono', monospace; background: var(--gold-dim); color: var(--gold-light); border: 1px solid rgba(201,168,76,0.25); border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
     .footer-note { margin-top: 12px; font-size: 0.78rem; color: var(--text-muted); }
@@ -157,8 +160,8 @@
   <div class="card">
     <div class="header">
       <div class="title-block">
-        <h1>Registro de Treinamentos & Transferências Tácitas</h1>
-        <p class="subtitle">Controle interno de quem treinou quem, em qual assunto e quando a transferência de conhecimento ocorreu.</p>
+        <h1>Centro de Treinamentos</h1>
+        <p class="subtitle">Registro e rastreamento de transferências de conhecimento tácito entre colaboradores.</p>
         <div id="cloudBadge" class="cloud-badge loading">⏳ Conectando à nuvem...</div>
       </div>
       <div class="actions">
@@ -199,7 +202,7 @@
         <thead>
           <tr>
             <th style="width:130px;">Data</th>
-            <th style="width:120px;">Assunto</th>
+            <th>Assunto</th>
             <th>Multiplicador<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem passou)</small></th>
             <th>Treinado<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem recebeu)</small></th>
             <th style="width:90px;">Detalhes</th>
@@ -284,7 +287,22 @@
 
   let categories   = [];
   let activeFilter = '__all__';
-  let currentDetailId = null;
+  let detailDirty = false;
+
+  function markDetailDirty() {
+    if (!detailDirty) {
+      detailDirty = true;
+      btnSalvarDetalhe.textContent = '⚠️ Salvar alterações na nuvem';
+      btnSalvarDetalhe.style.background = 'linear-gradient(135deg, #b45309, #d97706)';
+      detailsStatus.innerHTML = '✏️ Há alterações não salvas. <span>Clique em "Salvar alterações na nuvem".</span>';
+    }
+  }
+
+  function clearDetailDirty() {
+    detailDirty = false;
+    btnSalvarDetalhe.textContent = '☁️ Salvar na nuvem';
+    btnSalvarDetalhe.style.background = '';
+  }
 
   // ── ELEMENTOS ──
   const tableBody        = document.getElementById('tacitBody');
@@ -434,12 +452,22 @@
 
     ['data','assunto','multiplicador','treinado'].forEach(field => {
       const td = document.createElement('td');
-      const input = document.createElement('input');
-      input.type = field==='data'?'date':'text';
-      input.value = data[field] || '';
-      input.addEventListener('input', markDirty);
-      td.appendChild(input);
-      if (field === 'assunto') { /* sem badges na tabela */ }
+      if (field === 'data') {
+        const input = document.createElement('input');
+        input.type = 'date';
+        input.value = data[field] || '';
+        input.addEventListener('input', markDirty);
+        td.appendChild(input);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'cell-edit';
+        div.contentEditable = 'true';
+        div.dataset.placeholder = field === 'assunto' ? 'Assunto...' : field === 'multiplicador' ? 'Nome...' : 'Nome...';
+        div.textContent = data[field] || '';
+        div.addEventListener('input', markDirty);
+        td.appendChild(div);
+      }
+      if (field === 'assunto') { /* sem badges */ }
       tr.appendChild(td);
     });
 
@@ -481,9 +509,9 @@
     return {
       id: tr.dataset.id || generateId(),
       data: tds[0].querySelector('input')?.value || '',
-      assunto: tds[1].querySelector('input')?.value || '',
-      multiplicador: tds[2].querySelector('input')?.value || '',
-      treinado: tds[3].querySelector('input')?.value || '',
+      assunto: tds[1].querySelector('.cell-edit')?.textContent || '',
+      multiplicador: tds[2].querySelector('.cell-edit')?.textContent || '',
+      treinado: tds[3].querySelector('.cell-edit')?.textContent || '',
       cats: JSON.parse(tr.dataset.cats || '[]'),
       conteudo: tr.dataset.conteudo || '',
       ferramentas: tr.dataset.ferramentas || '',
@@ -553,6 +581,11 @@
     detailStatusRetencao.innerHTML = record.statusRetencao || '';
     detailObservacoes.innerHTML = record.observacoes || '';
     detailExtra.innerHTML = record.detalheExtra || '';
+    clearDetailDirty();
+    // monitora mudanças
+    [detailConteudo, detailFerramentas, detailStatusRetencao, detailObservacoes, detailExtra]
+      .forEach(el => el.addEventListener('input', markDetailDirty, { once: false }));
+    detailCats.addEventListener('click', markDetailDirty);
     detailsCard.style.display = 'block';
     detailsContent.style.display = 'block';
     detailsStatus.innerHTML = 'Detalhes carregados. <span>Edite e salve na nuvem.</span>';
@@ -572,15 +605,18 @@
     row.dataset.observacoes = detailObservacoes.innerHTML || '';
     row.dataset.detalheExtra = detailExtra.innerHTML || '';
     await saveToCloud();
+    clearDetailDirty();
     applyFilter();
     detailsStatus.innerHTML = '✅ Detalhamento salvo na nuvem.';
   }
 
   function closeDetailsPanel() {
+    if (detailDirty && !confirm('Há alterações não salvas. Fechar mesmo assim?')) return;
     currentDetailId = null;
     detailsContent.style.display = 'none';
     detailsCard.style.display = 'none';
     detailsStatus.innerHTML = 'Nenhum registro selecionado.';
+    clearDetailDirty();
   }
 
   // ── BACKUP ──
