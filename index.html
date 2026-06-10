@@ -469,8 +469,18 @@
 
         <div class="tool-card ready" onclick="openTool('portal-treinamentos')">
           <div class="tool-icon">📋</div>
-          <h3>Portal de Treinamentos</h3>
+          <h3>Centro de Treinamentos</h3>
           <p>Registro e rastreamento de transferências de conhecimento tácito entre colaboradores.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" onclick="openTool('tarefas')">
+          <div class="tool-icon">✅</div>
+          <h3>Tarefas Fiscal</h3>
+          <p>Gestão de tarefas com prioridades, atribuição por e-mail, lembretes e sistema de recompensas.</p>
           <div class="tool-footer">
             <span class="badge-ready">● Disponível</span>
             <span class="btn-open">Abrir →</span>
@@ -651,7 +661,8 @@
   // Navegação entre ferramentas
   window.openTool = function(tool) {
     const urls = {
-      'portal-treinamentos': './portal/portal.html'
+      'portal-treinamentos': './portal/portal.html',
+      'tarefas': './tarefas/tarefas.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
