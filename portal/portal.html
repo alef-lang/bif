@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <title>Registro de Treinamentos & Transferências Tácitas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -19,9 +20,7 @@
       --radius:     16px;
       --radius-sm:  8px;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--navy);
@@ -31,416 +30,110 @@
       min-height: 100vh;
       padding: 28px 24px 60px;
     }
-
     .container { max-width: 1180px; margin: 0 auto; }
-
-    /* ── TOPBAR ── */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .topbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .topbar-brand .glyph {
-      font-family: 'DM Mono', monospace;
-      font-size: 1.2rem;
-      color: var(--gold);
-    }
-
-    .topbar-brand a {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-decoration: none;
-      border: 1px solid var(--gold-dim);
-      border-radius: 999px;
-      padding: 4px 12px;
-      transition: background 0.15s;
-    }
-
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; }
+    .topbar-brand .glyph { font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--gold); }
+    .topbar-brand a { font-size: 0.8rem; color: var(--text-muted); text-decoration: none; border: 1px solid var(--gold-dim); border-radius: 999px; padding: 4px 12px; transition: background 0.15s; }
     .topbar-brand a:hover { background: var(--gold-dim); color: var(--gold-light); }
-
-    /* ── CARD ── */
-    .card {
-      background: var(--navy-card);
-      border: 1px solid var(--gold-dim);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
-
-    /* ── HEADER ── */
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 20px;
-      align-items: flex-start;
-    }
-
+    .card { background: var(--navy-card); border: 1px solid var(--gold-dim); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
     .title-block { max-width: 70%; }
-
-    h1 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    h1::before {
-      content: '';
-      display: inline-block;
-      width: 4px;
-      height: 18px;
-      background: var(--gold);
-      border-radius: 2px;
-      margin-right: 10px;
-      vertical-align: middle;
-    }
-
+    h1 { font-family: 'Poppins', sans-serif; font-size: 1.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text); margin-bottom: 4px; }
+    h1::before { content: ''; display: inline-block; width: 4px; height: 18px; background: var(--gold); border-radius: 2px; margin-right: 10px; vertical-align: middle; }
     .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; }
-
-    /* ── CLOUD BADGE ── */
-    .cloud-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 500;
-      border-radius: 999px;
-      padding: 3px 12px;
-      margin-top: 8px;
-      background: rgba(34,197,94,0.1);
-      color: #86efac;
-      border: 1px solid rgba(34,197,94,0.25);
-    }
-
-    .cloud-badge.loading {
-      background: rgba(201,168,76,0.1);
-      color: var(--gold-light);
-      border-color: var(--gold-dim);
-    }
-
-    .cloud-badge.error {
-      background: rgba(239,68,68,0.1);
-      color: #fca5a5;
-      border-color: rgba(239,68,68,0.3);
-    }
-
-    /* ── ACTIONS ── */
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 8px 18px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-
-    button.primary {
-      background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      color: var(--navy);
-      font-weight: 700;
-    }
-
+    .cloud-badge { display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 500; border-radius: 999px; padding: 3px 12px; margin-top: 8px; background: rgba(34,197,94,0.1); color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+    .cloud-badge.loading { background: rgba(201,168,76,0.1); color: var(--gold-light); border-color: var(--gold-dim); }
+    .cloud-badge.error { background: rgba(239,68,68,0.1); color: #fca5a5; border-color: rgba(239,68,68,0.3); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+    button { border: none; border-radius: 999px; padding: 8px 18px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease; white-space: nowrap; }
+    button.primary { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--navy); font-weight: 700; }
     button.primary:hover { opacity: 0.9; transform: translateY(-1px); }
-
-    button.secondary {
-      background: rgba(255,255,255,0.05);
-      color: var(--text-muted);
-      border: 1px solid var(--gold-dim);
-    }
-
-    button.secondary:hover {
-      background: var(--gold-dim);
-      color: var(--gold-light);
-      border-color: var(--gold);
-    }
-
+    button.secondary { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--gold-dim); }
+    button.secondary:hover { background: var(--gold-dim); color: var(--gold-light); border-color: var(--gold); }
     button.small { padding: 2px 10px; font-size: 0.75rem; }
-
-    button.danger-link {
-      background: transparent;
-      color: #6b7280;
-      border: none;
-      padding: 0;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-
+    button.danger-link { background: transparent; color: #6b7280; border: none; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
     button.danger-link:hover { color: #ef4444; }
     button:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-    .link-button {
-      background: transparent;
-      border: none;
-      padding: 0;
-      font-size: 0.8rem;
-      color: var(--gold);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-    }
-
+    .link-button { background: transparent; border: none; padding: 0; font-size: 0.8rem; color: var(--gold); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
     .link-button:hover { color: var(--gold-light); }
-
-    /* ── STATUS ── */
     .status { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
     .status span { font-weight: 600; color: var(--gold); }
     .status.error { color: #fca5a5; }
-    .status.error span { color: #fca5a5; }
 
-    /* ── TABLE ── */
-    .table-wrapper {
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--gold-dim);
-      overflow: auto;
-      background: rgba(0,0,0,0.2);
-    }
+    /* ── CATEGORIAS ── */
+    .cat-section { margin-bottom: 18px; }
+    .cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
+    .cat-label { font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; }
+    .cat-filter-bar { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .cat-filter-bar.open { display: flex; }
+    .cat-chip { font-family: 'DM Mono', monospace; font-size: 0.72rem; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--gold-dim); background: rgba(255,255,255,0.03); color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; }
+    .cat-chip:hover { border-color: var(--gold); color: var(--gold-light); }
+    .cat-chip.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold-light); font-weight: 600; }
+    .cat-chip.all { border-color: rgba(255,255,255,0.15); }
+    .cat-chip.all.active { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: var(--text); }
 
-    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    /* gerenciador */
+    .cat-manager { display: none; background: rgba(0,0,0,0.2); border: 1px solid var(--gold-dim); border-radius: var(--radius-sm); padding: 16px; margin-top: 12px; }
+    .cat-manager.open { display: block; }
+    .cat-manager-title { font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--gold); margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .cat-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .cat-item { display: inline-flex; align-items: center; gap: 6px; background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.3); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; color: var(--gold-light); }
+    .cat-item button { background: transparent; border: none; color: #f87171; font-size: 0.75rem; padding: 0; cursor: pointer; border-radius: 999px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+    .cat-item button:hover { background: rgba(239,68,68,0.2); }
+    .cat-add-row { display: flex; gap: 8px; }
+    .cat-add-row input { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: var(--radius-sm); padding: 7px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text); outline: none; }
+    .cat-add-row input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
+    .cat-add-row button { border-radius: var(--radius-sm); padding: 7px 14px; background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.3); color: var(--gold-light); font-size: 0.82rem; }
+    .cat-add-row button:hover { background: rgba(201,168,76,0.28); }
 
-    thead {
-      background: linear-gradient(90deg, rgba(201,168,76,0.15), rgba(201,168,76,0.08));
-      border-bottom: 1px solid var(--gold-dim);
-    }
-
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-size: 0.84rem;
-      vertical-align: top;
-    }
-
-    th {
-      text-align: left;
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--gold);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
+    /* ── TABELA ── */
+    .table-wrapper { border-radius: var(--radius-sm); border: 1px solid var(--gold-dim); overflow: auto; background: rgba(0,0,0,0.2); }
+    table { width: 100%; border-collapse: collapse; min-width: 780px; }
+    thead { background: linear-gradient(90deg, rgba(201,168,76,0.15), rgba(201,168,76,0.08)); border-bottom: 1px solid var(--gold-dim); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.84rem; vertical-align: top; }
+    th { text-align: left; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase; }
     tbody tr:hover { background: rgba(201,168,76,0.04); }
-
-    input[type="text"], input[type="date"] {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,168,76,0.15);
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.84rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    input[type="text"]:focus, input[type="date"]:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px var(--gold-glow);
-    }
-
+    tbody tr.hidden-row { display: none; }
+    input[type="text"], input[type="date"] { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: 6px; padding: 6px 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    input[type="text"]:focus, input[type="date"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6) sepia(1) saturate(2) hue-rotate(5deg); }
-
+    .row-cats { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+    .row-cat-badge { font-size: 0.65rem; font-family: 'DM Mono', monospace; background: var(--gold-dim); color: var(--gold-light); border: 1px solid rgba(201,168,76,0.25); border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
     .footer-note { margin-top: 12px; font-size: 0.78rem; color: var(--text-muted); }
     .footer-note strong { color: var(--gold); }
-
     input[type="file"] { display: none; }
 
-    /* ── DETAILS CARD ── */
+    /* ── DETAILS ── */
     .details-card { display: none; }
-
-    .details-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .details-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .details-title::before {
-      content: '';
-      width: 4px;
-      height: 16px;
-      background: var(--gold);
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    .badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      background: var(--gold-dim);
-      color: var(--gold-light);
-      border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 999px;
-      padding: 3px 12px;
-    }
-
-    .meta {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px 20px;
-      margin-bottom: 16px;
-      padding: 16px;
-      background: rgba(0,0,0,0.15);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--gold-dim);
-    }
-
-    .meta-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--gold);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-    }
-
+    .details-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 10px; }
+    .details-title { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .details-title::before { content: ''; width: 4px; height: 16px; background: var(--gold); border-radius: 2px; flex-shrink: 0; }
+    .badge { font-family: 'DM Mono', monospace; font-size: 0.72rem; background: var(--gold-dim); color: var(--gold-light); border: 1px solid rgba(201,168,76,0.3); border-radius: 999px; padding: 3px 12px; }
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px 20px; margin-bottom: 16px; padding: 16px; background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); border: 1px solid var(--gold-dim); }
+    .meta-label { font-size: 0.72rem; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; }
     .meta-value { font-size: 0.88rem; color: var(--text); }
-
     .section { margin-top: 16px; }
+    .section h2 { font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--gold); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
 
-    .section h2 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--gold);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
+    /* categorias no detalhe */
+    .detail-cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); border: 1px solid var(--gold-dim); min-height: 44px; }
+    .detail-cat-toggle { font-family: 'DM Mono', monospace; font-size: 0.75rem; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--gold-dim); background: rgba(255,255,255,0.03); color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; }
+    .detail-cat-toggle.selected { background: var(--gold-dim); border-color: var(--gold); color: var(--gold-light); font-weight: 600; }
+    .detail-cat-toggle:hover { border-color: var(--gold); color: var(--gold-light); }
 
-    .section textarea.details-textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,168,76,0.15);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      color: var(--text);
-      min-height: 70px;
-      resize: vertical;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .section textarea.details-textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px var(--gold-glow);
-    }
-
+    /* rich editor */
+    .rich-editor { width: 100%; min-height: 80px; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: var(--radius-sm); padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; line-height: 1.6; word-break: break-word; }
+    .rich-editor:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
+    .rich-editor:empty::before { content: attr(data-placeholder); color: var(--text-muted); pointer-events: none; }
+    .rich-editor img { max-width: 100%; border-radius: var(--radius-sm); margin: 8px 0; border: 1px solid var(--gold-dim); display: block; }
+    .editor-toolbar { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+    .editor-toolbar button { padding: 4px 10px; font-size: 0.75rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.05); border: 1px solid var(--gold-dim); color: var(--text-muted); cursor: pointer; }
+    .editor-toolbar button:hover { background: var(--gold-dim); color: var(--gold-light); }
     .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 5px; }
-
-    /* ── RICH EDITOR ── */
-    .rich-editor {
-      width: 100%;
-      min-height: 120px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,168,76,0.15);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      line-height: 1.6;
-      word-break: break-word;
-    }
-
-    .rich-editor:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px var(--gold-glow);
-    }
-
-    .rich-editor:empty::before {
-      content: attr(data-placeholder);
-      color: var(--text-muted);
-      pointer-events: none;
-    }
-
-    .rich-editor img {
-      max-width: 100%;
-      border-radius: var(--radius-sm);
-      margin: 8px 0;
-      border: 1px solid var(--gold-dim);
-      display: block;
-    }
-
-    .editor-toolbar {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 6px;
-      flex-wrap: wrap;
-    }
-
-    .editor-toolbar button {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--gold-dim);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .editor-toolbar button:hover {
-      background: var(--gold-dim);
-      color: var(--gold-light);
-    }
+    .section textarea.details-textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(201,168,76,0.15); border-radius: var(--radius-sm); padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--text); min-height: 70px; resize: vertical; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .section textarea.details-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
 
     @media (max-width: 768px) {
       body { padding: 16px 14px 48px; }
@@ -452,435 +145,564 @@
   </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
 
-    <div class="topbar">
-      <div class="topbar-brand">
-        <span class="glyph">◈</span>
-        <a href="#" onclick="history.back(); return false;">← BIF</a>
-      </div>
+  <div class="topbar">
+    <div class="topbar-brand">
+      <span class="glyph">◈</span>
+      <a href="#" onclick="history.back(); return false;">← BIF</a>
     </div>
-
-    <div class="card">
-      <div class="header">
-        <div class="title-block">
-          <h1>Registro de Treinamentos & Transferências Tácitas</h1>
-          <p class="subtitle">Controle interno de quem treinou quem, em qual setor e quando a transferência de conhecimento ocorreu.</p>
-          <div id="cloudBadge" class="cloud-badge loading">⏳ Conectando à nuvem...</div>
-        </div>
-        <div class="actions">
-          <button class="secondary" id="addRowBtn">➕ Incluir registro</button>
-          <button class="primary" id="saveBtn">☁️ Salvar na nuvem</button>
-          <button class="secondary" id="exportBackupBtn">⬇️ Exportar backup</button>
-          <button class="secondary" id="importBackupBtn">⬆️ Importar backup</button>
-          <button class="secondary" id="exportWordBtn">📄 Relatório Word</button>
-          <input type="file" id="backupFileInput" accept="application/json"/>
-        </div>
-      </div>
-
-      <div class="status" id="statusMessage">Conectando ao Firebase...</div>
-
-      <div class="table-wrapper">
-        <table id="tacitTable">
-          <thead>
-            <tr>
-              <th style="width:140px;">Data</th>
-              <th style="width:100px;">Setor</th>
-              <th>Multiplicador<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem passou)</small></th>
-              <th>Treinado<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem recebeu)</small></th>
-              <th style="width:90px;">Detalhes</th>
-              <th style="width:60px;"></th>
-            </tr>
-          </thead>
-          <tbody id="tacitBody"></tbody>
-        </table>
-      </div>
-      <p class="footer-note">Dados salvos na <strong>nuvem (Firebase)</strong> — disponíveis em qualquer dispositivo. Use <strong>Exportar backup</strong> para manter uma cópia local.</p>
-    </div>
-
-    <div class="card details-card" id="detailsCard">
-      <div class="details-header">
-        <div class="details-title">Detalhes do Conteúdo Ministrado</div>
-        <div class="badge">ID: <span id="badgeId"></span></div>
-      </div>
-      <div class="status" id="detailsStatus">Nenhum registro selecionado. <span>Selecione "Abrir detalhes" em um registro da tabela.</span></div>
-      <div id="detailsContent" style="display:none;">
-        <div class="meta">
-          <div><div class="meta-label">Data</div><div class="meta-value" id="detailData"></div></div>
-          <div><div class="meta-label">Setor</div><div class="meta-value" id="detailSetor"></div></div>
-          <div><div class="meta-label">Multiplicador</div><div class="meta-value" id="detailMultiplicador"></div></div>
-          <div><div class="meta-label">Treinado</div><div class="meta-value" id="detailTreinado"></div></div>
-        </div>
-        <div class="section"><h2>Conteúdo ministrado</h2><div class="rich-editor" id="detailConteudo" contenteditable="true" data-placeholder="Descreva o conteúdo ministrado..."></div></div>
-        <div class="section"><h2>Ferramentas / Sistemas</h2><div class="rich-editor" id="detailFerramentas" contenteditable="true" data-placeholder="Sistemas e ferramentas utilizados..."></div></div>
-        <div class="section"><h2>Status de retenção</h2><div class="rich-editor" id="detailStatusRetencao" contenteditable="true" data-placeholder="Ex: 100% Autônomo, Necessita Suporte..."></div></div>
-        <div class="section"><h2>Observações / Próximos passos</h2><div class="rich-editor" id="detailObservacoes" contenteditable="true" data-placeholder="Observações e próximos passos..."></div></div>
-        <div class="section">
-          <h2>Detalhamento adicional</h2>
-          <div class="editor-toolbar">
-            <button type="button" onclick="document.execCommand('bold')"><b>N</b></button>
-            <button type="button" onclick="document.execCommand('italic')"><i>I</i></button>
-            <button type="button" onclick="document.execCommand('insertUnorderedList')">• Lista</button>
-            <button type="button" id="btnInsertImage">🖼️ Imagem</button>
-            <input type="file" id="editorImageInput" accept="image/*" style="display:none"/>
-          </div>
-          <div class="rich-editor"
-               id="detailExtra"
-               contenteditable="true"
-               data-placeholder="Passo a passo, exemplos, boas práticas, erros comuns, scripts, prints...">
-          </div>
-          <div class="hint">Cole imagens diretamente (Ctrl+V) ou use o botão 🖼️. Texto em <b>negrito</b> com Ctrl+B.</div>
-        </div>
-        <div class="actions" style="margin-top:20px;">
-          <button class="primary" id="btnSalvarDetalhe">☁️ Salvar detalhamento na nuvem</button>
-          <button class="secondary" id="btnFecharDetalhe">✕ Fechar</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <div class="card">
+    <div class="header">
+      <div class="title-block">
+        <h1>Registro de Treinamentos & Transferências Tácitas</h1>
+        <p class="subtitle">Controle interno de quem treinou quem, em qual assunto e quando a transferência de conhecimento ocorreu.</p>
+        <div id="cloudBadge" class="cloud-badge loading">⏳ Conectando à nuvem...</div>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="addRowBtn">➕ Incluir registro</button>
+        <button class="primary" id="saveBtn">☁️ Salvar na nuvem</button>
+        <button class="secondary" id="exportBackupBtn">⬇️ Exportar backup</button>
+        <button class="secondary" id="importBackupBtn">⬆️ Importar backup</button>
+        <button class="secondary" id="exportWordBtn">📄 Relatório Word</button>
+        <input type="file" id="backupFileInput" accept="application/json"/>
+      </div>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
-      authDomain: "portal-treinamentos-lang.firebaseapp.com",
-      databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
-      projectId: "portal-treinamentos-lang",
-      storageBucket: "portal-treinamentos-lang.firebasestorage.app",
-      messagingSenderId: "1049839891406",
-      appId: "1:1049839891406:web:c5874166bdbee74139f19f"
-    };
+    <!-- Categorias -->
+    <div class="cat-section">
+      <div class="cat-header">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="secondary small" id="btnToggleFilter">🔍 Filtrar por categoria</button>
+          <button class="secondary small" id="btnToggleCatManager">⚙️ Gerenciar</button>
+        </div>
+      </div>
+      <div class="cat-filter-bar" id="catFilterBar">
+        <span class="cat-chip all active" data-cat="__all__">Todos</span>
+      </div>
+      <div class="cat-manager" id="catManager">
+        <div class="cat-manager-title">Gerenciar categorias</div>
+        <div class="cat-list" id="catList"></div>
+        <div class="cat-add-row">
+          <input type="text" id="newCatInput" placeholder="Nova categoria..."/>
+          <button id="btnAddCat">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const DB_PATH = 'treinamentos';
+    <div class="status" id="statusMessage">Conectando ao Firebase...</div>
 
-    const tableBody = document.getElementById('tacitBody');
-    const statusMessage = document.getElementById('statusMessage');
-    const cloudBadge = document.getElementById('cloudBadge');
-    const addRowBtn = document.getElementById('addRowBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const exportBackupBtn = document.getElementById('exportBackupBtn');
-    const importBackupBtn = document.getElementById('importBackupBtn');
-    const backupFileInput = document.getElementById('backupFileInput');
-    const exportWordBtn = document.getElementById('exportWordBtn');
-    const detailsCard = document.getElementById('detailsCard');
-    const detailsStatus = document.getElementById('detailsStatus');
-    const detailsContent = document.getElementById('detailsContent');
-    const badgeId = document.getElementById('badgeId');
-    const detailData = document.getElementById('detailData');
-    const detailSetor = document.getElementById('detailSetor');
-    const detailMultiplicador = document.getElementById('detailMultiplicador');
-    const detailTreinado = document.getElementById('detailTreinado');
-    const detailConteudo = document.getElementById('detailConteudo');
-    const detailFerramentas = document.getElementById('detailFerramentas');
-    const detailStatusRetencao = document.getElementById('detailStatusRetencao');
-    const detailObservacoes = document.getElementById('detailObservacoes');
-    const detailExtra = document.getElementById('detailExtra');
-    const btnSalvarDetalhe = document.getElementById('btnSalvarDetalhe');
-    const btnFecharDetalhe = document.getElementById('btnFecharDetalhe');
-    const btnInsertImage   = document.getElementById('btnInsertImage');
-    const editorImageInput = document.getElementById('editorImageInput');
+    <div class="table-wrapper">
+      <table id="tacitTable">
+        <thead>
+          <tr>
+            <th style="width:130px;">Data</th>
+            <th style="width:120px;">Assunto</th>
+            <th>Multiplicador<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem passou)</small></th>
+            <th>Treinado<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem recebeu)</small></th>
+            <th style="width:90px;">Detalhes</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody id="tacitBody"></tbody>
+      </table>
+    </div>
+    <p class="footer-note">Dados salvos na <strong>nuvem (Firebase)</strong> — disponíveis em qualquer dispositivo.</p>
+  </div>
 
-    let currentDetailId = null;
+  <!-- Detalhes -->
+  <div class="card details-card" id="detailsCard">
+    <div class="details-header">
+      <div class="details-title">Detalhes do Conteúdo Ministrado</div>
+      <div class="badge">ID: <span id="badgeId"></span></div>
+    </div>
+    <div class="status" id="detailsStatus">Nenhum registro selecionado. <span>Selecione "Abrir detalhes" em um registro da tabela.</span></div>
+    <div id="detailsContent" style="display:none;">
+      <div class="meta">
+        <div><div class="meta-label">Data</div><div class="meta-value" id="detailData"></div></div>
+        <div><div class="meta-label">Assunto</div><div class="meta-value" id="detailAssunto"></div></div>
+        <div><div class="meta-label">Multiplicador</div><div class="meta-value" id="detailMultiplicador"></div></div>
+        <div><div class="meta-label">Treinado</div><div class="meta-value" id="detailTreinado"></div></div>
+      </div>
+      <div class="section">
+        <h2>Categorias</h2>
+        <div class="detail-cats" id="detailCats"></div>
+        <div class="hint">Selecione as categorias relacionadas a este registro.</div>
+      </div>
+      <div class="section"><h2>Conteúdo ministrado</h2><div class="rich-editor" id="detailConteudo" contenteditable="true" data-placeholder="Descreva o conteúdo ministrado..."></div></div>
+      <div class="section"><h2>Ferramentas / Sistemas</h2><div class="rich-editor" id="detailFerramentas" contenteditable="true" data-placeholder="Sistemas e ferramentas utilizados..."></div></div>
+      <div class="section"><h2>Status de retenção</h2><div class="rich-editor" id="detailStatusRetencao" contenteditable="true" data-placeholder="Ex: 100% Autônomo, Necessita Suporte..."></div></div>
+      <div class="section"><h2>Observações / Próximos passos</h2><div class="rich-editor" id="detailObservacoes" contenteditable="true" data-placeholder="Observações e próximos passos..."></div></div>
+      <div class="section">
+        <h2>Detalhamento adicional</h2>
+        <div class="editor-toolbar">
+          <button type="button" onclick="document.execCommand('bold')"><b>N</b></button>
+          <button type="button" onclick="document.execCommand('italic')"><i>I</i></button>
+          <button type="button" onclick="document.execCommand('insertUnorderedList')">• Lista</button>
+          <button type="button" id="btnInsertImage">🖼️ Imagem</button>
+          <input type="file" id="editorImageInput" accept="image/*" style="display:none"/>
+        </div>
+        <div class="rich-editor" id="detailExtra" contenteditable="true" data-placeholder="Passo a passo, exemplos, boas práticas, erros comuns, prints..."></div>
+        <div class="hint">Cole imagens diretamente (Ctrl+V) ou use o botão 🖼️.</div>
+      </div>
+      <div class="actions" style="margin-top:20px;">
+        <button class="primary" id="btnSalvarDetalhe">☁️ Salvar na nuvem</button>
+        <button class="secondary" id="btnFecharDetalhe">✕ Fechar</button>
+      </div>
+    </div>
+  </div>
 
-    function setCloudStatus(state, msg) {
-      cloudBadge.className = 'cloud-badge' + (state === 'ok' ? '' : state === 'loading' ? ' loading' : ' error');
-      cloudBadge.textContent = state === 'ok' ? '☁️ ' + msg : state === 'loading' ? '⏳ ' + msg : '⚠️ ' + msg;
-    }
+</div>
 
-    function generateId() {
-      return 'reg_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-    }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    function createRow(data = {}) {
-      const tr = document.createElement('tr');
-      if (!data.id) data.id = generateId();
-      tr.dataset.id = data.id;
+  const firebaseConfig = {
+    apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+    authDomain: "portal-treinamentos-lang.firebaseapp.com",
+    databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+    projectId: "portal-treinamentos-lang",
+    storageBucket: "portal-treinamentos-lang.firebasestorage.app",
+    messagingSenderId: "1049839891406",
+    appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+  };
 
-      ['data', 'setor', 'multiplicador', 'treinado'].forEach(field => {
-        const td = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = field === 'data' ? 'date' : 'text';
-        input.value = data[field] || '';
-        input.addEventListener('input', markDirty);
-        td.appendChild(input);
-        tr.appendChild(td);
-      });
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const DB_PATH  = 'treinamentos';
+  const CAT_PATH = 'categorias';
 
-      const tdDetail = document.createElement('td');
-      tdDetail.style.textAlign = 'center';
-      const detailBtn = document.createElement('button');
-      detailBtn.type = 'button';
-      detailBtn.className = 'link-button';
-      detailBtn.textContent = 'Abrir detalhes';
-      detailBtn.addEventListener('click', () => openDetailsForRow(tr));
-      tdDetail.appendChild(detailBtn);
-      tr.appendChild(tdDetail);
+  const DEFAULT_CATS = [
+    'Reforma Tributária','IBS / CBS','ISS / NFS-e','Split Payment',
+    'Simples Nacional','Lucro Presumido','Lucro Real','PIS / COFINS',
+    'ICMS','Créditos tributários','Emissão de Notas','Sistema e Portais',
+    'Governança e Tributário'
+  ];
 
-      const tdActions = document.createElement('td');
-      tdActions.style.textAlign = 'center';
-      const deleteBtn = document.createElement('button');
-      deleteBtn.type = 'button';
-      deleteBtn.className = 'danger-link small';
-      deleteBtn.textContent = 'Excluir';
-      deleteBtn.addEventListener('click', async () => {
-        if (confirm('Tem certeza que deseja excluir este registro?')) {
-          const id = tr.dataset.id;
-          if (currentDetailId === id) closeDetailsPanel();
-          tr.remove();
-          try {
-            await remove(ref(db, `${DB_PATH}/${id}`));
-            statusMessage.innerHTML = '🗑️ Registro excluído da nuvem.';
-          } catch(e) {
-            statusMessage.innerHTML = '⚠️ Excluído localmente, mas erro ao remover da nuvem.';
-          }
+  let categories   = [];
+  let activeFilter = '__all__';
+  let currentDetailId = null;
+
+  // ── ELEMENTOS ──
+  const tableBody        = document.getElementById('tacitBody');
+  const statusMessage    = document.getElementById('statusMessage');
+  const cloudBadge       = document.getElementById('cloudBadge');
+  const addRowBtn        = document.getElementById('addRowBtn');
+  const saveBtn          = document.getElementById('saveBtn');
+  const exportBackupBtn  = document.getElementById('exportBackupBtn');
+  const importBackupBtn  = document.getElementById('importBackupBtn');
+  const backupFileInput  = document.getElementById('backupFileInput');
+  const exportWordBtn    = document.getElementById('exportWordBtn');
+  const catFilterBar     = document.getElementById('catFilterBar');
+  const catManager       = document.getElementById('catManager');
+  const catList          = document.getElementById('catList');
+  const newCatInput      = document.getElementById('newCatInput');
+  const btnAddCat        = document.getElementById('btnAddCat');
+  const btnToggleCatManager = document.getElementById('btnToggleCatManager');
+  const detailsCard      = document.getElementById('detailsCard');
+  const detailsStatus    = document.getElementById('detailsStatus');
+  const detailsContent   = document.getElementById('detailsContent');
+  const badgeId          = document.getElementById('badgeId');
+  const detailData       = document.getElementById('detailData');
+  const detailAssunto    = document.getElementById('detailAssunto');
+  const detailMultiplicador = document.getElementById('detailMultiplicador');
+  const detailTreinado   = document.getElementById('detailTreinado');
+  const detailCats       = document.getElementById('detailCats');
+  const detailConteudo   = document.getElementById('detailConteudo');
+  const detailFerramentas= document.getElementById('detailFerramentas');
+  const detailStatusRetencao = document.getElementById('detailStatusRetencao');
+  const detailObservacoes= document.getElementById('detailObservacoes');
+  const detailExtra      = document.getElementById('detailExtra');
+  const btnSalvarDetalhe = document.getElementById('btnSalvarDetalhe');
+  const btnFecharDetalhe = document.getElementById('btnFecharDetalhe');
+  const btnInsertImage   = document.getElementById('btnInsertImage');
+  const editorImageInput = document.getElementById('editorImageInput');
+
+  // ── UTILS ──
+  function setCloudStatus(state, msg) {
+    cloudBadge.className = 'cloud-badge' + (state==='ok'?'':state==='loading'?' loading':' error');
+    cloudBadge.textContent = state==='ok'?'☁️ '+msg:state==='loading'?'⏳ '+msg:'⚠️ '+msg;
+  }
+  function generateId() { return 'reg_'+Date.now()+'_'+Math.floor(Math.random()*100000); }
+  function markDirty() { statusMessage.innerHTML = 'Alterações não salvas. <span>Clique em "Salvar na nuvem".</span>'; }
+
+  // ── CATEGORIAS ──
+  async function loadCategories() {
+    try {
+      const snap = await get(ref(db, CAT_PATH));
+      categories = snap.exists() ? snap.val() : [...DEFAULT_CATS];
+      if (!snap.exists()) await set(ref(db, CAT_PATH), categories);
+    } catch(e) { categories = [...DEFAULT_CATS]; }
+    renderCategoryFilter();
+    renderCategoryManager();
+  }
+
+  async function saveCategories() {
+    await set(ref(db, CAT_PATH), categories);
+    renderCategoryFilter();
+    renderCategoryManager();
+    refreshDetailCats();
+  }
+
+  function renderCategoryFilter() {
+    catFilterBar.innerHTML = '';
+    const allChip = document.createElement('span');
+    allChip.className = 'cat-chip all' + (activeFilter==='__all__'?' active':'');
+    allChip.dataset.cat = '__all__';
+    allChip.textContent = 'Todos';
+    allChip.addEventListener('click', () => setFilter('__all__'));
+    catFilterBar.appendChild(allChip);
+    categories.forEach(cat => {
+      const chip = document.createElement('span');
+      chip.className = 'cat-chip' + (activeFilter===cat?' active':'');
+      chip.dataset.cat = cat;
+      chip.textContent = cat;
+      chip.addEventListener('click', () => setFilter(cat));
+      catFilterBar.appendChild(chip);
+    });
+  }
+
+  function renderCategoryManager() {
+    catList.innerHTML = '';
+    categories.forEach((cat, i) => {
+      const item = document.createElement('div');
+      item.className = 'cat-item';
+      item.innerHTML = `<span>${cat}</span>`;
+      const del = document.createElement('button');
+      del.textContent = '×';
+      del.title = 'Remover';
+      del.addEventListener('click', async () => {
+        if (confirm(`Remover categoria "${cat}"?`)) {
+          categories.splice(i, 1);
+          await saveCategories();
         }
       });
-      tdActions.appendChild(deleteBtn);
-      tr.appendChild(tdActions);
+      item.appendChild(del);
+      catList.appendChild(item);
+    });
+  }
 
-      if (data.detalheExtra) tr.dataset.detalheExtra = data.detalheExtra;
-      if (data.conteudo) tr.dataset.conteudo = data.conteudo;
-      if (data.ferramentas) tr.dataset.ferramentas = data.ferramentas;
-      if (data.statusRetencao) tr.dataset.statusRetencao = data.statusRetencao;
-      if (data.observacoes) tr.dataset.observacoes = data.observacoes;
+  function setFilter(cat) {
+    activeFilter = cat;
+    renderCategoryFilter();
+    applyFilter();
+  }
 
-      return tr;
-    }
-
-    function markDirty() {
-      statusMessage.innerHTML = 'Há alterações não salvas. <span>Clique em "Salvar na nuvem".</span>';
-    }
-
-    function rowToRecord(tr) {
-      const tds = tr.querySelectorAll('td');
-      return {
-        id: tr.dataset.id || generateId(),
-        data: tds[0].querySelector('input')?.value || '',
-        setor: tds[1].querySelector('input')?.value || '',
-        multiplicador: tds[2].querySelector('input')?.value || '',
-        treinado: tds[3].querySelector('input')?.value || '',
-        conteudo: tr.dataset.conteudo || '',
-        ferramentas: tr.dataset.ferramentas || '',
-        statusRetencao: tr.dataset.statusRetencao || '',
-        observacoes: tr.dataset.observacoes || '',
-        detalheExtra: tr.dataset.detalheExtra || ''
-      };
-    }
-
-    function getDataFromTable() {
-      return Array.from(tableBody.querySelectorAll('tr')).map(rowToRecord);
-    }
-
-    async function saveToCloud() {
-      saveBtn.disabled = true;
-      setCloudStatus('loading', 'Salvando...');
-      statusMessage.innerHTML = '⏳ Salvando na nuvem...';
-      try {
-        const data = getDataFromTable();
-        const records = {};
-        data.forEach(r => { records[r.id] = r; });
-        await set(ref(db, DB_PATH), records);
-        setCloudStatus('ok', 'Nuvem sincronizada');
-        statusMessage.innerHTML = '✅ Registros salvos na nuvem. <span>Disponíveis em qualquer dispositivo.</span>';
-      } catch(e) {
-        setCloudStatus('error', 'Erro ao salvar');
-        statusMessage.className = 'status error';
-        statusMessage.innerHTML = '⚠️ Erro ao salvar na nuvem. Verifique sua conexão.';
-      } finally {
-        saveBtn.disabled = false;
+  function applyFilter() {
+    Array.from(tableBody.querySelectorAll('tr')).forEach(tr => {
+      if (activeFilter === '__all__') {
+        tr.classList.remove('hidden-row');
+      } else {
+        const cats = JSON.parse(tr.dataset.cats || '[]');
+        tr.classList.toggle('hidden-row', !cats.includes(activeFilter));
       }
-    }
+    });
+  }
 
-    async function loadFromCloud() {
-      setCloudStatus('loading', 'Conectando à nuvem...');
-      statusMessage.innerHTML = '⏳ Carregando registros da nuvem...';
-      try {
-        const snapshot = await get(ref(db, DB_PATH));
-        tableBody.innerHTML = '';
-        if (snapshot.exists()) {
-          const records = snapshot.val();
-          Object.values(records).forEach(r => tableBody.appendChild(createRow(r)));
-          setCloudStatus('ok', 'Nuvem sincronizada');
-          statusMessage.innerHTML = `✅ ${Object.keys(records).length} registro(s) carregado(s) da nuvem.`;
-        } else {
-          setCloudStatus('ok', 'Nuvem conectada — sem registros');
-          statusMessage.innerHTML = 'Nenhum registro encontrado. <span>Clique em "Incluir registro" para começar.</span>';
-        }
-      } catch(e) {
-        setCloudStatus('error', 'Erro de conexão');
-        statusMessage.className = 'status error';
-        statusMessage.innerHTML = '⚠️ Não foi possível conectar ao Firebase. Verifique sua conexão.';
-      }
-    }
+  function refreshDetailCats() {
+    if (!currentDetailId) return;
+    const row = tableBody.querySelector(`tr[data-id="${currentDetailId}"]`);
+    if (!row) return;
+    const selected = JSON.parse(row.dataset.cats || '[]');
+    renderDetailCats(selected);
+  }
 
-    function exportBackup() {
-      const data = getDataFromTable();
-      const json = JSON.stringify(data, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const now = new Date();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `backup_treinamentos_${now.toISOString().slice(0,10)}.json`;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      statusMessage.innerHTML = 'Backup exportado. <span>Guarde o arquivo em local seguro.</span>';
-    }
+  function renderDetailCats(selected = []) {
+    detailCats.innerHTML = '';
+    categories.forEach(cat => {
+      const toggle = document.createElement('span');
+      toggle.className = 'detail-cat-toggle' + (selected.includes(cat) ? ' selected' : '');
+      toggle.textContent = cat;
+      toggle.addEventListener('click', () => toggle.classList.toggle('selected'));
+      detailCats.appendChild(toggle);
+    });
+  }
 
-    function handleImportBackupFile(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (!Array.isArray(data)) { alert('Arquivo inválido.'); return; }
-          data.forEach(d => { if (!d.id) d.id = generateId(); });
-          tableBody.innerHTML = '';
-          data.forEach(r => tableBody.appendChild(createRow(r)));
-          await saveToCloud();
-          statusMessage.innerHTML = '✅ Backup importado e salvo na nuvem.';
-        } catch(err) { alert('Erro ao importar backup.'); }
-        finally { backupFileInput.value = ''; }
-      };
-      reader.readAsText(file, 'utf-8');
-    }
+  function getSelectedDetailCats() {
+    return Array.from(detailCats.querySelectorAll('.detail-cat-toggle.selected')).map(el => el.textContent);
+  }
 
-    function exportWordReport() {
-      const rows = getDataFromTable();
-      const now = new Date();
-      let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Relatório</title><style>body{font-family:Segoe UI,Arial,sans-serif;font-size:11pt;color:#111827;}h1{font-size:18pt;color:#0c2d5a;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}.subtitle{font-size:10pt;color:#6b7280;margin-bottom:16px;}table{border-collapse:collapse;width:100%;margin-top:8px;}th,td{border:1px solid #d1d5db;padding:6px 8px;font-size:9.5pt;vertical-align:top;}th{background:#0c2d5a;color:#fff;font-weight:600;}tr:nth-child(even) td{background:#f9fafb;}</style></head><body>';
-      html += '<h1>Registro de Treinamentos & Transferências Tácitas</h1>';
-      html += `<div class="subtitle">Gerado em ${now.toLocaleDateString('pt-BR')}.</div>`;
-      html += '<table><thead><tr><th>Data</th><th>Setor</th><th>Multiplicador</th><th>Treinado</th><th>Conteúdo</th><th>Ferramentas</th><th>Status</th><th>Observações</th><th>Detalhamento</th></tr></thead><tbody>';
-      rows.forEach(r => {
-        html += `<tr><td>${r.data}</td><td>${r.setor}</td><td>${r.multiplicador}</td><td>${r.treinado}</td><td>${(r.conteudo||'').replace(/\n/g,'<br/>')}</td><td>${(r.ferramentas||'').replace(/\n/g,'<br/>')}</td><td>${(r.statusRetencao||'').replace(/\n/g,'<br/>')}</td><td>${(r.observacoes||'').replace(/\n/g,'<br/>')}</td><td>${(r.detalheExtra||'').replace(/\n/g,'<br/>')}</td></tr>`;
-      });
-      html += '</tbody></table></body></html>';
-      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `relatorio_treinamentos_${now.toISOString().slice(0,10)}.doc`;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      statusMessage.innerHTML = 'Relatório exportado em Word.';
-    }
+  // ── TABELA ──
+  function createRow(data = {}) {
+    const tr = document.createElement('tr');
+    if (!data.id) data.id = generateId();
+    tr.dataset.id = data.id;
+    tr.dataset.cats = JSON.stringify(data.cats || []);
 
-    function openDetailsForRow(tr) {
-      const record = rowToRecord(tr);
-      currentDetailId = record.id;
-      badgeId.textContent = record.id;
-      detailData.textContent = record.data || '-';
-      detailSetor.textContent = record.setor || '-';
-      detailMultiplicador.textContent = record.multiplicador || '-';
-      detailTreinado.textContent = record.treinado || '-';
-      detailConteudo.innerHTML = record.conteudo || '';
-      detailFerramentas.innerHTML = record.ferramentas || '';
-      detailStatusRetencao.innerHTML = record.statusRetencao || '';
-      detailObservacoes.innerHTML = record.observacoes || '';
-      detailExtra.innerHTML = record.detalheExtra || '';
-      detailsCard.style.display = 'block';
-      detailsContent.style.display = 'block';
-      detailsStatus.innerHTML = 'Detalhes carregados. <span>Edite e clique em "Salvar detalhamento na nuvem".</span>';
-    }
-
-    async function saveDetailForCurrent() {
-      if (!currentDetailId) return;
-      const rows = Array.from(tableBody.querySelectorAll('tr'));
-      const row = rows.find(r => r.dataset.id === currentDetailId);
-      if (!row) return;
-      row.dataset.conteudo = detailConteudo.innerHTML || '';
-      row.dataset.ferramentas = detailFerramentas.innerHTML || '';
-      row.dataset.statusRetencao = detailStatusRetencao.innerHTML || '';
-      row.dataset.observacoes = detailObservacoes.innerHTML || '';
-      row.dataset.detalheExtra = detailExtra.innerHTML || '';
-      await saveToCloud();
-      detailsStatus.innerHTML = '✅ Detalhamento salvo na nuvem.';
-    }
-
-    function closeDetailsPanel() {
-      currentDetailId = null;
-      detailsContent.style.display = 'none';
-      detailsStatus.innerHTML = 'Nenhum registro selecionado. <span>Selecione "Abrir detalhes" em um registro da tabela.</span>';
-    }
-
-    addRowBtn.addEventListener('click', () => { tableBody.appendChild(createRow()); markDirty(); });
-    saveBtn.addEventListener('click', saveToCloud);
-    exportBackupBtn.addEventListener('click', exportBackup);
-    importBackupBtn.addEventListener('click', () => backupFileInput.click());
-    backupFileInput.addEventListener('change', handleImportBackupFile);
-    exportWordBtn.addEventListener('click', exportWordReport);
-    btnSalvarDetalhe.addEventListener('click', saveDetailForCurrent);
-    btnFecharDetalhe.addEventListener('click', closeDetailsPanel);
-
-    // ── RICH EDITOR: colar imagem em qualquer campo ──
-    function enableImagePaste(editor) {
-      editor.addEventListener('paste', (e) => {
-        const items = e.clipboardData?.items;
-        if (!items) return;
-        for (const item of items) {
-          if (item.type.startsWith('image/')) {
-            e.preventDefault();
-            const file = item.getAsFile();
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-              const img = document.createElement('img');
-              img.src = ev.target.result;
-              const sel = window.getSelection();
-              if (sel && sel.rangeCount) {
-                const range = sel.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(img);
-                range.setStartAfter(img);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-              } else {
-                editor.appendChild(img);
-              }
-            };
-            reader.readAsDataURL(file);
-            break;
-          }
-        }
-      });
-    }
-
-    [detailConteudo, detailFerramentas, detailStatusRetencao, detailObservacoes, detailExtra]
-      .forEach(enableImagePaste);
-
-    // ── RICH EDITOR: inserir imagem via botão ──
-    btnInsertImage.addEventListener('click', () => editorImageInput.click());
-    editorImageInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        detailExtra.focus();
-        const img = document.createElement('img');
-        img.src = ev.target.result;
-        const sel = window.getSelection();
-        if (sel && sel.rangeCount) {
-          const range = sel.getRangeAt(0);
-          range.deleteContents();
-          range.insertNode(img);
-          range.setStartAfter(img);
-          range.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        } else {
-          detailExtra.appendChild(img);
-        }
-        editorImageInput.value = '';
-      };
-      reader.readAsDataURL(file);
+    ['data','assunto','multiplicador','treinado'].forEach(field => {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+      input.type = field==='data'?'date':'text';
+      input.value = data[field] || '';
+      input.addEventListener('input', markDirty);
+      td.appendChild(input);
+      if (field === 'assunto') { /* sem badges na tabela */ }
+      tr.appendChild(td);
     });
 
-    loadFromCloud();
-  </script>
+    const tdDetail = document.createElement('td');
+    tdDetail.style.textAlign = 'center';
+    const detailBtn = document.createElement('button');
+    detailBtn.className = 'link-button';
+    detailBtn.textContent = 'Abrir detalhes';
+    detailBtn.addEventListener('click', () => openDetailsForRow(tr));
+    tdDetail.appendChild(detailBtn);
+    tr.appendChild(tdDetail);
+
+    const tdAct = document.createElement('td');
+    tdAct.style.textAlign = 'center';
+    const delBtn = document.createElement('button');
+    delBtn.className = 'danger-link small';
+    delBtn.textContent = 'Excluir';
+    delBtn.addEventListener('click', async () => {
+      if (confirm('Excluir este registro?')) {
+        const id = tr.dataset.id;
+        if (currentDetailId === id) closeDetailsPanel();
+        tr.remove();
+        try { await remove(ref(db, `${DB_PATH}/${id}`)); statusMessage.innerHTML = '🗑️ Registro excluído.'; }
+        catch(e) { statusMessage.innerHTML = '⚠️ Excluído localmente, mas erro na nuvem.'; }
+      }
+    });
+    tdAct.appendChild(delBtn);
+    tr.appendChild(tdAct);
+
+    ['conteudo','ferramentas','statusRetencao','observacoes','detalheExtra'].forEach(f => {
+      if (data[f]) tr.dataset[f] = data[f];
+    });
+
+    return tr;
+  }
+
+  function rowToRecord(tr) {
+    const tds = tr.querySelectorAll('td');
+    return {
+      id: tr.dataset.id || generateId(),
+      data: tds[0].querySelector('input')?.value || '',
+      assunto: tds[1].querySelector('input')?.value || '',
+      multiplicador: tds[2].querySelector('input')?.value || '',
+      treinado: tds[3].querySelector('input')?.value || '',
+      cats: JSON.parse(tr.dataset.cats || '[]'),
+      conteudo: tr.dataset.conteudo || '',
+      ferramentas: tr.dataset.ferramentas || '',
+      statusRetencao: tr.dataset.statusRetencao || '',
+      observacoes: tr.dataset.observacoes || '',
+      detalheExtra: tr.dataset.detalheExtra || ''
+    };
+  }
+
+  function getDataFromTable() {
+    return Array.from(tableBody.querySelectorAll('tr')).map(rowToRecord);
+  }
+
+  // ── CLOUD ──
+  async function saveToCloud() {
+    saveBtn.disabled = true;
+    setCloudStatus('loading','Salvando...');
+    statusMessage.innerHTML = '⏳ Salvando na nuvem...';
+    try {
+      const data = getDataFromTable();
+      const records = {};
+      data.forEach(r => { records[r.id] = r; });
+      await set(ref(db, DB_PATH), records);
+      setCloudStatus('ok','Nuvem sincronizada');
+      statusMessage.innerHTML = '✅ Registros salvos na nuvem. <span>Disponíveis em qualquer dispositivo.</span>';
+    } catch(e) {
+      setCloudStatus('error','Erro ao salvar');
+      statusMessage.className = 'status error';
+      statusMessage.innerHTML = '⚠️ Erro ao salvar. Verifique sua conexão.';
+    } finally { saveBtn.disabled = false; }
+  }
+
+  async function loadFromCloud() {
+    setCloudStatus('loading','Conectando...');
+    statusMessage.innerHTML = '⏳ Carregando da nuvem...';
+    try {
+      await loadCategories();
+      const snap = await get(ref(db, DB_PATH));
+      tableBody.innerHTML = '';
+      if (snap.exists()) {
+        Object.values(snap.val()).forEach(r => tableBody.appendChild(createRow(r)));
+        setCloudStatus('ok','Nuvem sincronizada');
+        statusMessage.innerHTML = `✅ ${Object.keys(snap.val()).length} registro(s) carregado(s).`;
+      } else {
+        setCloudStatus('ok','Nuvem conectada');
+        statusMessage.innerHTML = 'Nenhum registro. <span>Clique em "Incluir registro".</span>';
+      }
+    } catch(e) {
+      setCloudStatus('error','Erro de conexão');
+      statusMessage.className = 'status error';
+      statusMessage.innerHTML = '⚠️ Não foi possível conectar ao Firebase.';
+    }
+  }
+
+  // ── DETALHES ──
+  function openDetailsForRow(tr) {
+    const record = rowToRecord(tr);
+    currentDetailId = record.id;
+    badgeId.textContent = record.id;
+    detailData.textContent = record.data || '-';
+    detailAssunto.textContent = record.assunto || '-';
+    detailMultiplicador.textContent = record.multiplicador || '-';
+    detailTreinado.textContent = record.treinado || '-';
+    renderDetailCats(record.cats || []);
+    detailConteudo.innerHTML = record.conteudo || '';
+    detailFerramentas.innerHTML = record.ferramentas || '';
+    detailStatusRetencao.innerHTML = record.statusRetencao || '';
+    detailObservacoes.innerHTML = record.observacoes || '';
+    detailExtra.innerHTML = record.detalheExtra || '';
+    detailsCard.style.display = 'block';
+    detailsContent.style.display = 'block';
+    detailsStatus.innerHTML = 'Detalhes carregados. <span>Edite e salve na nuvem.</span>';
+    detailsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function saveDetailForCurrent() {
+    if (!currentDetailId) return;
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    const row = rows.find(r => r.dataset.id === currentDetailId);
+    if (!row) return;
+    const selectedCats = getSelectedDetailCats();
+    row.dataset.cats = JSON.stringify(selectedCats);
+    row.dataset.conteudo = detailConteudo.innerHTML || '';
+    row.dataset.ferramentas = detailFerramentas.innerHTML || '';
+    row.dataset.statusRetencao = detailStatusRetencao.innerHTML || '';
+    row.dataset.observacoes = detailObservacoes.innerHTML || '';
+    row.dataset.detalheExtra = detailExtra.innerHTML || '';
+    await saveToCloud();
+    applyFilter();
+    detailsStatus.innerHTML = '✅ Detalhamento salvo na nuvem.';
+  }
+
+  function closeDetailsPanel() {
+    currentDetailId = null;
+    detailsContent.style.display = 'none';
+    detailsCard.style.display = 'none';
+    detailsStatus.innerHTML = 'Nenhum registro selecionado.';
+  }
+
+  // ── BACKUP ──
+  function exportBackup() {
+    const data = getDataFromTable();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const now = new Date();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `backup_treinamentos_${now.toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    statusMessage.innerHTML = 'Backup exportado.';
+  }
+
+  function handleImportBackupFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) { alert('Arquivo inválido.'); return; }
+        data.forEach(d => { if (!d.id) d.id = generateId(); });
+        tableBody.innerHTML = '';
+        data.forEach(r => tableBody.appendChild(createRow(r)));
+        await saveToCloud();
+        statusMessage.innerHTML = '✅ Backup importado e salvo na nuvem.';
+      } catch(err) { alert('Erro ao importar.'); }
+      finally { backupFileInput.value = ''; }
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  function exportWordReport() {
+    const rows = getDataFromTable();
+    const now = new Date();
+    let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Relatório</title><style>body{font-family:Segoe UI,Arial,sans-serif;font-size:11pt;}h1{font-size:16pt;color:#0c2d5a;text-transform:uppercase;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #d1d5db;padding:6px 8px;font-size:9.5pt;vertical-align:top;}th{background:#0c2d5a;color:#fff;}</style></head><body>';
+    html += '<h1>Registro de Treinamentos & Transferências Tácitas</h1>';
+    html += `<p>Gerado em ${now.toLocaleDateString('pt-BR')}</p>`;
+    html += '<table><thead><tr><th>Data</th><th>Assunto</th><th>Categorias</th><th>Multiplicador</th><th>Treinado</th><th>Conteúdo</th><th>Ferramentas</th><th>Status</th><th>Observações</th></tr></thead><tbody>';
+    rows.forEach(r => {
+      html += `<tr><td>${r.data}</td><td>${r.assunto}</td><td>${(r.cats||[]).join(', ')}</td><td>${r.multiplicador}</td><td>${r.treinado}</td><td>${(r.conteudo||'').replace(/\n/g,'<br/>')}</td><td>${(r.ferramentas||'').replace(/\n/g,'<br/>')}</td><td>${(r.statusRetencao||'').replace(/\n/g,'<br/>')}</td><td>${(r.observacoes||'').replace(/\n/g,'<br/>')}</td></tr>`;
+    });
+    html += '</tbody></table></body></html>';
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `relatorio_treinamentos_${now.toISOString().slice(0,10)}.doc`;
+    document.body.appendChild(a); a.click(); a.remove();
+    statusMessage.innerHTML = 'Relatório exportado em Word.';
+  }
+
+  // ── RICH EDITOR: paste de imagem ──
+  function enableImagePaste(editor) {
+    editor.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const img = document.createElement('img');
+            img.src = ev.target.result;
+            const sel = window.getSelection();
+            if (sel?.rangeCount) {
+              const range = sel.getRangeAt(0);
+              range.deleteContents(); range.insertNode(img);
+              range.setStartAfter(img); range.collapse(true);
+              sel.removeAllRanges(); sel.addRange(range);
+            } else { editor.appendChild(img); }
+          };
+          reader.readAsDataURL(item.getAsFile());
+          break;
+        }
+      }
+    });
+  }
+
+  [detailConteudo, detailFerramentas, detailStatusRetencao, detailObservacoes, detailExtra].forEach(enableImagePaste);
+
+  btnInsertImage.addEventListener('click', () => editorImageInput.click());
+  editorImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      detailExtra.focus();
+      const img = document.createElement('img'); img.src = ev.target.result;
+      const sel = window.getSelection();
+      if (sel?.rangeCount) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents(); range.insertNode(img);
+        range.setStartAfter(img); range.collapse(true);
+        sel.removeAllRanges(); sel.addRange(range);
+      } else { detailExtra.appendChild(img); }
+      editorImageInput.value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ── EVENTOS ──
+  addRowBtn.addEventListener('click', () => { tableBody.appendChild(createRow()); markDirty(); });
+  saveBtn.addEventListener('click', saveToCloud);
+  exportBackupBtn.addEventListener('click', exportBackup);
+  importBackupBtn.addEventListener('click', () => backupFileInput.click());
+  backupFileInput.addEventListener('change', handleImportBackupFile);
+  exportWordBtn.addEventListener('click', exportWordReport);
+  btnSalvarDetalhe.addEventListener('click', saveDetailForCurrent);
+  btnFecharDetalhe.addEventListener('click', closeDetailsPanel);
+  btnToggleCatManager.addEventListener('click', () => catManager.classList.toggle('open'));
+  document.getElementById('btnToggleFilter').addEventListener('click', () => catFilterBar.classList.toggle('open'));
+  btnAddCat.addEventListener('click', async () => {
+    const val = newCatInput.value.trim();
+    if (!val) return;
+    if (categories.includes(val)) { alert('Categoria já existe.'); return; }
+    categories.push(val);
+    newCatInput.value = '';
+    await saveCategories();
+  });
+  newCatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') btnAddCat.click(); });
+
+  loadFromCloud();
+</script>
 </body>
 </html>
