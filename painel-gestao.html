@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Gestão de Empresas</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  /* Base */
+  --bg:             #0d1b2a;
+  --bg-card:        #1b2e42;
+  --bg-card2:       #162438;
+  --bg-input:       rgba(255,255,255,0.05);
+
+  /* Gold */
+  --gold:           #c9a84c;
+  --gold-light:     #e8c97a;
+  --gold-dim:       rgba(201,168,76,0.22);
+  --gold-glow:      rgba(201,168,76,0.15);
+
+  /* Text */
+  --text:           #e8eaf0;
+  --text-light:     #8899aa;
+
+  /* Status colors — kept vivid for legibility on dark bg */
+  --simples:        #00cec9;
+  --presumido:      #74b9ff;
+  --real:           #a29bfe;
+  --outros:         #fd79a8;
+  --fechada:        #636e72;
+  --simples-light:  rgba(0,206,201,0.12);
+  --presumido-light:rgba(116,185,255,0.12);
+  --real-light:     rgba(162,155,254,0.12);
+  --outros-light:   rgba(253,121,168,0.12);
+
+  --border:         rgba(201,168,76,0.18);
+  --highlight:      #e8c97a;
+  --white:          #1b2e42;
+  --shadow:         0 4px 18px rgba(0,0,0,0.4);
+  --shadow-hover:   0 10px 32px rgba(0,0,0,0.55);
+  --radius:         16px;
+  --radius-sm:      10px;
+
+  --font-title:     'Poppins', sans-serif;
+  --font-body:      'DM Sans', sans-serif;
+  --font-mono:      'DM Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-body);background:var(--bg);background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168,76,0.07) 0%, transparent 55%), radial-gradient(ellipse at 85% 80%, rgba(201,168,76,0.05) 0%, transparent 50%);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#0d1b2a,#1b2e42);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(0,0,0,0.45);border-bottom:1px solid var(--gold-dim);position:sticky;top:0;z-index:200;flex-wrap:wrap;gap:10px;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.header-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#0d1b2a;flex-shrink:0;font-family:var(--font-title);}
+.header-title h1{font-size:16px;font-weight:700;font-family:var(--font-title);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.header-title p{font-size:11px;color:var(--text-light);margin-top:1px;font-family:var(--font-mono);}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn-header{background:rgba(201,168,76,0.1);border:1px solid var(--gold-dim);color:var(--gold-light);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.2s;white-space:nowrap;font-family:var(--font-body);}
+.btn-header:hover{background:rgba(201,168,76,0.22);border-color:var(--gold);transform:translateY(-1px);}
+.btn-header.export{background:rgba(0,206,201,0.15);border-color:rgba(0,206,201,0.35);color:#5eecea;}
+.btn-header.export:hover{background:rgba(0,206,201,0.28);}
+
+/* FILTER BAR */
+.filter-bar{background:var(--bg-card2);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.filter-label{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.6px;white-space:nowrap;font-family:var(--font-mono);}
+.filter-tags{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.filter-tag{padding:5px 11px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.18s;color:var(--text-light);white-space:nowrap;font-family:var(--font-body);}
+.filter-tag:hover{border-color:var(--gold);color:var(--gold-light);}
+.filter-tag.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);}
+.filter-tag.tag-entregue.active{background:rgba(0,206,201,0.18);border-color:var(--simples);color:var(--simples);}
+.filter-tag.tag-pendente.active{background:rgba(253,203,110,0.18);border-color:#fdcb6e;color:#fdcb6e;}
+.filter-tag.tag-atrasado.active{background:rgba(255,100,100,0.18);border-color:#ff7675;color:#ff7675;}
+.filter-tag.tag-fechada.active{background:rgba(99,110,114,0.25);border-color:var(--fechada);color:#b2bec3;}
+.filter-clear{padding:5px 11px;border-radius:20px;border:none;background:transparent;font-size:11px;color:var(--gold);cursor:pointer;font-weight:600;white-space:nowrap;font-family:var(--font-body);}
+.filter-clear:hover{text-decoration:underline;color:var(--gold-light);}
+
+/* SEARCH + REGIME + ATIVIDADE FILTERS */
+.filter-row2{background:var(--bg-card);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.select-filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;outline:none;background:var(--bg-card2);color:var(--text);cursor:pointer;font-family:var(--font-body);transition:all 0.2s;}
+.select-filter:focus{border-color:var(--gold);}
+.search-box{position:relative;flex:1;min-width:160px;max-width:280px;}
+.search-box input{width:100%;padding:7px 12px 7px 32px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;outline:none;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);transition:all 0.2s;}
+.search-box input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:12px;pointer-events:none;}
+
+/* STATS */
+.stats-bar{padding:14px 24px;display:flex;gap:12px;flex-wrap:wrap;background:var(--bg-card2);border-bottom:1px solid var(--border);}
+.stat-card{background:var(--bg-card);border-radius:var(--radius-sm);padding:11px 16px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid transparent;flex:1;min-width:120px;}
+.stat-card.total{border-left-color:var(--gold);}
+.stat-card.simples{border-left-color:var(--simples);}
+.stat-card.presumido{border-left-color:var(--presumido);}
+.stat-card.real{border-left-color:var(--real);}
+.stat-card.outros{border-left-color:var(--outros);}
+.stat-card.fechadas{border-left-color:var(--fechada);}
+.stat-icon{font-size:18px;}
+.stat-number{font-size:20px;font-weight:700;line-height:1;font-family:var(--font-title);}
+.stat-label{font-size:10px;color:var(--text-light);margin-top:1px;font-weight:600;font-family:var(--font-mono);}
+.stat-card.total .stat-number{color:var(--gold-light);}
+.stat-card.simples .stat-number{color:var(--simples);}
+.stat-card.presumido .stat-number{color:var(--presumido);}
+.stat-card.real .stat-number{color:var(--real);}
+.stat-card.outros .stat-number{color:var(--outros);}
+.stat-card.fechadas .stat-number{color:#b2bec3;}
+
+/* MAIN GRID */
+.main-content{padding:20px 24px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+@media(max-width:1200px){.main-content{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:650px){.main-content{grid-template-columns:1fr;}}
+
+/* COLUMN */
+.regime-column{background:var(--bg-card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;flex-direction:column;}
+.column-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);}
+.column-header.simples{background:linear-gradient(135deg,rgba(0,206,201,0.25),rgba(0,206,201,0.12));}
+.column-header.presumido{background:linear-gradient(135deg,rgba(116,185,255,0.25),rgba(116,185,255,0.12));}
+.column-header.real{background:linear-gradient(135deg,rgba(162,155,254,0.25),rgba(162,155,254,0.12));}
+.column-header.outros{background:linear-gradient(135deg,rgba(253,121,168,0.25),rgba(253,121,168,0.12));}
+.column-title h2{font-size:13px;font-weight:700;font-family:var(--font-title);color:var(--text);}
+.column-title p{font-size:10px;color:var(--text-light);margin-top:1px;}
+.column-count{background:rgba(201,168,76,0.18);color:var(--gold-light);border:1px solid var(--gold-dim);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;font-family:var(--font-mono);}
+.column-body{padding:10px;display:flex;flex-direction:column;gap:7px;flex:1;overflow-y:auto;max-height:calc(100vh - 340px);min-height:160px;}
+
+/* COMPANY CARD */
+.company-card{position:relative;background:var(--bg-card2);border:1.5px solid rgba(255,255,255,0.07);border-radius:var(--radius-sm);padding:10px 12px;cursor:pointer;transition:all 0.22s;animation:fadeIn 0.28s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.company-card:hover{border-color:var(--gold-dim);box-shadow:var(--shadow-hover);transform:translateY(-2px);background:#1e3350;}
+.company-card.simples:hover{border-left:3px solid var(--simples);}
+.company-card.presumido:hover{border-left:3px solid var(--presumido);}
+.company-card.real:hover{border-left:3px solid var(--real);}
+.company-card.outros:hover{border-left:3px solid var(--outros);}
+.company-card.fechada-card{opacity:0.6;}
+.company-card.fechada-card .card-name{text-decoration:line-through;color:var(--text-light);}
+.company-card.hidden{display:none!important;}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:5px;}
+.card-name{font-size:12px;font-weight:700;color:var(--text);line-height:1.35;flex:1;}
+.card-status-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.badge-ativa{background:rgba(0,206,201,0.2);color:var(--simples);border:1px solid rgba(0,206,201,0.3);}
+.badge-fechada{background:rgba(99,110,114,0.25);color:#b2bec3;border:1px solid rgba(99,110,114,0.35);}
+.card-meta{display:flex;flex-direction:column;gap:2px;margin-bottom:5px;}
+.card-meta-row{display:flex;align-items:flex-start;gap:5px;font-size:10px;color:var(--text-light);line-height:1.4;font-family:var(--font-mono);}
+.card-obligations{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.obrig-tag{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:700;border:1px solid;}
+.obrig-tag.entregue{background:rgba(0,206,201,0.15);color:var(--simples);border-color:rgba(0,206,201,0.3);}
+.obrig-tag.pendente{background:rgba(253,203,110,0.15);color:#fdcb6e;border-color:rgba(253,203,110,0.3);}
+.obrig-tag.atrasado{background:rgba(255,118,117,0.18);color:#ff7675;border-color:rgba(255,118,117,0.3);}
+.btn-delete{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;border:none;background:transparent;color:rgba(255,255,255,0.2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;line-height:1;font-family:inherit;}
+.btn-delete:hover{background:rgba(255,118,117,0.2);color:#ff7675;}
+
+/* BTN ADD */
+.btn-add-company{margin:0 10px 10px;padding:8px;border:2px dashed var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text-light);cursor:pointer;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.18s;font-family:var(--font-body);}
+.btn-add-company:hover{border-color:var(--gold);color:var(--gold-light);background:var(--gold-glow);}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;transition:all 0.26s;}
+.modal-overlay.open{opacity:1;visibility:visible;}
+.modal{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);width:100%;max-width:820px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.55);transform:scale(0.94) translateY(18px);transition:all 0.26s;}
+.modal-overlay.open .modal{transform:scale(1) translateY(0);}
+.modal-sm{max-width:400px;}
+.modal-md{max-width:580px;}
+.modal-header{padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border);}
+.modal-header-info h2{font-size:16px;font-weight:700;font-family:var(--font-title);color:var(--gold-light);}
+.modal-header-info p{font-size:12px;color:var(--text-light);margin-top:3px;font-family:var(--font-mono);}
+.btn-close-modal{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;color:var(--text-light);flex-shrink:0;font-family:inherit;}
+.btn-close-modal:hover{background:rgba(255,118,117,0.18);color:#ff7675;border-color:rgba(255,118,117,0.35);}
+.modal-body{flex:1;overflow-y:auto;padding:20px 24px;}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;}
+
+/* FORM */
+.form-section{margin-bottom:20px;}
+.form-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gold);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-family:var(--font-mono);}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.form-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.form-grid.cols-1{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.4px;font-family:var(--font-mono);}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);font-size:12px;color:var(--text);background:var(--bg-input);outline:none;transition:all 0.18s;font-family:var(--font-body);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:rgba(201,168,76,0.06);box-shadow:0 0 0 3px var(--gold-glow);}
+.form-group textarea{resize:vertical;min-height:72px;}
+.checkbox-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);background:var(--bg-input);cursor:pointer;}
+.checkbox-row input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--gold);}
+.checkbox-row label{font-size:12px;font-weight:600;cursor:pointer;color:var(--text);}
+
+/* OBRIGACOES */
+.obrig-manager{border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.obrig-header{display:grid;grid-template-columns:1fr 120px 110px 32px;gap:8px;padding:7px 12px;background:rgba(201,168,76,0.08);border-bottom:1px solid var(--border);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gold);font-family:var(--font-mono);}
+.obrig-list{display:flex;flex-direction:column;}
+.obrig-item{display:grid;grid-template-columns:1fr 120px 110px 32px;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.13s;}
+.obrig-item:last-child{border-bottom:none;}
+.obrig-item:hover{background:rgba(201,168,76,0.05);}
+.obrig-item-name{font-size:12px;font-weight:600;color:var(--text);}
+.obrig-item-venc{font-size:11px;color:var(--text-light);font-family:var(--font-mono);}
+.status-select{padding:4px 7px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;outline:none;cursor:pointer;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);transition:all 0.18s;}
+.status-select.entregue{border-color:rgba(0,206,201,0.5);color:var(--simples);background:rgba(0,206,201,0.12);}
+.status-select.pendente{border-color:rgba(253,203,110,0.5);color:#fdcb6e;background:rgba(253,203,110,0.12);}
+.status-select.atrasado{border-color:rgba(255,118,117,0.5);color:#ff7675;background:rgba(255,118,117,0.12);}
+.btn-remove-obrig{width:26px;height:26px;border-radius:6px;border:none;background:rgba(255,118,117,0.15);color:#ff7675;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;font-family:inherit;}
+.btn-remove-obrig:hover{background:#ff7675;color:#0d1b2a;}
+.obrig-add-row{padding:8px 12px;display:flex;gap:7px;background:rgba(201,168,76,0.05);}
+.obrig-add-row input{flex:1;padding:6px 9px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;outline:none;background:var(--bg-input);color:var(--text);font-family:var(--font-body);}
+.obrig-add-row input:focus{border-color:var(--gold);}
+.btn-add-obrig{padding:6px 13px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.18s;white-space:nowrap;font-family:var(--font-body);}
+.btn-add-obrig:hover{filter:brightness(1.08);}
+
+/* BUTTONS */
+.btn-primary{padding:9px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(201,168,76,0.4);filter:brightness(1.06);}
+.btn-secondary{padding:9px 16px;background:transparent;color:var(--gold-light);border:1.5px solid var(--gold-dim);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
+.btn-secondary:hover{border-color:var(--gold);background:var(--gold-glow);}
+.btn-danger{padding:9px 16px;background:rgba(255,118,117,0.15);color:#ff7675;border:1.5px solid rgba(255,118,117,0.3);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
+.btn-danger:hover{background:#ff7675;color:#0d1b2a;border-color:#ff7675;}
+.btn-export-rel{padding:9px 16px;background:linear-gradient(135deg,rgba(0,206,201,0.3),rgba(0,206,201,0.18));color:var(--simples);border:1.5px solid rgba(0,206,201,0.35);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
+.btn-export-rel:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,206,201,0.25);background:rgba(0,206,201,0.28);}
+
+/* PIN */
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:18px;}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:all 0.15s;}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold);transform:scale(1.1);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:210px;margin:0 auto;}
+.pin-btn{aspect-ratio:1;border-radius:11px;border:1.5px solid var(--border);background:var(--bg-card2);color:var(--text);font-size:17px;font-weight:700;cursor:pointer;transition:all 0.14s;display:flex;align-items:center;justify-content:center;font-family:var(--font-title);}
+.pin-btn:hover{background:var(--gold);color:#0d1b2a;border-color:var(--gold);}
+.pin-btn.danger:hover{background:rgba(255,118,117,0.2);color:#ff7675;border-color:rgba(255,118,117,0.4);}
+.pin-error{text-align:center;color:#ff7675;font-size:12px;font-weight:700;margin-top:12px;min-height:18px;font-family:var(--font-mono);}
+
+/* CONFIG */
+.config-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.config-section:last-child{border-bottom:none;margin-bottom:0;}
+.config-section h3{font-size:13px;font-weight:700;margin-bottom:3px;font-family:var(--font-title);color:var(--gold-light);}
+.config-section p{font-size:11px;color:var(--text-light);margin-bottom:11px;font-family:var(--font-mono);}
+.config-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.config-row input{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;outline:none;transition:all 0.18s;background:var(--bg-input);color:var(--text);font-family:var(--font-body);}
+.config-row input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
+.obrig-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;background:rgba(201,168,76,0.1);border:1.5px solid var(--gold-dim);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold-light);}
+.obrig-chip button{background:none;border:none;cursor:pointer;color:var(--text-light);font-size:12px;padding:0;line-height:1;font-family:inherit;}
+.obrig-chip button:hover{color:#ff7675;}
+
+/* RELATÓRIO */
+.rel-section{margin-bottom:20px;}
+.rel-section h3{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--gold-light);font-family:var(--font-title);}
+.rel-table{width:100%;border-collapse:collapse;font-size:11px;}
+.rel-table th{background:rgba(201,168,76,0.18);color:var(--gold-light);padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--gold-dim);font-family:var(--font-mono);}
+.rel-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-family:var(--font-mono);font-size:11px;}
+.rel-table tr:hover td{background:rgba(201,168,76,0.05);}
+.rel-table tr:last-child td{border-bottom:none;}
+.rel-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;}
+.rel-badge.entregue{background:rgba(0,206,201,0.18);color:var(--simples);}
+.rel-badge.pendente{background:rgba(253,203,110,0.18);color:#fdcb6e;}
+.rel-badge.atrasado{background:rgba(255,118,117,0.18);color:#ff7675;}
+.rel-badge.ativa{background:rgba(0,206,201,0.18);color:var(--simples);}
+.rel-badge.fechada{background:rgba(99,110,114,0.2);color:#b2bec3;}
+.rel-summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.rel-sum-card{background:var(--bg-card2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;flex:1;min-width:90px;}
+.rel-sum-card .num{font-size:22px;font-weight:700;color:var(--gold-light);font-family:var(--font-title);}
+.rel-sum-card .lbl{font-size:10px;color:var(--text-light);font-weight:600;font-family:var(--font-mono);}
+.rel-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.rel-options select,.rel-options input{padding:6px 10px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;outline:none;font-family:var(--font-body);background:var(--bg-card2);color:var(--text);cursor:pointer;}
+.rel-options select:focus,.rel-options input:focus{border-color:var(--gold);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg-card);color:var(--text);border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,0.4);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.28s;display:flex;align-items:center;gap:7px;font-family:var(--font-body);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:rgba(0,206,201,0.2);border-color:rgba(0,206,201,0.4);color:var(--simples);}
+.toast.error{background:rgba(255,118,117,0.2);border-color:rgba(255,118,117,0.4);color:#ff7675;}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:28px 12px;color:var(--text-light);}
+.empty-icon{font-size:30px;margin-bottom:6px;opacity:0.35;}
+.empty-state p{font-size:11px;font-family:var(--font-mono);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.3);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,0.55);}
+
+/* SELECT options (dark bg) */
+select option{background:#1b2e42;color:#e8eaf0;}
+
+/* APURAÇÃO STATUS BADGE */
+.apuracao-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid;font-family:var(--font-mono);margin-top:5px;}
+.apuracao-badge.apurada{background:rgba(0,206,201,0.18);color:var(--simples);border-color:rgba(0,206,201,0.4);}
+.apuracao-badge.nao_apurada{background:rgba(253,203,110,0.15);color:#fdcb6e;border-color:rgba(253,203,110,0.35);}
+.apuracao-badge.pendente_info{background:rgba(255,118,117,0.15);color:#ff7675;border-color:rgba(255,118,117,0.35);}
+
+/* STATUS APURAÇÃO na ficha */
+.apuracao-section{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(201,168,76,0.06);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);margin-bottom:14px;}
+.apuracao-section label{font-size:11px;font-weight:700;color:var(--gold-light);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;}
+.apuracao-section select{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);outline:none;cursor:pointer;transition:border-color 0.15s;}
+.apuracao-section select:focus{border-color:var(--gold);}
+
+/* RICH TEXT FIELDS (contenteditable) */
+.rich-field{min-height:80px;padding:10px 12px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);background:rgba(255,255,255,0.04);color:var(--text);font-family:var(--font-body);font-size:12px;line-height:1.6;outline:none;transition:border-color 0.15s,box-shadow 0.15s;resize:vertical;overflow:auto;}
+.rich-field:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
+.rich-field img{max-width:100%;border-radius:6px;margin:4px 0;}
+
+/* CONFIRM MODAL */
+.confirm-body{padding:24px 28px;text-align:center;}
+.confirm-body .confirm-icon{font-size:36px;margin-bottom:12px;}
+.confirm-body p{font-size:14px;color:var(--text);margin-bottom:6px;}
+.confirm-body .confirm-name{font-weight:700;color:var(--gold-light);font-family:var(--font-title);}
+.confirm-body small{font-size:11px;color:var(--text-light);font-family:var(--font-mono);}
+
+/* RELATÓRIO POR COLABORADOR */
+.colab-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px;}
+.colab-table th{background:rgba(201,168,76,0.18);color:var(--gold-light);padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;font-family:var(--font-mono);}
+.colab-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--text);font-family:var(--font-mono);font-size:11px;}
+.colab-table tr:hover td{background:rgba(201,168,76,0.05);}
+.colab-section-header{font-family:var(--font-title);font-size:13px;font-weight:700;color:var(--gold-light);margin:18px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--gold-dim);}
+.colab-mini-badge{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;display:inline-block;}
+.apuracao-badge-sm.apurada{background:rgba(0,206,201,0.18);color:var(--simples);}
+.apuracao-badge-sm.nao_apurada{background:rgba(253,203,110,0.15);color:#fdcb6e;}
+.apuracao-badge-sm.pendente_info{background:rgba(255,118,117,0.15);color:#ff7675;}
+
+/* PRINT STYLES */
+@media print{
+  .header,.filter-bar,.filter-row2,.stats-bar,.main-content,.toast{display:none!important;}
+  .modal-overlay{position:static!important;background:none!important;backdrop-filter:none!important;padding:0!important;display:block!important;opacity:1!important;visibility:visible!important;}
+  .modal{max-height:none!important;box-shadow:none!important;transform:none!important;border-radius:0!important;}
+  .modal-footer{display:none!important;}
+  .btn-close-modal,.btn-danger,.btn-secondary,.btn-remove-obrig,.btn-add-obrig{display:none!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-logo">G</div>
+    <div class="header-title">
+      <h1 id="headerTitle">Painel de Gestão</h1>
+      <p id="headerSubtitle">Controle de empresas e obrigações acessórias</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
+    <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
+    <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
+    <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
+    <a href="#" onclick="history.back();return false;" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:8px;padding:7px 14px;background:rgba(201,168,76,0.08);transition:background 0.2s;font-family:var(--font-body);">◈ BIF</a>
+  </div>
+</header>
+
+<!-- FILTROS OBRIGAÇÕES -->
+<div class="filter-bar">
+  <span class="filter-label">📋 Obrigação:</span>
+  <div class="filter-tags" id="filterTags"></div>
+  <button class="filter-clear" onclick="clearFilters()">✕ Limpar tudo</button>
+</div>
+
+<!-- FILTROS LINHA 2 -->
+<div class="filter-row2">
+  <span class="filter-label">🔍 Filtros:</span>
+  <select class="select-filter" id="filterRegime" onchange="renderAll()">
+    <option value="">Todos os regimes</option>
+    <option value="simples">Simples Nacional</option>
+    <option value="presumido">Lucro Presumido</option>
+    <option value="real">Lucro Real</option>
+    <option value="outros">Outros</option>
+  </select>
+  <select class="select-filter" id="filterStatus" onchange="renderAll()">
+    <option value="">Todos os status</option>
+    <option value="ativa">Ativas</option>
+    <option value="fechada">Fechadas</option>
+  </select>
+  <div class="filter-tags" id="filterStatusObrig" style="flex:none;gap:6px;display:flex;">
+    <span class="filter-label" style="margin-left:6px;">Entrega:</span>
+    <button class="filter-tag tag-entregue" onclick="toggleStatusObrigFilter(this,'entregue')">✅ Entregue</button>
+    <button class="filter-tag tag-pendente" onclick="toggleStatusObrigFilter(this,'pendente')">⏳ Pendente</button>
+    <button class="filter-tag tag-atrasado" onclick="toggleStatusObrigFilter(this,'atrasado')">🔴 Atrasado</button>
+  </div>
+  <div class="search-box">
+    <span class="search-icon">🔎</span>
+    <input type="text" placeholder="Buscar empresa, CNPJ, atividade..." oninput="doSearch(this.value)" id="searchInput">
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card total"><div class="stat-icon">🏢</div><div><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total</div></div></div>
+  <div class="stat-card simples"><div class="stat-icon">🟢</div><div><div class="stat-number" id="stat-simples">0</div><div class="stat-label">Simples</div></div></div>
+  <div class="stat-card presumido"><div class="stat-icon">🔵</div><div><div class="stat-number" id="stat-presumido">0</div><div class="stat-label">Presumido</div></div></div>
+  <div class="stat-card real"><div class="stat-icon">🟣</div><div><div class="stat-number" id="stat-real">0</div><div class="stat-label">Real</div></div></div>
+  <div class="stat-card outros"><div class="stat-icon">🩷</div><div><div class="stat-number" id="stat-outros">0</div><div class="stat-label">Outros</div></div></div>
+  <div class="stat-card fechadas"><div class="stat-icon">🔒</div><div><div class="stat-number" id="stat-fechadas">0</div><div class="stat-label">Fechadas</div></div></div>
+</div>
+
+<!-- MAIN -->
+<main class="main-content" id="mainContent">
+  <div class="regime-column" id="col-simples">
+    <div class="column-header simples">
+      <div class="column-title"><h2>🟢 Simples Nacional</h2><p>Microempresas e EPP</p></div>
+      <span class="column-count" id="count-simples">0</span>
+    </div>
+    <div class="column-body" id="list-simples"></div>
+    <button class="btn-add-company" onclick="openAddModal('simples')">+ Adicionar empresa</button>
+  </div>
+  <div class="regime-column" id="col-presumido">
+    <div class="column-header presumido">
+      <div class="column-title"><h2>🔵 Lucro Presumido</h2><p>Tributação simplificada</p></div>
+      <span class="column-count" id="count-presumido">0</span>
+    </div>
+    <div class="column-body" id="list-presumido"></div>
+    <button class="btn-add-company" onclick="openAddModal('presumido')">+ Adicionar empresa</button>
+  </div>
+  <div class="regime-column" id="col-real">
+    <div class="column-header real">
+      <div class="column-title"><h2>🟣 Lucro Real</h2><p>Tributação pelo lucro efetivo</p></div>
+      <span class="column-count" id="count-real">0</span>
+    </div>
+    <div class="column-body" id="list-real"></div>
+    <button class="btn-add-company" onclick="openAddModal('real')">+ Adicionar empresa</button>
+  </div>
+  <div class="regime-column" id="col-outros">
+    <div class="column-header outros">
+      <div class="column-title"><h2>🩷 Outros</h2><p>MEI, entidades, etc.</p></div>
+      <span class="column-count" id="count-outros">0</span>
+    </div>
+    <div class="column-body" id="list-outros"></div>
+    <button class="btn-add-company" onclick="openAddModal('outros')">+ Adicionar empresa</button>
+  </div>
+</main>
+
+<!-- MODAL: FICHA DA EMPRESA -->
+<div class="modal-overlay" id="modalEmpresa">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <h2 id="modalEmpresaTitle">Ficha da Empresa</h2>
+        <p id="modalEmpresaSubtitle"></p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalEmpresa')">✕</button>
+    </div>
+    <div class="modal-body" id="modalEmpresaBody"></div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="btnDeleteFromModal" onclick="askDelete(currentEditId)">🗑 Excluir</button>
+      <button class="btn-secondary" onclick="closeModal('modalEmpresa')">Fechar</button>
+      <button class="btn-primary" onclick="saveCompany()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADICIONAR -->
+<div class="modal-overlay" id="modalAdd">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <div class="modal-header-info"><h2>Nova Empresa</h2><p>Preencha os dados básicos</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalAdd')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Razão Social *</label><input id="addNome" placeholder="Nome da empresa"></div>
+        <div class="form-group"><label>CNPJ</label><input id="addCnpj" placeholder="00.000.000/0000-00" maxlength="18"></div>
+        <div class="form-group"><label>Regime Tributário</label>
+          <select id="addRegime">
+            <option value="simples">Simples Nacional</option>
+            <option value="presumido">Lucro Presumido</option>
+            <option value="real">Lucro Real</option>
+            <option value="outros">Outros (MEI, entidade...)</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Atividade Econômica</label><input id="addAtividade" placeholder="Ex: Comércio varejista de roupas"></div>
+        <div class="form-group full"><label>Colaborador Responsável</label><input id="addColaborador" placeholder="Nome do colaborador"></div>
+        <div class="form-group full">
+          <label>Status da empresa</label>
+          <div class="checkbox-row">
+            <input type="checkbox" id="addFechada">
+            <label for="addFechada">Empresa fechada / encerrada</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalAdd')">Cancelar</button>
+      <button class="btn-primary" onclick="addCompany()">✅ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAÇÃO EXCLUSÃO -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-header-info"><h2>🗑️ Excluir Empresa</h2><p>Esta ação não pode ser desfeita</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalConfirm')">✕</button>
+    </div>
+    <div class="confirm-body">
+      <div class="confirm-icon">⚠️</div>
+      <p>Tem certeza que deseja excluir</p>
+      <div class="confirm-name" id="confirmEmpresaNome"></div>
+      <br><small>Todos os dados desta empresa serão removidos permanentemente.</small>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
+      <button class="btn-danger" onclick="confirmDelete()">🗑️ Excluir definitivamente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SENHA PIN -->
+<div class="modal-overlay" id="modalSenha">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-header-info"><h2>🔒 Confirmação</h2><p id="pinSubtitle">Digite o PIN para continuar</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalSenha')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:24px 28px">
+      <div class="pin-dots" id="pinDots">
+        <div class="pin-dot"></div><div class="pin-dot"></div>
+        <div class="pin-dot"></div><div class="pin-dot"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-btn" onclick="pinPress('1')">1</button>
+        <button class="pin-btn" onclick="pinPress('2')">2</button>
+        <button class="pin-btn" onclick="pinPress('3')">3</button>
+        <button class="pin-btn" onclick="pinPress('4')">4</button>
+        <button class="pin-btn" onclick="pinPress('5')">5</button>
+        <button class="pin-btn" onclick="pinPress('6')">6</button>
+        <button class="pin-btn" onclick="pinPress('7')">7</button>
+        <button class="pin-btn" onclick="pinPress('8')">8</button>
+        <button class="pin-btn" onclick="pinPress('9')">9</button>
+        <button class="pin-btn danger" onclick="pinClear()">✕</button>
+        <button class="pin-btn" onclick="pinPress('0')">0</button>
+        <button class="pin-btn" onclick="pinBackspace()">⌫</button>
+      </div>
+      <div class="pin-error" id="pinError"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIGURAÇÕES -->
+<div class="modal-overlay" id="modalConfig">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <div class="modal-header-info"><h2>⚙️ Configurações</h2><p>Personalize o painel</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalConfig')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px">
+      <div class="config-section">
+        <h3>🏢 Nome do escritório</h3>
+        <p>Aparece no cabeçalho do painel</p>
+        <div class="config-row">
+          <input type="text" id="cfgNome" placeholder="Ex: Contabilidade Silva & Associados">
+          <button class="btn-primary" onclick="saveOfficeName()">Salvar</button>
+        </div>
+      </div>
+      <div class="config-section">
+        <h3>🔒 Alterar senha de exclusão</h3>
+        <p>PIN de 4 dígitos para confirmar exclusões. Padrão: <strong>1234</strong></p>
+        <div class="config-row"><input type="password" id="cfgSenhaAtual" placeholder="Senha atual" maxlength="4"></div>
+        <div class="config-row">
+          <input type="password" id="cfgSenhaNova" placeholder="Nova senha (4 dígitos)" maxlength="4">
+          <button class="btn-primary" onclick="changePassword()">Alterar</button>
+        </div>
+      </div>
+      <div class="config-section">
+        <h3>📋 Obrigações nos filtros</h3>
+        <p>Gerencie as obrigações que aparecem nos filtros rápidos</p>
+        <div class="config-row">
+          <input type="text" id="cfgNovaObrig" placeholder="Ex: EFD-Reinf">
+          <button class="btn-primary" onclick="addFilterObrig()">Adicionar</button>
+        </div>
+        <div id="cfgObrigList" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalConfig')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RELATÓRIOS -->
+<div class="modal-overlay" id="modalRelatorio">
+  <div class="modal" style="max-width:900px">
+    <div class="modal-header">
+      <div class="modal-header-info"><h2>📊 Relatórios e Checklists</h2><p>Filtre e exporte relatórios das empresas</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalRelatorio')">✕</button>
+    </div>
+    <div class="modal-body" id="relatorioBody" style="padding:20px 24px"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalRelatorio')">Fechar</button>
+      <button class="btn-export-rel" onclick="printRelatorio()">🖨️ Imprimir / PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+// ESTADO
+// ════════════════════════════════════════════
+let S = {
+  senha: '1234',
+  nomeEscritorio: 'Painel de Gestão',
+  activeFilters: [],       // filtros por nome de obrigação
+  activeStatusObrig: [],   // filtros por status de entrega (entregue/pendente/atrasado)
+  filterObrigacoes: ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'],
+  searchTerm: '',
+  empresas: []
+};
+
+let currentEditId = null;
+let pendingDeleteId = null;
+let currentPin = '';
+let modalObrigacoes = [];
+
+// ════════════════════════════════════════════
+// DADOS DE EXEMPLO
+// ════════════════════════════════════════════
+function genId(){ return '_'+Math.random().toString(36).slice(2,11); }
+
+const exemploEmpresas = [
+  { id:genId(),regime:'simples',nome:'Padaria Pão Dourado Ltda',cnpj:'12.345.678/0001-90',atividade:'Fabricação e comércio de pães e bolos',colaborador:'Ana Paula',inscricaoEstadual:'123.456.789.000',inscricaoMunicipal:'987654',endereco:'Rua das Flores, 123 - Centro',cep:'01001-000',cidade:'São Paulo',uf:'SP',responsavel:'João da Silva',email:'joao@padaria.com.br',telefone:'(11) 99999-1111',dataAbertura:'2015-03-10',capitalSocial:'50.000,00',fechada:false,observacoes:'Cliente antigo, sempre pontual.',parametros:'Alíquota ISS: 2%. Emite NF-e de produto.',regras:'Entregar balancete até dia 10 de cada mês.',obrigacoes:[{nome:'DEFIS',vencimento:'31/03',status:'entregue'},{nome:'DeSTDA',vencimento:'20/mês',status:'pendente'},{nome:'DCTF',vencimento:'15/mês',status:'entregue'}] },
+  { id:genId(),regime:'simples',nome:'Barbearia Estilo Certo ME',cnpj:'23.456.789/0001-01',atividade:'Serviços de barbearia e cabeleireiro',colaborador:'Carlos Mendes',inscricaoEstadual:'',inscricaoMunicipal:'112233',endereco:'Av. Brasil, 456 - Vila Nova',cep:'02002-000',cidade:'São Paulo',uf:'SP',responsavel:'Roberto Estilo',email:'roberto@barbearia.com',telefone:'(11) 88888-2222',dataAbertura:'2020-07-15',capitalSocial:'10.000,00',fechada:false,observacoes:'',parametros:'ISS retido na fonte pelo tomador.',regras:'Emite NFS-e pelo portal da prefeitura.',obrigacoes:[{nome:'DEFIS',vencimento:'31/03',status:'pendente'},{nome:'DASN-SIMEI',vencimento:'31/05',status:'atrasado'}] },
+  { id:genId(),regime:'simples',nome:'Mercado Bom Preço EPP',cnpj:'45.678.901/0001-23',atividade:'Comércio varejista de alimentos e bebidas',colaborador:'Beatriz Souza',inscricaoEstadual:'555.666.777.000',inscricaoMunicipal:'',endereco:'Rua do Comércio, 321 - Ipiranga',cep:'04260-000',cidade:'São Paulo',uf:'SP',responsavel:'Marcos Preço',email:'marcos@mercadobom.com',telefone:'(11) 66666-4444',dataAbertura:'2010-05-03',capitalSocial:'120.000,00',fechada:false,observacoes:'Contribuinte do ICMS. Tem substituto tributário.',parametros:'ICMS ST em várias mercadorias.',regras:'GIA mensal até dia 16.',obrigacoes:[{nome:'DEFIS',vencimento:'31/03',status:'entregue'},{nome:'DeSTDA',vencimento:'20/mês',status:'entregue'},{nome:'GIA',vencimento:'16/mês',status:'pendente'},{nome:'SPED ICMS/IPI',vencimento:'15/mês',status:'pendente'}] },
+  { id:genId(),regime:'simples',nome:'Tech Soluções TI Ltda',cnpj:'34.567.890/0001-12',atividade:'Desenvolvimento de software e TI',colaborador:'Ana Paula',inscricaoEstadual:'',inscricaoMunicipal:'334455',endereco:'Rua Augusta, 789',cep:'01304-100',cidade:'São Paulo',uf:'SP',responsavel:'Fernanda Lima',email:'fernanda@techti.com.br',telefone:'(11) 77777-3333',dataAbertura:'2018-11-20',capitalSocial:'80.000,00',fechada:false,observacoes:'Atenção ao Fator R.',parametros:'Fator R a calcular mensalmente.',regras:'Verificar Fator R antes de emitir guia.',obrigacoes:[{nome:'DEFIS',vencimento:'31/03',status:'entregue'},{nome:'DCTF',vencimento:'15/mês',status:'entregue'},{nome:'REINF',vencimento:'15/mês',status:'pendente'}] },
+  { id:genId(),regime:'simples',nome:'Floricultura Rosa Encantada',cnpj:'11.222.333/0001-44',atividade:'Comércio varejista de flores e plantas',colaborador:'Beatriz Souza',inscricaoEstadual:'',inscricaoMunicipal:'445566',endereco:'Rua das Rosas, 10',cep:'04500-000',cidade:'São Paulo',uf:'SP',responsavel:'Maria Flora',email:'maria@rosaencantada.com',telefone:'(11) 55555-0000',dataAbertura:'2019-02-14',capitalSocial:'8.000,00',fechada:true,observacoes:'Empresa encerrada em 2024.',parametros:'',regras:'',obrigacoes:[{nome:'DEFIS',vencimento:'31/03',status:'entregue'}] },
+  { id:genId(),regime:'presumido',nome:'Construtora Horizonte Ltda',cnpj:'56.789.012/0001-34',atividade:'Construção de edifícios e obras civis',colaborador:'Carlos Mendes',inscricaoEstadual:'777.888.999.000',inscricaoMunicipal:'556677',endereco:'Av. Paulista, 1000',cep:'01311-100',cidade:'São Paulo',uf:'SP',responsavel:'Ricardo Horizonte',email:'ricardo@construtora.com',telefone:'(11) 55555-5555',dataAbertura:'2005-08-12',capitalSocial:'500.000,00',fechada:false,observacoes:'PIS/COFINS cumulativo.',parametros:'CSLL 2,88% | IRPJ 4,8% | PIS 0,65% | COFINS 3%',regras:'DCTF mensal. ECF e ECD anuais.',obrigacoes:[{nome:'DCTF',vencimento:'15/mês',status:'entregue'},{nome:'SPED ECD',vencimento:'31/05',status:'pendente'},{nome:'SPED ECF',vencimento:'31/07',status:'pendente'},{nome:'SPED Contribuições',vencimento:'10/mês',status:'entregue'},{nome:'REINF',vencimento:'15/mês',status:'entregue'}] },
+  { id:genId(),regime:'presumido',nome:'Clínica Saúde Plena S/S',cnpj:'67.890.123/0001-45',atividade:'Serviços médicos e odontológicos',colaborador:'Beatriz Souza',inscricaoEstadual:'',inscricaoMunicipal:'778899',endereco:'Rua Saúde, 50 - Moema',cep:'04050-000',cidade:'São Paulo',uf:'SP',responsavel:'Dra. Camila Saúde',email:'camila@clinica.med.br',telefone:'(11) 44444-6666',dataAbertura:'2012-02-28',capitalSocial:'200.000,00',fechada:false,observacoes:'ISS fixo mensal.',parametros:'CSLL 2,88% | IRPJ 4,8%.',regras:'Sem IE. Sem ICMS.',obrigacoes:[{nome:'DCTF',vencimento:'15/mês',status:'entregue'},{nome:'SPED ECF',vencimento:'31/07',status:'pendente'},{nome:'REINF',vencimento:'15/mês',status:'pendente'}] },
+  { id:genId(),regime:'presumido',nome:'Distribuidora Norte Sul Ltda',cnpj:'78.901.234/0001-56',atividade:'Distribuição atacadista de alimentos',colaborador:'Ana Paula',inscricaoEstadual:'111.222.333.000',inscricaoMunicipal:'',endereco:'Rod. SP-330, Km 45',cep:'13800-000',cidade:'Mogi Mirim',uf:'SP',responsavel:'Sérgio Norte',email:'sergio@distNS.com',telefone:'(19) 33333-7777',dataAbertura:'2008-09-01',capitalSocial:'350.000,00',fechada:false,observacoes:'SUFRAMA ativo.',parametros:'ST em vários produtos.',regras:'SPED ICMS/IPI. GIA mensal.',obrigacoes:[{nome:'SPED ICMS/IPI',vencimento:'15/mês',status:'entregue'},{nome:'GIA',vencimento:'16/mês',status:'entregue'},{nome:'DCTF',vencimento:'15/mês',status:'atrasado'},{nome:'SPED Contribuições',vencimento:'10/mês',status:'entregue'},{nome:'SPED ECF',vencimento:'31/07',status:'pendente'}] },
+  { id:genId(),regime:'real',nome:'Grupo Industrial Alfa S.A.',cnpj:'89.012.345/0001-67',atividade:'Fabricação de peças metálicas',colaborador:'Carlos Mendes',inscricaoEstadual:'222.333.444.000',inscricaoMunicipal:'',endereco:'Av. Industrial, 2500',cep:'09500-000',cidade:'São Caetano do Sul',uf:'SP',responsavel:'Paulo Alfa',email:'financeiro@grupoalfa.com',telefone:'(11) 22222-8888',dataAbertura:'1998-04-15',capitalSocial:'5.000.000,00',fechada:false,observacoes:'Lucro Real trimestral.',parametros:'IRPJ/CSLL trimestrais. PIS/COFINS não-cumulativo.',regras:'ECD e ECF obrigatórios.',obrigacoes:[{nome:'SPED ICMS/IPI',vencimento:'15/mês',status:'entregue'},{nome:'SPED Contribuições',vencimento:'10/mês',status:'entregue'},{nome:'SPED ECD',vencimento:'31/05',status:'entregue'},{nome:'SPED ECF',vencimento:'31/07',status:'pendente'},{nome:'DCTF',vencimento:'15/mês',status:'entregue'},{nome:'REINF',vencimento:'15/mês',status:'entregue'},{nome:'GIA',vencimento:'16/mês',status:'atrasado'}] },
+  { id:genId(),regime:'real',nome:'Banco Regional Financeiro S.A.',cnpj:'90.123.456/0001-78',atividade:'Intermediação financeira e bancária',colaborador:'Beatriz Souza',inscricaoEstadual:'',inscricaoMunicipal:'',endereco:'Rua XV de Novembro, 100',cep:'80020-310',cidade:'Curitiba',uf:'PR',responsavel:'Gerência Contábil',email:'contabil@bancoregional.com',telefone:'(41) 11111-9999',dataAbertura:'2001-06-20',capitalSocial:'50.000.000,00',fechada:false,observacoes:'BACEN. COSIF.',parametros:'CSLL 15%. IRPJ 25%.',regras:'COSIF. ECD plano BACEN.',obrigacoes:[{nome:'DCTF',vencimento:'15/mês',status:'entregue'},{nome:'SPED ECD',vencimento:'31/05',status:'entregue'},{nome:'SPED ECF',vencimento:'31/07',status:'pendente'},{nome:'REINF',vencimento:'15/mês',status:'entregue'}] },
+  { id:genId(),regime:'outros',nome:'Associação Comunitária do Bairro Verde',cnpj:'01.234.567/0001-89',atividade:'Entidade sem fins lucrativos',colaborador:'Ana Paula',inscricaoEstadual:'',inscricaoMunicipal:'',endereco:'Rua Verde, 55',cep:'05050-000',cidade:'São Paulo',uf:'SP',responsavel:'Presidente da Associação',email:'contato@assocverde.org',telefone:'(11) 33333-0001',dataAbertura:'2003-05-01',capitalSocial:'0',fechada:false,observacoes:'Imune. Declaração anual.',parametros:'Imunidade tributária.',regras:'DIPJ. Prestar contas anualmente.',obrigacoes:[{nome:'DCTF',vencimento:'15/mês',status:'entregue'}] },
+  { id:genId(),regime:'outros',nome:'MEI João Eletricista',cnpj:'98.765.432/0001-10',atividade:'Instalações elétricas',colaborador:'Carlos Mendes',inscricaoEstadual:'',inscricaoMunicipal:'',endereco:'Rua da Luz, 88',cep:'03030-000',cidade:'São Paulo',uf:'SP',responsavel:'João Elétrico',email:'joao@eletricista.com',telefone:'(11) 99000-0002',dataAbertura:'2021-08-10',capitalSocial:'0',fechada:false,observacoes:'SIMEI mensal.',parametros:'SIMEI fixo.',regras:'DASN-SIMEI anual.',obrigacoes:[{nome:'DASN-SIMEI',vencimento:'31/05',status:'pendente'}] }
+];
+
+// ════════════════════════════════════════════
+// FIREBASE — inicializado via módulo abaixo
+// ════════════════════════════════════════════
+const PAINEL_PATH = 'painel';
+let saveTimer = null;
+
+function setCloudStatus(state, msg) {
+  const el = document.getElementById('cloudStatus');
+  if (!el) return;
+  const icons = { ok: '☁️', loading: '⏳', error: '⚠️' };
+  const colors = { ok: '#2ecc8a', loading: '#c9a84c', error: '#e05a5a' };
+  el.textContent = (icons[state] || '⏳') + ' ' + msg;
+  el.style.color = colors[state] || '#8899aa';
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+async function init(){
+  setCloudStatus('loading', 'Conectando...');
+  try {
+    const snapshot = await window._fbGet(PAINEL_PATH);
+    if (snapshot.exists()) {
+      const d = snapshot.val();
+      S = {...S, ...d};
+      setCloudStatus('ok', 'Nuvem sincronizada');
+    } else {
+      const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
+      if (saved) { const d = JSON.parse(saved); S = {...S, ...d}; }
+      else { S.empresas = exemploEmpresas; }
+      setCloudStatus('ok', 'Nuvem conectada');
+    }
+  } catch(e) {
+    setCloudStatus('error', 'Erro de conexão');
+    try {
+      const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
+      if (saved) { const d = JSON.parse(saved); S = {...S, ...d}; }
+      else { S.empresas = exemploEmpresas; }
+    } catch(e2) { S.empresas = exemploEmpresas; }
+  }
+  S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
+  S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
+  S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length ? S.filterObrigacoes : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
+  S.empresas = (S.empresas || []).map(e => ({...e, regime:e.regime || 'outros', fechada:!!e.fechada, obrigacoes:Array.isArray(e.obrigacoes)?e.obrigacoes:[]}));
+  saveState();
+  updateHeaderName();
+  renderFilterTags();
+  renderCfgObrigList();
+  renderAll();
+}
+
+function saveState(){
+  localStorage.setItem('gestao_v3', JSON.stringify(S));
+  setCloudStatus('loading', 'Salvando...');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await window._fbSet(PAINEL_PATH, S);
+      setCloudStatus('ok', 'Nuvem sincronizada');
+    } catch(e) {
+      setCloudStatus('error', 'Erro ao salvar');
+      console.error('Firebase save error:', e);
+    }
+  }, 1500);
+}
+
+function $(id){ return document.getElementById(id); }
+function safe(v){ return (v ?? '').toString(); }
+function esc(v){
+  return safe(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+function norm(v){ return safe(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function regimeLabel(r){ return ({simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[r] || 'Outros'); }
+function statusLabel(s){ return ({entregue:'Entregue',pendente:'Pendente',atrasado:'Atrasado'}[s] || 'Pendente'); }
+function empresaStatus(e){ return e.fechada ? 'fechada' : 'ativa'; }
+function todayBR(){ return new Date().toLocaleDateString('pt-BR'); }
+
+function updateHeaderName(){
+  $('headerTitle').textContent = S.nomeEscritorio || 'Painel de Gestão';
+}
+
+function getAllActivities(){
+  const set = new Set();
+  S.empresas.forEach(e => { if(safe(e.atividade).trim()) set.add(e.atividade.trim()); });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+
+function selectedActivity(){
+  const el = $('filterAtividade');
+  return el ? el.value : '';
+}
+
+function ensureActivityFilter(){
+  // O HTML original não tinha o select de atividade. Criamos por JS para manter compatibilidade.
+  if(!$('filterAtividade')){
+    const row = document.querySelector('.filter-row2');
+    const regime = $('filterRegime');
+    const sel = document.createElement('select');
+    sel.className = 'select-filter';
+    sel.id = 'filterAtividade';
+    sel.onchange = renderAll;
+    regime.insertAdjacentElement('afterend', sel);
+  }
+  const current = $('filterAtividade').value;
+  const opts = ['<option value="">Todas as atividades</option>'].concat(
+    getAllActivities().map(a => `<option value="${esc(a)}">${esc(a)}</option>`)
+  );
+  $('filterAtividade').innerHTML = opts.join('');
+  if(Array.from($('filterAtividade').options).some(o=>o.value===current)) $('filterAtividade').value = current;
+}
+
+function renderFilterTags(){
+  const wrap = $('filterTags');
+  wrap.innerHTML = S.filterObrigacoes.map(ob => {
+    const active = S.activeFilters.includes(ob) ? 'active' : '';
+    return `<button class="filter-tag ${active}" onclick="toggleFilter(this,'${esc(ob).replace(/'/g,'&#39;')}')">${esc(ob)}</button>`;
+  }).join('');
+}
+
+function renderCfgObrigList(){
+  const el = $('cfgObrigList');
+  if(!el) return;
+  el.innerHTML = S.filterObrigacoes.map((ob,i)=>
+    `<span class="obrig-chip">${esc(ob)} <button title="Remover" onclick="removeFilterObrig(${i})">✕</button></span>`
+  ).join('');
+}
+
+function toggleFilter(btn, obrig){
+  const i = S.activeFilters.indexOf(obrig);
+  if(i >= 0) S.activeFilters.splice(i,1); else S.activeFilters.push(obrig);
+  renderFilterTags();
+  renderAll();
+}
+
+function toggleStatusObrigFilter(btn, st){
+  const i = S.activeStatusObrig.indexOf(st);
+  if(i >= 0) S.activeStatusObrig.splice(i,1); else S.activeStatusObrig.push(st);
+  document.querySelectorAll('#filterStatusObrig .filter-tag').forEach(b=>{
+    const txt = b.textContent.toLowerCase();
+    b.classList.toggle('active', (txt.includes('entregue') && S.activeStatusObrig.includes('entregue')) || (txt.includes('pendente') && S.activeStatusObrig.includes('pendente')) || (txt.includes('atrasado') && S.activeStatusObrig.includes('atrasado')));
+  });
+  renderAll();
+}
+
+function clearFilters(){
+  S.activeFilters = [];
+  S.activeStatusObrig = [];
+  S.searchTerm = '';
+  if($('searchInput')) $('searchInput').value = '';
+  if($('filterRegime')) $('filterRegime').value = '';
+  if($('filterStatus')) $('filterStatus').value = '';
+  if($('filterAtividade')) $('filterAtividade').value = '';
+  document.querySelectorAll('#filterStatusObrig .filter-tag').forEach(b=>b.classList.remove('active'));
+  renderFilterTags();
+  renderAll();
+}
+
+function doSearch(v){ S.searchTerm = v || ''; renderAll(); }
+
+function passesFilters(e){
+  const fr = $('filterRegime')?.value || '';
+  const fs = $('filterStatus')?.value || '';
+  const fa = selectedActivity();
+  if(fr && e.regime !== fr) return false;
+  if(fs && empresaStatus(e) !== fs) return false;
+  if(fa && e.atividade !== fa) return false;
+  if(S.activeFilters.length && !S.activeFilters.every(f => (e.obrigacoes||[]).some(o=>o.nome === f))) return false;
+  if(S.activeStatusObrig.length && !S.activeStatusObrig.some(st => (e.obrigacoes||[]).some(o=>o.status === st))) return false;
+  const q = norm(S.searchTerm);
+  if(q){
+    const blob = norm([e.nome,e.cnpj,e.atividade,e.colaborador,e.cidade,e.uf,e.responsavel].join(' '));
+    if(!blob.includes(q)) return false;
+  }
+  return true;
+}
+
+function getFilteredEmpresas(){ return S.empresas.filter(passesFilters); }
+
+function renderAll(){
+  ensureActivityFilter();
+  ['simples','presumido','real','outros'].forEach(renderColumn);
+  updateStats();
+  saveState();
+}
+
+function renderColumn(regime){
+  const list = $('list-'+regime);
+  if(!list) return;
+  const empresas = getFilteredEmpresas().filter(e => (e.regime || 'outros') === regime);
+  $('count-'+regime).textContent = empresas.length;
+  if(!empresas.length){
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhuma empresa encontrada</p></div>`;
+    return;
+  }
+  list.innerHTML = empresas.map(e => renderCard(e)).join('');
+}
+
+function renderCard(e){
+  const obrigList = (e.obrigacoes||[]).slice(0,5).map(o => `<span class="obrig-tag" style="background:rgba(201,168,76,0.1);color:var(--gold-light);border-color:var(--gold-dim);">${esc(o.nome)}</span>`).join('');
+  const more = (e.obrigacoes||[]).length > 5 ? `<span class="obrig-tag" style="background:rgba(255,255,255,0.08);color:var(--text-light);border-color:rgba(255,255,255,0.12);">+${(e.obrigacoes||[]).length-5}</span>` : '';
+  const apStatus = e.statusApuracao || 'nao_apurada';
+  const apLabel = {apurada:'✅ Apurada',nao_apurada:'⏳ Não apurada',pendente_info:'🔴 Aguard. info'}[apStatus];
+  const apClass = apStatus;
+  return `<div class="company-card ${esc(e.regime||'outros')} ${e.fechada?'fechada-card':''}" onclick="openEmpresa('${esc(e.id)}')">
+    <button class="btn-delete" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir empresa">×</button>
+    <div class="card-top"><div class="card-name">${esc(e.nome)}</div><span class="card-status-badge ${e.fechada?'badge-fechada':'badge-ativa'}">${e.fechada?'FECHADA':'ABERTA'}</span></div>
+    <div class="card-meta">
+      <div class="card-meta-row">🏷️ ${esc(regimeLabel(e.regime))}</div>
+      <div class="card-meta-row">💼 ${esc(e.atividade || 'Sem atividade informada')}</div>
+      <div class="card-meta-row">👤 ${esc(e.colaborador || 'Sem responsável')}</div>
+    </div>
+    <span class="apuracao-badge ${apClass}">${apLabel}</span>
+    ${obrigList || more ? `<div class="card-obligations" style="margin-top:5px;">${obrigList}${more}</div>` : ''}
+  </div>`;
+}
+
+function updateStats(){
+  const arr = getFilteredEmpresas();
+  $('stat-total').textContent = arr.length;
+  ['simples','presumido','real','outros'].forEach(r => $('stat-'+r).textContent = arr.filter(e=>e.regime===r).length);
+  $('stat-fechadas').textContent = arr.filter(e=>e.fechada).length;
+}
+
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){ $(id).classList.remove('open'); }
+
+function openAddModal(regime){
+  $('addNome').value=''; $('addCnpj').value=''; $('addAtividade').value=''; $('addColaborador').value=''; $('addFechada').checked=false;
+  $('addRegime').value = regime || 'simples';
+  openModal('modalAdd');
+  setTimeout(()=>$('addNome').focus(),100);
+}
+
+function addCompany(){
+  const nome = $('addNome').value.trim();
+  if(!nome){ toast('Informe a razão social da empresa.', 'error'); return; }
+  const e = {
+    id: genId(), nome,
+    cnpj: $('addCnpj').value.trim(),
+    regime: $('addRegime').value,
+    atividade: $('addAtividade').value.trim(),
+    colaborador: $('addColaborador').value.trim(),
+    fechada: $('addFechada').checked,
+    statusApuracao: 'nao_apurada',
+    inscricaoEstadual:'', inscricaoMunicipal:'', endereco:'', cep:'', cidade:'', uf:'',
+    responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
+    observacoes:'', parametros:'', regras:'', obrigacoes: []
+  };
+  S.empresas.push(e);
+  try {
+    saveState();
+    closeModal('modalAdd');
+    renderAll();
+    toast('Empresa adicionada e salva com sucesso.', 'success');
+    openEmpresa(e.id);
+  } catch(err) {
+    toast('Empresa adicionada, mas houve erro ao salvar. Verifique o armazenamento.', 'error');
+    console.error('Erro ao salvar empresa:', err);
+  }
+}
+
+function openEmpresa(id){
+  const e = S.empresas.find(x=>x.id===id);
+  if(!e) return;
+  currentEditId = id;
+  modalObrigacoes = JSON.parse(JSON.stringify(e.obrigacoes || []));
+  $('modalEmpresaTitle').textContent = e.nome;
+  $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
+  $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
+  renderModalObrigacoes();
+  // Ativar suporte a paste de imagem nos rich fields
+  ['f_parametros','f_regras','f_observacoes'].forEach(fid => {
+    const el = $(fid);
+    if(!el) return;
+    el.addEventListener('paste', function(ev){
+      const items = (ev.clipboardData || ev.originalEvent.clipboardData).items;
+      for(const item of items){
+        if(item.type.indexOf('image') === 0){
+          ev.preventDefault();
+          const blob = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = function(re){
+            const img = document.createElement('img');
+            img.src = re.target.result;
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '6px';
+            img.style.margin = '4px 0';
+            const sel = window.getSelection();
+            if(sel.rangeCount){
+              const range = sel.getRangeAt(0);
+              range.deleteContents();
+              range.insertNode(img);
+              range.collapse(false);
+            } else {
+              el.appendChild(img);
+            }
+          };
+          reader.readAsDataURL(blob);
+          return;
+        }
+      }
+      // Text paste: let default happen (plain text)
+    });
+  });
+  openModal('modalEmpresa');
+}
+
+function empresaFormHtml(e){
+  const apuracaoLabel = {apurada:'✅ Apurada',nao_apurada:'⏳ Não apurada',pendente_info:'🔴 Aguardando info'}[e.statusApuracao||'nao_apurada'] || '⏳ Não apurada';
+  return `
+  <div class="apuracao-section">
+    <label>📊 Status de Apuração:</label>
+    <select id="f_statusApuracao" onchange="document.getElementById('apuracao_preview').textContent=this.options[this.selectedIndex].text">
+      <option value="apurada" ${(e.statusApuracao||'nao_apurada')==='apurada'?'selected':''}>✅ Apurada</option>
+      <option value="nao_apurada" ${(e.statusApuracao||'nao_apurada')==='nao_apurada'?'selected':''}>⏳ Não apurada</option>
+      <option value="pendente_info" ${(e.statusApuracao||'')==='pendente_info'?'selected':''}>🔴 Aguardando info do cliente</option>
+    </select>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">🏢 Dados da Empresa</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Razão Social</label><input id="f_nome" value="${esc(e.nome)}"></div>
+      <div class="form-group"><label>CNPJ</label><input id="f_cnpj" value="${esc(e.cnpj)}"></div>
+      <div class="form-group"><label>Regime Tributário</label><select id="f_regime">
+        <option value="simples" ${e.regime==='simples'?'selected':''}>Simples Nacional</option>
+        <option value="presumido" ${e.regime==='presumido'?'selected':''}>Lucro Presumido</option>
+        <option value="real" ${e.regime==='real'?'selected':''}>Lucro Real</option>
+        <option value="outros" ${e.regime==='outros'?'selected':''}>Outros</option>
+      </select></div>
+      <div class="form-group"><label>Atividade Econômica</label><input id="f_atividade" value="${esc(e.atividade)}"></div>
+      <div class="form-group"><label>Colaborador Responsável</label><input id="f_colaborador" value="${esc(e.colaborador)}"></div>
+      <div class="form-group"><label>Inscrição Estadual</label><input id="f_ie" value="${esc(e.inscricaoEstadual)}"></div>
+      <div class="form-group"><label>Inscrição Municipal</label><input id="f_im" value="${esc(e.inscricaoMunicipal)}"></div>
+      <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_fechada" ${e.fechada?'checked':''}><label for="f_fechada">Empresa fechada / encerrada</label></div></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">📍 Contato e Localização</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Endereço</label><input id="f_endereco" value="${esc(e.endereco)}"></div>
+      <div class="form-group"><label>CEP</label><input id="f_cep" value="${esc(e.cep)}"></div>
+      <div class="form-group"><label>Cidade</label><input id="f_cidade" value="${esc(e.cidade)}"></div>
+      <div class="form-group"><label>UF</label><input id="f_uf" value="${esc(e.uf)}" maxlength="2"></div>
+      <div class="form-group"><label>Responsável</label><input id="f_responsavel" value="${esc(e.responsavel)}"></div>
+      <div class="form-group"><label>E-mail</label><input id="f_email" value="${esc(e.email)}"></div>
+      <div class="form-group"><label>Telefone</label><input id="f_telefone" value="${esc(e.telefone)}"></div>
+      <div class="form-group"><label>Data de abertura</label><input id="f_dataAbertura" value="${esc(e.dataAbertura)}"></div>
+      <div class="form-group"><label>Capital Social</label><input id="f_capitalSocial" value="${esc(e.capitalSocial)}"></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">📋 Obrigações Acessórias Ativas</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Registre as obrigações que a empresa possui. O controle de envio é feito no status de apuração acima.</p>
+    <div class="obrig-manager">
+      <div class="obrig-header" style="grid-template-columns:1fr 140px 32px;"><div>Obrigação</div><div>Vencimento</div><div></div></div>
+      <div class="obrig-list" id="modalObrigList"></div>
+      <div class="obrig-add-row">
+        <input id="newObrigNome" placeholder="Ex: SPED ICMS/IPI" list="obrigSuggestions">
+        <datalist id="obrigSuggestions">${S.filterObrigacoes.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>
+        <input id="newObrigVenc" placeholder="Vencimento" style="max-width:130px">
+        <button class="btn-add-obrig" onclick="addObrigToModal()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:10px;font-family:var(--font-mono);">💡 Cole imagens diretamente nos campos abaixo (Ctrl+V após copiar a imagem).</p>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Parâmetros</label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
+      <div class="form-group"><label>Regras / Procedimentos</label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
+      <div class="form-group"><label>Observações</label><div class="rich-field" id="f_observacoes" contenteditable="true">${e.observacoes||''}</div></div>
+    </div>
+  </div>`;
+}
+
+function renderModalObrigacoes(){
+  const el = $('modalObrigList');
+  if(!el) return;
+  if(!modalObrigacoes.length){ el.innerHTML = `<div class="empty-state"><p>Nenhuma obrigação cadastrada. Use o campo abaixo para adicionar.</p></div>`; return; }
+  el.innerHTML = modalObrigacoes.map((o,i)=>`<div class="obrig-item" style="grid-template-columns:1fr 140px 32px;">
+    <div class="obrig-item-name">${esc(o.nome)}</div>
+    <div class="obrig-item-venc">${esc(o.vencimento || '-')}</div>
+    <button class="btn-remove-obrig" onclick="removeObrigFromModal(${i})" title="Remover obrigação">×</button>
+  </div>`).join('');
+}
+function addObrigToModal(){
+  const nome = $('newObrigNome').value.trim();
+  if(!nome){ toast('Informe o nome da obrigação.', 'error'); return; }
+  modalObrigacoes.push({nome, vencimento:$('newObrigVenc').value.trim(), status:'pendente'});
+  if(!S.filterObrigacoes.includes(nome)) S.filterObrigacoes.push(nome);
+  $('newObrigNome').value=''; $('newObrigVenc').value='';
+  renderModalObrigacoes(); renderFilterTags(); renderCfgObrigList();
+}
+function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); }
+
+function saveCompany(){
+  const e = S.empresas.find(x=>x.id===currentEditId);
+  if(!e){ toast('Empresa não encontrada.','error'); return; }
+  const nome = $('f_nome')?.value?.trim();
+  if(!nome){ toast('A razão social não pode estar vazia.','error'); return; }
+  Object.assign(e, {
+    nome,
+    cnpj: $('f_cnpj').value.trim(),
+    regime: $('f_regime').value,
+    atividade: $('f_atividade').value.trim(),
+    colaborador: $('f_colaborador').value.trim(),
+    inscricaoEstadual: $('f_ie').value.trim(),
+    inscricaoMunicipal: $('f_im').value.trim(),
+    fechada: $('f_fechada').checked,
+    statusApuracao: $('f_statusApuracao').value,
+    endereco: $('f_endereco').value.trim(),
+    cep: $('f_cep').value.trim(),
+    cidade: $('f_cidade').value.trim(),
+    uf: $('f_uf').value.trim().toUpperCase(),
+    responsavel: $('f_responsavel').value.trim(),
+    email: $('f_email').value.trim(),
+    telefone: $('f_telefone').value.trim(),
+    dataAbertura: $('f_dataAbertura').value.trim(),
+    capitalSocial: $('f_capitalSocial').value.trim(),
+    parametros: $('f_parametros').innerHTML,
+    regras: $('f_regras').innerHTML,
+    observacoes: $('f_observacoes').innerHTML,
+    obrigacoes: modalObrigacoes
+  });
+  saveState();
+  closeModal('modalEmpresa');
+  ensureActivityFilter();
+  renderAll();
+  toast('Alterações salvas com sucesso.', 'success');
+}
+
+function askDelete(id){
+  pendingDeleteId = id;
+  const e = S.empresas.find(x=>x.id===id);
+  $('confirmEmpresaNome').textContent = e ? e.nome : 'esta empresa';
+  openModal('modalConfirm');
+}
+function confirmDelete(){
+  if(!pendingDeleteId) return;
+  S.empresas = S.empresas.filter(e=>e.id!==pendingDeleteId);
+  closeModal('modalConfirm');
+  closeModal('modalEmpresa');
+  pendingDeleteId = null;
+  saveState(); renderAll(); toast('Empresa excluída.', 'success');
+}
+function pinPress(n){ currentPin += n; if(currentPin.length>4) currentPin=currentPin.slice(0,4); updatePinDots(); if(currentPin.length===4) checkPin(); }
+function pinClear(){ currentPin=''; $('pinError').textContent=''; updatePinDots(); }
+function pinBackspace(){ currentPin=currentPin.slice(0,-1); updatePinDots(); }
+function updatePinDots(){ document.querySelectorAll('#pinDots .pin-dot').forEach((d,i)=>d.classList.toggle('filled', i<currentPin.length)); }
+function checkPin(){
+  if(currentPin === S.senha){
+    S.empresas = S.empresas.filter(e=>e.id!==pendingDeleteId);
+    closeModal('modalSenha'); closeModal('modalEmpresa');
+    pendingDeleteId=null; currentPin='';
+    saveState(); renderAll(); toast('Empresa excluída.', 'success');
+  }else{
+    $('pinError').textContent = 'PIN incorreto.';
+    currentPin=''; updatePinDots();
+  }
+}
+
+function openConfigModal(){
+  $('cfgNome').value = S.nomeEscritorio || '';
+  $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; $('cfgNovaObrig').value='';
+  renderCfgObrigList();
+  openModal('modalConfig');
+}
+function saveOfficeName(){
+  const v = $('cfgNome').value.trim();
+  S.nomeEscritorio = v || 'Painel de Gestão';
+  updateHeaderName(); saveState(); toast('Nome do escritório salvo.', 'success');
+}
+function changePassword(){
+  const atual = $('cfgSenhaAtual').value;
+  const nova = $('cfgSenhaNova').value;
+  if(atual !== S.senha){ toast('Senha atual incorreta.', 'error'); return; }
+  if(!/^\d{4}$/.test(nova)){ toast('A nova senha precisa ter 4 dígitos.', 'error'); return; }
+  S.senha = nova; saveState(); $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; toast('Senha alterada.', 'success');
+}
+function addFilterObrig(){
+  const v = $('cfgNovaObrig').value.trim();
+  if(!v) return;
+  if(!S.filterObrigacoes.includes(v)) S.filterObrigacoes.push(v);
+  $('cfgNovaObrig').value=''; saveState(); renderFilterTags(); renderCfgObrigList(); toast('Obrigação adicionada aos filtros.', 'success');
+}
+function removeFilterObrig(i){
+  const ob = S.filterObrigacoes[i];
+  S.filterObrigacoes.splice(i,1);
+  S.activeFilters = S.activeFilters.filter(x=>x!==ob);
+  saveState(); renderFilterTags(); renderCfgObrigList(); renderAll();
+}
+
+function toast(msg,type=''){
+  const t=$('toast'); t.textContent=msg; t.className='toast '+type+' show';
+  clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ════════════════════════════════════════════
+// RELATÓRIOS E EXPORTAÇÃO
+// ════════════════════════════════════════════
+function allObrigRows(empresas=S.empresas){
+  const rows=[];
+  empresas.forEach(e => (e.obrigacoes||[]).forEach(o => rows.push({empresa:e, obrig:o})));
+  return rows;
+}
+function openRelatorio(){
+  $('relatorioBody').innerHTML = relatorioHtml();
+  openModal('modalRelatorio');
+  renderRelatorioTabela();
+}
+function relatorioHtml(){
+  const atOpts = getAllActivities().map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  const colabOpts = getAllColaboradores().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  return `<div class="rel-options">
+    <select id="relTipo" onchange="renderRelatorioTabela()">
+      <optgroup label="Por Apuração">
+        <option value="apuracao_geral">📊 Status de apuração geral</option>
+        <option value="apuracao_pendente">⏳ Empresas não apuradas</option>
+        <option value="apuracao_aguardando">🔴 Aguardando info do cliente</option>
+      </optgroup>
+      <optgroup label="Por SPED">
+        <option value="sped_todos">📁 Todas as empresas com SPED</option>
+        <option value="sped_icms">📁 Empresas com SPED ICMS/IPI</option>
+        <option value="sped_contrib">📁 Empresas com SPED Contribuições</option>
+        <option value="sped_ecd">📁 Empresas com SPED ECD</option>
+        <option value="sped_ecf">📁 Empresas com SPED ECF</option>
+      </optgroup>
+      <optgroup label="Por Colaborador">
+        <option value="colaborador">👤 Empresas por colaborador</option>
+      </optgroup>
+      <optgroup label="Gerais">
+        <option value="checklist">📋 Checklist geral de obrigações</option>
+        <option value="regime">📂 Por regime tributário</option>
+        <option value="atividade">🏭 Por atividade econômica</option>
+      </optgroup>
+    </select>
+    <select id="relColaborador" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todos os colaboradores</option>${colabOpts}</select>
+    <select id="relAtividade" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todas as atividades</option>${atOpts}</select>
+    <select id="relRegime" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todos os regimes</option><option value="simples">Simples Nacional</option><option value="presumido">Lucro Presumido</option><option value="real">Lucro Real</option><option value="outros">Outros</option></select>
+    <button class="btn-export-rel" onclick="exportRelatorioCSV()">⬇️ Exportar CSV</button>
+  </div>
+  <div id="relatorioConteudo"></div>`;
+}
+
+function getAllColaboradores(){
+  const set = new Set();
+  S.empresas.forEach(e => { if(safe(e.colaborador).trim()) set.add(e.colaborador.trim()); });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+
+function apuracaoLabel(v){ return {apurada:'✅ Apurada',nao_apurada:'⏳ Não apurada',pendente_info:'🔴 Aguard. info'}[v||'nao_apurada']||'⏳ Não apurada'; }
+function apuracaoClass(v){ return v||'nao_apurada'; }
+
+function renderRelatorioTabela(){
+  const type = $('relTipo').value;
+  $('relAtividade').style.display = type==='atividade' ? '' : 'none';
+  $('relRegime').style.display = type==='regime' ? '' : 'none';
+  $('relColaborador').style.display = type==='colaborador' ? '' : 'none';
+
+  const base = getFilteredEmpresas();
+
+  // ── POR COLABORADOR ──────────────────────────────────────────
+  if(type === 'colaborador'){
+    const filtroColab = $('relColaborador').value;
+    const colaboradores = filtroColab ? [filtroColab] : getAllColaboradores();
+    let html = '';
+    let totalGeral = 0;
+    colaboradores.forEach(colab => {
+      const emps = base.filter(e => e.colaborador === colab);
+      if(!emps.length) return;
+      totalGeral += emps.length;
+      const apuradas = emps.filter(e=>(e.statusApuracao||'nao_apurada')==='apurada').length;
+      const pendentes = emps.filter(e=>(e.statusApuracao||'nao_apurada')!=='apurada').length;
+      html += `<div class="colab-section-header">👤 ${esc(colab)} — ${emps.length} empresa${emps.length>1?'s':''} <small style="font-weight:400;color:var(--text-light)">(${apuradas} apurada${apuradas!==1?'s':''}, ${pendentes} pendente${pendentes!==1?'s':''})</small></div>`;
+      html += `<table class="colab-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Status Apuração</th><th>Obrigações</th><th>Status</th></tr></thead><tbody>`;
+      emps.forEach(e => {
+        const apCls = apuracaoClass(e.statusApuracao);
+        const obrigStr = (e.obrigacoes||[]).map(o=>o.nome).join(', ') || '-';
+        html += `<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${esc(regimeLabel(e.regime))}</td><td><span class="rel-badge ${apCls}">${apuracaoLabel(e.statusApuracao)}</span></td><td>${esc(obrigStr)}</td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':'Aberta'}</span></td></tr>`;
+      });
+      html += `</tbody></table>`;
+    });
+    const apGeral = base.filter(e=>(e.statusApuracao||'nao_apurada')==='apurada').length;
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>Empresas por Colaborador — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${totalGeral}</div><div class="lbl">Empresas</div></div>
+        <div class="rel-sum-card"><div class="num">${apGeral}</div><div class="lbl">Apuradas</div></div>
+        <div class="rel-sum-card"><div class="num">${totalGeral-apGeral}</div><div class="lbl">Pendentes</div></div>
+        <div class="rel-sum-card"><div class="num">${colaboradores.length}</div><div class="lbl">Colaboradores</div></div>
+      </div>
+      ${html || '<div class="empty-state"><p>Nenhum dado encontrado.</p></div>'}
+    </div>`;
+    return;
+  }
+
+  // ── POR APURAÇÃO ─────────────────────────────────────────────
+  if(type.startsWith('apuracao')){
+    let emps = base;
+    if(type==='apuracao_pendente') emps = base.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada');
+    if(type==='apuracao_aguardando') emps = base.filter(e=>(e.statusApuracao||'')==='pendente_info');
+    const titulo = {apuracao_geral:'Status de Apuração Geral',apuracao_pendente:'Empresas Não Apuradas',apuracao_aguardando:'Empresas Aguardando Info do Cliente'}[type];
+    const apuradas = emps.filter(e=>(e.statusApuracao||'nao_apurada')==='apurada').length;
+    const pendentes = emps.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada').length;
+    const aguardando = emps.filter(e=>(e.statusApuracao||'')==='pendente_info').length;
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>${esc(titulo)} — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${emps.length}</div><div class="lbl">Total</div></div>
+        <div class="rel-sum-card"><div class="num">${apuradas}</div><div class="lbl">Apuradas</div></div>
+        <div class="rel-sum-card"><div class="num">${pendentes}</div><div class="lbl">Não apuradas</div></div>
+        <div class="rel-sum-card"><div class="num">${aguardando}</div><div class="lbl">Aguard. info</div></div>
+      </div>
+      ${emps.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Status Apuração</th><th>Status Empresa</th></tr></thead><tbody>${emps.map(e=>`<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td><span class="rel-badge ${apuracaoClass(e.statusApuracao)}">${apuracaoLabel(e.statusApuracao)}</span></td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhuma empresa encontrada.</p></div>'}
+    </div>`;
+    return;
+  }
+
+  // ── POR SPED ─────────────────────────────────────────────────
+  if(type.startsWith('sped')){
+    const spedMap = {
+      sped_todos: null,
+      sped_icms: 'SPED ICMS/IPI',
+      sped_contrib: 'SPED Contribuições',
+      sped_ecd: 'SPED ECD',
+      sped_ecf: 'SPED ECF'
+    };
+    const filtroSped = spedMap[type];
+    const emps = base.filter(e => {
+      if(filtroSped) return (e.obrigacoes||[]).some(o=>o.nome===filtroSped);
+      return (e.obrigacoes||[]).some(o=>o.nome.startsWith('SPED'));
+    });
+    const titulo = {sped_todos:'Todas as Empresas com SPED',sped_icms:'Empresas com SPED ICMS/IPI',sped_contrib:'Empresas com SPED Contribuições',sped_ecd:'Empresas com SPED ECD',sped_ecf:'Empresas com SPED ECF'}[type];
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>${esc(titulo)} — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${emps.length}</div><div class="lbl">Empresas</div></div>
+        <div class="rel-sum-card"><div class="num">${emps.filter(e=>(e.statusApuracao||'nao_apurada')==='apurada').length}</div><div class="lbl">Apuradas</div></div>
+        <div class="rel-sum-card"><div class="num">${emps.filter(e=>(e.statusApuracao||'nao_apurada')!=='apurada').length}</div><div class="lbl">Pendentes</div></div>
+      </div>
+      ${emps.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Obrigações SPED</th><th>Status Apuração</th></tr></thead><tbody>${emps.map(e=>{
+        const speds = (e.obrigacoes||[]).filter(o=>filtroSped?o.nome===filtroSped:o.nome.startsWith('SPED')).map(o=>esc(o.nome)).join(', ');
+        return `<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td>${speds}</td><td><span class="rel-badge ${apuracaoClass(e.statusApuracao)}">${apuracaoLabel(e.statusApuracao)}</span></td></tr>`;
+      }).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhuma empresa com este SPED encontrada.</p></div>'}
+    </div>`;
+    return;
+  }
+
+  // ── RELATÓRIOS GERAIS (checklist / regime / atividade) ───────
+  let rows = allObrigRows(base);
+  if(type==='atividade'){ const at=$('relAtividade').value; if(at) rows=rows.filter(r=>r.empresa.atividade===at); }
+  if(type==='regime'){ const rg=$('relRegime').value; if(rg) rows=rows.filter(r=>r.empresa.regime===rg); }
+  const titulo2 = {checklist:'Checklist geral de obrigações',regime:'Por regime tributário',atividade:'Por atividade econômica'}[type]||type;
+  $('relatorioConteudo').innerHTML = `<div class="rel-section">
+    <h3>${esc(titulo2)} — ${todayBR()}</h3>
+    <div class="rel-summary">
+      <div class="rel-sum-card"><div class="num">${rows.length}</div><div class="lbl">Obrigações</div></div>
+      <div class="rel-sum-card"><div class="num">${new Set(rows.map(r=>r.empresa.id)).size}</div><div class="lbl">Empresas</div></div>
+    </div>
+    ${rows.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>Regime</th><th>Colaborador</th><th>Obrigação</th><th>Vencimento</th><th>Status Apuração</th><th>Status Empresa</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.empresa.nome)}</td><td>${esc(regimeLabel(r.empresa.regime))}</td><td>${esc(r.empresa.colaborador||'-')}</td><td>${esc(r.obrig.nome)}</td><td style="font-family:var(--font-mono)">${esc(r.obrig.vencimento||'-')}</td><td><span class="rel-badge ${apuracaoClass(r.empresa.statusApuracao)}">${apuracaoLabel(r.empresa.statusApuracao)}</span></td><td><span class="rel-badge ${r.empresa.fechada?'fechada':'ativa'}">${r.empresa.fechada?'Fechada':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhum item encontrado.</p></div>'}
+  </div>`;
+}
+function printRelatorio(){ window.print(); }
+function exportRelatorioCSV(){
+  const type = $('relTipo').value;
+  let headers, data;
+  if(type==='colaborador' || type.startsWith('apuracao') || type.startsWith('sped')){
+    const base = getFilteredEmpresas();
+    let emps = base;
+    if(type==='apuracao_pendente') emps = base.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada');
+    if(type==='apuracao_aguardando') emps = base.filter(e=>(e.statusApuracao||'')==='pendente_info');
+    const spedMap = {sped_todos:null,sped_icms:'SPED ICMS/IPI',sped_contrib:'SPED Contribuições',sped_ecd:'SPED ECD',sped_ecf:'SPED ECF'};
+    if(type.startsWith('sped')){ const f=spedMap[type]; emps=base.filter(e=>(e.obrigacoes||[]).some(o=>f?o.nome===f:o.nome.startsWith('SPED'))); }
+    if(type==='colaborador'){ const cv=$('relColaborador').value; if(cv) emps=base.filter(e=>e.colaborador===cv); }
+    headers = ['Empresa','CNPJ','Regime','Colaborador','Obrigações','Status Apuração','Status Empresa'];
+    data = emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',(e.obrigacoes||[]).map(o=>o.nome).join(' | '),apuracaoLabel(e.statusApuracao),e.fechada?'Fechada':'Aberta']);
+  } else {
+    const rows = allObrigRows(getFilteredEmpresas());
+    headers = ['Empresa','CNPJ','Regime','Colaborador','Obrigação','Vencimento','Status Apuração','Status Empresa'];
+    data = rows.map(r=>[r.empresa.nome,r.empresa.cnpj||'',regimeLabel(r.empresa.regime),r.empresa.colaborador||'',r.obrig.nome,r.obrig.vencimento||'',apuracaoLabel(r.empresa.statusApuracao),r.empresa.fechada?'Fechada':'Aberta']);
+  }
+  const csv = [headers].concat(data).map(row=>row.map(v=>'"'+safe(v).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'relatorio_'+type+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  toast('Relatório exportado em CSV.', 'success');
+}
+
+// Fechar modal clicando fora
+window.addEventListener('click', ev => { if(ev.target.classList && ev.target.classList.contains('modal-overlay')) ev.target.classList.remove('open'); });
+window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+    authDomain: "portal-treinamentos-lang.firebaseapp.com",
+    databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+    projectId: "portal-treinamentos-lang",
+    storageBucket: "portal-treinamentos-lang.firebasestorage.app",
+    messagingSenderId: "1049839891406",
+    appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  window._fbGet = (path) => get(ref(db, path));
+  window._fbSet = (path, data) => set(ref(db, path), data);
+
+  // Dispara init após Firebase pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => init());
+  } else {
+    init();
+  }
+</script>
+</body>
+</html>
