@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checklist Fiscal - Empresas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:       #0d1b2a;
+      --navy-card:  #1b2e42;
+      --navy-hover: #223650;
+      --gold:       #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dim:   rgba(201,168,76,0.18);
+      --gold-glow:  rgba(201,168,76,0.08);
+      --text:       #e8edf3;
+      --text-muted: #8ba0b8;
+      --green:      #2ecc8a;
+      --green-dim:  rgba(46,204,138,0.12);
+      --red:        #e05a5a;
+      --red-dim:    rgba(224,90,90,0.12);
+      --radius:     16px;
+      --rsm:        8px;
+      --sans:       'DM Sans', sans-serif;
+      --serif:      'Poppins', sans-serif;
+      --mono:       'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--navy);
+      background-image: radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 90%, rgba(30,80,140,0.15) 0%, transparent 50%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+
+    /* ── BIF LINK ── */
+    .bif-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border: 1px solid var(--gold-dim);
+      border-radius: 999px;
+      padding: 4px 12px;
+      margin-bottom: 20px;
+      transition: background 0.15s;
+    }
+    .bif-link:hover { background: var(--gold-dim); color: var(--gold-light); }
+    .bif-link .glyph { color: var(--gold); }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    header .title-block { display: flex; flex-direction: column; gap: 4px; }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    h1::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: var(--gold);
+      border-radius: 2px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+    .top-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+    /* ── BUTTONS ── */
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 0.8rem;
+      font-family: var(--sans);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--navy);
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    button span.icon { font-size: 0.95rem; }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--gold-dim);
+    }
+    .btn-secondary:hover { background: var(--gold-dim); color: var(--gold-light); border-color: var(--gold); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    /* ── SIDE PANEL ── */
+    .side-panel {
+      background: var(--navy-card);
+      border-radius: var(--radius);
+      padding: 18px;
+      border: 1px solid var(--gold-dim);
+      height: fit-content;
+      position: sticky;
+      top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .side-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .side-panel h2 {
+      font-family: var(--serif);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .side-panel h2::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      border-radius: 2px;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .field-group { margin-bottom: 12px; }
+
+    .field-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .side-panel input[type="text"] {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: var(--rsm);
+      border: 1px solid var(--gold-dim);
+      font-size: 0.85rem;
+      font-family: var(--sans);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      outline: none;
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    .side-panel input[type="text"]:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    .side-divider {
+      border-top: 1px solid var(--gold-dim);
+      margin: 12px 0;
+    }
+
+    .summary-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 8px 0 12px;
+      font-size: 0.82rem;
+    }
+
+    .metric-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 20px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      padding: 0 8px;
+      font-weight: 700;
+      font-family: var(--mono);
+      background: var(--gold-dim);
+      color: var(--gold-light);
+    }
+
+    .badge-success { background: var(--green-dim); color: var(--green); }
+    .badge-danger  { background: var(--red-dim);   color: var(--red); }
+
+    .summary-info {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .side-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .side-actions button {
+      width: 100%;
+      justify-content: center;
+      padding: 7px 10px;
+      font-size: 0.78rem;
+    }
+
+    /* ── CONTENT ── */
+    .content { display: flex; flex-direction: column; gap: 14px; }
+
+    .section-card {
+      background: var(--navy-card);
+      border-radius: var(--radius);
+      padding: 14px 16px 16px;
+      border: 1px solid var(--gold-dim);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--gold);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .section-title span {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+
+    .section-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .section-actions button {
+      padding: 5px 12px;
+      font-size: 0.75rem;
+    }
+
+    .section-body { display: flex; flex-direction: column; gap: 6px; }
+
+    /* ── ITEM ROW ── */
+    .item-row {
+      border-radius: var(--rsm);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: auto 1.5fr 1.5fr;
+      gap: 10px;
+      align-items: flex-start;
+      background: rgba(255,255,255,0.02);
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .item-row:nth-child(odd) { background: rgba(255,255,255,0.04); }
+    .item-row:hover { background: rgba(201,168,76,0.04); border-color: var(--gold-dim); }
+    .item-row:hover .item-actions-inline { opacity: 1; }
+
+    .item-check { display: flex; align-items: flex-start; padding-top: 4px; }
+
+    .item-check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--gold);
+    }
+
+    .item-main { display: flex; flex-direction: column; gap: 5px; }
+
+    .item-title-input {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid rgba(201,168,76,0.15);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 5px 8px;
+      outline: none;
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    .item-title-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px var(--gold-glow);
+    }
+
+    .item-meta { font-size: 0.78rem; color: var(--text-muted); display: block; }
+
+    .tag-input {
+      display: block;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid var(--gold-dim);
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      font-family: var(--mono);
+      background: rgba(201,168,76,0.06);
+      color: var(--gold-light);
+      outline: none;
+      transition: border 0.15s;
+    }
+
+    .tag-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
+
+    .obs-permanente { border-color: rgba(201,168,76,0.3) !important; background: rgba(201,168,76,0.04) !important; }
+    .obs-permanente:focus { border-color: var(--gold) !important; }
+    label[style*="margin-top"] { display: block; }
+
+    .item-observation label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 40px;
+      resize: vertical;
+      padding: 6px 8px;
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      border-radius: 6px;
+      border: 1px solid rgba(201,168,76,0.15);
+      outline: none;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px var(--gold-glow);
+    }
+
+    .item-actions-inline {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      opacity: 0.2;
+      transition: opacity 0.15s;
+    }
+
+    .btn-remove {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .btn-remove:hover { color: var(--red); background: transparent; transform: none; }
+
+    /* ── RESUMO FINAL ── */
+    .resume-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.3fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .resume-field label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .resume-field input[type="text"] {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid var(--gold-dim);
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      font-family: var(--sans);
+      outline: none;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      transition: border 0.15s;
+    }
+
+    .resume-field input[type="text"]:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px var(--gold-glow);
+    }
+
+    .signature-line {
+      margin-top: 16px;
+      border-top: 1px solid var(--gold-dim);
+      padding-top: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .signature-box {
+      margin-top: 18px;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 220px;
+    }
+
+    .signature-box .line {
+      border-bottom: 1px solid var(--gold-dim);
+      height: 22px;
+    }
+
+    .signature-box .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      font-family: var(--mono);
+    }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { position: static; }
+    }
+
+    @media (max-width: 640px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .top-actions { justify-content: flex-start; }
+      .item-row { grid-template-columns: 1fr; }
+      .item-check { padding-top: 0; }
+      .item-actions-inline { opacity: 1; }
+      .side-actions button { justify-content: flex-start; }
+    }
+
+    /* ── IMPRESSÃO ── */
+    @media print {
+      body { background: #fff !important; color: #1a1a1a !important; }
+      .page { margin: 0; max-width: 100%; padding: 8mm; }
+      .top-actions, .side-panel, .item-actions-inline, .bif-link { display: none !important; }
+      .section-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; background: #fff !important; }
+      .item-row { background: #fff !important; }
+      .resume-field input[type="text"], textarea, .item-title-input, .tag-input {
+        border-color: #aaa; background: #fff; color: #111;
+      }
+      h1, .section-title { color: #0c2d5a !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="bif-link" href="#" onclick="history.back();return false;"><span class="glyph">◈</span> ← BIF</a>
+
+    <header>
+      <div class="title-block">
+        <h1>Checklist de Fechamento - Empresas</h1>
+        <div class="subtitle">
+          Organize o fechamento por regime tributário, com controle visual e histórico salvo no navegador.
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" onclick="window.print()">
+          <span class="icon">🖨</span> Imprimir
+        </button>
+        <button type="button" class="btn-secondary" onclick="exportToWord()">
+          <span class="icon">📄</span> Exportar Word
+        </button>
+        <button type="button" class="btn-secondary" onclick="saveLocal()">
+          <span class="icon">💾</span> Salvar
+        </button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Painel lateral -->
+      <aside class="side-panel">
+        <h2>Resumo do Checklist</h2>
+
+        <div class="field-group">
+          <div class="field-label">Competência:</div>
+          <input id="competenciaField" type="text" placeholder="Ex.: 05/2026" />
+        </div>
+
+        <div class="field-group">
+          <div class="field-label">Responsável:</div>
+          <input id="responsavelField" type="text" placeholder="Nome do responsável" />
+        </div>
+
+        <div class="side-divider"></div>
+
+        <div class="summary-metrics">
+          <div class="metric-line">
+            <span>Total de empresas</span>
+            <span class="badge" id="totalEmpresasBadge">17</span>
+          </div>
+          <div class="metric-line">
+            <span>Concluídas</span>
+            <span class="badge badge-success" id="concluidasBadge">0</span>
+          </div>
+          <div class="metric-line">
+            <span>Pendentes</span>
+            <span class="badge badge-danger" id="pendentesBadge">17</span>
+          </div>
+        </div>
+
+        <div class="summary-info">
+          Marque a caixa de cada empresa concluída. <br />
+          Use Salvar para manter os dados neste navegador.
+        </div>
+
+        <div class="side-actions">
+          <button type="button" onclick="proximoMes()" style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#0d1b2a;font-weight:700;">
+            <span class="icon">▶</span> Próximo mês
+          </button>
+          <button type="button" class="btn-secondary" onclick="backupDados()">
+            <span class="icon">⬇️</span> Backup
+          </button>
+          <button type="button" class="btn-secondary" onclick="carregarBackup()">
+            <span class="icon">⬆️</span> Carregar backup
+          </button>
+        </div>
+      </aside>
+
+      <!-- Conteúdo principal -->
+      <main class="content" id="contentRoot">
+
+        <!-- LUCRO PRESUMIDO – EMPREENDIMENTOS -->
+        <section class="section-card" data-section="Lucro Presumido – Empreendimentos">
+          <div class="section-header">
+            <div class="section-title">
+              LUCRO PRESUMIDO – EMPREENDIMENTOS
+              <span>(9 empresas)</span>
+            </div>
+            <div class="section-actions">
+              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
+                <span class="icon">➕</span> Adicionar empresa
+              </button>
+            </div>
+          </div>
+
+          <div class="section-body">
+
+            <!-- 1. Castellabate -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Castellabate" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 2. DPF – Regina -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="DPF – Regina" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 3. FBF – Fernanda Bocchi -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="FBF – Fernanda Bocchi" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 4. Prefer Occhialini Agropecuária -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Prefer Occhialini Agropecuária" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 5. Lidiane – C Camargo e Polastri -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Lidiane – C Camargo e Polastri" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 6. Maggiore -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Maggiore" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 7. MS Romagnolo -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="MS Romagnolo" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 8. Occhialini Empreendimentos -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Occhialini Empreendimentos" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 9. WB – Regina -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="WB – Regina" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- LUCRO PRESUMIDO – OUTROS -->
+        <section class="section-card" data-section="Lucro Presumido – Outros">
+          <div class="section-header">
+            <div class="section-title">
+              LUCRO PRESUMIDO – OUTROS
+              <span>(5 empresas)</span>
+            </div>
+            <div class="section-actions">
+              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
+                <span class="icon">➕</span> Adicionar empresa
+              </button>
+            </div>
+          </div>
+
+          <div class="section-body">
+
+            <!-- 10. Daniel Martins – Posto Guareí -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Daniel Martins – Posto Guareí" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido – Outros" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 11. FOM Leilões -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="FOM Leilões" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido – Outros" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 12. GDO – Indústria / REINF -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="GDO – Indústria / REINF" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido – Outros; REINF" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 13. Hotel Del Fiol – Misto / REINF -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Hotel Del Fiol – Misto / REINF" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido – Outros; Misto; REINF" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 14. NSC Novesete – Prestador / REINF -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="NSC Novesete – Prestador / REINF" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Presumido – Outros; Prestador; REINF" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- LUCRO REAL -->
+        <section class="section-card" data-section="Lucro Real">
+          <div class="section-header">
+            <div class="section-title">
+              LUCRO REAL
+              <span>(1 empresa)</span>
+            </div>
+            <div class="section-actions">
+              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
+                <span class="icon">➕</span> Adicionar empresa
+              </button>
+            </div>
+          </div>
+
+          <div class="section-body">
+
+            <!-- 15. Laboratório Campos – REINF -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Laboratório Campos – REINF" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Lucro Real; REINF" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- SIMPLES NACIONAL -->
+        <section class="section-card" data-section="Simples Nacional">
+          <div class="section-header">
+            <div class="section-title">
+              SIMPLES NACIONAL
+              <span>(2 empresas)</span>
+            </div>
+            <div class="section-actions">
+              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
+                <span class="icon">➕</span> Adicionar empresa
+              </button>
+            </div>
+          </div>
+
+          <div class="section-body">
+
+            <!-- 16. FOM Assessoria -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="FOM Assessoria" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Simples Nacional" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+            <!-- 17. Grandino Pré Moldados – DeSTDA -->
+            <div class="item-row empresa-item">
+              <div class="item-check">
+                <input type="checkbox" class="empresa-check" />
+              </div>
+              <div class="item-main">
+                <input class="item-title-input" value="Grandino Pré Moldados – DeSTDA" />
+                <div class="item-meta">
+                  <input class="tag-input" value="Simples Nacional; DeSTDA" />
+                </div>
+              </div>
+              <div class="item-observation">
+                <label>📅 Obs. do mês:</label>
+                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+                <label style="margin-top:6px;">📌 Instrução permanente:</label>
+                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+              </div>
+              <div class="item-actions-inline">
+                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- RESUMO FINAL -->
+        <section class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              RESUMO DO FECHAMENTO
+              <span>(Total: 17 empresas)</span>
+            </div>
+          </div>
+
+          <div class="section-body">
+            <div class="resume-grid">
+              <div class="resume-field">
+                <label>Total fechado:</label>
+                <input
+                  type="text"
+                  id="totalFechadoField"
+                  value="0 / 17 empresas"
+                  readonly
+                />
+              </div>
+
+              <div class="resume-field">
+                <label>Conclusão (data / hora / status):</label>
+                <input
+                  type="text"
+                  id="conclusaoField"
+                  placeholder="____ / ____ / ____"
+                />
+              </div>
+            </div>
+
+            <div class="signature-line">
+              <span>Assinatura do responsável pelo fechamento:</span>
+              <div class="signature-box">
+                <div class="line"></div>
+                <div class="label">Assinatura</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Atualiza contadores de concluídas/pendentes e total fechado
+    function atualizarTotais() {
+      const checkboxes = document.querySelectorAll(".empresa-check");
+      const total = checkboxes.length;
+      let concluidas = 0;
+
+      checkboxes.forEach((cb) => {
+        if (cb.checked) concluidas++;
+      });
+
+      const pendentes = total - concluidas;
+
+      const badgeTotal = document.getElementById("totalEmpresasBadge");
+      const badgeConcluidas = document.getElementById("concluidasBadge");
+      const badgePendentes = document.getElementById("pendentesBadge");
+      const totalFechadoField = document.getElementById("totalFechadoField");
+
+      if (badgeTotal) badgeTotal.textContent = total;
+      if (badgeConcluidas) badgeConcluidas.textContent = concluidas;
+      if (badgePendentes) badgePendentes.textContent = pendentes;
+      if (totalFechadoField)
+        totalFechadoField.value = concluidas + " / " + total + " empresas";
+    }
+
+    // Adiciona listeners em todos os checkboxes
+    function bindCheckboxListeners() {
+      document.querySelectorAll(".empresa-check").forEach((cb) => {
+        cb.removeEventListener("change", atualizarTotais);
+        cb.addEventListener("change", atualizarTotais);
+      });
+    }
+
+    // Exportar para Word – tabela simples
+    function exportToWord() {
+      const empresas = [];
+      document.querySelectorAll('.empresa-item').forEach(item => {
+        const nomeInput = item.querySelector('.item-title-input');
+        const regimeInput = item.querySelector('.tag-input');
+        const obsTextarea = item.querySelector('textarea');
+
+        const nome = nomeInput ? nomeInput.value : '';
+        const regime = regimeInput ? regimeInput.value : '';
+        const obs = obsTextarea ? obsTextarea.value : '';
+
+        empresas.push({ nome, regime, obs });
+      });
+
+      const competencia = document.getElementById("competenciaField")?.value || '';
+      const responsavel = document.getElementById("responsavelField")?.value || '';
+      const conclusao = document.getElementById("conclusaoField")?.value || '';
+
+      let tableRows = empresas.map((emp, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${emp.nome || '&nbsp;'}</td>
+          <td>${emp.regime || '&nbsp;'}</td>
+          <td>${emp.obs || '&nbsp;'}</td>
+        </tr>
+      `).join('');
+
+      const htmlWord = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office'
+              xmlns:w='urn:schemas-microsoft-com:office:word'
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>Checklist Fiscal</title>
+        </head>
+        <body>
+          <h2>Checklist de Fechamento - Empresas</h2>
+          <p><strong>Competência:</strong> ${competencia}</p>
+          <p><strong>Responsável:</strong> ${responsavel}</p>
+          <p><strong>Conclusão:</strong> ${conclusao}</p>
+
+          <table border="1" cellspacing="0" cellpadding="4">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Empresa</th>
+                <th>Regime / Classificação</th>
+                <th>Observações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', htmlWord], {
+        type: 'application/msword'
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "checklist-fiscal.doc";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // Adicionar nova empresa no final da seção do botão clicado
+    function addEmpresaToSection(buttonEl) {
+      const section = buttonEl.closest("section.section-card");
+      if (!section) return;
+
+      const body = section.querySelector(".section-body");
+      if (!body) return;
+
+      // Template = primeira empresa do site (garantimos sempre um modelo)
+      const template = document.querySelector(".empresa-item");
+      if (!template) return;
+
+      const clone = template.cloneNode(true);
+
+      // Limpa os campos do clone
+      const cb = clone.querySelector(".empresa-check");
+      const nomeInput = clone.querySelector(".item-title-input");
+      const tagInput = clone.querySelector(".tag-input");
+      const textarea = clone.querySelector("textarea");
+
+      if (cb) cb.checked = false;
+      if (nomeInput) nomeInput.value = "Nova Empresa";
+      if (tagInput) {
+        const sectionName = section.getAttribute("data-section") || "";
+        tagInput.value = sectionName || "";
+      }
+      const obsMes = clone.querySelector(".obs-mes");
+      const obsPerm = clone.querySelector(".obs-permanente");
+      if (obsMes) obsMes.value = "";
+      if (obsPerm) obsPerm.value = "";
+
+      body.appendChild(clone);
+
+      bindCheckboxListeners();
+      atualizarTotais();
+    }
+
+    // Remover empresa (item-row)
+    function removerEmpresa(buttonEl) {
+      const item = buttonEl.closest(".empresa-item");
+      if (!item) return;
+
+      const nomeInput = item.querySelector(".item-title-input");
+      const nome = nomeInput ? nomeInput.value : "esta empresa";
+
+      if (!confirm(`Tem certeza que deseja excluir ${nome}?`)) return;
+
+      item.remove();
+      atualizarTotais();
+    }
+
+    // Coleta dados atuais do formulário
+    function coletarDados() {
+      const data = {};
+
+      data.competencia = document.getElementById("competenciaField")?.value || '';
+      data.responsavel = document.getElementById("responsavelField")?.value || '';
+      data.conclusao  = document.getElementById("conclusaoField")?.value || '';
+
+      data.empresas = [];
+      document.querySelectorAll('.empresa-item').forEach(item => {
+        data.empresas.push({
+          nome:        item.querySelector('.item-title-input')?.value || '',
+          regime:      item.querySelector('.tag-input')?.value || '',
+          obs:         item.querySelector('.obs-mes')?.value || '',
+          obsPermanente: item.querySelector('.obs-permanente')?.value || '',
+          checked:     item.querySelector('.empresa-check')?.checked || false
+        });
+      });
+
+      return data;
+    }
+
+    // Salvar dados no navegador (localStorage)
+    function saveLocal() {
+      const data = coletarDados();
+      localStorage.setItem('checklistFiscal', JSON.stringify(data));
+      alert('Dados salvos neste navegador.');
+    }
+
+    // Aplica dados (de localStorage ou de backup)
+    function aplicarDados(data, limparEmpresasExtras) {
+      if (!data) return;
+
+      if (data.competencia && document.getElementById("competenciaField")) {
+        document.getElementById("competenciaField").value = data.competencia;
+      }
+      if (data.responsavel && document.getElementById("responsavelField")) {
+        document.getElementById("responsavelField").value = data.responsavel;
+      }
+      if (data.conclusao && document.getElementById("conclusaoField")) {
+        document.getElementById("conclusaoField").value = data.conclusao;
+      }
+
+      if (limparEmpresasExtras) {
+        document.querySelectorAll('.empresa-item').forEach(el => el.remove());
+
+        const contentRoot = document.getElementById('contentRoot');
+        const primeiraSection = contentRoot.querySelector('section.section-card[data-section]');
+        let body = primeiraSection ? primeiraSection.querySelector('.section-body') : null;
+        if (!body) return;
+
+        const template = document.createElement('div');
+        template.className = 'item-row empresa-item';
+        template.innerHTML = `
+          <div class="item-check">
+            <input type="checkbox" class="empresa-check" />
+          </div>
+          <div class="item-main">
+            <input class="item-title-input" value="" />
+            <div class="item-meta">
+              <input class="tag-input" value="" />
+            </div>
+          </div>
+          <div class="item-observation">
+            <label>📅 Obs. do mês:</label>
+            <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
+            <label style="margin-top:6px;">📌 Instrução permanente:</label>
+            <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
+          </div>
+          <div class="item-actions-inline">
+            <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
+          </div>
+        `;
+
+        data.empresas?.forEach(emp => {
+          const clone = template.cloneNode(true);
+          clone.querySelector('.item-title-input').value = emp.nome || '';
+          clone.querySelector('.tag-input').value = emp.regime || '';
+          clone.querySelector('.obs-mes').value = emp.obs || '';
+          clone.querySelector('.obs-permanente').value = emp.obsPermanente || '';
+          clone.querySelector('.empresa-check').checked = !!emp.checked;
+          body.appendChild(clone);
+        });
+
+      } else {
+        const items = document.querySelectorAll('.empresa-item');
+        data.empresas?.forEach((emp, idx) => {
+          const item = items[idx];
+          if (!item) return;
+          const nome   = item.querySelector('.item-title-input');
+          const regime = item.querySelector('.tag-input');
+          const obs    = item.querySelector('.obs-mes');
+          const obsPerm = item.querySelector('.obs-permanente');
+          const cb     = item.querySelector('.empresa-check');
+
+          if (nome) nome.value           = emp.nome   || '';
+          if (regime) regime.value       = emp.regime || '';
+          if (obs) obs.value             = emp.obs    || '';
+          if (obsPerm) obsPerm.value     = emp.obsPermanente || '';
+          if (cb) cb.checked             = !!emp.checked;
+        });
+      }
+
+      bindCheckboxListeners();
+      atualizarTotais();
+    }
+
+    // Carregar dados salvos do localStorage
+    function loadLocal() {
+      const raw = localStorage.getItem('checklistFiscal');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      aplicarDados(data, false);
+    }
+
+    // Backup: baixa um arquivo JSON com todos os dados
+    function backupDados() {
+      const data = coletarDados();
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "checklist-fiscal-backup.json";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // Carregar backup: ler arquivo .json e aplicar
+    function carregarBackup() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            aplicarDados(data, true);
+            alert('Backup carregado com sucesso.');
+          } catch (err) {
+            alert('Não foi possível ler o backup. Verifique se o arquivo está correto.');
+          }
+        };
+        reader.readAsText(file, 'utf-8');
+      };
+
+      input.click();
+    }
+
+    // Próximo mês
+    function proximoMes() {
+      const competencia = document.getElementById("competenciaField")?.value || '';
+      let novaComp = '';
+
+      // Tenta incrementar o mês (formato MM/AAAA)
+      const match = competencia.match(/^(\d{2})\/(\d{4})$/);
+      if (match) {
+        let mes = parseInt(match[1]);
+        let ano = parseInt(match[2]);
+        mes++;
+        if (mes > 12) { mes = 1; ano++; }
+        novaComp = String(mes).padStart(2, '0') + '/' + ano;
+      }
+
+      if (!confirm(`Iniciar ${novaComp || 'próximo mês'}?\n\nIsso irá:\n✔ Limpar todos os checkboxes\n✔ Limpar Obs. do mês\n✔ Manter Instruções permanentes\n✔ Manter todas as empresas`)) return;
+
+      // Atualiza competência
+      if (novaComp && document.getElementById("competenciaField")) {
+        document.getElementById("competenciaField").value = novaComp;
+      }
+
+      // Limpa conclusão
+      const conclusao = document.getElementById("conclusaoField");
+      if (conclusao) conclusao.value = '';
+
+      // Limpa checkboxes e obs do mês
+      document.querySelectorAll('.empresa-item').forEach(item => {
+        const cb = item.querySelector('.empresa-check');
+        const obsMes = item.querySelector('.obs-mes');
+        if (cb) cb.checked = false;
+        if (obsMes) obsMes.value = '';
+      });
+
+      atualizarTotais();
+      saveLocal();
+      alert(`Checklist de ${novaComp || 'próximo mês'} iniciado!`);
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      bindCheckboxListeners();
+      loadLocal();
+      atualizarTotais();
+    });
+  </script>
+</body>
+</html>
