@@ -487,9 +487,15 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
-          <div class="tool-icon">📖</div>
-          <h3>Manual de Empresas</h3>
+        <div class="tool-card ready" onclick="openTool('checklist')">
+          <div class="tool-icon">✅</div>
+          <h3>Checklist de Fechamento</h3>
+          <p>Controle mensal de fechamento por empresa, com instruções permanentes e geração do próximo mês.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
           <p>Documentação centralizada por empresa cliente com painel de gestão integrado.</p>
           <div class="tool-footer">
             <span class="badge-soon">Em breve</span>
@@ -662,7 +668,8 @@
   window.openTool = function(tool) {
     const urls = {
       'portal-treinamentos': './portal/portal.html',
-      'tarefas': './tarefas/tarefas.html'
+      'tarefas': './tarefas/tarefas.html',
+      'checklist': './checklist/checklist.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
