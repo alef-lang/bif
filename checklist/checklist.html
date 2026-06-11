@@ -1297,10 +1297,16 @@
     }
 
     // Salvar dados no navegador (localStorage)
-    function saveLocal() {
+    function saveLocal(silent = false) {
       const data = coletarDados();
       localStorage.setItem('checklistFiscal', JSON.stringify(data));
-      alert('Dados salvos neste navegador.');
+      if (!silent) alert('Dados salvos neste navegador.');
+    }
+
+    // Autosave
+    function autosave() {
+      clearTimeout(window._autosaveTimer);
+      window._autosaveTimer = setTimeout(() => saveLocal(true), 1500);
     }
 
     // Aplica dados (de localStorage ou de backup)
@@ -1474,6 +1480,13 @@
       bindCheckboxListeners();
       loadLocal();
       atualizarTotais();
+
+      // Autosave em qualquer alteração
+      document.getElementById('contentRoot').addEventListener('input', autosave);
+      document.getElementById('contentRoot').addEventListener('change', autosave);
+      document.getElementById('competenciaField').addEventListener('input', autosave);
+      document.getElementById('responsavelField').addEventListener('input', autosave);
+      document.getElementById('conclusaoField').addEventListener('input', autosave);
     });
   </script>
 </body>
