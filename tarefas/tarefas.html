@@ -233,7 +233,15 @@ input[type="file"]{display:none}
     </div>
     <div class="form-group">
       <label>Descrição / contexto</label>
-      <textarea id="tmDesc" placeholder="O que precisa ser feito..."></textarea>
+      <div id="tmDesc"
+           contenteditable="true"
+           style="min-height:80px;padding:10px 14px;font-size:0.85rem;font-family:var(--sans);border:1px solid var(--gold-dim);border-radius:var(--rsm);background:rgba(255,255,255,0.05);color:var(--white);outline:none;line-height:1.6;word-break:break-word;"
+           data-placeholder="O que precisa ser feito..."></div>
+      <style>
+        #tmDesc:empty::before { content: attr(data-placeholder); color: var(--text-dim); pointer-events: none; }
+        #tmDesc:focus { border-color: var(--gold); background: var(--gold-glow); }
+        #tmDesc img { max-width: 100%; border-radius: 6px; margin: 6px 0; display: block; border: 1px solid var(--gold-dim); }
+      </style>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -388,7 +396,7 @@ function renderTasks(){
         <div class="task-toggle ${isOpen?'open':''}">&#9662;</div>
       </div>
       <div class="task-body ${isOpen?'open':''}">
-        ${t.desc?`<div class="task-desc">${esc(t.desc)}</div>`:''}
+        ${t.desc?`<div class="task-desc">${t.desc}</div>`:''}
         ${t.subtasks?t.subtasks.map((s,si)=>`
           <div class="subtask ${s.done?'done':''}">
             <div class="subtask-check" onclick="toggleSub(${t.id},${si})">${s.done?'&#9745;':'&#9744;'}</div>
@@ -482,7 +490,7 @@ function openNewTask(){
   document.getElementById('tmTitle').textContent='Nova tarefa';
   document.getElementById('tmId').value='';
   document.getElementById('tmName').value='';
-  document.getElementById('tmDesc').value='';
+  document.getElementById('tmDesc').innerHTML='';
   document.getElementById('tmReward').value='';
   document.getElementById('tmAssigneeName').value='';
   document.getElementById('tmAssigneeEmail').value='';
@@ -498,7 +506,7 @@ function openEditTask(id){
   document.getElementById('tmTitle').textContent='Editar tarefa';
   document.getElementById('tmId').value=id;
   document.getElementById('tmName').value=t.name;
-  document.getElementById('tmDesc').value=t.desc||'';
+  document.getElementById('tmDesc').innerHTML=t.desc||'';
   document.getElementById('tmReward').value=t.reward||'';
   document.getElementById('tmAssigneeName').value=t.assigneeName||'';
   document.getElementById('tmAssigneeEmail').value=t.assigneeEmail||'';
@@ -512,7 +520,7 @@ function openEditTask(id){
 
 function saveTask(){
   const name=document.getElementById('tmName').value.trim();
-  const desc=document.getElementById('tmDesc').value.trim();
+  const desc=document.getElementById('tmDesc').innerHTML.trim();
   const reward=document.getElementById('tmReward').value.trim();
   const interaction=document.getElementById('tmInteraction').classList.contains('on');
   const assigneeName=document.getElementById('tmAssigneeName').value.trim();
@@ -599,6 +607,31 @@ function esc(s){const d=document.createElement('div');d.textContent=s;return d.i
 function render(){renderHeader();renderOverview();renderFilters();renderTasks()}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)closeModal(this.id)})});
 document.getElementById('rewardOverlay').addEventListener('click',function(e){if(e.target===this)closeReward()});
+// Rich editor: paste de imagem no tmDesc
+document.getElementById('tmDesc').addEventListener('paste', function(e) {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = document.createElement('img');
+        img.src = ev.target.result;
+        const sel = window.getSelection();
+        if (sel?.rangeCount) {
+          const range = sel.getRangeAt(0);
+          range.deleteContents(); range.insertNode(img);
+          range.setStartAfter(img); range.collapse(true);
+          sel.removeAllRanges(); sel.addRange(range);
+        } else { document.getElementById('tmDesc').appendChild(img); }
+      };
+      reader.readAsDataURL(item.getAsFile());
+      break;
+    }
+  }
+});
+
 load();render();
 </script>
 </body>
