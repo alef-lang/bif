@@ -160,8 +160,8 @@
   <div class="card">
     <div class="header">
       <div class="title-block">
-        <h1>Centro de Treinamentos</h1>
-        <p class="subtitle">Registro e rastreamento de transferências de conhecimento tácito entre colaboradores.</p>
+        <h1>Base de Conhecimento</h1>
+        <p class="subtitle">Registre o que está aprendendo — filtre por tema ou origem para encontrar qualquer conteúdo.</p>
         <div id="cloudBadge" class="cloud-badge loading">⏳ Conectando à nuvem...</div>
       </div>
       <div class="actions">
@@ -173,16 +173,23 @@
       </div>
     </div>
 
-    <!-- Categorias -->
+    <!-- Filtros -->
     <div class="cat-section">
       <div class="cat-header">
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="secondary small" id="btnToggleFilter">🔍 Filtrar por categoria</button>
+          <button class="secondary small" id="btnToggleOrigemFilter">📂 Filtrar por origem</button>
           <button class="secondary small" id="btnToggleCatManager">⚙️ Gerenciar</button>
         </div>
       </div>
       <div class="cat-filter-bar" id="catFilterBar">
         <span class="cat-chip all active" data-cat="__all__">Todos</span>
+      </div>
+      <div class="cat-filter-bar" id="origemFilterBar" style="margin-top:6px;">
+        <span class="cat-chip all active" data-origem="__all__">Todas as origens</span>
+        <span class="cat-chip" data-origem="Transferência interna">Transferência interna</span>
+        <span class="cat-chip" data-origem="Curso / Aula">Curso / Aula</span>
+        <span class="cat-chip" data-origem="Pesquisa própria">Pesquisa própria</span>
       </div>
       <div class="cat-manager" id="catManager">
         <div class="cat-manager-title">Gerenciar categorias</div>
@@ -202,8 +209,7 @@
           <tr>
             <th style="width:130px;">Data</th>
             <th>Assunto</th>
-            <th>Multiplicador<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem passou)</small></th>
-            <th>Treinado<br><small style="font-weight:400;text-transform:none;letter-spacing:0;">(Quem recebeu)</small></th>
+            <th style="width:160px;">Origem</th>
             <th style="width:90px;">Detalhes</th>
             <th style="width:60px;"></th>
           </tr>
@@ -217,7 +223,7 @@
   <!-- Detalhes -->
   <div class="card details-card" id="detailsCard">
     <div class="details-header">
-      <div class="details-title">Detalhes do Conteúdo Ministrado</div>
+      <div class="details-title">Detalhes do Registro</div>
       <div class="badge">ID: <span id="badgeId"></span></div>
     </div>
     <div class="status" id="detailsStatus">Nenhum registro selecionado. <span>Selecione "Abrir detalhes" em um registro da tabela.</span></div>
@@ -225,8 +231,7 @@
       <div class="meta">
         <div><div class="meta-label">Data</div><div class="meta-value" id="detailData"></div></div>
         <div><div class="meta-label">Assunto</div><div class="meta-value" id="detailAssunto"></div></div>
-        <div><div class="meta-label">Multiplicador</div><div class="meta-value" id="detailMultiplicador"></div></div>
-        <div><div class="meta-label">Treinado</div><div class="meta-value" id="detailTreinado"></div></div>
+        <div><div class="meta-label">Origem</div><div class="meta-value" id="detailOrigem"></div></div>
       </div>
       <div class="section">
         <h2>Categorias</h2>
@@ -286,6 +291,7 @@
 
   let categories   = [];
   let activeFilter = '__all__';
+  let activeOrigemFilter = '__all__';
   let detailDirty = false;
   let currentDetailId = null;
 
@@ -325,8 +331,7 @@
   const badgeId          = document.getElementById('badgeId');
   const detailData       = document.getElementById('detailData');
   const detailAssunto    = document.getElementById('detailAssunto');
-  const detailMultiplicador = document.getElementById('detailMultiplicador');
-  const detailTreinado   = document.getElementById('detailTreinado');
+  const detailOrigem     = document.getElementById('detailOrigem');
   const detailCats       = document.getElementById('detailCats');
   const detailConteudo   = document.getElementById('detailConteudo');
   const detailFerramentas= document.getElementById('detailFerramentas');
@@ -344,7 +349,13 @@
     cloudBadge.textContent = state==='ok'?'☁️ '+msg:state==='loading'?'⏳ '+msg:'⚠️ '+msg;
   }
   function generateId() { return 'reg_'+Date.now()+'_'+Math.floor(Math.random()*100000); }
-  function markDirty() { statusMessage.innerHTML = 'Alterações não salvas. <span>Clique em "Salvar na nuvem".</span>'; }
+  let autoSaveTimer = null;
+
+  function markDirty() {
+    statusMessage.innerHTML = 'Alterações não salvas. <span>Salvando automaticamente...</span>';
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => saveToCloud(), 2000);
+  }
 
   // ── CATEGORIAS ──
   async function loadCategories() {
@@ -410,12 +421,11 @@
 
   function applyFilter() {
     Array.from(tableBody.querySelectorAll('tr')).forEach(tr => {
-      if (activeFilter === '__all__') {
-        tr.classList.remove('hidden-row');
-      } else {
-        const cats = JSON.parse(tr.dataset.cats || '[]');
-        tr.classList.toggle('hidden-row', !cats.includes(activeFilter));
-      }
+      const cats = JSON.parse(tr.dataset.cats || '[]');
+      const origem = tr.dataset.origem || '';
+      const catOk = activeFilter === '__all__' || cats.includes(activeFilter);
+      const origemOk = activeOrigemFilter === '__all__' || origem === activeOrigemFilter;
+      tr.classList.toggle('hidden-row', !catOk || !origemOk);
     });
   }
 
@@ -449,7 +459,7 @@
     tr.dataset.id = data.id;
     tr.dataset.cats = JSON.stringify(data.cats || []);
 
-    ['data','assunto','multiplicador','treinado'].forEach(field => {
+    ['data','assunto','origem'].forEach(field => {
       const td = document.createElement('td');
       if (field === 'data') {
         const input = document.createElement('input');
@@ -457,16 +467,28 @@
         input.value = data[field] || '';
         input.addEventListener('input', markDirty);
         td.appendChild(input);
+      } else if (field === 'origem') {
+        const sel = document.createElement('select');
+        sel.style.cssText = 'width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:6px;padding:6px 8px;font-family:DM Sans,sans-serif;font-size:0.84rem;color:#e8edf3;outline:none;';
+        ['Transferência interna','Curso / Aula','Pesquisa própria'].forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt; o.textContent = opt;
+          o.style.background = '#1b2e42';
+          if (data.origem === opt) o.selected = true;
+          sel.appendChild(o);
+        });
+        sel.addEventListener('change', () => { tr.dataset.origem = sel.value; markDirty(); });
+        tr.dataset.origem = data.origem || 'Transferência interna';
+        td.appendChild(sel);
       } else {
         const div = document.createElement('div');
         div.className = 'cell-edit';
         div.contentEditable = 'true';
-        div.dataset.placeholder = field === 'assunto' ? 'Assunto...' : field === 'multiplicador' ? 'Nome...' : 'Nome...';
+        div.dataset.placeholder = 'Assunto...';
         div.textContent = data[field] || '';
         div.addEventListener('input', markDirty);
         td.appendChild(div);
       }
-      if (field === 'assunto') { /* sem badges */ }
       tr.appendChild(td);
     });
 
@@ -509,8 +531,7 @@
       id: tr.dataset.id || generateId(),
       data: tds[0].querySelector('input')?.value || '',
       assunto: tds[1].querySelector('.cell-edit')?.textContent || '',
-      multiplicador: tds[2].querySelector('.cell-edit')?.textContent || '',
-      treinado: tds[3].querySelector('.cell-edit')?.textContent || '',
+      origem: tds[2].querySelector('select')?.value || tr.dataset.origem || 'Transferência interna',
       cats: JSON.parse(tr.dataset.cats || '[]'),
       conteudo: tr.dataset.conteudo || '',
       ferramentas: tr.dataset.ferramentas || '',
@@ -571,8 +592,7 @@
     badgeId.textContent = record.id;
     detailData.textContent = record.data || '-';
     detailAssunto.textContent = record.assunto || '-';
-    detailMultiplicador.textContent = record.multiplicador || '-';
-    detailTreinado.textContent = record.treinado || '-';
+    document.getElementById('detailOrigem').textContent = record.origem || '-';
     renderDetailCats(record.cats || []);
     detailConteudo.innerHTML = record.conteudo || '';
     detailFerramentas.innerHTML = record.ferramentas || '';
@@ -656,7 +676,7 @@
     html += `<p>Gerado em ${now.toLocaleDateString('pt-BR')}</p>`;
     html += '<table><thead><tr><th>Data</th><th>Assunto</th><th>Categorias</th><th>Multiplicador</th><th>Treinado</th><th>Conteúdo</th><th>Ferramentas</th><th>Status</th><th>Observações</th></tr></thead><tbody>';
     rows.forEach(r => {
-      html += `<tr><td>${r.data}</td><td>${r.assunto}</td><td>${(r.cats||[]).join(', ')}</td><td>${r.multiplicador}</td><td>${r.treinado}</td><td>${(r.conteudo||'').replace(/\n/g,'<br/>')}</td><td>${(r.ferramentas||'').replace(/\n/g,'<br/>')}</td><td>${(r.statusRetencao||'').replace(/\n/g,'<br/>')}</td><td>${(r.observacoes||'').replace(/\n/g,'<br/>')}</td></tr>`;
+      html += `<tr><td>${r.data}</td><td>${r.assunto}</td><td>${r.origem||''}</td><td>${(r.cats||[]).join(', ')}</td><td>${(r.conteudo||'').replace(/\n/g,'<br/>')}</td><td>${(r.ferramentas||'').replace(/\n/g,'<br/>')}</td><td>${(r.statusRetencao||'').replace(/\n/g,'<br/>')}</td><td>${(r.observacoes||'').replace(/\n/g,'<br/>')}</td></tr>`;
     });
     html += '</tbody></table></body></html>';
     const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
@@ -725,6 +745,20 @@
   btnFecharDetalhe.addEventListener('click', closeDetailsPanel);
   btnToggleCatManager.addEventListener('click', () => catManager.classList.toggle('open'));
   document.getElementById('btnToggleFilter').addEventListener('click', () => catFilterBar.classList.toggle('open'));
+  document.getElementById('btnToggleOrigemFilter').addEventListener('click', () => {
+    const bar = document.getElementById('origemFilterBar');
+    bar.classList.toggle('open');
+  });
+
+  // Origem filter chips
+  document.getElementById('origemFilterBar').addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-origem]');
+    if (!chip) return;
+    activeOrigemFilter = chip.dataset.origem;
+    document.querySelectorAll('#origemFilterBar [data-origem]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    applyFilter();
+  });
   btnAddCat.addEventListener('click', async () => {
     const val = newCatInput.value.trim();
     if (!val) return;
