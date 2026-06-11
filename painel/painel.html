@@ -453,7 +453,14 @@ select option{background:#1b2e42;color:#e8eaf0;}
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full"><label>Razão Social *</label><input id="addNome" placeholder="Nome da empresa"></div>
-        <div class="form-group"><label>CNPJ</label><input id="addCnpj" placeholder="00.000.000/0000-00" maxlength="18"></div>
+        <div class="form-group">
+          <label>CNPJ</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input id="addCnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="maskCnpj(this)" style="flex:1;">
+            <button type="button" onclick="buscarCnpj()" id="btnBuscarCnpj" style="border-radius:8px;padding:6px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;">🔍 Buscar</button>
+          </div>
+          <div id="cnpjStatus" style="font-size:11px;margin-top:4px;min-height:16px;font-family:var(--font-mono);"></div>
+        </div>
         <div class="form-group"><label>Regime Tributário</label>
           <select id="addRegime">
             <option value="simples">Simples Nacional</option>
@@ -627,6 +634,53 @@ const exemploEmpresas = [
   { id:genId(),regime:'outros',nome:'Associação Comunitária do Bairro Verde',cnpj:'01.234.567/0001-89',atividade:'Entidade sem fins lucrativos',colaborador:'Ana Paula',inscricaoEstadual:'',inscricaoMunicipal:'',endereco:'Rua Verde, 55',cep:'05050-000',cidade:'São Paulo',uf:'SP',responsavel:'Presidente da Associação',email:'contato@assocverde.org',telefone:'(11) 33333-0001',dataAbertura:'2003-05-01',capitalSocial:'0',fechada:false,observacoes:'Imune. Declaração anual.',parametros:'Imunidade tributária.',regras:'DIPJ. Prestar contas anualmente.',obrigacoes:[{nome:'DCTF',vencimento:'15/mês',status:'entregue'}] },
   { id:genId(),regime:'outros',nome:'MEI João Eletricista',cnpj:'98.765.432/0001-10',atividade:'Instalações elétricas',colaborador:'Carlos Mendes',inscricaoEstadual:'',inscricaoMunicipal:'',endereco:'Rua da Luz, 88',cep:'03030-000',cidade:'São Paulo',uf:'SP',responsavel:'João Elétrico',email:'joao@eletricista.com',telefone:'(11) 99000-0002',dataAbertura:'2021-08-10',capitalSocial:'0',fechada:false,observacoes:'SIMEI mensal.',parametros:'SIMEI fixo.',regras:'DASN-SIMEI anual.',obrigacoes:[{nome:'DASN-SIMEI',vencimento:'31/05',status:'pendente'}] }
 ];
+
+// ════════════════════════════════════════════
+// CNPJ MASK & BRASILAPI LOOKUP
+// ════════════════════════════════════════════
+function maskCnpj(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 14);
+  v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+  v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  input.value = v;
+}
+
+async function buscarCnpj() {
+  const raw = (document.getElementById('addCnpj').value || '').replace(/\D/g, '');
+  const status = document.getElementById('cnpjStatus');
+  const btn = document.getElementById('btnBuscarCnpj');
+  if (raw.length !== 14) {
+    status.style.color = '#e05a5a';
+    status.textContent = '⚠️ Digite um CNPJ válido com 14 dígitos.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '⏳ Buscando...';
+  status.style.color = 'var(--gold)';
+  status.textContent = 'Consultando Receita Federal...';
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${raw}`);
+    if (!res.ok) throw new Error('não encontrado');
+    const d = await res.json();
+    document.getElementById('addNome').value = d.razao_social || '';
+    document.getElementById('addAtividade').value = d.cnae_fiscal_descricao
+      ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' (' + d.cnae_fiscal + ')' : ''}`
+      : '';
+    if (d.opcao_pelo_simples) document.getElementById('addRegime').value = 'simples';
+    const situacao = d.descricao_situacao_cadastral || '';
+    const municipio = d.municipio ? ` — ${d.municipio}/${d.uf}` : '';
+    status.style.color = '#2ecc8a';
+    status.textContent = `✅ ${situacao}${municipio}`;
+  } catch(e) {
+    status.style.color = '#e05a5a';
+    status.textContent = '⚠️ CNPJ não encontrado ou erro na consulta.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔍 Buscar';
+  }
+}
 
 // ════════════════════════════════════════════
 // FIREBASE — inicializado via módulo abaixo
