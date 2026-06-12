@@ -1501,7 +1501,7 @@
 
     let rows = '';
     empresas.forEach(e => {
-      const key = e.id || e.cnpj || e.nome;
+      const key = String(e.id || e.cnpj || e.nome);
       const obs     = (painelObs[key]?.obs  || '').replace(/</g,'&lt;');
       const perm    = (painelObs[key]?.perm || '').replace(/</g,'&lt;');
       const checked = painelObs[key]?.checked ? 'checked' : '';
@@ -1713,7 +1713,7 @@
       if (!snap.exists()) return;
       const empresas = snap.val();
       const entries = Object.entries(empresas);
-      const match = entries.find(([, e]) => (e.id || e.cnpj || e.nome) === empresaId);
+      const match = entries.find(([, e]) => String(e.id || e.cnpj || e.nome) === String(empresaId));
       if (!match) return;
       const [fbKey] = match;
       await set(ref(db, `painel/empresas/${fbKey}/statusApuracao`), apurado ? 'apurada' : 'nao_apurada');
