@@ -954,7 +954,6 @@ function renderCard(e){
       <div class="card-meta-row">💼 ${esc(e.atividade || 'Sem atividade informada')}</div>
       <div class="card-meta-row">👤 ${esc(e.colaborador || 'Sem responsável')}</div>
     </div>
-    <span class="apuracao-badge ${apClass}">${apLabel}</span>
     ${obrigList || more ? `<div class="card-obligations" style="margin-top:5px;">${obrigList}${more}</div>` : ''}
   </div>`;
 }
@@ -1055,14 +1054,7 @@ function openEmpresa(id){
 function empresaFormHtml(e){
   const apuracaoLabel = {apurada:'✅ Apurada',nao_apurada:'⏳ Não apurada',pendente_info:'🔴 Aguardando info'}[e.statusApuracao||'nao_apurada'] || '⏳ Não apurada';
   return `
-  <div class="apuracao-section">
-    <label>📊 Status de Apuração:</label>
-    <select id="f_statusApuracao" onchange="document.getElementById('apuracao_preview').textContent=this.options[this.selectedIndex].text">
-      <option value="apurada" ${(e.statusApuracao||'nao_apurada')==='apurada'?'selected':''}>✅ Apurada</option>
-      <option value="nao_apurada" ${(e.statusApuracao||'nao_apurada')==='nao_apurada'?'selected':''}>⏳ Não apurada</option>
-      <option value="pendente_info" ${(e.statusApuracao||'')==='pendente_info'?'selected':''}>🔴 Aguardando info do cliente</option>
-    </select>
-  </div>
+
   <div class="form-section">
     <div class="form-section-title">🏢 Dados da Empresa</div>
     <div class="form-grid">
@@ -1193,7 +1185,7 @@ function saveCompany(){
     inscricaoEstadual: $('f_ie').value.trim(),
     inscricaoMunicipal: $('f_im').value.trim(),
     fechada: $('f_fechada').checked,
-    statusApuracao: $('f_statusApuracao').value,
+    statusApuracao: (S.empresas.find(x=>String(x.id)===String(editId))||{}).statusApuracao || 'nao_apurada',
     endereco: $('f_endereco').value.trim(),
     cep: $('f_cep').value.trim(),
     cidade: $('f_cidade').value.trim(),
