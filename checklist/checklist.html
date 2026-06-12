@@ -530,7 +530,27 @@
       .side-actions button { justify-content: flex-start; }
     }
 
-    /* ── SEÇÃO DO PAINEL ── */
+    #painelSection:empty { display: none; }
+    .manual-header {
+      font-family: var(--serif);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .manual-header::before {
+      content: '';
+      width: 4px;
+      height: 14px;
+      background: var(--gold-dim);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
     .section-card.from-painel { border-color: rgba(46,204,138,0.25); }
     .section-card.from-painel::before { background: linear-gradient(90deg, transparent, #2ecc8a, transparent); }
     .section-card.from-painel .section-title { color: #2ecc8a; }
@@ -642,9 +662,12 @@
       <main class="content" id="contentRoot">
 
         <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
-      <div id="painelSection"></div>
+        <div id="painelSection"></div>
 
-      <!-- LUCRO PRESUMIDO – EMPREENDIMENTOS -->
+        <!-- CABEÇALHO CHECKLIST MANUAL -->
+        <div class="manual-header" id="manualHeader">Checklist manual</div>
+
+        <!-- LUCRO PRESUMIDO – EMPREENDIMENTOS -->
         <section class="section-card" data-section="Lucro Presumido – Empreendimentos">
           <div class="section-header">
             <div class="section-title">
