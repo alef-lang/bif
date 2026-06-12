@@ -564,36 +564,39 @@
     /* ── CONTROLES SUPERIORES: COMPETÊNCIA / RESPONSÁVEL / COLABORADOR ── */
     .control-grid {
       display: grid;
-      grid-template-columns: minmax(170px, 0.8fr) minmax(220px, 1.1fr) minmax(220px, 1.1fr) auto;
+      grid-template-columns: minmax(170px, 0.8fr) minmax(230px, 1fr) minmax(230px, 1fr);
       gap: 12px;
       align-items: stretch;
     }
 
     .control-field {
       position: relative;
-      min-height: 76px;
-      border: 1px solid rgba(201,168,76,0.22);
+      min-height: 74px;
+      border: 1px solid rgba(201,168,76,0.18);
       border-radius: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 24px rgba(0,0,0,0.10);
+      background: rgba(255,255,255,0.035);
       padding: 11px 12px 10px;
       overflow: hidden;
-      transition: border-color 0.18s, box-shadow 0.18s, transform 0.12s, background 0.18s;
+      transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
     }
 
     .control-field::before {
       content: '';
       position: absolute;
-      inset: 0 auto 0 0;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
       width: 3px;
-      background: linear-gradient(180deg, var(--gold-light), transparent);
-      opacity: 0.75;
+      border-radius: 999px;
+      background: var(--gold);
+      opacity: 0.65;
     }
 
-    .control-field:hover {
-      border-color: rgba(201,168,76,0.42);
-      background: linear-gradient(180deg, rgba(201,168,76,0.075), rgba(255,255,255,0.025));
-      transform: translateY(-1px);
+    .control-field:hover,
+    .control-field:focus-within {
+      border-color: rgba(201,168,76,0.36);
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.045);
     }
 
     .control-label-row {
@@ -602,7 +605,7 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 7px;
-      padding-left: 3px;
+      padding-left: 4px;
     }
 
     .control-label {
@@ -610,7 +613,7 @@
       align-items: center;
       gap: 7px;
       font-family: var(--mono);
-      font-size: 0.68rem;
+      font-size: 0.67rem;
       font-weight: 700;
       color: var(--gold-light);
       letter-spacing: 0.08em;
@@ -619,42 +622,38 @@
     }
 
     .control-label .mini-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      border-radius: 7px;
-      background: rgba(201,168,76,0.13);
-      border: 1px solid rgba(201,168,76,0.2);
-      font-size: 0.78rem;
+      width: auto;
+      height: auto;
+      background: transparent;
+      border: 0;
+      font-size: 0.86rem;
       letter-spacing: 0;
+      opacity: 0.95;
     }
 
     .control-field input,
     .control-field select {
       width: 100%;
       height: 38px;
-      border-radius: 11px;
-      border: 1px solid rgba(201,168,76,0.20);
-      background: rgba(13,27,42,0.55);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.075);
+      background: rgba(13,27,42,0.48);
       color: var(--text);
       font-family: var(--sans);
       font-size: 0.9rem;
       font-weight: 600;
       outline: none;
       padding: 8px 11px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
       transition: border-color 0.16s, box-shadow 0.16s, background 0.16s;
     }
 
-    .control-field input::placeholder { color: rgba(139,160,184,0.78); font-weight: 500; }
+    .control-field input::placeholder { color: rgba(139,160,184,0.74); font-weight: 500; }
 
     .control-field input:focus,
     .control-field select:focus {
-      border-color: var(--gold);
-      background: rgba(13,27,42,0.78);
-      box-shadow: 0 0 0 3px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.06);
+      border-color: rgba(201,168,76,0.55);
+      background: rgba(13,27,42,0.70);
+      box-shadow: 0 0 0 3px var(--gold-glow);
     }
 
     .control-field select {
@@ -668,7 +667,7 @@
       content: '⌄';
       position: absolute;
       right: 24px;
-      bottom: 19px;
+      bottom: 20px;
       color: var(--gold-light);
       font-size: 1rem;
       pointer-events: none;
@@ -696,66 +695,172 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 34px;
-      height: 20px;
+      min-width: 32px;
+      height: 19px;
       padding: 0 8px;
       border-radius: 999px;
       background: rgba(46,204,138,0.10);
       border: 1px solid rgba(46,204,138,0.18);
       color: var(--green);
       font-family: var(--mono);
-      font-size: 0.66rem;
+      font-size: 0.64rem;
       font-weight: 700;
     }
 
+    /* ── RESUMO: TOTAL / CONCLUÍDAS / PENDENTES ── */
     .control-metrics {
-      display: flex;
-      gap: 10px;
-      align-items: stretch;
-      justify-content: flex-end;
-      flex-wrap: nowrap;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      margin-top: 2px;
+      border: 1px solid rgba(201,168,76,0.16);
+      border-radius: 14px;
+      background: rgba(13,27,42,0.32);
+      overflow: hidden;
     }
 
     .metric-card {
-      min-width: 78px;
-      border: 1px solid rgba(201,168,76,0.16);
-      border-radius: 14px;
-      background: rgba(255,255,255,0.035);
-      padding: 10px 9px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
+      min-height: 58px;
+      border: 0;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      background: transparent;
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      column-gap: 10px;
+      align-items: center;
+      box-shadow: none;
+      transition: background 0.15s;
+    }
+
+    .metric-card:last-child { border-right: 0; }
+    .metric-card:hover { background: rgba(255,255,255,0.035); }
+
+    .metric-card::before { display: none; }
+
+    .metric-icon {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
-      gap: 5px;
+      background: rgba(201,168,76,0.10);
+      border: 1px solid rgba(201,168,76,0.16);
+      font-size: 0.88rem;
+    }
+
+    .status-done .metric-icon {
+      background: rgba(46,204,138,0.10);
+      border-color: rgba(46,204,138,0.17);
+    }
+
+    .status-pending .metric-icon {
+      background: rgba(224,90,90,0.10);
+      border-color: rgba(224,90,90,0.17);
     }
 
     .metric-card .metric-title {
-      font-size: 0.64rem;
+      grid-column: 1;
       color: var(--text-muted);
       font-family: var(--mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      line-height: 1.1;
+      line-height: 1.15;
+      white-space: nowrap;
     }
 
     .metric-card .badge {
-      font-size: 0.95rem;
-      height: 24px;
-      min-width: 34px;
-      padding: 1px 12px;
-      align-self: center;
+      grid-column: 1;
+      justify-self: start;
+      height: auto;
+      min-width: auto;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .metric-card .badge-success { color: var(--green); }
+    .metric-card .badge-danger  { color: var(--red); }
+
+    /* ── FILTROS DE STATUS ── */
+    #filterBar {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(201,168,76,0.13);
+      border-radius: 999px;
+      padding: 6px;
+      width: fit-content;
+    }
+
+    #filterBar > span:first-child {
+      padding: 0 6px 0 4px;
+    }
+
+    .cat-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      background: transparent;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .cat-chip:hover {
+      background: rgba(201,168,76,0.08);
+      color: var(--gold-light);
+    }
+
+    .cat-chip.active {
+      background: rgba(201,168,76,0.16);
+      border-color: rgba(201,168,76,0.24);
+      color: var(--gold-light);
+    }
+
+    .cat-chip[data-filter="done"].active {
+      background: rgba(46,204,138,0.12);
+      border-color: rgba(46,204,138,0.22);
+      color: var(--green);
+    }
+
+    .cat-chip[data-filter="pending"].active {
+      background: rgba(224,90,90,0.12);
+      border-color: rgba(224,90,90,0.22);
+      color: var(--red);
     }
 
     @media (max-width: 980px) {
       .control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .control-metrics { grid-column: 1 / -1; justify-content: flex-start; flex-wrap: wrap; }
+      .control-field.select-field { grid-column: 1 / -1; }
     }
 
     @media (max-width: 640px) {
       .control-grid { grid-template-columns: 1fr; }
       .control-field { min-height: auto; }
-      .control-metrics { justify-content: space-between; }
-      .metric-card { flex: 1 1 90px; }
+      .control-field.select-field { grid-column: auto; }
+      .control-metrics { grid-template-columns: 1fr; border-radius: 14px; }
+      .metric-card { min-height: 54px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .metric-card:last-child { border-bottom: 0; }
+      #filterBar { width: 100%; border-radius: 14px; }
+      .cat-chip { flex: 1; }
     }
 
     /* ── IMPRESSÃO ── */
@@ -821,15 +926,18 @@
         </div>
 
         <div class="control-metrics" aria-label="Resumo do fechamento">
-          <div class="metric-card">
+          <div class="metric-card status-total" title="Total de empresas no checklist">
+            <span class="metric-icon">Σ</span>
             <div class="metric-title">Total</div>
             <div class="badge" id="totalEmpresasBadge">0</div>
           </div>
-          <div class="metric-card">
+          <div class="metric-card status-done" title="Empresas concluídas">
+            <span class="metric-icon">✓</span>
             <div class="metric-title">Concluídas</div>
             <div class="badge badge-success" id="concluidasBadge">0</div>
           </div>
-          <div class="metric-card">
+          <div class="metric-card status-pending" title="Empresas pendentes">
+            <span class="metric-icon">!</span>
             <div class="metric-title">Pendentes</div>
             <div class="badge badge-danger" id="pendentesBadge">0</div>
           </div>
@@ -842,8 +950,8 @@
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;" id="filterBar">
         <span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);display:flex;align-items:center;">Filtrar:</span>
         <span class="cat-chip all active" data-filter="all" onclick="aplicarFiltroStatus('all')">Todas</span>
-        <span class="cat-chip" data-filter="pending" onclick="aplicarFiltroStatus('pending')">⬜ Pendentes</span>
-        <span class="cat-chip" data-filter="done" onclick="aplicarFiltroStatus('done')">✅ Concluídas</span>
+        <span class="cat-chip" data-filter="pending" onclick="aplicarFiltroStatus('pending')">Pendentes</span>
+        <span class="cat-chip" data-filter="done" onclick="aplicarFiltroStatus('done')">Concluídas</span>
       </div>
 
       <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
