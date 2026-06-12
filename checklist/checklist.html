@@ -559,6 +559,134 @@
     .select-colaborador { width:100%; padding:7px 10px; border-radius:var(--rsm); border:1px solid var(--gold-dim); font-size:0.82rem; font-family:var(--sans); background:rgba(255,255,255,0.04); color:var(--text); outline:none; cursor:pointer; }
     .select-colaborador:focus { border-color:var(--gold); box-shadow:0 0 0 2px var(--gold-glow); }
 
+
+
+    /* ── CONTROLES SUPERIORES / FILTROS ── */
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .control-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .control-shell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .control-shell::before {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .control-shell.competencia::before { content: '📅'; }
+    .control-shell.responsavel::before { content: '👤'; }
+    .control-shell.colaborador::before { content: '👥'; }
+
+    #competenciaField,
+    #responsavelField,
+    #colaboradorSelect,
+    .select-colaborador {
+      width: 100%;
+      min-height: 40px;
+      padding: 9px 38px 9px 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(201,168,76,0.28);
+      font-size: 0.88rem;
+      font-family: var(--sans);
+      background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.035));
+      color: var(--text);
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    #competenciaField:focus,
+    #responsavelField:focus,
+    #colaboradorSelect:focus,
+    .select-colaborador:focus {
+      border-color: var(--gold);
+      background: rgba(255,255,255,0.085);
+      box-shadow: 0 0 0 3px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    #competenciaField::placeholder,
+    #responsavelField::placeholder { color: rgba(139,160,184,0.72); }
+
+    #colaboradorSelect,
+    .select-colaborador {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      padding-right: 42px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--gold-light) 50%),
+        linear-gradient(135deg, var(--gold-light) 50%, transparent 50%),
+        linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.035));
+      background-position:
+        calc(100% - 20px) 17px,
+        calc(100% - 14px) 17px,
+        0 0;
+      background-size: 6px 6px, 6px 6px, 100% 100%;
+      background-repeat: no-repeat;
+    }
+
+    #colaboradorSelect option,
+    .select-colaborador option {
+      background: #1b2e42;
+      color: #e8edf3;
+    }
+
+    .cat-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 32px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(201,168,76,0.18);
+      background: rgba(255,255,255,0.045);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-family: var(--sans);
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    }
+
+    .cat-chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(201,168,76,0.42);
+      background: rgba(201,168,76,0.10);
+      color: var(--gold-light);
+    }
+
+    .cat-chip.active {
+      background: linear-gradient(135deg, rgba(201,168,76,0.95), rgba(232,201,122,0.95));
+      color: var(--navy);
+      border-color: transparent;
+      box-shadow: 0 8px 24px rgba(201,168,76,0.12);
+    }
+
+    .empresa-item.is-filtered-out { display: none !important; }
+
     /* ── IMPRESSÃO ── */
     @media print {
       body { background: #fff !important; color: #1a1a1a !important; }
@@ -593,23 +721,30 @@
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
-        <div class="field-group" style="margin:0;">
+      <div class="control-grid">
+        <div class="field-group control-field" style="margin:0;">
           <div class="field-label">Competência</div>
-          <input id="competenciaField" type="text" placeholder="Ex.: 05/2026"/>
+          <div class="control-shell competencia">
+            <input id="competenciaField" type="text" inputmode="numeric" maxlength="7" placeholder="MM/AAAA"/>
+          </div>
         </div>
-        <div class="field-group" style="margin:0;">
+        <div class="field-group control-field" style="margin:0;">
           <div class="field-label">Responsável</div>
-          <input id="responsavelField" type="text" placeholder="Nome do responsável"/>
+          <div class="control-shell responsavel">
+            <input id="responsavelField" type="text" placeholder="Nome do responsável" list="responsaveisList"/>
+            <datalist id="responsaveisList"></datalist>
+          </div>
         </div>
-        <div class="field-group" style="margin:0;">
+        <div class="field-group control-field" style="margin:0;">
           <div class="field-label" style="display:flex;justify-content:space-between;">
             <span>Colaborador</span>
             <span id="painelStatus" style="font-size:0.65rem;font-family:var(--mono);color:var(--text-muted);">⏳</span>
           </div>
-          <select id="colaboradorSelect" class="select-colaborador" onchange="carregarDoPanel()">
-            <option value="__manual__">📋 Manual</option>
-          </select>
+          <div class="control-shell colaborador">
+            <select id="colaboradorSelect" class="select-colaborador" onchange="carregarDoPanel()">
+              <option value="__manual__">Manual</option>
+            </select>
+          </div>
         </div>
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
           <div style="text-align:center;">
@@ -630,6 +765,12 @@
 
     <!-- CONTEÚDO -->
     <div id="contentRoot">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;" id="filterBar">
+        <span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);display:flex;align-items:center;">Filtrar:</span>
+        <span class="cat-chip all active" data-filter="all" onclick="aplicarFiltroStatus('all')">Todas</span>
+        <span class="cat-chip" data-filter="pending" onclick="aplicarFiltroStatus('pending')">⬜ Pendentes</span>
+        <span class="cat-chip" data-filter="done" onclick="aplicarFiltroStatus('done')">✅ Concluídas</span>
+      </div>
 
       <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
       <div id="painelSection"></div>
@@ -641,6 +782,27 @@
   </div><!-- /page -->
 
   <script>
+    let currentStatusFilter = 'all';
+
+    // Filtro por status
+    function aplicarFiltroStatus(filter) {
+      currentStatusFilter = filter || 'all';
+      document.querySelectorAll('#filterBar [data-filter]').forEach(c => {
+        c.classList.toggle('active', c.dataset.filter === currentStatusFilter);
+        c.setAttribute('aria-pressed', String(c.dataset.filter === currentStatusFilter));
+      });
+      atualizarVisibilidadeFiltro();
+    }
+
+    function atualizarVisibilidadeFiltro() {
+      document.querySelectorAll('.empresa-item').forEach(item => {
+        const checked = !!item.querySelector('.empresa-check')?.checked;
+        const ocultar = currentStatusFilter === 'done' ? !checked :
+                       currentStatusFilter === 'pending' ? checked : false;
+        item.classList.toggle('is-filtered-out', ocultar);
+      });
+    }
+
     // Atualiza contadores de concluídas/pendentes e total fechado
     function atualizarTotais() {
       const checkboxes = document.querySelectorAll(".empresa-check");
@@ -663,6 +825,8 @@
       if (badgePendentes) badgePendentes.textContent = pendentes;
       if (totalFechadoField)
         totalFechadoField.value = concluidas + " / " + total + " empresas";
+
+      atualizarVisibilidadeFiltro();
     }
 
     // Adiciona listeners em todos os checkboxes
@@ -1025,8 +1189,55 @@
       alert(`Checklist de ${novaComp || 'próximo mês'} iniciado!`);
     }
 
+
+
+    function normalizarCompetencia(value) {
+      const digits = (value || '').replace(/\D/g, '').slice(0, 6);
+      if (digits.length <= 2) return digits;
+      return digits.slice(0, 2) + '/' + digits.slice(2);
+    }
+
+    function configurarCamposControle() {
+      const comp = document.getElementById('competenciaField');
+      const resp = document.getElementById('responsavelField');
+      const datalist = document.getElementById('responsaveisList');
+
+      if (comp) {
+        comp.addEventListener('input', () => {
+          const before = comp.value;
+          const after = normalizarCompetencia(before);
+          if (before !== after) comp.value = after;
+          autosave();
+        });
+      }
+
+      if (resp && datalist) {
+        const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+        const nomes = new Set(saved.responsaveisRecentes || []);
+        if (saved.responsavel) nomes.add(saved.responsavel);
+        nomes.forEach(nome => {
+          if (!nome) return;
+          const opt = document.createElement('option');
+          opt.value = nome;
+          datalist.appendChild(opt);
+        });
+
+        resp.addEventListener('change', () => {
+          const savedNow = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+          const lista = [resp.value, ...(savedNow.responsaveisRecentes || [])]
+            .filter(Boolean)
+            .filter((v, i, arr) => arr.indexOf(v) === i)
+            .slice(0, 8);
+          savedNow.responsaveisRecentes = lista;
+          savedNow.responsavel = resp.value;
+          localStorage.setItem('checklistFiscal', JSON.stringify(savedNow));
+        });
+      }
+    }
+
     // Inicialização
     window.addEventListener('DOMContentLoaded', () => {
+      configurarCamposControle();
       bindCheckboxListeners();
       loadLocal();
       atualizarTotais();
@@ -1036,7 +1247,7 @@
       document.getElementById('contentRoot').addEventListener('change', autosave);
       document.getElementById('competenciaField').addEventListener('input', autosave);
       document.getElementById('responsavelField').addEventListener('input', autosave);
-      document.getElementById('conclusaoField').addEventListener('input', autosave);
+      document.getElementById('conclusaoField')?.addEventListener('input', autosave);
     });
   </script>
 
@@ -1066,7 +1277,7 @@
       const empresas = Object.values(snap.val()).filter(e => !e.fechada && e.colaborador);
       const colaboradores = [...new Set(empresas.map(e => e.colaborador))].sort();
       const sel = document.getElementById('colaboradorSelect');
-      sel.innerHTML = '<option value="">-- Selecionar --</option>';
+      sel.innerHTML = '<option value="__manual__">Manual</option>'; 
       colaboradores.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c; opt.textContent = c;
@@ -1127,16 +1338,44 @@
       const perm    = (painelObs[key]?.perm || '').replace(/</g,'&lt;');
       const checked = painelObs[key]?.checked ? 'checked' : '';
       const regimeLabel = {simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[e.regime] || e.regime || '';
+
+      // Subtarefas: obrigações acessórias da empresa
+      const obrigacoes = Array.isArray(e.obrigacoes) ? e.obrigacoes : [];
+      const subtasksChecked = painelObs[key]?.subtasks || {};
+      let subtasksHtml = '';
+      if (obrigacoes.length) {
+        const items = obrigacoes.map(o => {
+          const subChecked = subtasksChecked[o.nome] ? 'checked' : '';
+          const statusColor = o.status === 'entregue' ? '#2ecc8a' : o.status === 'atrasado' ? '#e05a5a' : '#c9a84c';
+          return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <input type="checkbox" class="sub-check" data-empresa-key="${key}" data-sub-nome="${o.nome}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
+            <span style="font-size:0.82rem;flex:1;">${o.nome}</span>
+            <span style="font-size:0.68rem;font-family:var(--mono);color:${statusColor};">${o.vencimento||''}</span>
+          </div>`;
+        }).join('');
+        subtasksHtml = `
+          <div class="subtasks-panel" id="sub_${key.replace(/[^a-z0-9]/gi,'_')}" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:6px;border:1px solid var(--gold-dim);">
+            <div style="font-size:0.68rem;font-weight:700;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Obrigações Acessórias</div>
+            ${items}
+          </div>`;
+      }
+
+      const subtaskBtn = obrigacoes.length
+        ? `<button type="button" onclick="toggleSubtasks('sub_${key.replace(/[^a-z0-9]/gi,'_')}')" style="font-size:0.72rem;padding:2px 9px;border-radius:999px;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);cursor:pointer;font-family:var(--mono);">▶ ${obrigacoes.length} obrig.</button>`
+        : '';
+
       rows += `
         <div class="item-row empresa-item" data-painel-id="${key}">
           <div class="item-check"><input type="checkbox" class="empresa-check" ${checked}/></div>
           <div class="item-main">
             <input class="item-title-input" value="${(e.nome||'').replace(/"/g,'&quot;')}" readonly style="opacity:0.85;cursor:default;">
-            <div class="item-meta" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <div class="item-meta" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;">
               <span class="painel-badge">Painel</span>
               ${regimeLabel ? `<span style="font-size:0.72rem;color:var(--text-muted);">${regimeLabel}</span>` : ''}
               ${e.cnpj ? `<span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);">${e.cnpj}</span>` : ''}
+              ${subtaskBtn}
             </div>
+            ${subtasksHtml}
           </div>
           <div class="item-observation">
             <label>📅 Obs. do mês:</label>
@@ -1157,7 +1396,18 @@
 
     container.querySelectorAll('textarea').forEach(ta => ta.addEventListener('input', salvarPainelObs));
     container.querySelectorAll('.empresa-check').forEach(cb => cb.addEventListener('change', () => { salvarPainelObs(); atualizarTotais(); }));
+    container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', salvarPainelObs));
     atualizarTotais();
+  };
+
+  window.toggleSubtasks = function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const open = el.style.display !== 'none';
+    el.style.display = open ? 'none' : 'block';
+    const btn = el.previousElementSibling?.querySelector('button[onclick*="toggleSubtasks"]') ||
+                el.closest('.item-main')?.querySelector('button[onclick*="toggleSubtasks"]');
+    if (btn) btn.textContent = btn.textContent.replace(/[▶▼]/, open ? '▶' : '▼');
   };
 
   window.salvarPainelObs = function() {
@@ -1166,10 +1416,15 @@
     document.querySelectorAll('#painelSection .empresa-item').forEach(item => {
       const key = item.dataset.painelId;
       if (!key) return;
+      const subtasks = {};
+      item.querySelectorAll('.sub-check').forEach(cb => {
+        if (cb.dataset.subNome) subtasks[cb.dataset.subNome] = cb.checked;
+      });
       painelObs[key] = {
         checked: item.querySelector('.empresa-check')?.checked || false,
         obs:  item.querySelector('.obs-mes')?.value || '',
-        perm: item.querySelector('.obs-permanente')?.value || ''
+        perm: item.querySelector('.obs-permanente')?.value || '',
+        subtasks
       };
     });
     saved.painelObs = painelObs;
