@@ -559,134 +559,6 @@
     .select-colaborador { width:100%; padding:7px 10px; border-radius:var(--rsm); border:1px solid var(--gold-dim); font-size:0.82rem; font-family:var(--sans); background:rgba(255,255,255,0.04); color:var(--text); outline:none; cursor:pointer; }
     .select-colaborador:focus { border-color:var(--gold); box-shadow:0 0 0 2px var(--gold-glow); }
 
-
-
-    /* ── CONTROLES SUPERIORES / FILTROS ── */
-    .control-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      align-items: end;
-    }
-
-    .control-field {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      min-width: 0;
-    }
-
-    .control-shell {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 100%;
-    }
-
-    .control-shell::before {
-      position: absolute;
-      left: 11px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.9rem;
-      opacity: 0.85;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .control-shell.competencia::before { content: '📅'; }
-    .control-shell.responsavel::before { content: '👤'; }
-    .control-shell.colaborador::before { content: '👥'; }
-
-    #competenciaField,
-    #responsavelField,
-    #colaboradorSelect,
-    .select-colaborador {
-      width: 100%;
-      min-height: 40px;
-      padding: 9px 38px 9px 36px;
-      border-radius: 12px;
-      border: 1px solid rgba(201,168,76,0.28);
-      font-size: 0.88rem;
-      font-family: var(--sans);
-      background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.035));
-      color: var(--text);
-      outline: none;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-    }
-
-    #competenciaField:focus,
-    #responsavelField:focus,
-    #colaboradorSelect:focus,
-    .select-colaborador:focus {
-      border-color: var(--gold);
-      background: rgba(255,255,255,0.085);
-      box-shadow: 0 0 0 3px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.06);
-    }
-
-    #competenciaField::placeholder,
-    #responsavelField::placeholder { color: rgba(139,160,184,0.72); }
-
-    #colaboradorSelect,
-    .select-colaborador {
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
-      padding-right: 42px;
-      background-image:
-        linear-gradient(45deg, transparent 50%, var(--gold-light) 50%),
-        linear-gradient(135deg, var(--gold-light) 50%, transparent 50%),
-        linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.035));
-      background-position:
-        calc(100% - 20px) 17px,
-        calc(100% - 14px) 17px,
-        0 0;
-      background-size: 6px 6px, 6px 6px, 100% 100%;
-      background-repeat: no-repeat;
-    }
-
-    #colaboradorSelect option,
-    .select-colaborador option {
-      background: #1b2e42;
-      color: #e8edf3;
-    }
-
-    .cat-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 32px;
-      padding: 7px 13px;
-      border-radius: 999px;
-      border: 1px solid rgba(201,168,76,0.18);
-      background: rgba(255,255,255,0.045);
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      font-family: var(--sans);
-      font-weight: 700;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
-    }
-
-    .cat-chip:hover {
-      transform: translateY(-1px);
-      border-color: rgba(201,168,76,0.42);
-      background: rgba(201,168,76,0.10);
-      color: var(--gold-light);
-    }
-
-    .cat-chip.active {
-      background: linear-gradient(135deg, rgba(201,168,76,0.95), rgba(232,201,122,0.95));
-      color: var(--navy);
-      border-color: transparent;
-      box-shadow: 0 8px 24px rgba(201,168,76,0.12);
-    }
-
-    .empresa-item.is-filtered-out { display: none !important; }
-
     /* ── IMPRESSÃO ── */
     @media print {
       body { background: #fff !important; color: #1a1a1a !important; }
@@ -721,30 +593,23 @@
         </div>
       </div>
 
-      <div class="control-grid">
-        <div class="field-group control-field" style="margin:0;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
+        <div class="field-group" style="margin:0;">
           <div class="field-label">Competência</div>
-          <div class="control-shell competencia">
-            <input id="competenciaField" type="text" inputmode="numeric" maxlength="7" placeholder="MM/AAAA"/>
-          </div>
+          <input id="competenciaField" type="text" placeholder="Ex.: 05/2026"/>
         </div>
-        <div class="field-group control-field" style="margin:0;">
+        <div class="field-group" style="margin:0;">
           <div class="field-label">Responsável</div>
-          <div class="control-shell responsavel">
-            <input id="responsavelField" type="text" placeholder="Nome do responsável" list="responsaveisList"/>
-            <datalist id="responsaveisList"></datalist>
-          </div>
+          <input id="responsavelField" type="text" placeholder="Nome do responsável"/>
         </div>
-        <div class="field-group control-field" style="margin:0;">
+        <div class="field-group" style="margin:0;">
           <div class="field-label" style="display:flex;justify-content:space-between;">
             <span>Colaborador</span>
             <span id="painelStatus" style="font-size:0.65rem;font-family:var(--mono);color:var(--text-muted);">⏳</span>
           </div>
-          <div class="control-shell colaborador">
-            <select id="colaboradorSelect" class="select-colaborador" onchange="carregarDoPanel()">
-              <option value="__manual__">Manual</option>
-            </select>
-          </div>
+          <select id="colaboradorSelect" class="select-colaborador" onchange="carregarDoPanel()">
+            <option value="__manual__">📋 Manual</option>
+          </select>
         </div>
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
           <div style="text-align:center;">
@@ -782,24 +647,14 @@
   </div><!-- /page -->
 
   <script>
-    let currentStatusFilter = 'all';
-
     // Filtro por status
     function aplicarFiltroStatus(filter) {
-      currentStatusFilter = filter || 'all';
-      document.querySelectorAll('#filterBar [data-filter]').forEach(c => {
-        c.classList.toggle('active', c.dataset.filter === currentStatusFilter);
-        c.setAttribute('aria-pressed', String(c.dataset.filter === currentStatusFilter));
-      });
-      atualizarVisibilidadeFiltro();
-    }
-
-    function atualizarVisibilidadeFiltro() {
+      document.querySelectorAll('#filterBar [data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
       document.querySelectorAll('.empresa-item').forEach(item => {
-        const checked = !!item.querySelector('.empresa-check')?.checked;
-        const ocultar = currentStatusFilter === 'done' ? !checked :
-                       currentStatusFilter === 'pending' ? checked : false;
-        item.classList.toggle('is-filtered-out', ocultar);
+        const checked = item.querySelector('.empresa-check')?.checked;
+        if (filter === 'all') item.style.display = '';
+        else if (filter === 'done') item.style.display = checked ? '' : 'none';
+        else item.style.display = !checked ? '' : 'none';
       });
     }
 
@@ -825,8 +680,6 @@
       if (badgePendentes) badgePendentes.textContent = pendentes;
       if (totalFechadoField)
         totalFechadoField.value = concluidas + " / " + total + " empresas";
-
-      atualizarVisibilidadeFiltro();
     }
 
     // Adiciona listeners em todos os checkboxes
@@ -1186,58 +1039,17 @@
         window._setManualItems(items);
       }
 
+      // Reseta apuração no Painel para o colaborador atual
+      const colaboradorAtual = document.getElementById('colaboradorSelect')?.value;
+      if (window._resetPainelApuracao && colaboradorAtual && colaboradorAtual !== '__manual__') {
+        window._resetPainelApuracao(colaboradorAtual);
+      }
+
       alert(`Checklist de ${novaComp || 'próximo mês'} iniciado!`);
-    }
-
-
-
-    function normalizarCompetencia(value) {
-      const digits = (value || '').replace(/\D/g, '').slice(0, 6);
-      if (digits.length <= 2) return digits;
-      return digits.slice(0, 2) + '/' + digits.slice(2);
-    }
-
-    function configurarCamposControle() {
-      const comp = document.getElementById('competenciaField');
-      const resp = document.getElementById('responsavelField');
-      const datalist = document.getElementById('responsaveisList');
-
-      if (comp) {
-        comp.addEventListener('input', () => {
-          const before = comp.value;
-          const after = normalizarCompetencia(before);
-          if (before !== after) comp.value = after;
-          autosave();
-        });
-      }
-
-      if (resp && datalist) {
-        const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-        const nomes = new Set(saved.responsaveisRecentes || []);
-        if (saved.responsavel) nomes.add(saved.responsavel);
-        nomes.forEach(nome => {
-          if (!nome) return;
-          const opt = document.createElement('option');
-          opt.value = nome;
-          datalist.appendChild(opt);
-        });
-
-        resp.addEventListener('change', () => {
-          const savedNow = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-          const lista = [resp.value, ...(savedNow.responsaveisRecentes || [])]
-            .filter(Boolean)
-            .filter((v, i, arr) => arr.indexOf(v) === i)
-            .slice(0, 8);
-          savedNow.responsaveisRecentes = lista;
-          savedNow.responsavel = resp.value;
-          localStorage.setItem('checklistFiscal', JSON.stringify(savedNow));
-        });
-      }
     }
 
     // Inicialização
     window.addEventListener('DOMContentLoaded', () => {
-      configurarCamposControle();
       bindCheckboxListeners();
       loadLocal();
       atualizarTotais();
@@ -1277,7 +1089,7 @@
       const empresas = Object.values(snap.val()).filter(e => !e.fechada && e.colaborador);
       const colaboradores = [...new Set(empresas.map(e => e.colaborador))].sort();
       const sel = document.getElementById('colaboradorSelect');
-      sel.innerHTML = '<option value="__manual__">Manual</option>'; 
+      sel.innerHTML = '<option value="__manual__">📋 Manual</option>';
       colaboradores.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c; opt.textContent = c;
@@ -1395,7 +1207,14 @@
       </section>`;
 
     container.querySelectorAll('textarea').forEach(ta => ta.addEventListener('input', salvarPainelObs));
-    container.querySelectorAll('.empresa-check').forEach(cb => cb.addEventListener('change', () => { salvarPainelObs(); atualizarTotais(); }));
+    container.querySelectorAll('.empresa-check').forEach(cb => cb.addEventListener('change', () => {
+      salvarPainelObs();
+      atualizarTotais();
+      // Sincroniza apuração no Painel
+      const item = cb.closest('.empresa-item');
+      const empresaId = item?.dataset?.painelId;
+      if (empresaId) updatePainelApuracao(empresaId, cb.checked);
+    }));
     container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', salvarPainelObs));
     atualizarTotais();
   };
@@ -1521,6 +1340,43 @@
   // Expõe para o proximoMes zerar obs do mês
   window._getManualItems = () => manualItems;
   window._setManualItems = (items) => { manualItems = items; renderManual(); salvarManual(); };
+
+  // ── SINCRONIZAÇÃO COM PAINEL ───────────────
+  async function updatePainelApuracao(empresaId, apurado) {
+    try {
+      const snap = await get(ref(db, 'painel/empresas'));
+      if (!snap.exists()) return;
+      const empresas = snap.val();
+      const entries = Object.entries(empresas);
+      const match = entries.find(([, e]) => (e.id || e.cnpj || e.nome) === empresaId);
+      if (!match) return;
+      const [fbKey] = match;
+      await set(ref(db, `painel/empresas/${fbKey}/statusApuracao`), apurado ? 'apurada' : 'nao_apurada');
+    } catch(e) {
+      console.error('Erro ao atualizar apuração no Painel:', e);
+    }
+  }
+
+  // Reset apuração no Painel ao virar o mês
+  window._resetPainelApuracao = async function(colaborador) {
+    try {
+      const snap = await get(ref(db, 'painel/empresas'));
+      if (!snap.exists()) return;
+      const empresas = snap.val();
+      const updates = {};
+      Object.entries(empresas).forEach(([k, e]) => {
+        if (!colaborador || e.colaborador === colaborador) {
+          updates[`painel/empresas/${k}/statusApuracao`] = 'nao_apurada';
+        }
+      });
+      // Aplica todos de uma vez
+      for (const [path, val] of Object.entries(updates)) {
+        await set(ref(db, path), val);
+      }
+    } catch(e) {
+      console.error('Erro ao resetar apuração:', e);
+    }
+  };
 
   carregarColaboradores();
   carregarManual();
