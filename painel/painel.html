@@ -366,6 +366,15 @@ select option{background:#1b2e42;color:#e8eaf0;}
     <option value="ativa">Ativas</option>
     <option value="fechada">Fechadas</option>
   </select>
+  <select class="select-filter" id="filterApuracao" onchange="renderAll()">
+    <option value="">Todas as apurações</option>
+    <option value="nao_apurada">⏳ Não apurada</option>
+    <option value="apurada">✅ Apurada</option>
+    <option value="pendente_info">🔴 Aguardando info</option>
+  </select>
+  <select class="select-filter" id="filterColaborador" onchange="renderAll()">
+    <option value="">Todos os colaboradores</option>
+  </select>
   <div class="filter-tags" id="filterStatusObrig" style="flex:none;gap:6px;display:flex;">
     <span class="filter-label" style="margin-left:6px;">Entrega:</span>
     <button class="filter-tag tag-entregue" onclick="toggleStatusObrigFilter(this,'entregue')">✅ Entregue</button>
@@ -614,6 +623,7 @@ let currentEditId = null;
 let pendingDeleteId = null;
 let currentPin = '';
 let modalObrigacoes = [];
+let modalImportacoes = [];
 
 // ════════════════════════════════════════════
 // DADOS DE EXEMPLO
@@ -876,6 +886,8 @@ function clearFilters(){
   if($('searchInput')) $('searchInput').value = '';
   if($('filterRegime')) $('filterRegime').value = '';
   if($('filterStatus')) $('filterStatus').value = '';
+  if($('filterApuracao')) $('filterApuracao').value = '';
+  if($('filterColaborador')) $('filterColaborador').value = '';
   if($('filterAtividade')) $('filterAtividade').value = '';
   document.querySelectorAll('#filterStatusObrig .filter-tag').forEach(b=>b.classList.remove('active'));
   renderFilterTags();
@@ -888,9 +900,13 @@ function passesFilters(e){
   const fr = $('filterRegime')?.value || '';
   const fs = $('filterStatus')?.value || '';
   const fa = selectedActivity();
+  const fap = $('filterApuracao')?.value || '';
+  const fcol = $('filterColaborador')?.value || '';
   if(fr && e.regime !== fr) return false;
   if(fs && empresaStatus(e) !== fs) return false;
   if(fa && e.atividade !== fa) return false;
+  if(fap && (e.statusApuracao || 'nao_apurada') !== fap) return false;
+  if(fcol && (e.colaborador || '') !== fcol) return false;
   if(S.activeFilters.length && !S.activeFilters.every(f => (e.obrigacoes||[]).some(o=>o.nome === f))) return false;
   if(S.activeStatusObrig.length && !S.activeStatusObrig.some(st => (e.obrigacoes||[]).some(o=>o.status === st))) return false;
   const q = norm(S.searchTerm);
@@ -905,6 +921,14 @@ function getFilteredEmpresas(){ return S.empresas.filter(passesFilters); }
 
 function renderAll(){
   ensureActivityFilter();
+  // Atualiza seletor de colaboradores
+  const fcol = $('filterColaborador');
+  if(fcol){
+    const current = fcol.value;
+    const cols = [...new Set((S.empresas||[]).map(e=>e.colaborador).filter(Boolean))].sort();
+    fcol.innerHTML = '<option value="">Todos os colaboradores</option>' +
+      cols.map(c=>`<option value="${esc(c)}" ${current===c?'selected':''}>${esc(c)}</option>`).join('');
+  }
   ['simples','presumido','real','outros'].forEach(renderColumn);
   updateStats();
   saveState();
@@ -991,10 +1015,12 @@ function openEmpresa(id){
   if(!e) return;
   currentEditId = id;
   modalObrigacoes = JSON.parse(JSON.stringify(e.obrigacoes || []));
+  modalImportacoes = JSON.parse(JSON.stringify(e.importacoes || []));
   $('modalEmpresaTitle').textContent = e.nome;
   $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
+  renderModalImportacoes();
   // Ativar suporte a paste de imagem nos rich fields
   ['f_parametros','f_regras','f_observacoes'].forEach(fid => {
     const el = $(fid);
@@ -1097,6 +1123,18 @@ function empresaFormHtml(e){
     </div>
   </div>
   <div class="form-section">
+    <div class="form-section-title">📂 Importações XML</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Arquivos XML que a empresa importa mensalmente. Viram subtarefas no Checklist.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:28px;" id="modalImportacoesTags"></div>
+    <div class="obrig-add-row">
+      <input id="newImportacaoNome" placeholder="Ex: XML NF-e Entrada" list="importSuggestions">
+      <datalist id="importSuggestions">
+        <option value="XML NF-e Entrada"><option value="XML NF-e Saída"><option value="XML CT-e"><option value="XML NFS-e"><option value="XML NF3e"><option value="XML SAT/MFE">
+      </datalist>
+      <button class="btn-add-obrig" onclick="addImportacaoToModal()">Adicionar</button>
+    </div>
+  </div>
+  <div class="form-section">
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:10px;font-family:var(--font-mono);">💡 Cole imagens diretamente nos campos abaixo (Ctrl+V após copiar a imagem).</p>
     <div class="form-grid cols-1">
@@ -1127,6 +1165,26 @@ function addObrigToModal(){
 }
 function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); }
 
+function renderModalImportacoes(){
+  const el = $('modalImportacoesTags');
+  if(!el) return;
+  if(!modalImportacoes.length){ el.innerHTML = '<span style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);">Nenhuma importação cadastrada.</span>'; return; }
+  el.innerHTML = modalImportacoes.map((nome,i)=>`
+    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,0.1);border:1px solid var(--gold-dim);border-radius:999px;padding:3px 10px;font-size:11px;font-family:var(--font-mono);color:var(--gold-light);">
+      📂 ${esc(nome)}
+      <button onclick="removeImportacaoFromModal(${i})" style="background:transparent;border:none;color:#ff7675;cursor:pointer;padding:0;font-size:13px;line-height:1;">×</button>
+    </span>`).join('');
+}
+function addImportacaoToModal(){
+  const nome = $('newImportacaoNome').value.trim();
+  if(!nome){ toast('Informe o nome da importação.','error'); return; }
+  if(modalImportacoes.includes(nome)){ toast('Importação já cadastrada.','error'); return; }
+  modalImportacoes.push(nome);
+  $('newImportacaoNome').value='';
+  renderModalImportacoes();
+}
+function removeImportacaoFromModal(i){ modalImportacoes.splice(i,1); renderModalImportacoes(); }
+
 function saveCompany(){
   const e = S.empresas.find(x=>x.id===currentEditId);
   if(!e){ toast('Empresa não encontrada.','error'); return; }
@@ -1154,7 +1212,8 @@ function saveCompany(){
     parametros: $('f_parametros').innerHTML,
     regras: $('f_regras').innerHTML,
     observacoes: $('f_observacoes').innerHTML,
-    obrigacoes: modalObrigacoes
+    obrigacoes: modalObrigacoes,
+    importacoes: modalImportacoes
   });
   saveState();
   closeModal('modalEmpresa');
