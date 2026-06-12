@@ -571,596 +571,74 @@
       }
       h1, .section-title { color: #0c2d5a !important; }
     }
-  </style>
+</style>
 </head>
 <body>
   <div class="page">
     <a class="bif-link" href="#" onclick="history.back();return false;"><span class="glyph">◈</span> ← BIF</a>
 
-    <header>
-      <div class="title-block">
-        <h1>Checklist de Fechamento - Empresas</h1>
-        <div class="subtitle">
-          Organize o fechamento por regime tributário, com controle visual e histórico salvo no navegador.
+    <!-- CARD DE CONTROLES -->
+    <div class="section-card" style="margin-bottom:18px;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;">
+        <div>
+          <h1 style="margin-bottom:4px;">Checklist de Fechamento</h1>
+          <div class="subtitle">Controle visual do fechamento por regime tributário.</div>
+        </div>
+        <div class="top-actions">
+          <button type="button" onclick="proximoMes()" style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#0d1b2a;font-weight:700;"><span class="icon">▶</span> Próximo mês</button>
+          <button type="button" class="btn-secondary" onclick="window.print()"><span class="icon">🖨</span> Imprimir</button>
+          <button type="button" class="btn-secondary" onclick="exportToWord()"><span class="icon">📄</span> Word</button>
+          <button type="button" class="btn-secondary" onclick="backupDados()"><span class="icon">⬇️</span> Backup</button>
+          <button type="button" class="btn-secondary" onclick="carregarBackup()"><span class="icon">⬆️</span> Restaurar</button>
         </div>
       </div>
 
-      <div class="top-actions">
-        <button type="button" onclick="window.print()">
-          <span class="icon">🖨</span> Imprimir
-        </button>
-        <button type="button" class="btn-secondary" onclick="exportToWord()">
-          <span class="icon">📄</span> Exportar Word
-        </button>
-        <button type="button" class="btn-secondary" onclick="saveLocal()">
-          <span class="icon">💾</span> Salvar
-        </button>
-      </div>
-    </header>
-
-    <div class="layout">
-      <!-- Painel lateral -->
-      <aside class="side-panel">
-        <h2>Resumo do Checklist</h2>
-
-        <div class="field-group">
-          <div class="field-label">Competência:</div>
-          <input id="competenciaField" type="text" placeholder="Ex.: 05/2026" />
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
+        <div class="field-group" style="margin:0;">
+          <div class="field-label">Competência</div>
+          <input id="competenciaField" type="text" placeholder="Ex.: 05/2026"/>
         </div>
-
-        <div class="field-group">
-          <div class="field-label">Responsável:</div>
-          <input id="responsavelField" type="text" placeholder="Nome do responsável" />
+        <div class="field-group" style="margin:0;">
+          <div class="field-label">Responsável</div>
+          <input id="responsavelField" type="text" placeholder="Nome do responsável"/>
         </div>
-
-        <div class="side-divider"></div>
-
-        <div class="field-group">
-          <div class="field-label" style="display:flex;align-items:center;justify-content:space-between;">
-            <span>Colaborador (Painel):</span>
+        <div class="field-group" style="margin:0;">
+          <div class="field-label" style="display:flex;justify-content:space-between;">
+            <span>Colaborador</span>
             <span id="painelStatus" style="font-size:0.65rem;font-family:var(--mono);color:var(--text-muted);">⏳</span>
           </div>
           <select id="colaboradorSelect" class="select-colaborador" onchange="carregarDoPanel()">
-            <option value="">-- Selecionar --</option>
+            <option value="__manual__">📋 Manual</option>
           </select>
         </div>
-
-        <div class="side-divider"></div>
-          <div class="metric-line">
-            <span>Total de empresas</span>
-            <span class="badge" id="totalEmpresasBadge">17</span>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em;">Total</div>
+            <div class="badge" id="totalEmpresasBadge" style="font-size:1rem;padding:2px 12px;">0</div>
           </div>
-          <div class="metric-line">
-            <span>Concluídas</span>
-            <span class="badge badge-success" id="concluidasBadge">0</span>
+          <div style="text-align:center;">
+            <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em;">Concluídas</div>
+            <div class="badge badge-success" id="concluidasBadge" style="font-size:1rem;padding:2px 12px;">0</div>
           </div>
-          <div class="metric-line">
-            <span>Pendentes</span>
-            <span class="badge badge-danger" id="pendentesBadge">17</span>
+          <div style="text-align:center;">
+            <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em;">Pendentes</div>
+            <div class="badge badge-danger" id="pendentesBadge" style="font-size:1rem;padding:2px 12px;">0</div>
           </div>
         </div>
-
-        <div class="summary-info">
-          Marque a caixa de cada empresa concluída. <br />
-          Use Salvar para manter os dados neste navegador.
-        </div>
-
-        <div class="side-actions">
-          <button type="button" onclick="proximoMes()" style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#0d1b2a;font-weight:700;">
-            <span class="icon">▶</span> Próximo mês
-          </button>
-          <button type="button" class="btn-secondary" onclick="backupDados()">
-            <span class="icon">⬇️</span> Backup
-          </button>
-          <button type="button" class="btn-secondary" onclick="carregarBackup()">
-            <span class="icon">⬆️</span> Carregar backup
-          </button>
-        </div>
-      </aside>
-
-      <!-- Conteúdo principal -->
-      <main class="content" id="contentRoot">
-
-        <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
-        <div id="painelSection"></div>
-
-        <!-- CABEÇALHO CHECKLIST MANUAL -->
-        <div class="manual-header" id="manualHeader">Checklist manual</div>
-
-        <!-- LUCRO PRESUMIDO – EMPREENDIMENTOS -->
-        <section class="section-card" data-section="Lucro Presumido – Empreendimentos">
-          <div class="section-header">
-            <div class="section-title">
-              LUCRO PRESUMIDO – EMPREENDIMENTOS
-              <span>(9 empresas)</span>
-            </div>
-            <div class="section-actions">
-              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
-                <span class="icon">➕</span> Adicionar empresa
-              </button>
-            </div>
-          </div>
-
-          <div class="section-body">
-
-            <!-- 1. Castellabate -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Castellabate" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 2. DPF – Regina -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="DPF – Regina" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 3. FBF – Fernanda Bocchi -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="FBF – Fernanda Bocchi" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 4. Prefer Occhialini Agropecuária -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Prefer Occhialini Agropecuária" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 5. Lidiane – C Camargo e Polastri -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Lidiane – C Camargo e Polastri" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 6. Maggiore -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Maggiore" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 7. MS Romagnolo -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="MS Romagnolo" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 8. Occhialini Empreendimentos -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Occhialini Empreendimentos" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 9. WB – Regina -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="WB – Regina" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido - Empreendimentos" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- LUCRO PRESUMIDO – OUTROS -->
-        <section class="section-card" data-section="Lucro Presumido – Outros">
-          <div class="section-header">
-            <div class="section-title">
-              LUCRO PRESUMIDO – OUTROS
-              <span>(5 empresas)</span>
-            </div>
-            <div class="section-actions">
-              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
-                <span class="icon">➕</span> Adicionar empresa
-              </button>
-            </div>
-          </div>
-
-          <div class="section-body">
-
-            <!-- 10. Daniel Martins – Posto Guareí -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Daniel Martins – Posto Guareí" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido – Outros" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 11. FOM Leilões -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="FOM Leilões" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido – Outros" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 12. GDO – Indústria / REINF -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="GDO – Indústria / REINF" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido – Outros; REINF" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 13. Hotel Del Fiol – Misto / REINF -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Hotel Del Fiol – Misto / REINF" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido – Outros; Misto; REINF" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 14. NSC Novesete – Prestador / REINF -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="NSC Novesete – Prestador / REINF" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Presumido – Outros; Prestador; REINF" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- LUCRO REAL -->
-        <section class="section-card" data-section="Lucro Real">
-          <div class="section-header">
-            <div class="section-title">
-              LUCRO REAL
-              <span>(1 empresa)</span>
-            </div>
-            <div class="section-actions">
-              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
-                <span class="icon">➕</span> Adicionar empresa
-              </button>
-            </div>
-          </div>
-
-          <div class="section-body">
-
-            <!-- 15. Laboratório Campos – REINF -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Laboratório Campos – REINF" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Lucro Real; REINF" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- SIMPLES NACIONAL -->
-        <section class="section-card" data-section="Simples Nacional">
-          <div class="section-header">
-            <div class="section-title">
-              SIMPLES NACIONAL
-              <span>(2 empresas)</span>
-            </div>
-            <div class="section-actions">
-              <button type="button" class="btn-secondary" onclick="addEmpresaToSection(this)">
-                <span class="icon">➕</span> Adicionar empresa
-              </button>
-            </div>
-          </div>
-
-          <div class="section-body">
-
-            <!-- 16. FOM Assessoria -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="FOM Assessoria" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Simples Nacional" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-            <!-- 17. Grandino Pré Moldados – DeSTDA -->
-            <div class="item-row empresa-item">
-              <div class="item-check">
-                <input type="checkbox" class="empresa-check" />
-              </div>
-              <div class="item-main">
-                <input class="item-title-input" value="Grandino Pré Moldados – DeSTDA" />
-                <div class="item-meta">
-                  <input class="tag-input" value="Simples Nacional; DeSTDA" />
-                </div>
-              </div>
-              <div class="item-observation">
-                <label>📅 Obs. do mês:</label>
-                <textarea class="obs-mes" placeholder="Observações deste fechamento..."></textarea>
-                <label style="margin-top:6px;">📌 Instrução permanente:</label>
-                <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..."></textarea>
-              </div>
-              <div class="item-actions-inline">
-                <button type="button" class="btn-remove" onclick="removerEmpresa(this)">×</button>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- RESUMO FINAL -->
-        <section class="section-card">
-          <div class="section-header">
-            <div class="section-title">
-              RESUMO DO FECHAMENTO
-              <span>(Total: 17 empresas)</span>
-            </div>
-          </div>
-
-          <div class="section-body">
-            <div class="resume-grid">
-              <div class="resume-field">
-                <label>Total fechado:</label>
-                <input
-                  type="text"
-                  id="totalFechadoField"
-                  value="0 / 17 empresas"
-                  readonly
-                />
-              </div>
-
-              <div class="resume-field">
-                <label>Conclusão (data / hora / status):</label>
-                <input
-                  type="text"
-                  id="conclusaoField"
-                  placeholder="____ / ____ / ____"
-                />
-              </div>
-            </div>
-
-            <div class="signature-line">
-              <span>Assinatura do responsável pelo fechamento:</span>
-              <div class="signature-box">
-                <div class="line"></div>
-                <div class="label">Assinatura</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </main>
+      </div>
     </div>
-  </div>
+
+    <!-- CONTEÚDO -->
+    <div id="contentRoot">
+
+      <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
+      <div id="painelSection"></div>
+
+      <!-- SEÇÕES MANUAIS -->
+      <div id="manualSections">
+        <div id="manualBody"></div>      </div><!-- /manualSections -->
+    </div><!-- /contentRoot -->
+  </div><!-- /page -->
 
   <script>
     // Atualiza contadores de concluídas/pendentes e total fechado
@@ -1440,44 +918,54 @@
       aplicarDados(data, false);
     }
 
-    // Backup: baixa um arquivo JSON com todos os dados
+    // Backup: baixa JSON com dados do checklist manual
     function backupDados() {
-      const data = coletarDados();
+      const data = {
+        competencia: document.getElementById('competenciaField')?.value || '',
+        responsavel: document.getElementById('responsavelField')?.value || '',
+        conclusao:   document.getElementById('conclusaoField')?.value || '',
+        manualItems: window._getManualItems ? window._getManualItems() : []
+      };
       const json = JSON.stringify(data, null, 2);
       const blob = new Blob([json], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "checklist-fiscal-backup.json";
+      const comp = (data.competencia || 'backup').replace('/','_');
+      link.download = `checklist-manual-${comp}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
 
-    // Carregar backup: ler arquivo .json e aplicar
+    // Restaurar backup
     function carregarBackup() {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'application/json';
-
       input.onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (event) => {
           try {
             const data = JSON.parse(event.target.result);
-            aplicarDados(data, true);
+            if (data.competencia && document.getElementById('competenciaField'))
+              document.getElementById('competenciaField').value = data.competencia;
+            if (data.responsavel && document.getElementById('responsavelField'))
+              document.getElementById('responsavelField').value = data.responsavel;
+            if (data.conclusao && document.getElementById('conclusaoField'))
+              document.getElementById('conclusaoField').value = data.conclusao;
+            if (data.manualItems && window._setManualItems)
+              window._setManualItems(data.manualItems);
             alert('Backup carregado com sucesso.');
           } catch (err) {
-            alert('Não foi possível ler o backup. Verifique se o arquivo está correto.');
+            alert('Não foi possível ler o backup.');
           }
         };
         reader.readAsText(file, 'utf-8');
       };
-
       input.click();
     }
 
@@ -1527,6 +1015,13 @@
 
       atualizarTotais();
       saveLocal();
+
+      // Limpa obs do mês do checklist manual
+      if (window._getManualItems) {
+        const items = window._getManualItems().map(i => ({...i, obs: '', checked: false}));
+        window._setManualItems(items);
+      }
+
       alert(`Checklist de ${novaComp || 'próximo mês'} iniciado!`);
     }
 
@@ -1547,7 +1042,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
@@ -1582,10 +1077,9 @@
 
       // Restaura colaborador selecionado anteriormente
       const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-      if (saved.colaboradorSelecionado) {
-        sel.value = saved.colaboradorSelecionado;
-        window.carregarDoPanel();
-      }
+      const colSaved = saved.colaboradorSelecionado || '__manual__';
+      sel.value = colSaved;
+      window.carregarDoPanel();
     } catch(e) {
       painelStatus.textContent = '⚠️';
     }
@@ -1594,21 +1088,33 @@
   window.carregarDoPanel = function() {
     const colaborador = document.getElementById('colaboradorSelect').value;
     const container   = document.getElementById('painelSection');
+    const manualSec   = document.getElementById('manualSections');
 
     // Salva seleção
     const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
     saved.colaboradorSelecionado = colaborador;
     localStorage.setItem('checklistFiscal', JSON.stringify(saved));
 
-    if (!colaborador || !window._painelEmpresas) {
+    // Manual → mostra manual, esconde painel
+    if (colaborador === '__manual__') {
       container.innerHTML = '';
+      manualSec.style.display = '';
       atualizarTotais();
+      return;
+    }
+
+    // Colaborador do Painel → esconde manual, mostra painel
+    manualSec.style.display = 'none';
+
+    if (!window._painelEmpresas) {
+      container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">Aguardando conexão com o Painel...</p>';
       return;
     }
 
     const empresas = window._painelEmpresas.filter(e => e.colaborador === colaborador);
     if (!empresas.length) {
       container.innerHTML = `<div class="section-card from-painel"><div class="section-header"><div class="section-title">Do Painel — ${colaborador}</div></div><p style="font-size:0.85rem;color:var(--text-muted);padding:8px 0;">Nenhuma empresa encontrada para este colaborador.</p></div>`;
+      atualizarTotais();
       return;
     }
 
@@ -1670,7 +1176,99 @@
     localStorage.setItem('checklistFiscal', JSON.stringify(saved));
   };
 
+  // ── CHECKLIST MANUAL ──────────────────────
+  const MANUAL_PATH = 'checklist_manual';
+  let manualItems = [];
+  let manualSaveTimer = null;
+
+  function genManualId() { return 'mi_' + Date.now() + '_' + Math.floor(Math.random()*10000); }
+
+  async function carregarManual() {
+    try {
+      const snap = await get(ref(db, MANUAL_PATH));
+      manualItems = snap.exists() ? (snap.val().items || []) : [];
+    } catch(e) { manualItems = []; }
+    renderManual();
+  }
+
+  function renderManual() {
+    const body = document.getElementById('manualBody');
+    if (!body) return;
+
+    let rows = manualItems.map(item => `
+      <div class="item-row empresa-item" data-manual-id="${item.id}">
+        <div class="item-check"><input type="checkbox" class="empresa-check" ${item.checked?'checked':''}/></div>
+        <div class="item-main">
+          <input class="item-title-input" value="${(item.nome||'').replace(/"/g,'&quot;')}" placeholder="Nome da empresa..." oninput="updateManualItem('${item.id}','nome',this.value)">
+          <input class="tag-input" value="${(item.regime||'').replace(/"/g,'&quot;')}" placeholder="Regime / observação rápida..." oninput="updateManualItem('${item.id}','regime',this.value)" style="margin-top:4px;">
+        </div>
+        <div class="item-observation">
+          <label>📅 Obs. do mês:</label>
+          <textarea class="obs-mes" placeholder="Observações deste fechamento..." oninput="updateManualItem('${item.id}','obs',this.value)">${item.obs||''}</textarea>
+          <label style="margin-top:6px;">📌 Instrução permanente:</label>
+          <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa..." oninput="updateManualItem('${item.id}','perm',this.value)">${item.perm||''}</textarea>
+        </div>
+        <div class="item-actions-inline">
+          <button class="btn-remove" onclick="removeManualItem('${item.id}')">×</button>
+        </div>
+      </div>`).join('');
+
+    body.innerHTML = `
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">Checklist Manual <span>(${manualItems.length} empresa${manualItems.length!==1?'s':''})</span></div>
+          <div class="section-actions">
+            <button type="button" class="btn-secondary" onclick="addManualItem()"><span class="icon">➕</span> Adicionar empresa</button>
+          </div>
+        </div>
+        <div class="section-body" id="manualItemsBody">${rows || '<p style="font-size:0.85rem;color:var(--text-muted);padding:8px 0;">Nenhuma empresa. Clique em Adicionar para começar.</p>'}</div>
+      </section>`;
+
+    // Checkboxes
+    body.querySelectorAll('.empresa-check').forEach((cb, i) => {
+      cb.addEventListener('change', () => {
+        if (manualItems[i]) manualItems[i].checked = cb.checked;
+        salvarManual(); atualizarTotais();
+      });
+    });
+    atualizarTotais();
+  }
+
+  window.addManualItem = function() {
+    manualItems.push({ id: genManualId(), nome: '', regime: '', obs: '', perm: '', checked: false });
+    renderManual();
+    salvarManual();
+    // Foca no último campo de nome
+    const inputs = document.querySelectorAll('#manualItemsBody .item-title-input');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  };
+
+  window.removeManualItem = function(id) {
+    manualItems = manualItems.filter(i => i.id !== id);
+    renderManual();
+    salvarManual();
+  };
+
+  window.updateManualItem = function(id, field, value) {
+    const item = manualItems.find(i => i.id === id);
+    if (item) item[field] = value;
+    salvarManual();
+  };
+
+  function salvarManual() {
+    clearTimeout(manualSaveTimer);
+    manualSaveTimer = setTimeout(async () => {
+      try { await set(ref(db, MANUAL_PATH), { items: manualItems }); }
+      catch(e) { console.error('Erro ao salvar manual:', e); }
+    }, 1500);
+  }
+
+  // Expõe para o proximoMes zerar obs do mês
+  window._getManualItems = () => manualItems;
+  window._setManualItems = (items) => { manualItems = items; renderManual(); salvarManual(); };
+
   carregarColaboradores();
+  carregarManual();
 </script>
 </body>
 </html>
