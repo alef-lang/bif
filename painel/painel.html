@@ -955,6 +955,7 @@ function renderCard(e){
       <div class="card-meta-row">👤 ${esc(e.colaborador || 'Sem responsável')}</div>
     </div>
     ${obrigList || more ? `<div class="card-obligations" style="margin-top:5px;">${obrigList}${more}</div>` : ''}
+    <span class="apuracao-badge ${apClass}" title="Status atualizado pelo Checklist">${apLabel}</span>
   </div>`;
 }
 
@@ -1185,7 +1186,7 @@ function saveCompany(){
     inscricaoEstadual: $('f_ie').value.trim(),
     inscricaoMunicipal: $('f_im').value.trim(),
     fechada: $('f_fechada').checked,
-    statusApuracao: (S.empresas.find(x=>String(x.id)===String(editId))||{}).statusApuracao || 'nao_apurada',
+    statusApuracao: e.statusApuracao || 'nao_apurada',
     endereco: $('f_endereco').value.trim(),
     cep: $('f_cep').value.trim(),
     cidade: $('f_cidade').value.trim(),
