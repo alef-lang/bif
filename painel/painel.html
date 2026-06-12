@@ -682,8 +682,51 @@ async function buscarCnpj() {
   }
 }
 
+async function buscarCnpjEdit() {
+  const raw = (document.getElementById('f_cnpj').value || '').replace(/\D/g, '');
+  const status = document.getElementById('cnpjEditStatus');
+  const btn = document.getElementById('btnBuscarCnpjEdit');
+  if (raw.length !== 14) {
+    status.style.color = '#e05a5a';
+    status.textContent = '⚠️ Digite um CNPJ válido com 14 dígitos.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '⏳ Buscando...';
+  status.style.color = 'var(--gold)';
+  status.textContent = 'Consultando Receita Federal...';
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${raw}`);
+    if (!res.ok) throw new Error('não encontrado');
+    const d = await res.json();
+    const fNome = document.getElementById('f_nome');
+    const fAtiv = document.getElementById('f_atividade');
+    const fEnd  = document.getElementById('f_endereco');
+    const fCid  = document.getElementById('f_cidade');
+    const fUf   = document.getElementById('f_uf');
+    const fCep  = document.getElementById('f_cep');
+    const fReg  = document.getElementById('f_regime');
+    if (fNome) fNome.value = d.razao_social || fNome.value;
+    if (fAtiv) fAtiv.value = d.cnae_fiscal_descricao ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' (' + d.cnae_fiscal + ')' : ''}` : fAtiv.value;
+    if (fEnd)  fEnd.value  = [d.logradouro, d.numero, d.complemento, d.bairro].filter(Boolean).join(', ');
+    if (fCid)  fCid.value  = d.municipio || fCid.value;
+    if (fUf)   fUf.value   = d.uf || fUf.value;
+    if (fCep)  fCep.value  = d.cep || fCep.value;
+    if (fReg && d.opcao_pelo_simples) fReg.value = 'simples';
+    const situacao = d.descricao_situacao_cadastral || '';
+    const municipio = d.municipio ? ` — ${d.municipio}/${d.uf}` : '';
+    status.style.color = '#2ecc8a';
+    status.textContent = `✅ ${situacao}${municipio}`;
+  } catch(e) {
+    status.style.color = '#e05a5a';
+    status.textContent = '⚠️ CNPJ não encontrado ou erro na consulta.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔍 Buscar';
+  }
+}
+
 // ════════════════════════════════════════════
-// FIREBASE — inicializado via módulo abaixo
 // ════════════════════════════════════════════
 const PAINEL_PATH = 'painel';
 let saveTimer = null;
@@ -1004,7 +1047,14 @@ function empresaFormHtml(e){
     <div class="form-section-title">🏢 Dados da Empresa</div>
     <div class="form-grid">
       <div class="form-group full"><label>Razão Social</label><input id="f_nome" value="${esc(e.nome)}"></div>
-      <div class="form-group"><label>CNPJ</label><input id="f_cnpj" value="${esc(e.cnpj)}"></div>
+      <div class="form-group">
+        <label>CNPJ</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input id="f_cnpj" value="${esc(e.cnpj)}" style="flex:1;" oninput="maskCnpj(this)">
+          <button type="button" onclick="buscarCnpjEdit()" id="btnBuscarCnpjEdit" style="border-radius:8px;padding:6px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;">🔍 Buscar</button>
+        </div>
+        <div id="cnpjEditStatus" style="font-size:11px;margin-top:4px;min-height:16px;font-family:var(--font-mono);"></div>
+      </div>
       <div class="form-group"><label>Regime Tributário</label><select id="f_regime">
         <option value="simples" ${e.regime==='simples'?'selected':''}>Simples Nacional</option>
         <option value="presumido" ${e.regime==='presumido'?'selected':''}>Lucro Presumido</option>
