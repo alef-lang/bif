@@ -530,6 +530,15 @@
       .side-actions button { justify-content: flex-start; }
     }
 
+    /* ── SEÇÃO DO PAINEL ── */
+    .section-card.from-painel { border-color: rgba(46,204,138,0.25); }
+    .section-card.from-painel::before { background: linear-gradient(90deg, transparent, #2ecc8a, transparent); }
+    .section-card.from-painel .section-title { color: #2ecc8a; }
+    .section-card.from-painel .section-title::before { background: #2ecc8a; }
+    .painel-badge { font-size:0.65rem; font-family:var(--mono); background:rgba(46,204,138,0.1); color:#2ecc8a; border:1px solid rgba(46,204,138,0.25); border-radius:999px; padding:2px 8px; }
+    .select-colaborador { width:100%; padding:7px 10px; border-radius:var(--rsm); border:1px solid var(--gold-dim); font-size:0.82rem; font-family:var(--sans); background:rgba(255,255,255,0.04); color:var(--text); outline:none; cursor:pointer; }
+    .select-colaborador:focus { border-color:var(--gold); box-shadow:0 0 0 2px var(--gold-glow); }
+
     /* ── IMPRESSÃO ── */
     @media print {
       body { background: #fff !important; color: #1a1a1a !important; }
@@ -586,7 +595,17 @@
 
         <div class="side-divider"></div>
 
-        <div class="summary-metrics">
+        <div class="field-group">
+          <div class="field-label" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Colaborador (Painel):</span>
+            <span id="painelStatus" style="font-size:0.65rem;font-family:var(--mono);color:var(--text-muted);">⏳</span>
+          </div>
+          <select id="colaboradorSelect" class="select-colaborador" onchange="carregarDoPanel()">
+            <option value="">-- Selecionar --</option>
+          </select>
+        </div>
+
+        <div class="side-divider"></div>
           <div class="metric-line">
             <span>Total de empresas</span>
             <span class="badge" id="totalEmpresasBadge">17</span>
@@ -622,7 +641,10 @@
       <!-- Conteúdo principal -->
       <main class="content" id="contentRoot">
 
-        <!-- LUCRO PRESUMIDO – EMPREENDIMENTOS -->
+        <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
+      <div id="painelSection"></div>
+
+      <!-- LUCRO PRESUMIDO – EMPREENDIMENTOS -->
         <section class="section-card" data-section="Lucro Presumido – Empreendimentos">
           <div class="section-header">
             <div class="section-title">
@@ -1462,13 +1484,23 @@
       const conclusao = document.getElementById("conclusaoField");
       if (conclusao) conclusao.value = '';
 
-      // Limpa checkboxes e obs do mês
+      // Limpa checkboxes e obs do mês (manual + painel)
       document.querySelectorAll('.empresa-item').forEach(item => {
         const cb = item.querySelector('.empresa-check');
         const obsMes = item.querySelector('.obs-mes');
         if (cb) cb.checked = false;
         if (obsMes) obsMes.value = '';
       });
+
+      // Limpa painelObs do mês no localStorage
+      const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+      if (saved.painelObs) {
+        Object.keys(saved.painelObs).forEach(k => {
+          saved.painelObs[k].obs = '';
+          saved.painelObs[k].checked = false;
+        });
+        localStorage.setItem('checklistFiscal', JSON.stringify(saved));
+      }
 
       atualizarTotais();
       saveLocal();
@@ -1489,5 +1521,133 @@
       document.getElementById('conclusaoField').addEventListener('input', autosave);
     });
   </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+    authDomain: "portal-treinamentos-lang.firebaseapp.com",
+    databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+    projectId: "portal-treinamentos-lang",
+    storageBucket: "portal-treinamentos-lang.firebasestorage.app",
+    messagingSenderId: "1049839891406",
+    appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const painelStatus = document.getElementById('painelStatus');
+
+  async function carregarColaboradores() {
+    painelStatus.textContent = '⏳';
+    try {
+      const snap = await get(ref(db, 'painel/empresas'));
+      if (!snap.exists()) { painelStatus.textContent = '—'; return; }
+      const empresas = Object.values(snap.val()).filter(e => !e.fechada && e.colaborador);
+      const colaboradores = [...new Set(empresas.map(e => e.colaborador))].sort();
+      const sel = document.getElementById('colaboradorSelect');
+      sel.innerHTML = '<option value="">-- Selecionar --</option>';
+      colaboradores.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        sel.appendChild(opt);
+      });
+      window._painelEmpresas = empresas;
+      painelStatus.textContent = `✅ ${colaboradores.length}`;
+
+      // Restaura colaborador selecionado anteriormente
+      const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+      if (saved.colaboradorSelecionado) {
+        sel.value = saved.colaboradorSelecionado;
+        window.carregarDoPanel();
+      }
+    } catch(e) {
+      painelStatus.textContent = '⚠️';
+    }
+  }
+
+  window.carregarDoPanel = function() {
+    const colaborador = document.getElementById('colaboradorSelect').value;
+    const container   = document.getElementById('painelSection');
+
+    // Salva seleção
+    const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+    saved.colaboradorSelecionado = colaborador;
+    localStorage.setItem('checklistFiscal', JSON.stringify(saved));
+
+    if (!colaborador || !window._painelEmpresas) {
+      container.innerHTML = '';
+      atualizarTotais();
+      return;
+    }
+
+    const empresas = window._painelEmpresas.filter(e => e.colaborador === colaborador);
+    if (!empresas.length) {
+      container.innerHTML = `<div class="section-card from-painel"><div class="section-header"><div class="section-title">Do Painel — ${colaborador}</div></div><p style="font-size:0.85rem;color:var(--text-muted);padding:8px 0;">Nenhuma empresa encontrada para este colaborador.</p></div>`;
+      return;
+    }
+
+    const painelObs = saved.painelObs || {};
+
+    let rows = '';
+    empresas.forEach(e => {
+      const key = e.id || e.cnpj || e.nome;
+      const obs     = (painelObs[key]?.obs  || '').replace(/</g,'&lt;');
+      const perm    = (painelObs[key]?.perm || '').replace(/</g,'&lt;');
+      const checked = painelObs[key]?.checked ? 'checked' : '';
+      const regimeLabel = {simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[e.regime] || e.regime || '';
+      rows += `
+        <div class="item-row empresa-item" data-painel-id="${key}">
+          <div class="item-check"><input type="checkbox" class="empresa-check" ${checked}/></div>
+          <div class="item-main">
+            <input class="item-title-input" value="${(e.nome||'').replace(/"/g,'&quot;')}" readonly style="opacity:0.85;cursor:default;">
+            <div class="item-meta" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              <span class="painel-badge">Painel</span>
+              ${regimeLabel ? `<span style="font-size:0.72rem;color:var(--text-muted);">${regimeLabel}</span>` : ''}
+              ${e.cnpj ? `<span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);">${e.cnpj}</span>` : ''}
+            </div>
+          </div>
+          <div class="item-observation">
+            <label>📅 Obs. do mês:</label>
+            <textarea class="obs-mes" placeholder="Observações deste fechamento...">${obs}</textarea>
+            <label style="margin-top:6px;">📌 Instrução permanente:</label>
+            <textarea class="obs-permanente" placeholder="Instruções fixas desta empresa...">${perm}</textarea>
+          </div>
+        </div>`;
+    });
+
+    container.innerHTML = `
+      <section class="section-card from-painel">
+        <div class="section-header">
+          <div class="section-title">Do Painel — ${colaborador} <span>(${empresas.length} empresas)</span></div>
+        </div>
+        <div class="section-body">${rows}</div>
+      </section>`;
+
+    container.querySelectorAll('textarea').forEach(ta => ta.addEventListener('input', salvarPainelObs));
+    container.querySelectorAll('.empresa-check').forEach(cb => cb.addEventListener('change', () => { salvarPainelObs(); atualizarTotais(); }));
+    atualizarTotais();
+  };
+
+  window.salvarPainelObs = function() {
+    const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+    const painelObs = {};
+    document.querySelectorAll('#painelSection .empresa-item').forEach(item => {
+      const key = item.dataset.painelId;
+      if (!key) return;
+      painelObs[key] = {
+        checked: item.querySelector('.empresa-check')?.checked || false,
+        obs:  item.querySelector('.obs-mes')?.value || '',
+        perm: item.querySelector('.obs-permanente')?.value || ''
+      };
+    });
+    saved.painelObs = painelObs;
+    localStorage.setItem('checklistFiscal', JSON.stringify(saved));
+  };
+
+  carregarColaboradores();
+</script>
 </body>
 </html>
