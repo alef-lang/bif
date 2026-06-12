@@ -1168,7 +1168,11 @@
 
     // Salvar dados no navegador (localStorage)
     function saveLocal(silent = false) {
+      const existing = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
       const data = coletarDados();
+      // Preserva dados do painel que são gerenciados separadamente
+      if (existing.painelObs) data.painelObs = existing.painelObs;
+      if (existing.colaboradorSelecionado) data.colaboradorSelecionado = existing.colaboradorSelecionado;
       localStorage.setItem('checklistFiscal', JSON.stringify(data));
       if (!silent) alert('Dados salvos neste navegador.');
     }
@@ -1449,7 +1453,7 @@
     }
   }
 
-  window.carregarDoPanel = function() {
+  window.carregarDoPanel = async function() {
     const colaborador = document.getElementById('colaboradorSelect').value;
     const container   = document.getElementById('painelSection');
     const manualSec   = document.getElementById('manualSections');
@@ -1469,6 +1473,17 @@
 
     // Colaborador do Painel → esconde manual, mostra painel
     manualSec.style.display = 'none';
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">⏳ Carregando empresas...</p>';
+
+    // Busca dados frescos do Firebase
+    try {
+      const snap = await get(ref(db, 'painel/empresas'));
+      if (snap.exists()) {
+        window._painelEmpresas = Object.values(snap.val()).filter(e => !e.fechada && e.colaborador);
+      }
+    } catch(err) {
+      console.warn('Usando cache do Painel:', err);
+    }
 
     if (!window._painelEmpresas) {
       container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:12px 0;">Aguardando conexão com o Painel...</p>';
