@@ -375,12 +375,6 @@ select option{background:#1b2e42;color:#e8eaf0;}
   <select class="select-filter" id="filterColaborador" onchange="renderAll()">
     <option value="">Todos os colaboradores</option>
   </select>
-  <div class="filter-tags" id="filterStatusObrig" style="flex:none;gap:6px;display:flex;">
-    <span class="filter-label" style="margin-left:6px;">Entrega:</span>
-    <button class="filter-tag tag-entregue" onclick="toggleStatusObrigFilter(this,'entregue')">✅ Entregue</button>
-    <button class="filter-tag tag-pendente" onclick="toggleStatusObrigFilter(this,'pendente')">⏳ Pendente</button>
-    <button class="filter-tag tag-atrasado" onclick="toggleStatusObrigFilter(this,'atrasado')">🔴 Atrasado</button>
-  </div>
   <div class="search-box">
     <span class="search-icon">🔎</span>
     <input type="text" placeholder="Buscar empresa, CNPJ, atividade..." oninput="doSearch(this.value)" id="searchInput">
