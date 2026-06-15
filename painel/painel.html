@@ -1557,7 +1557,16 @@ function exportRelatorioCSV(){
 }
 
 // Fechar modal clicando fora
-window.addEventListener('click', ev => { if(ev.target.classList && ev.target.classList.contains('modal-overlay')) ev.target.classList.remove('open'); });
+// Fechar modal clicando fora — só fecha se o mousedown TAMBÉM começou no overlay
+let _mousedownOnOverlay = false;
+window.addEventListener('mousedown', ev => {
+  _mousedownOnOverlay = ev.target.classList && ev.target.classList.contains('modal-overlay');
+});
+window.addEventListener('click', ev => {
+  if(_mousedownOnOverlay && ev.target.classList && ev.target.classList.contains('modal-overlay'))
+    ev.target.classList.remove('open');
+  _mousedownOnOverlay = false;
+});
 window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
 </script>
 
