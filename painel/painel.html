@@ -296,6 +296,165 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .rich-field:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
 .rich-field img{max-width:100%;border-radius:6px;margin:4px 0;}
 
+
+/* FLOATING RICH TEXT MENU */
+.floating-format-menu{
+  position:fixed;
+  z-index:5000;
+  display:none;
+  align-items:center;
+  gap:5px;
+  flex-wrap:wrap;
+  max-width:min(620px, calc(100vw - 24px));
+  padding:8px;
+  background:rgba(13,27,42,0.97);
+  border:1px solid var(--gold-dim);
+  border-radius:12px;
+  box-shadow:0 14px 42px rgba(0,0,0,0.55);
+  backdrop-filter:blur(10px);
+}
+.floating-format-menu.open{display:flex;}
+.ff-btn,.ff-select,.ff-swatch{
+  height:30px;
+  min-width:30px;
+  border:1px solid rgba(201,168,76,0.22);
+  border-radius:8px;
+  background:rgba(255,255,255,0.05);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .15s;
+}
+.ff-btn:hover,.ff-select:hover,.ff-swatch:hover{
+  border-color:var(--gold);
+  background:rgba(201,168,76,0.14);
+  color:var(--gold-light);
+}
+.ff-select{
+  width:auto;
+  padding:0 8px;
+  max-width:120px;
+  color:var(--text);
+}
+.ff-label{
+  font-size:10px;
+  color:var(--text-light);
+  font-family:var(--font-mono);
+  margin-left:2px;
+}
+.ff-sep{width:1px;height:22px;background:var(--gold-dim);margin:0 2px;}
+.ff-palette{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:3px;
+  border-radius:9px;
+  background:rgba(255,255,255,0.03);
+}
+.ff-swatch{
+  width:24px;
+  min-width:24px;
+  height:24px;
+  padding:0;
+  border-radius:7px;
+  position:relative;
+}
+.ff-swatch::after{
+  content:attr(data-hex);
+  position:absolute;
+  bottom:calc(100% + 7px);
+  left:50%;
+  transform:translateX(-50%);
+  background:#0d1b2a;
+  border:1px solid var(--gold-dim);
+  color:var(--gold-light);
+  padding:3px 6px;
+  border-radius:6px;
+  font-size:9px;
+  font-family:var(--font-mono);
+  opacity:0;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.ff-swatch:hover::after{opacity:1;}
+.rich-field{
+  white-space:pre-wrap;
+}
+.rich-field ul,.rich-field ol{
+  margin:8px 0 8px 22px;
+  padding-left:18px;
+  list-style-position:outside;
+}
+.rich-field li{
+  margin:3px 0;
+  padding-left:3px;
+  line-height:1.55;
+}
+.rich-field img{
+  max-width:100%;
+  height:auto;
+  border-radius:8px;
+  margin:6px 0;
+  border:1px solid var(--gold-dim);
+  display:block;
+  cursor:pointer;
+}
+.rich-field img.img-selected{
+  outline:2px solid var(--gold);
+  box-shadow:0 0 0 4px rgba(201,168,76,0.18);
+}
+.img-resize-wrap{
+  display:inline-block;
+  position:relative;
+  max-width:100%;
+  line-height:0;
+  margin:6px 0;
+}
+.img-resize-wrap img{margin:0;}
+.img-resize-handle{
+  position:absolute;
+  width:14px;
+  height:14px;
+  right:-5px;
+  bottom:-5px;
+  border-radius:4px;
+  background:var(--gold);
+  border:2px solid #0d1b2a;
+  cursor:se-resize;
+  z-index:2;
+}
+.img-resize-hint{
+  position:absolute;
+  left:0;
+  bottom:calc(100% + 6px);
+  background:rgba(13,27,42,0.95);
+  border:1px solid var(--gold-dim);
+  color:var(--gold-light);
+  padding:3px 6px;
+  border-radius:6px;
+  font-size:10px;
+  font-family:var(--font-mono);
+  white-space:nowrap;
+  line-height:1.2;
+}
+.rich-hint{
+  font-size:11px;
+  color:var(--text-light);
+  margin-bottom:10px;
+  font-family:var(--font-mono);
+  line-height:1.5;
+}
+.modal.view-mode .floating-format-menu{display:none!important;}
+.modal.view-mode .rich-field{contenteditable:false;}
+@media(max-width:700px){
+  .floating-format-menu{left:8px!important;right:8px!important;top:auto!important;bottom:12px!important;transform:none!important;}
+}
+
 /* CONFIRM MODAL */
 .confirm-body{padding:24px 28px;text-align:center;}
 .confirm-body .confirm-icon{font-size:36px;margin-bottom:12px;}
@@ -669,6 +828,45 @@ select option{background:#1b2e42;color:#e8eaf0;}
   </div>
 </div>
 
+
+<!-- MENU FLUTUANTE DE FORMATAÇÃO -->
+<div class="floating-format-menu" id="floatingFormatMenu">
+  <button type="button" class="ff-btn" data-cmd="bold" title="Negrito"><b>N</b></button>
+  <button type="button" class="ff-btn" data-cmd="italic" title="Itálico"><i>I</i></button>
+  <button type="button" class="ff-btn" data-cmd="underline" title="Sublinhado"><u>S</u></button>
+  <span class="ff-sep"></span>
+  <select class="ff-select" id="ffFont" title="Fonte">
+    <option value="">Fonte</option>
+    <option value="DM Sans">DM Sans</option>
+    <option value="Poppins">Poppins</option>
+    <option value="Arial">Arial</option>
+    <option value="Verdana">Verdana</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Courier New">Courier</option>
+  </select>
+  <select class="ff-select" id="ffSize" title="Tamanho">
+    <option value="">Tamanho</option>
+    <option value="11px">11</option>
+    <option value="12px">12</option>
+    <option value="14px">14</option>
+    <option value="16px">16</option>
+    <option value="18px">18</option>
+    <option value="22px">22</option>
+    <option value="26px">26</option>
+  </select>
+  <span class="ff-sep"></span>
+  <span class="ff-label">Texto</span>
+  <span class="ff-palette" id="ffTextPalette"></span>
+  <span class="ff-label">Marca</span>
+  <span class="ff-palette" id="ffMarkPalette"></span>
+  <span class="ff-sep"></span>
+  <button type="button" class="ff-btn" data-cmd="insertUnorderedList" title="Lista com marcadores">•</button>
+  <button type="button" class="ff-btn" data-cmd="insertOrderedList" title="Lista numerada">1.</button>
+  <button type="button" class="ff-btn" id="ffImageBtn" title="Inserir imagem">🖼️</button>
+  <button type="button" class="ff-btn" data-cmd="removeFormat" title="Limpar formatação">✕</button>
+  <input type="file" id="ffImageInput" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.svg,.avif,.bmp,.heic,.heif" style="display:none">
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -844,7 +1042,21 @@ async function init(){
   S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
   S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
   S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length ? S.filterObrigacoes : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
-  S.empresas = (S.empresas || []).map(e => ({...e, regime:e.regime || 'outros', fechada:!!e.fechada, obrigacoes:Array.isArray(e.obrigacoes)?e.obrigacoes:[]}));
+  S.empresas = (S.empresas || []).map(e => ({
+    ...e,
+    regime:e.regime || 'outros',
+    fechada:!!e.fechada,
+    obrigacoes:Array.isArray(e.obrigacoes)?e.obrigacoes:[],
+    importacoes:Array.isArray(e.importacoes)?e.importacoes:[],
+    parametros:e.parametros || '',
+    regras:e.regras || '',
+    observacoes:e.observacoes || '',
+    followup:e.followup || '',
+    comunicacaoGuias:e.comunicacaoGuias || '',
+    acessosSistemas:e.acessosSistemas || '',
+    apoioEscrituracao:e.apoioEscrituracao || '',
+    ocorrencias:e.ocorrencias || ''
+  }));
   saveState();
   updateHeaderName();
   renderFilterTags();
@@ -1061,7 +1273,9 @@ function addCompany(){
     statusApuracao: 'nao_apurada',
     inscricaoEstadual:'', inscricaoMunicipal:'', endereco:'', cep:'', cidade:'', uf:'',
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
-    observacoes:'', parametros:'', regras:'', obrigacoes: []
+    observacoes:'', parametros:'', regras:'',
+    followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
+    obrigacoes: [], importacoes: []
   };
   S.empresas.push(e);
   try {
@@ -1076,6 +1290,300 @@ function addCompany(){
   }
 }
 
+
+// ════════════════════════════════════════════
+// MENU FLUTUANTE + EDITOR RICO DOS CAMPOS DA EMPRESA
+// ════════════════════════════════════════════
+let activeRichField = null;
+let savedRichRange = null;
+const RICH_FIELD_IDS = [
+  'f_parametros','f_regras','f_observacoes',
+  'f_followup','f_comunicacaoGuias','f_acessosSistemas','f_apoioEscrituracao','f_ocorrencias'
+];
+const TEXT_COLORS = ['#e8eaf0','#e8c97a','#c9a84c','#2ecc8a','#4a9eff','#a78bfa','#f97316','#ff7675','#ffffff','#111827'];
+const MARK_COLORS = ['transparent','#fff3a3','#fde68a','#bbf7d0','#bfdbfe','#ddd6fe','#fed7aa','#fecdd3','#e5e7eb'];
+
+function initFloatingFormatMenu(){
+  const menu = $('floatingFormatMenu');
+  if(!menu || menu.dataset.ready === '1') return;
+  menu.dataset.ready = '1';
+
+  const textPalette = $('ffTextPalette');
+  const markPalette = $('ffMarkPalette');
+  if(textPalette && !textPalette.children.length){
+    TEXT_COLORS.forEach(hex => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ff-swatch';
+      b.dataset.hex = hex;
+      b.title = hex;
+      b.style.background = hex === 'transparent' ? 'repeating-linear-gradient(45deg,#fff 0 4px,#ccc 4px 8px)' : hex;
+      b.addEventListener('mousedown', ev => { ev.preventDefault(); applyInlineStyle({color: hex}); });
+      textPalette.appendChild(b);
+    });
+  }
+  if(markPalette && !markPalette.children.length){
+    MARK_COLORS.forEach(hex => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ff-swatch';
+      b.dataset.hex = hex;
+      b.title = hex === 'transparent' ? 'sem marca-texto' : hex;
+      b.style.background = hex === 'transparent' ? 'repeating-linear-gradient(45deg,#fff 0 4px,#ccc 4px 8px)' : hex;
+      b.addEventListener('mousedown', ev => { ev.preventDefault(); applyInlineStyle({backgroundColor: hex}); });
+      markPalette.appendChild(b);
+    });
+  }
+
+  menu.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('mousedown', ev => {
+      ev.preventDefault();
+      const cmd = btn.dataset.cmd;
+      restoreRichSelection();
+      if(cmd === 'removeFormat') {
+        document.execCommand('removeFormat', false, null);
+      } else {
+        document.execCommand(cmd, false, null);
+      }
+      markActiveRichInput();
+      updateFloatingMenu();
+    });
+  });
+
+  $('ffFont')?.addEventListener('change', ev => {
+    const val = ev.target.value;
+    if(val) applyInlineStyle({fontFamily: val});
+    ev.target.value = '';
+  });
+  $('ffSize')?.addEventListener('change', ev => {
+    const val = ev.target.value;
+    if(val) applyInlineStyle({fontSize: val});
+    ev.target.value = '';
+  });
+  $('ffImageBtn')?.addEventListener('mousedown', ev => {
+    ev.preventDefault();
+    restoreRichSelection();
+    $('ffImageInput')?.click();
+  });
+  $('ffImageInput')?.addEventListener('change', ev => {
+    const files = Array.from(ev.target.files || []);
+    if(files.length) insertImageFiles(files);
+    ev.target.value = '';
+  });
+
+  document.addEventListener('selectionchange', () => setTimeout(updateFloatingMenu, 0));
+  document.addEventListener('mousedown', ev => {
+    if(!menu.contains(ev.target) && !ev.target.closest('.rich-field')) hideFloatingMenu();
+  });
+  window.addEventListener('scroll', hideFloatingMenu, true);
+  window.addEventListener('resize', hideFloatingMenu);
+}
+
+function initCompanyRichFields(){
+  initFloatingFormatMenu();
+  RICH_FIELD_IDS.forEach(fid => {
+    const el = $(fid);
+    if(!el || el.dataset.richReady === '1') return;
+    el.dataset.richReady = '1';
+    el.addEventListener('focus', () => { activeRichField = el; });
+    el.addEventListener('mouseup', () => { activeRichField = el; saveRichSelection(); setTimeout(updateFloatingMenu, 0); });
+    el.addEventListener('keyup', () => { activeRichField = el; saveRichSelection(); setTimeout(updateFloatingMenu, 0); });
+    el.addEventListener('input', markActiveRichInput);
+    el.addEventListener('paste', handleRichPaste);
+    el.addEventListener('drop', handleRichDrop);
+    el.addEventListener('dragover', ev => ev.preventDefault());
+    el.addEventListener('click', handleRichImageClick);
+  });
+}
+
+function saveRichSelection(){
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && activeRichField && activeRichField.contains(sel.anchorNode)){
+    savedRichRange = sel.getRangeAt(0).cloneRange();
+  }
+}
+function restoreRichSelection(){
+  if(activeRichField) activeRichField.focus();
+  if(savedRichRange){
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRichRange);
+  }
+}
+function selectionInsideRichField(){
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed) return null;
+  const node = sel.anchorNode;
+  const field = node?.nodeType === 1 ? node.closest?.('.rich-field') : node?.parentElement?.closest?.('.rich-field');
+  if(!field) return null;
+  return field;
+}
+function updateFloatingMenu(){
+  const menu = $('floatingFormatMenu');
+  const field = selectionInsideRichField();
+  if(!menu || !field || document.querySelector('#modalEmpresa .modal')?.classList.contains('view-mode')){
+    hideFloatingMenu(); return;
+  }
+  activeRichField = field;
+  saveRichSelection();
+  const sel = window.getSelection();
+  const range = sel.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  if(!rect || (!rect.width && !rect.height)){ hideFloatingMenu(); return; }
+  menu.classList.add('open');
+  const menuW = menu.offsetWidth || 420;
+  let left = rect.left + rect.width/2 - menuW/2;
+  left = Math.max(10, Math.min(left, window.innerWidth - menuW - 10));
+  let top = rect.top - menu.offsetHeight - 10;
+  if(top < 10) top = rect.bottom + 10;
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+function hideFloatingMenu(){
+  const menu = $('floatingFormatMenu');
+  if(menu) menu.classList.remove('open');
+}
+function markActiveRichInput(){
+  if(activeRichField) activeRichField.dispatchEvent(new Event('input', {bubbles:true}));
+}
+function applyInlineStyle(styleObj){
+  restoreRichSelection();
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  Object.assign(span.style, styleObj);
+  if(styleObj.fontFamily) span.style.fontFamily = `"${styleObj.fontFamily}", sans-serif`;
+  try {
+    range.surroundContents(span);
+  } catch(e) {
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+  const newRange = document.createRange();
+  newRange.selectNodeContents(span);
+  sel.addRange(newRange);
+  savedRichRange = newRange.cloneRange();
+  markActiveRichInput();
+  updateFloatingMenu();
+}
+
+function insertImageFiles(files){
+  const target = activeRichField || document.querySelector('#modalEmpresa .rich-field');
+  if(!target) return;
+  activeRichField = target;
+  restoreRichSelection();
+  files.forEach(file => {
+    if(!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|gif|svg|avif|bmp|heic|heif)$/i.test(file.name)) return;
+    const reader = new FileReader();
+    reader.onload = ev => insertImageAtSelection(ev.target.result, file.name);
+    reader.readAsDataURL(file);
+  });
+}
+function insertImageAtSelection(src, alt='imagem'){
+  const target = activeRichField || document.querySelector('#modalEmpresa .rich-field');
+  if(!target) return;
+  target.focus();
+  restoreRichSelection();
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = alt || 'imagem';
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount){
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(img);
+    range.setStartAfter(img);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    savedRichRange = range.cloneRange();
+  } else {
+    target.appendChild(img);
+  }
+  markActiveRichInput();
+}
+function handleRichPaste(ev){
+  const items = Array.from(ev.clipboardData?.items || []);
+  const imageItems = items.filter(item => item.type.startsWith('image/'));
+  if(imageItems.length){
+    ev.preventDefault();
+    activeRichField = ev.currentTarget;
+    imageItems.forEach(item => {
+      const file = item.getAsFile();
+      if(file) insertImageFiles([file]);
+    });
+  }
+}
+function handleRichDrop(ev){
+  const files = Array.from(ev.dataTransfer?.files || []);
+  if(files.some(f => f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg|avif|bmp|heic|heif)$/i.test(f.name))){
+    ev.preventDefault();
+    activeRichField = ev.currentTarget;
+    insertImageFiles(files);
+  }
+}
+function unwrapSelectedImages(editor){
+  editor.querySelectorAll('.img-resize-wrap').forEach(wrap => {
+    const img = wrap.querySelector('img');
+    if(img){
+      img.classList.remove('img-selected');
+      wrap.parentNode.insertBefore(img, wrap);
+    }
+    wrap.remove();
+  });
+}
+function handleRichImageClick(ev){
+  const editor = ev.currentTarget;
+  if(ev.target.tagName !== 'IMG'){
+    unwrapSelectedImages(editor);
+    return;
+  }
+  ev.preventDefault();
+  activeRichField = editor;
+  unwrapSelectedImages(editor);
+  const img = ev.target;
+  img.classList.add('img-selected');
+  const wrap = document.createElement('span');
+  wrap.className = 'img-resize-wrap';
+  img.parentNode.insertBefore(wrap, img);
+  wrap.appendChild(img);
+  const hint = document.createElement('span');
+  hint.className = 'img-resize-hint';
+  hint.textContent = 'arraste para redimensionar';
+  const handle = document.createElement('span');
+  handle.className = 'img-resize-handle';
+  wrap.appendChild(hint);
+  wrap.appendChild(handle);
+  let startX = 0, startW = 0;
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    startX = e.clientX;
+    startW = img.getBoundingClientRect().width;
+    const onMove = mv => {
+      const newW = Math.max(60, startW + (mv.clientX - startX));
+      img.style.width = newW + 'px';
+      img.style.maxWidth = 'none';
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      markActiveRichInput();
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+function setRichFieldsEditable(canEdit){
+  RICH_FIELD_IDS.forEach(fid => {
+    const el = $(fid);
+    if(el) el.setAttribute('contenteditable', canEdit ? 'true' : 'false');
+  });
+  if(!canEdit) hideFloatingMenu();
+}
+
 function openEmpresa(id){
   const e = S.empresas.find(x=>x.id===id);
   if(!e) return;
@@ -1087,40 +1595,7 @@ function openEmpresa(id){
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
   renderModalImportacoes();
-  // Ativar suporte a paste de imagem nos rich fields
-  ['f_parametros','f_regras','f_observacoes'].forEach(fid => {
-    const el = $(fid);
-    if(!el) return;
-    el.addEventListener('paste', function(ev){
-      const items = (ev.clipboardData || ev.originalEvent.clipboardData).items;
-      for(const item of items){
-        if(item.type.indexOf('image') === 0){
-          ev.preventDefault();
-          const blob = item.getAsFile();
-          const reader = new FileReader();
-          reader.onload = function(re){
-            const img = document.createElement('img');
-            img.src = re.target.result;
-            img.style.maxWidth = '100%';
-            img.style.borderRadius = '6px';
-            img.style.margin = '4px 0';
-            const sel = window.getSelection();
-            if(sel.rangeCount){
-              const range = sel.getRangeAt(0);
-              range.deleteContents();
-              range.insertNode(img);
-              range.collapse(false);
-            } else {
-              el.appendChild(img);
-            }
-          };
-          reader.readAsDataURL(blob);
-          return;
-        }
-      }
-      // Text paste: let default happen (plain text)
-    });
-  });
+  initCompanyRichFields();
   openModal('modalEmpresa');
   // Abrir sempre em modo visualização
   const modalEl = document.querySelector('#modalEmpresa .modal');
@@ -1129,6 +1604,7 @@ function openEmpresa(id){
   $('viewModeBanner').style.display = 'flex';
   $('btnEditMode').style.display = 'flex';
   $('btnSaveEmpresa').style.display = 'none';
+  setRichFieldsEditable(false);
 }
 
 function enableEditMode(){
@@ -1138,6 +1614,7 @@ function enableEditMode(){
   $('viewModeBanner').style.display = 'none';
   $('btnEditMode').style.display = 'none';
   $('btnSaveEmpresa').style.display = '';
+  setRichFieldsEditable(true);
 }
 
 function empresaFormHtml(e){
@@ -1211,11 +1688,46 @@ function empresaFormHtml(e){
   </div>
   <div class="form-section">
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
-    <p style="font-size:11px;color:var(--text-light);margin-bottom:10px;font-family:var(--font-mono);">💡 Cole imagens diretamente nos campos abaixo (Ctrl+V após copiar a imagem).</p>
+    <div class="rich-hint">💡 Selecione um trecho do texto para abrir o menu flutuante de formatação. Cole imagens com Ctrl+V, arraste arquivos para o campo ou use 🖼️ no menu. Clique na imagem para redimensionar.</div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Parâmetros</label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
       <div class="form-group"><label>Regras / Procedimentos</label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
       <div class="form-group"><label>Observações</label><div class="rich-field" id="f_observacoes" contenteditable="true">${e.observacoes||''}</div></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🔁 Rotina de Follow-up</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Rotina de Follow-up</label><div class="rich-field" id="f_followup" contenteditable="true">${e.followup||''}</div></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">📨 Comunicação / Envio de guias</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Comunicação / Envio de guias</label><div class="rich-field" id="f_comunicacaoGuias" contenteditable="true">${e.comunicacaoGuias||''}</div></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🔐 Acesso a sistemas</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Acesso a sistemas</label><div class="rich-field" id="f_acessosSistemas" contenteditable="true">${e.acessosSistemas||''}</div></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">📚 Apoio à escrituração</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Apoio à escrituração</label><div class="rich-field" id="f_apoioEscrituracao" contenteditable="true">${e.apoioEscrituracao||''}</div></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">⚠️ Ocorrências</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Ocorrências</label><div class="rich-field" id="f_ocorrencias" contenteditable="true">${e.ocorrencias||''}</div></div>
     </div>
   </div>`;
 }
@@ -1287,6 +1799,11 @@ function saveCompany(){
     parametros: $('f_parametros').innerHTML,
     regras: $('f_regras').innerHTML,
     observacoes: $('f_observacoes').innerHTML,
+    followup: $('f_followup')?.innerHTML || '',
+    comunicacaoGuias: $('f_comunicacaoGuias')?.innerHTML || '',
+    acessosSistemas: $('f_acessosSistemas')?.innerHTML || '',
+    apoioEscrituracao: $('f_apoioEscrituracao')?.innerHTML || '',
+    ocorrencias: $('f_ocorrencias')?.innerHTML || '',
     obrigacoes: modalObrigacoes,
     importacoes: modalImportacoes
   });
