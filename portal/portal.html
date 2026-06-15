@@ -214,7 +214,84 @@
       white-space: nowrap;
     }
     .floating-toolbar label:hover { background: var(--gold-dim); border-color: var(--gold); color: var(--gold-light); }
-    .floating-toolbar input[type="color"] { width: 22px; height: 22px; border: none; border-radius: 6px; background: transparent; padding: 0; cursor: pointer; }
+    /* Paleta simples de cores em hexadecimal */
+    .color-menu { position: relative; display: inline-flex; }
+    .palette-trigger { min-width: 50px; justify-content: center; }
+    .palette-trigger .mini-swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.28); display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,0.16) inset; }
+    .palette-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      width: 246px;
+      padding: 10px;
+      background: rgba(13,27,42,0.98);
+      border: 1px solid var(--gold-dim);
+      border-radius: 14px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.42);
+      z-index: 10001;
+    }
+    .color-menu.open .palette-popover { display: grid; }
+    .palette-color {
+      height: auto !important;
+      min-height: 36px;
+      padding: 4px 5px !important;
+      border-radius: 9px !important;
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      line-height: 1;
+    }
+    .palette-color .swatch { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.38); box-shadow: 0 0 0 1px rgba(0,0,0,0.15) inset; }
+    .palette-color .hex { font-family: 'DM Mono', monospace; font-size: 0.55rem; color: var(--text-muted); }
+    .palette-color:hover .hex { color: var(--gold-light); }
+
+    /* Impressão A4 */
+    @page { size: A4; margin: 12mm; }
+    @media print {
+      * { box-shadow: none !important; text-shadow: none !important; }
+      html, body { background: #fff !important; color: #1f2937 !important; padding: 0 !important; }
+      body::before, .topbar, .actions, .cat-section, .status, .footer-note, .floating-toolbar, .hint, button, input[type="file"] { display: none !important; }
+      .container { max-width: 100% !important; margin: 0 !important; }
+      .card { background: #fff !important; color: #1f2937 !important; border: 1px solid #d8c58a !important; border-radius: 10px !important; padding: 16px 18px !important; margin: 0 0 10mm !important; overflow: visible !important; break-inside: avoid; }
+      .card::before { background: #c9a84c !important; height: 3px !important; }
+      .header { display: block !important; margin-bottom: 12px !important; }
+      .title-block { max-width: 100% !important; }
+      h1 { color: #0d1b2a !important; font-size: 15pt !important; letter-spacing: 0.04em !important; margin-bottom: 3mm !important; }
+      h1::before, .details-title::before { background: #c9a84c !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .subtitle { color: #52606f !important; font-size: 9.5pt !important; }
+      .cloud-badge { display: none !important; }
+      .table-wrapper { border: 1px solid #d6d3d1 !important; background: #fff !important; overflow: visible !important; }
+      table { min-width: 0 !important; width: 100% !important; font-size: 9pt !important; }
+      th { background: #0d1b2a !important; color: #fff !important; border-bottom: 1px solid #0d1b2a !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      th, td { color: #1f2937 !important; border-bottom: 1px solid #e5e7eb !important; padding: 6px 7px !important; }
+      tbody tr:hover { background: transparent !important; }
+      .hidden-row { display: none !important; }
+      input[type="text"], input[type="date"], .cell-edit, select { border: none !important; background: transparent !important; color: #1f2937 !important; padding: 0 !important; font-size: 9pt !important; }
+      .details-card { display: block !important; }
+      .details-header { border-bottom: 1px solid #d8c58a !important; padding-bottom: 8px !important; margin-bottom: 10px !important; }
+      .details-title { color: #0d1b2a !important; font-size: 14pt !important; }
+      .badge { background: #f8f3df !important; color: #7c621f !important; border-color: #e1cd86 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .meta { background: #f8fafc !important; border: 1px solid #e5e7eb !important; padding: 10px !important; gap: 8px 14px !important; }
+      .meta-label, .section h2 { color: #7c621f !important; }
+      .meta-value { color: #111827 !important; }
+      .detail-cats { background: #fffdf4 !important; border-color: #e1cd86 !important; min-height: 0 !important; padding: 8px !important; }
+      .detail-cat-toggle { color: #7c621f !important; border-color: #e1cd86 !important; background: #f8f3df !important; }
+      .detail-cat-toggle:not(.selected) { display: none !important; }
+      .rich-editor { background: #fff !important; color: #111827 !important; border: 1px solid #e5e7eb !important; min-height: 0 !important; padding: 8px 10px !important; font-size: 10pt !important; line-height: 1.45 !important; break-inside: auto; }
+      .rich-editor:empty { display: none !important; }
+      .rich-editor img { max-width: 100% !important; border: 1px solid #d6d3d1 !important; break-inside: avoid; }
+      .section { margin-top: 10px !important; break-inside: avoid; }
+      .section h2 { font-size: 9.5pt !important; border-bottom: 1px solid #eadca8 !important; padding-bottom: 3px !important; margin-bottom: 5px !important; }
+      body.print-details .container > .card:first-of-type { display: none !important; }
+      body.print-details #detailsCard { display: block !important; }
+      body.print-list #detailsCard { display: none !important; }
+    }
     @media (max-width: 768px) {
       .floating-toolbar {
         max-width: calc(100vw - 24px);
@@ -257,6 +334,7 @@
         <button class="secondary" id="exportBackupBtn">⬇️ Exportar backup</button>
         <button class="secondary" id="importBackupBtn">⬆️ Importar backup</button>
         <button class="secondary" id="exportWordBtn">📄 Relatório Word</button>
+        <button class="secondary" id="printA4Btn">🖨️ Imprimir A4</button>
         <input type="file" id="backupFileInput" accept="application/json"/>
       </div>
     </div>
@@ -327,7 +405,7 @@
         <div class="hint">Selecione as categorias relacionadas a este registro.</div>
       </div>
 
-      <!-- O menu de formatação agora é flutuante: selecione um texto nos campos de detalhes para aparecer. -->
+      <!-- O menu de formatação agora é flutuante: selecione um texto em qualquer campo rico para aparecer. -->
       <div class="section"><h2>Conteúdo ministrado</h2><div class="rich-editor" id="detailConteudo" contenteditable="true" data-placeholder="Descreva o conteúdo ministrado..."></div></div>
       <div class="section"><h2>Ferramentas / Sistemas</h2><div class="rich-editor" id="detailFerramentas" contenteditable="true" data-placeholder="Sistemas e ferramentas utilizados..."></div></div>
       <div class="section"><h2>Status de retenção</h2><div class="rich-editor" id="detailStatusRetencao" contenteditable="true" data-placeholder="Ex: 100% Autônomo, Necessita Suporte..."></div></div>
@@ -371,8 +449,14 @@
     <option value="7">3X</option>
   </select>
   <div class="sep"></div>
-  <label title="Cor do texto">A <input type="color" id="floatingTextColor" value="#e8c97a"></label>
-  <label title="Marca-texto">▰ <input type="color" id="floatingBgColor" value="#c9a84c"></label>
+  <div class="color-menu" id="textColorMenu">
+    <button type="button" class="palette-trigger" id="textColorTrigger" title="Cor do texto">A <span class="mini-swatch" style="background:#e8c97a"></span></button>
+    <div class="palette-popover" id="textColorPalette" aria-label="Paleta de cores do texto"></div>
+  </div>
+  <div class="color-menu" id="bgColorMenu">
+    <button type="button" class="palette-trigger" id="bgColorTrigger" title="Marca-texto">▰ <span class="mini-swatch" style="background:#fff3bf"></span></button>
+    <div class="palette-popover" id="bgColorPalette" aria-label="Paleta de marca-texto"></div>
+  </div>
   <div class="sep"></div>
   <button type="button" data-cmd="insertUnorderedList" title="Lista com marcadores">• Lista</button>
   <button type="button" data-cmd="insertOrderedList" title="Lista numerada">1. Lista</button>
@@ -437,6 +521,7 @@
   const importBackupBtn  = document.getElementById('importBackupBtn');
   const backupFileInput  = document.getElementById('backupFileInput');
   const exportWordBtn    = document.getElementById('exportWordBtn');
+  const printA4Btn       = document.getElementById('printA4Btn');
   const catFilterBar     = document.getElementById('catFilterBar');
   const catManager       = document.getElementById('catManager');
   const catList          = document.getElementById('catList');
@@ -839,13 +924,17 @@
   const floatingToolbar = document.getElementById('floatingToolbar');
   const floatingFontFamily = document.getElementById('floatingFontFamily');
   const floatingFontSize = document.getElementById('floatingFontSize');
-  const floatingTextColor = document.getElementById('floatingTextColor');
-  const floatingBgColor = document.getElementById('floatingBgColor');
+  const textColorMenu = document.getElementById('textColorMenu');
+  const bgColorMenu = document.getElementById('bgColorMenu');
+  const textColorPalette = document.getElementById('textColorPalette');
+  const bgColorPalette = document.getElementById('bgColorPalette');
+  const textColorTrigger = document.getElementById('textColorTrigger');
+  const bgColorTrigger = document.getElementById('bgColorTrigger');
 
   function getEditableFromNode(node) {
     if (!node) return null;
     const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
-    return el?.closest?.('.rich-editor') || null;
+    return el?.closest?.('.rich-editor, .cell-edit') || null;
   }
 
   function saveCurrentSelection() {
@@ -913,7 +1002,9 @@
 
   document.addEventListener('mousedown', (e) => {
     if (floatingToolbar.contains(e.target)) return;
-    const editor = e.target.closest?.('.rich-editor');
+    textColorMenu?.classList.remove('open');
+    bgColorMenu?.classList.remove('open');
+    const editor = e.target.closest?.('.rich-editor, .cell-edit');
     if (!editor) hideFloatingToolbar();
   });
 
@@ -935,8 +1026,46 @@
     floatingFontSize.value = '';
   });
 
-  floatingTextColor.addEventListener('input', () => fmt('foreColor', floatingTextColor.value));
-  floatingBgColor.addEventListener('input', () => fmt('hiliteColor', floatingBgColor.value));
+  const TEXT_COLORS = [
+    ['#111827','Preto'], ['#374151','Cinza'], ['#e8edf3','Claro'], ['#c9a84c','Dourado'],
+    ['#ef4444','Vermelho'], ['#f97316','Laranja'], ['#f59e0b','Âmbar'], ['#22c55e','Verde'],
+    ['#14b8a6','Turquesa'], ['#3b82f6','Azul'], ['#8b5cf6','Roxo'], ['#ec4899','Rosa']
+  ];
+  const BG_COLORS = [
+    ['#fff3bf','Amarelo'], ['#fde68a','Dourado'], ['#fecaca','Vermelho'], ['#fed7aa','Laranja'],
+    ['#bbf7d0','Verde'], ['#ccfbf1','Turquesa'], ['#bfdbfe','Azul'], ['#ddd6fe','Roxo'],
+    ['#fbcfe8','Rosa'], ['#e5e7eb','Cinza'], ['#ffffff','Branco'], ['#0d1b2a','Azul escuro']
+  ];
+
+  function buildPalette(container, colors, command, trigger) {
+    container.innerHTML = '';
+    colors.forEach(([hex, name]) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'palette-color';
+      btn.title = `${name} — ${hex}`;
+      btn.innerHTML = `<span class="swatch" style="background:${hex}"></span><span class="hex">${hex}</span>`;
+      btn.addEventListener('click', () => {
+        fmt(command, hex);
+        trigger.querySelector('.mini-swatch').style.background = hex;
+        textColorMenu.classList.remove('open');
+        bgColorMenu.classList.remove('open');
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  buildPalette(textColorPalette, TEXT_COLORS, 'foreColor', textColorTrigger);
+  buildPalette(bgColorPalette, BG_COLORS, 'hiliteColor', bgColorTrigger);
+
+  textColorTrigger.addEventListener('click', () => {
+    textColorMenu.classList.toggle('open');
+    bgColorMenu.classList.remove('open');
+  });
+  bgColorTrigger.addEventListener('click', () => {
+    bgColorMenu.classList.toggle('open');
+    textColorMenu.classList.remove('open');
+  });
 
   // Resize de imagens — clique para selecionar, arrastar alça para redimensionar
   function enableImageResize(editor) {
@@ -1007,12 +1136,22 @@
     reader.readAsDataURL(file);
   });
 
+
+  function printA4() {
+    const hasOpenDetails = detailsCard.style.display !== 'none' && currentDetailId;
+    document.body.classList.remove('print-details', 'print-list');
+    document.body.classList.add(hasOpenDetails ? 'print-details' : 'print-list');
+    window.print();
+    setTimeout(() => document.body.classList.remove('print-details', 'print-list'), 400);
+  }
+
   // ── EVENTOS ──
   addRowBtn.addEventListener('click', () => { tableBody.appendChild(createRow()); markDirty(); });
   exportBackupBtn.addEventListener('click', exportBackup);
   importBackupBtn.addEventListener('click', () => backupFileInput.click());
   backupFileInput.addEventListener('change', handleImportBackupFile);
   exportWordBtn.addEventListener('click', exportWordReport);
+  printA4Btn.addEventListener('click', printA4);
   btnSalvarDetalhe.addEventListener('click', saveDetailForCurrent);
   btnFecharDetalhe.addEventListener('click', closeDetailsPanel);
   btnToggleCatManager.addEventListener('click', () => catManager.classList.toggle('open'));
