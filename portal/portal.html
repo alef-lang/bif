@@ -145,118 +145,166 @@
     .img-resize-wrap .resize-handle { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: var(--gold); border-radius: 2px; cursor: se-resize; z-index: 10; }
     .shared-toolbar { display: none; }
 
-    /* Menu flutuante de formatação */
-    .floating-toolbar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      display: none;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: nowrap;
-      padding: 8px 10px;
-      background: rgba(13,27,42,0.96);
-      border: 1px solid var(--gold-dim);
-      border-radius: 14px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.38), 0 0 0 1px rgba(255,255,255,0.03) inset;
-      backdrop-filter: blur(12px);
-      z-index: 9999;
-      transform: translate(-50%, -100%);
-      animation: floatToolbarIn 0.12s ease-out both;
+    /* Menu flutuante de formatação — replicado do painel de empresas */
+    .shared-toolbar { display: none; }
+    .floating-format-menu{
+      position:fixed;
+      z-index:5000;
+      display:none;
+      align-items:center;
+      gap:5px;
+      flex-wrap:wrap;
+      max-width:min(620px, calc(100vw - 24px));
+      padding:8px;
+      background:rgba(13,27,42,0.97);
+      border:1px solid var(--gold-dim);
+      border-radius:12px;
+      box-shadow:0 14px 42px rgba(0,0,0,0.55);
+      backdrop-filter:blur(10px);
     }
-    .floating-toolbar.open { display: flex; }
-    @keyframes floatToolbarIn { from { opacity: 0; transform: translate(-50%, -90%) scale(0.98); } to { opacity: 1; transform: translate(-50%, -100%) scale(1); } }
-    .floating-toolbar::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      bottom: -6px;
-      transform: translateX(-50%) rotate(45deg);
-      width: 10px;
-      height: 10px;
-      background: rgba(13,27,42,0.96);
-      border-right: 1px solid var(--gold-dim);
-      border-bottom: 1px solid var(--gold-dim);
+    .floating-format-menu.open{display:flex;}
+    .ff-btn,.ff-select,.ff-swatch{
+      height:30px;
+      min-width:30px;
+      border:1px solid rgba(201,168,76,0.22);
+      border-radius:8px;
+      background:rgba(255,255,255,0.05);
+      color:var(--text);
+      font-family:'DM Sans', sans-serif;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      transition:all .15s;
+      padding:0 8px;
+      white-space:nowrap;
     }
-    .floating-toolbar button,
-    .floating-toolbar select {
-      height: 30px;
-      padding: 4px 9px;
-      border-radius: 9px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(201,168,76,0.18);
-      color: var(--text-muted);
-      font-size: 0.74rem;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      outline: none;
+    .ff-btn:hover,.ff-select:hover,.ff-swatch:hover{
+      border-color:var(--gold);
+      background:rgba(201,168,76,0.14);
+      color:var(--gold-light);
+      transform:none;
     }
-    .floating-toolbar button:hover,
-    .floating-toolbar select:hover {
-      background: var(--gold-dim);
-      border-color: var(--gold);
-      color: var(--gold-light);
+    .ff-select{
+      width:auto;
+      max-width:122px;
+      color:var(--text);
+      outline:none;
     }
-    .floating-toolbar select option { background: var(--navy-card); color: var(--text); }
-    .floating-toolbar .sep { width: 1px; height: 22px; background: var(--gold-dim); margin: 0 2px; flex-shrink: 0; }
-    .floating-toolbar label {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      height: 30px;
-      padding: 4px 8px;
-      border-radius: 9px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(201,168,76,0.18);
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      cursor: pointer;
-      white-space: nowrap;
+    .ff-select option{background:var(--navy-card);color:var(--text);}
+    .ff-label{
+      font-size:10px;
+      color:var(--text-muted);
+      font-family:'DM Mono', monospace;
+      margin-left:2px;
     }
-    .floating-toolbar label:hover { background: var(--gold-dim); border-color: var(--gold); color: var(--gold-light); }
-    /* Paleta simples de cores em hexadecimal */
-    .color-menu { position: relative; display: inline-flex; }
-    .palette-trigger { min-width: 50px; justify-content: center; }
-    .palette-trigger .mini-swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.28); display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,0.16) inset; }
-    .palette-popover {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
-      width: 246px;
-      padding: 10px;
-      background: rgba(13,27,42,0.98);
-      border: 1px solid var(--gold-dim);
-      border-radius: 14px;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.42);
-      z-index: 10001;
+    .ff-sep{width:1px;height:22px;background:var(--gold-dim);margin:0 2px;}
+    .ff-palette{
+      display:flex;
+      align-items:center;
+      gap:4px;
+      padding:3px;
+      border-radius:9px;
+      background:rgba(255,255,255,0.03);
     }
-    .color-menu.open .palette-popover { display: grid; }
-    .palette-color {
-      height: auto !important;
-      min-height: 36px;
-      padding: 4px 5px !important;
-      border-radius: 9px !important;
-      display: flex !important;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      line-height: 1;
+    .ff-swatch{
+      width:24px;
+      min-width:24px;
+      height:24px;
+      padding:0;
+      border-radius:7px;
+      position:relative;
     }
-    .palette-color .swatch { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.38); box-shadow: 0 0 0 1px rgba(0,0,0,0.15) inset; }
-    .palette-color .hex { font-family: 'DM Mono', monospace; font-size: 0.55rem; color: var(--text-muted); }
-    .palette-color:hover .hex { color: var(--gold-light); }
+    .ff-swatch::after{
+      content:attr(data-hex);
+      position:absolute;
+      bottom:calc(100% + 7px);
+      left:50%;
+      transform:translateX(-50%);
+      background:#0d1b2a;
+      border:1px solid var(--gold-dim);
+      color:var(--gold-light);
+      padding:3px 6px;
+      border-radius:6px;
+      font-size:9px;
+      font-family:'DM Mono', monospace;
+      opacity:0;
+      pointer-events:none;
+      white-space:nowrap;
+    }
+    .ff-swatch:hover::after{opacity:1;}
+
+    .rich-editor,.cell-edit{white-space:pre-wrap;}
+    .rich-editor ul,.rich-editor ol,.cell-edit ul,.cell-edit ol{
+      margin:8px 0 8px 22px;
+      padding-left:18px;
+      list-style-position:outside;
+    }
+    .rich-editor li,.cell-edit li{
+      margin:3px 0;
+      padding-left:3px;
+      line-height:1.55;
+    }
+    .rich-editor img,.cell-edit img{
+      max-width:100%;
+      height:auto;
+      border-radius:8px;
+      margin:6px 0;
+      border:1px solid var(--gold-dim);
+      display:block;
+      cursor:pointer;
+    }
+    .rich-editor img.img-selected,.cell-edit img.img-selected{
+      outline:2px solid var(--gold);
+      box-shadow:0 0 0 4px rgba(201,168,76,0.18);
+    }
+    .img-resize-wrap{
+      display:inline-block;
+      position:relative;
+      max-width:100%;
+      line-height:0;
+      margin:6px 0;
+    }
+    .img-resize-wrap img{margin:0;}
+    .img-resize-handle{
+      position:absolute;
+      width:14px;
+      height:14px;
+      right:-5px;
+      bottom:-5px;
+      border-radius:4px;
+      background:var(--gold);
+      border:2px solid #0d1b2a;
+      cursor:se-resize;
+      z-index:2;
+    }
+    .img-resize-hint{
+      position:absolute;
+      left:0;
+      bottom:calc(100% + 6px);
+      background:rgba(13,27,42,0.95);
+      border:1px solid var(--gold-dim);
+      color:var(--gold-light);
+      padding:3px 6px;
+      border-radius:6px;
+      font-size:10px;
+      font-family:'DM Mono', monospace;
+      white-space:nowrap;
+      line-height:1.2;
+    }
+    .rich-hint{font-size:0.78rem;color:var(--text-muted);margin-top:5px;}
+    @media (max-width: 768px) {
+      .floating-format-menu{max-width:calc(100vw - 24px);overflow-x:auto;}
+    }
 
     /* Impressão A4 */
     @page { size: A4; margin: 12mm; }
     @media print {
       * { box-shadow: none !important; text-shadow: none !important; }
       html, body { background: #fff !important; color: #1f2937 !important; padding: 0 !important; }
-      body::before, .topbar, .actions, .cat-section, .status, .footer-note, .floating-toolbar, .hint, button, input[type="file"] { display: none !important; }
+      body::before, .topbar, .actions, .cat-section, .status, .footer-note, .floating-toolbar, .floating-format-menu, .hint, button, input[type="file"] { display: none !important; }
       .container { max-width: 100% !important; margin: 0 !important; }
       .card { background: #fff !important; color: #1f2937 !important; border: 1px solid #d8c58a !important; border-radius: 10px !important; padding: 16px 18px !important; margin: 0 0 10mm !important; overflow: visible !important; break-inside: avoid; }
       .card::before { background: #c9a84c !important; height: 3px !important; }
@@ -413,7 +461,7 @@
       <div class="section">
         <h2>Detalhamento adicional</h2>
         <div class="rich-editor" id="detailExtra" contenteditable="true" data-placeholder="Passo a passo, exemplos, boas práticas, erros comuns, prints..."></div>
-        <div class="hint">Cole imagens (Ctrl+V) ou use 🖼️. Selecione um texto para abrir o menu flutuante de formatação.</div>
+        <div class="hint">Cole imagens (Ctrl+V), arraste arquivos ou use 🖼️. Selecione um texto para abrir o editor avançado igual ao painel.</div>
       </div>
       <div class="actions" style="margin-top:20px;">
         <button class="primary" id="btnSalvarDetalhe">↑ Salvar na nuvem</button>
@@ -424,45 +472,42 @@
 
 </div>
 
-<!-- Menu flutuante de formatação -->
-<div class="floating-toolbar" id="floatingToolbar" aria-label="Menu de formatação de texto">
-  <button type="button" data-cmd="bold" title="Negrito"><b>N</b></button>
-  <button type="button" data-cmd="italic" title="Itálico"><i>I</i></button>
-  <button type="button" data-cmd="underline" title="Sublinhado"><u>S</u></button>
-  <div class="sep"></div>
-  <select id="floatingFontFamily" title="Fonte">
+<!-- MENU FLUTUANTE DE FORMATAÇÃO — editor avançado replicado do painel -->
+<div class="floating-format-menu" id="floatingFormatMenu">
+  <button type="button" class="ff-btn" data-cmd="bold" title="Negrito"><b>N</b></button>
+  <button type="button" class="ff-btn" data-cmd="italic" title="Itálico"><i>I</i></button>
+  <button type="button" class="ff-btn" data-cmd="underline" title="Sublinhado"><u>S</u></button>
+  <span class="ff-sep"></span>
+  <select class="ff-select" id="ffFont" title="Fonte">
     <option value="">Fonte</option>
     <option value="DM Sans">DM Sans</option>
     <option value="Poppins">Poppins</option>
     <option value="Arial">Arial</option>
+    <option value="Verdana">Verdana</option>
     <option value="Georgia">Georgia</option>
-    <option value="Courier New">Mono</option>
+    <option value="Courier New">Courier</option>
   </select>
-  <select id="floatingFontSize" title="Tamanho da fonte">
-    <option value="">Tam.</option>
-    <option value="1">XS</option>
-    <option value="2">S</option>
-    <option value="3">M</option>
-    <option value="4">L</option>
-    <option value="5">XL</option>
-    <option value="6">2X</option>
-    <option value="7">3X</option>
+  <select class="ff-select" id="ffSize" title="Tamanho">
+    <option value="">Tamanho</option>
+    <option value="11px">11</option>
+    <option value="12px">12</option>
+    <option value="14px">14</option>
+    <option value="16px">16</option>
+    <option value="18px">18</option>
+    <option value="22px">22</option>
+    <option value="26px">26</option>
   </select>
-  <div class="sep"></div>
-  <div class="color-menu" id="textColorMenu">
-    <button type="button" class="palette-trigger" id="textColorTrigger" title="Cor do texto">A <span class="mini-swatch" style="background:#e8c97a"></span></button>
-    <div class="palette-popover" id="textColorPalette" aria-label="Paleta de cores do texto"></div>
-  </div>
-  <div class="color-menu" id="bgColorMenu">
-    <button type="button" class="palette-trigger" id="bgColorTrigger" title="Marca-texto">▰ <span class="mini-swatch" style="background:#fff3bf"></span></button>
-    <div class="palette-popover" id="bgColorPalette" aria-label="Paleta de marca-texto"></div>
-  </div>
-  <div class="sep"></div>
-  <button type="button" data-cmd="insertUnorderedList" title="Lista com marcadores">• Lista</button>
-  <button type="button" data-cmd="insertOrderedList" title="Lista numerada">1. Lista</button>
-  <button type="button" id="btnInsertImage" title="Inserir imagem">🖼️</button>
-  <button type="button" data-cmd="removeFormat" title="Limpar formatação">✕</button>
-  <input type="file" id="editorImageInput" accept="image/*" style="display:none"/>
+  <span class="ff-sep"></span>
+  <span class="ff-label">Texto</span>
+  <span class="ff-palette" id="ffTextPalette"></span>
+  <span class="ff-label">Marca</span>
+  <span class="ff-palette" id="ffMarkPalette"></span>
+  <span class="ff-sep"></span>
+  <button type="button" class="ff-btn" data-cmd="insertUnorderedList" title="Lista com marcadores">•</button>
+  <button type="button" class="ff-btn" data-cmd="insertOrderedList" title="Lista numerada">1.</button>
+  <button type="button" class="ff-btn" id="ffImageBtn" title="Inserir imagem">🖼️</button>
+  <button type="button" class="ff-btn" data-cmd="removeFormat" title="Limpar formatação">✕</button>
+  <input type="file" id="ffImageInput" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.svg,.avif,.bmp,.heic,.heif" multiple style="display:none">
 </div>
 
 <script type="module">
@@ -690,6 +735,7 @@
         div.dataset.placeholder = 'Assunto...';
         div.textContent = data[field] || '';
         div.addEventListener('input', markDirty);
+        if (typeof wireRichEditor === 'function') wireRichEditor(div);
         td.appendChild(div);
       }
       tr.appendChild(td);
@@ -917,225 +963,287 @@
     });
   }
 
-  // ── MENU FLUTUANTE DE FORMATAÇÃO ──
-  let lastFocusedEditor = null;
-  let savedSelectionRange = null;
+  // ── MENU FLUTUANTE + EDITOR AVANÇADO DOS CAMPOS DO PORTAL ──
+  let activeRichField = null;
+  let savedRichRange = null;
+  const RICH_EDITOR_SELECTORS = '.rich-editor, .cell-edit';
+  const DETAIL_RICH_EDITORS = [detailConteudo, detailFerramentas, detailStatusRetencao, detailObservacoes, detailExtra];
+  const TEXT_COLORS = ['#e8edf3','#e8c97a','#c9a84c','#2ecc8a','#4a9eff','#a78bfa','#f97316','#ff7675','#ffffff','#111827'];
+  const MARK_COLORS = ['transparent','#fff3a3','#fde68a','#bbf7d0','#bfdbfe','#ddd6fe','#fed7aa','#fecdd3','#e5e7eb'];
 
-  const floatingToolbar = document.getElementById('floatingToolbar');
-  const floatingFontFamily = document.getElementById('floatingFontFamily');
-  const floatingFontSize = document.getElementById('floatingFontSize');
-  const textColorMenu = document.getElementById('textColorMenu');
-  const bgColorMenu = document.getElementById('bgColorMenu');
-  const textColorPalette = document.getElementById('textColorPalette');
-  const bgColorPalette = document.getElementById('bgColorPalette');
-  const textColorTrigger = document.getElementById('textColorTrigger');
-  const bgColorTrigger = document.getElementById('bgColorTrigger');
+  function byId(id){ return document.getElementById(id); }
 
-  function getEditableFromNode(node) {
-    if (!node) return null;
-    const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
-    return el?.closest?.('.rich-editor, .cell-edit') || null;
-  }
+  function initFloatingFormatMenu(){
+    const menu = byId('floatingFormatMenu');
+    if(!menu || menu.dataset.ready === '1') return;
+    menu.dataset.ready = '1';
 
-  function saveCurrentSelection() {
-    const sel = window.getSelection();
-    if (!sel || !sel.rangeCount) return false;
-    const range = sel.getRangeAt(0);
-    const editor = getEditableFromNode(range.commonAncestorContainer);
-    if (!editor || sel.isCollapsed) return false;
-    lastFocusedEditor = editor;
-    savedSelectionRange = range.cloneRange();
-    return true;
-  }
-
-  function restoreSelection() {
-    const sel = window.getSelection();
-    if (!sel || !savedSelectionRange) return;
-    sel.removeAllRanges();
-    sel.addRange(savedSelectionRange);
-    if (lastFocusedEditor) lastFocusedEditor.focus({ preventScroll: true });
-  }
-
-  function hideFloatingToolbar() {
-    floatingToolbar.classList.remove('open');
-  }
-
-  function positionFloatingToolbar() {
-    const sel = window.getSelection();
-    if (!sel || !sel.rangeCount || sel.isCollapsed) { hideFloatingToolbar(); return; }
-    const range = sel.getRangeAt(0);
-    const editor = getEditableFromNode(range.commonAncestorContainer);
-    if (!editor) { hideFloatingToolbar(); return; }
-
-    const rect = range.getBoundingClientRect();
-    if (!rect || (!rect.width && !rect.height)) { hideFloatingToolbar(); return; }
-
-    saveCurrentSelection();
-    floatingToolbar.classList.add('open');
-
-    requestAnimationFrame(() => {
-      const tb = floatingToolbar.getBoundingClientRect();
-      let left = rect.left + rect.width / 2;
-      let top = rect.top - 12;
-      const pad = 12;
-      left = Math.max(pad + tb.width / 2, Math.min(window.innerWidth - pad - tb.width / 2, left));
-      if (top - tb.height < pad) top = rect.bottom + tb.height + 18;
-      floatingToolbar.style.left = left + 'px';
-      floatingToolbar.style.top = top + 'px';
-    });
-  }
-
-  function fmt(cmd, val) {
-    restoreSelection();
-    document.execCommand(cmd, false, val || null);
-    saveCurrentSelection();
-    if (lastFocusedEditor?.classList.contains('rich-editor')) markDetailDirty();
-    else markDirty();
-    positionFloatingToolbar();
-  }
-  window.fmt = fmt;
-
-  document.addEventListener('selectionchange', () => {
-    clearTimeout(window.__floatingToolbarTimer);
-    window.__floatingToolbarTimer = setTimeout(positionFloatingToolbar, 60);
-  });
-
-  document.addEventListener('mousedown', (e) => {
-    if (floatingToolbar.contains(e.target)) return;
-    textColorMenu?.classList.remove('open');
-    bgColorMenu?.classList.remove('open');
-    const editor = e.target.closest?.('.rich-editor, .cell-edit');
-    if (!editor) hideFloatingToolbar();
-  });
-
-  floatingToolbar.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-  });
-
-  floatingToolbar.querySelectorAll('[data-cmd]').forEach(btn => {
-    btn.addEventListener('click', () => fmt(btn.dataset.cmd));
-  });
-
-  floatingFontFamily.addEventListener('change', () => {
-    if (floatingFontFamily.value) fmt('fontName', floatingFontFamily.value);
-    floatingFontFamily.value = '';
-  });
-
-  floatingFontSize.addEventListener('change', () => {
-    if (floatingFontSize.value) fmt('fontSize', floatingFontSize.value);
-    floatingFontSize.value = '';
-  });
-
-  const TEXT_COLORS = [
-    ['#111827','Preto'], ['#374151','Cinza'], ['#e8edf3','Claro'], ['#c9a84c','Dourado'],
-    ['#ef4444','Vermelho'], ['#f97316','Laranja'], ['#f59e0b','Âmbar'], ['#22c55e','Verde'],
-    ['#14b8a6','Turquesa'], ['#3b82f6','Azul'], ['#8b5cf6','Roxo'], ['#ec4899','Rosa']
-  ];
-  const BG_COLORS = [
-    ['#fff3bf','Amarelo'], ['#fde68a','Dourado'], ['#fecaca','Vermelho'], ['#fed7aa','Laranja'],
-    ['#bbf7d0','Verde'], ['#ccfbf1','Turquesa'], ['#bfdbfe','Azul'], ['#ddd6fe','Roxo'],
-    ['#fbcfe8','Rosa'], ['#e5e7eb','Cinza'], ['#ffffff','Branco'], ['#0d1b2a','Azul escuro']
-  ];
-
-  function buildPalette(container, colors, command, trigger) {
-    container.innerHTML = '';
-    colors.forEach(([hex, name]) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'palette-color';
-      btn.title = `${name} — ${hex}`;
-      btn.innerHTML = `<span class="swatch" style="background:${hex}"></span><span class="hex">${hex}</span>`;
-      btn.addEventListener('click', () => {
-        fmt(command, hex);
-        trigger.querySelector('.mini-swatch').style.background = hex;
-        textColorMenu.classList.remove('open');
-        bgColorMenu.classList.remove('open');
+    const textPalette = byId('ffTextPalette');
+    const markPalette = byId('ffMarkPalette');
+    if(textPalette && !textPalette.children.length){
+      TEXT_COLORS.forEach(hex => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ff-swatch';
+        b.dataset.hex = hex;
+        b.title = hex;
+        b.style.background = hex === 'transparent' ? 'repeating-linear-gradient(45deg,#fff 0 4px,#ccc 4px 8px)' : hex;
+        b.addEventListener('mousedown', ev => { ev.preventDefault(); applyInlineStyle({color: hex}); });
+        textPalette.appendChild(b);
       });
-      container.appendChild(btn);
+    }
+    if(markPalette && !markPalette.children.length){
+      MARK_COLORS.forEach(hex => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ff-swatch';
+        b.dataset.hex = hex;
+        b.title = hex === 'transparent' ? 'sem marca-texto' : hex;
+        b.style.background = hex === 'transparent' ? 'repeating-linear-gradient(45deg,#fff 0 4px,#ccc 4px 8px)' : hex;
+        b.addEventListener('mousedown', ev => { ev.preventDefault(); applyInlineStyle({backgroundColor: hex}); });
+        markPalette.appendChild(b);
+      });
+    }
+
+    menu.querySelectorAll('[data-cmd]').forEach(btn => {
+      btn.addEventListener('mousedown', ev => {
+        ev.preventDefault();
+        const cmd = btn.dataset.cmd;
+        restoreRichSelection();
+        if(cmd === 'removeFormat') document.execCommand('removeFormat', false, null);
+        else document.execCommand(cmd, false, null);
+        markActiveRichInput();
+        updateFloatingMenu();
+      });
     });
+
+    byId('ffFont')?.addEventListener('change', ev => {
+      const val = ev.target.value;
+      if(val) applyInlineStyle({fontFamily: val});
+      ev.target.value = '';
+    });
+    byId('ffSize')?.addEventListener('change', ev => {
+      const val = ev.target.value;
+      if(val) applyInlineStyle({fontSize: val});
+      ev.target.value = '';
+    });
+    byId('ffImageBtn')?.addEventListener('mousedown', ev => {
+      ev.preventDefault();
+      restoreRichSelection();
+      byId('ffImageInput')?.click();
+    });
+    byId('ffImageInput')?.addEventListener('change', ev => {
+      const files = Array.from(ev.target.files || []);
+      if(files.length) insertImageFiles(files);
+      ev.target.value = '';
+    });
+
+    document.addEventListener('selectionchange', () => setTimeout(updateFloatingMenu, 0));
+    document.addEventListener('mousedown', ev => {
+      if(!menu.contains(ev.target) && !ev.target.closest(RICH_EDITOR_SELECTORS)) hideFloatingMenu();
+    });
+    window.addEventListener('scroll', hideFloatingMenu, true);
+    window.addEventListener('resize', hideFloatingMenu);
   }
 
-  buildPalette(textColorPalette, TEXT_COLORS, 'foreColor', textColorTrigger);
-  buildPalette(bgColorPalette, BG_COLORS, 'hiliteColor', bgColorTrigger);
-
-  textColorTrigger.addEventListener('click', () => {
-    textColorMenu.classList.toggle('open');
-    bgColorMenu.classList.remove('open');
-  });
-  bgColorTrigger.addEventListener('click', () => {
-    bgColorMenu.classList.toggle('open');
-    textColorMenu.classList.remove('open');
-  });
-
-  // Resize de imagens — clique para selecionar, arrastar alça para redimensionar
-  function enableImageResize(editor) {
-    editor.addEventListener('click', (e) => {
-      if (e.target.tagName === 'IMG') {
-        editor.querySelectorAll('img.img-selected').forEach(i => {
-          i.classList.remove('img-selected');
-          const wrap = i.parentNode;
-          if (wrap && wrap.classList.contains('img-resize-wrap')) {
-            wrap.parentNode.insertBefore(i, wrap); wrap.remove();
-          }
-        });
-        const img = e.target;
-        img.classList.add('img-selected');
-        if (!img.parentNode.classList.contains('img-resize-wrap')) {
-          const wrap = document.createElement('span');
-          wrap.className = 'img-resize-wrap';
-          wrap.contentEditable = 'false';
-          img.parentNode.insertBefore(wrap, img);
-          wrap.appendChild(img);
-          const handle = document.createElement('span');
-          handle.className = 'resize-handle';
-          wrap.appendChild(handle);
-          let startX, startW;
-          handle.addEventListener('mousedown', (ev) => {
-            ev.preventDefault();
-            startX = ev.clientX; startW = img.offsetWidth;
-            const onMove = (em) => { img.style.width = Math.max(40, startW + em.clientX - startX) + 'px'; img.style.maxWidth = 'none'; };
-            const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-          });
-        }
-      } else {
-        editor.querySelectorAll('img.img-selected').forEach(i => {
-          i.classList.remove('img-selected');
-          const wrap = i.parentNode;
-          if (wrap && wrap.classList.contains('img-resize-wrap')) { wrap.parentNode.insertBefore(i, wrap); wrap.remove(); }
-        });
-      }
-    });
+  function initPortalRichEditors(){
+    initFloatingFormatMenu();
+    document.querySelectorAll(RICH_EDITOR_SELECTORS).forEach(el => wireRichEditor(el));
   }
 
-  [detailConteudo, detailFerramentas, detailStatusRetencao, detailObservacoes, detailExtra].forEach(el => {
-    enableImagePaste(el);
-    enableImageResize(el);
-    el.addEventListener('focus', () => { lastFocusedEditor = el; });
-    el.addEventListener('mousedown', () => { lastFocusedEditor = el; });
-  });
+  function wireRichEditor(el){
+    if(!el || el.dataset.richReady === '1') return;
+    el.dataset.richReady = '1';
+    el.addEventListener('focus', () => { activeRichField = el; });
+    el.addEventListener('mouseup', () => { activeRichField = el; saveRichSelection(); setTimeout(updateFloatingMenu, 0); });
+    el.addEventListener('keyup', () => { activeRichField = el; saveRichSelection(); setTimeout(updateFloatingMenu, 0); });
+    el.addEventListener('input', () => {
+      if(el.classList.contains('rich-editor')) markDetailDirty();
+      else markDirty();
+    });
+    el.addEventListener('paste', handleRichPaste);
+    el.addEventListener('drop', handleRichDrop);
+    el.addEventListener('dragover', ev => ev.preventDefault());
+    el.addEventListener('click', handleRichImageClick);
+  }
 
-  btnInsertImage.addEventListener('click', () => editorImageInput.click());
-  editorImageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const target = lastFocusedEditor || detailExtra;
-      target.focus();
-      const img = document.createElement('img'); img.src = ev.target.result;
+  function saveRichSelection(){
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount && activeRichField && activeRichField.contains(sel.anchorNode)){
+      savedRichRange = sel.getRangeAt(0).cloneRange();
+    }
+  }
+  function restoreRichSelection(){
+    if(activeRichField) activeRichField.focus({ preventScroll: true });
+    if(savedRichRange){
       const sel = window.getSelection();
-      if (sel?.rangeCount) {
-        const range = sel.getRangeAt(0);
-        range.deleteContents(); range.insertNode(img);
-        range.setStartAfter(img); range.collapse(true);
-        sel.removeAllRanges(); sel.addRange(range);
-      } else { detailExtra.appendChild(img); }
-      editorImageInput.value = '';
-    };
-    reader.readAsDataURL(file);
-  });
+      sel.removeAllRanges();
+      sel.addRange(savedRichRange);
+    }
+  }
+  function selectionInsideRichField(){
+    const sel = window.getSelection();
+    if(!sel || !sel.rangeCount || sel.isCollapsed) return null;
+    const node = sel.anchorNode;
+    const field = node?.nodeType === 1 ? node.closest?.(RICH_EDITOR_SELECTORS) : node?.parentElement?.closest?.(RICH_EDITOR_SELECTORS);
+    return field || null;
+  }
+  function updateFloatingMenu(){
+    const menu = byId('floatingFormatMenu');
+    const field = selectionInsideRichField();
+    if(!menu || !field){ hideFloatingMenu(); return; }
+    activeRichField = field;
+    saveRichSelection();
+    const sel = window.getSelection();
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    if(!rect || (!rect.width && !rect.height)){ hideFloatingMenu(); return; }
+    menu.classList.add('open');
+    const menuW = menu.offsetWidth || 420;
+    let left = rect.left + rect.width/2 - menuW/2;
+    left = Math.max(10, Math.min(left, window.innerWidth - menuW - 10));
+    let top = rect.top - menu.offsetHeight - 10;
+    if(top < 10) top = rect.bottom + 10;
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+  }
+  function hideFloatingMenu(){
+    const menu = byId('floatingFormatMenu');
+    if(menu) menu.classList.remove('open');
+  }
+  function markActiveRichInput(){
+    if(activeRichField) activeRichField.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+  function applyInlineStyle(styleObj){
+    restoreRichSelection();
+    const sel = window.getSelection();
+    if(!sel || !sel.rangeCount || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    const span = document.createElement('span');
+    Object.assign(span.style, styleObj);
+    if(styleObj.fontFamily) span.style.fontFamily = `"${styleObj.fontFamily}", sans-serif`;
+    try {
+      range.surroundContents(span);
+    } catch(e) {
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+    }
+    sel.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(span);
+    sel.addRange(newRange);
+    savedRichRange = newRange.cloneRange();
+    markActiveRichInput();
+    updateFloatingMenu();
+  }
 
+  function insertImageFiles(files){
+    const target = activeRichField || detailExtra || document.querySelector('.rich-editor');
+    if(!target) return;
+    activeRichField = target;
+    restoreRichSelection();
+    files.forEach(file => {
+      if(!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|gif|svg|avif|bmp|heic|heif)$/i.test(file.name)) return;
+      const reader = new FileReader();
+      reader.onload = ev => insertImageAtSelection(ev.target.result, file.name);
+      reader.readAsDataURL(file);
+    });
+  }
+  function insertImageAtSelection(src, alt='imagem'){
+    const target = activeRichField || detailExtra || document.querySelector('.rich-editor');
+    if(!target) return;
+    target.focus();
+    restoreRichSelection();
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt || 'imagem';
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount){
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(img);
+      range.setStartAfter(img);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      savedRichRange = range.cloneRange();
+    } else target.appendChild(img);
+    markActiveRichInput();
+  }
+  function handleRichPaste(ev){
+    const items = Array.from(ev.clipboardData?.items || []);
+    const imageItems = items.filter(item => item.type.startsWith('image/'));
+    if(imageItems.length){
+      ev.preventDefault();
+      activeRichField = ev.currentTarget;
+      imageItems.forEach(item => {
+        const file = item.getAsFile();
+        if(file) insertImageFiles([file]);
+      });
+    }
+  }
+  function handleRichDrop(ev){
+    const files = Array.from(ev.dataTransfer?.files || []);
+    if(files.some(f => f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg|avif|bmp|heic|heif)$/i.test(f.name))){
+      ev.preventDefault();
+      activeRichField = ev.currentTarget;
+      insertImageFiles(files);
+    }
+  }
+  function unwrapSelectedImages(editor){
+    editor.querySelectorAll('.img-resize-wrap').forEach(wrap => {
+      const img = wrap.querySelector('img');
+      if(img){
+        img.classList.remove('img-selected');
+        wrap.parentNode.insertBefore(img, wrap);
+      }
+      wrap.remove();
+    });
+  }
+  function handleRichImageClick(ev){
+    const editor = ev.currentTarget;
+    if(ev.target.tagName !== 'IMG'){
+      unwrapSelectedImages(editor);
+      return;
+    }
+    ev.preventDefault();
+    activeRichField = editor;
+    unwrapSelectedImages(editor);
+    const img = ev.target;
+    img.classList.add('img-selected');
+    const wrap = document.createElement('span');
+    wrap.className = 'img-resize-wrap';
+    img.parentNode.insertBefore(wrap, img);
+    wrap.appendChild(img);
+    const hint = document.createElement('span');
+    hint.className = 'img-resize-hint';
+    hint.textContent = 'arraste para redimensionar';
+    const handle = document.createElement('span');
+    handle.className = 'img-resize-handle';
+    wrap.appendChild(hint);
+    wrap.appendChild(handle);
+    let startX = 0, startW = 0;
+    handle.addEventListener('mousedown', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      startX = e.clientX;
+      startW = img.getBoundingClientRect().width;
+      const onMove = mv => {
+        const newW = Math.max(60, startW + (mv.clientX - startX));
+        img.style.width = newW + 'px';
+        img.style.maxWidth = 'none';
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        markActiveRichInput();
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  }
+
+  initPortalRichEditors();
 
   function printA4() {
     const hasOpenDetails = detailsCard.style.display !== 'none' && currentDetailId;
