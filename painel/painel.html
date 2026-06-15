@@ -314,6 +314,66 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .apuracao-badge-sm.nao_apurada{background:rgba(253,203,110,0.15);color:#fdcb6e;}
 .apuracao-badge-sm.pendente_info{background:rgba(255,118,117,0.15);color:#ff7675;}
 
+/* VIEW MODE (read-only) */
+.modal.view-mode .form-group input,
+.modal.view-mode .form-group select,
+.modal.view-mode .form-group textarea,
+.modal.view-mode .rich-field {
+  pointer-events: none;
+  opacity: 0.75;
+  border-color: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  cursor: default;
+}
+.modal.view-mode .checkbox-row {
+  pointer-events: none;
+  opacity: 0.75;
+}
+.modal.view-mode .obrig-add-row,
+.modal.view-mode .btn-remove-obrig,
+.modal.view-mode .btn-add-obrig,
+.modal.view-mode #btnBuscarCnpjEdit,
+.modal.view-mode .importacao-add-row,
+.modal.view-mode .btn-remove-importacao {
+  display: none !important;
+}
+.modal.view-mode .status-select {
+  pointer-events: none;
+  opacity: 0.75;
+}
+.modal.view-mode .apuracao-section select {
+  pointer-events: none;
+  opacity: 0.75;
+}
+.btn-edit-mode {
+  padding: 9px 18px;
+  background: rgba(201,168,76,0.12);
+  color: var(--gold-light);
+  border: 1.5px solid var(--gold-dim);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-edit-mode:hover { background: rgba(201,168,76,0.24); border-color: var(--gold); }
+.view-mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(201,168,76,0.06);
+  border-bottom: 1px solid var(--gold-dim);
+  font-size: 11px;
+  color: var(--text-light);
+  font-family: var(--font-mono);
+}
+.view-mode-banner span { color: var(--gold); font-weight: 700; }
+
 /* PRINT STYLES */
 @media print{
   .header,.filter-bar,.filter-row2,.stats-bar,.main-content,.toast{display:none!important;}
@@ -437,11 +497,15 @@ select option{background:#1b2e42;color:#e8eaf0;}
       </div>
       <button class="btn-close-modal" onclick="closeModal('modalEmpresa')">✕</button>
     </div>
+    <div class="view-mode-banner" id="viewModeBanner">
+      👁 <span>Modo visualização</span> — clique em Editar para modificar os dados
+    </div>
     <div class="modal-body" id="modalEmpresaBody"></div>
     <div class="modal-footer">
       <button class="btn-danger" id="btnDeleteFromModal" onclick="askDelete(currentEditId)">🗑 Excluir</button>
       <button class="btn-secondary" onclick="closeModal('modalEmpresa')">Fechar</button>
-      <button class="btn-primary" onclick="saveCompany()">💾 Salvar</button>
+      <button class="btn-edit-mode" id="btnEditMode" onclick="enableEditMode()">✏️ Editar</button>
+      <button class="btn-primary" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;">💾 Salvar</button>
     </div>
   </div>
 </div>
@@ -1050,6 +1114,20 @@ function openEmpresa(id){
     });
   });
   openModal('modalEmpresa');
+  // Abrir em modo visualização
+  const modalEl = document.querySelector('#modalEmpresa .modal');
+  modalEl.classList.add('view-mode');
+  $('viewModeBanner').style.display = 'flex';
+  $('btnEditMode').style.display = 'flex';
+  $('btnSaveEmpresa').style.display = 'none';
+}
+
+function enableEditMode(){
+  const modalEl = document.querySelector('#modalEmpresa .modal');
+  modalEl.classList.remove('view-mode');
+  $('viewModeBanner').style.display = 'none';
+  $('btnEditMode').style.display = 'none';
+  $('btnSaveEmpresa').style.display = '';
 }
 
 function empresaFormHtml(e){
