@@ -1557,15 +1557,18 @@ function exportRelatorioCSV(){
 }
 
 // Fechar modal clicando fora
-// Fechar modal clicando fora — só fecha se o mousedown TAMBÉM começou no overlay
-let _mousedownOnOverlay = false;
-window.addEventListener('mousedown', ev => {
-  _mousedownOnOverlay = ev.target.classList && ev.target.classList.contains('modal-overlay');
-});
-window.addEventListener('click', ev => {
-  if(_mousedownOnOverlay && ev.target.classList && ev.target.classList.contains('modal-overlay'))
-    ev.target.classList.remove('open');
-  _mousedownOnOverlay = false;
+// Fechar modal clicando fora — só fecha se mousedown E mouseup forem diretamente no overlay
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  let mdOnSelf = false;
+  overlay.addEventListener('mousedown', ev => {
+    mdOnSelf = (ev.target === overlay);
+  });
+  overlay.addEventListener('mouseup', ev => {
+    if(mdOnSelf && ev.target === overlay){
+      overlay.classList.remove('open');
+    }
+    mdOnSelf = false;
+  });
 });
 window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
 </script>
