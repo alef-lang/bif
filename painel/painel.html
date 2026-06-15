@@ -316,9 +316,17 @@ select option{background:#1b2e42;color:#e8eaf0;}
 
 /* VIEW MODE (read-only) */
 .modal.view-mode .form-group input,
-.modal.view-mode .form-group select,
 .modal.view-mode .form-group textarea,
 .modal.view-mode .rich-field {
+  pointer-events: auto;
+  opacity: 0.75;
+  border-color: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.modal.view-mode .form-group select {
   pointer-events: none;
   opacity: 0.75;
   border-color: rgba(255,255,255,0.06);
@@ -1117,6 +1125,7 @@ function openEmpresa(id){
   // Abrir sempre em modo visualização
   const modalEl = document.querySelector('#modalEmpresa .modal');
   modalEl.classList.add('view-mode');
+  modalEl.querySelectorAll('input, textarea').forEach(el => el.setAttribute('readonly', true));
   $('viewModeBanner').style.display = 'flex';
   $('btnEditMode').style.display = 'flex';
   $('btnSaveEmpresa').style.display = 'none';
@@ -1125,6 +1134,7 @@ function openEmpresa(id){
 function enableEditMode(){
   const modalEl = document.querySelector('#modalEmpresa .modal');
   modalEl.classList.remove('view-mode');
+  modalEl.querySelectorAll('input, textarea').forEach(el => el.removeAttribute('readonly'));
   $('viewModeBanner').style.display = 'none';
   $('btnEditMode').style.display = 'none';
   $('btnSaveEmpresa').style.display = '';
