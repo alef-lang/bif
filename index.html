@@ -690,6 +690,16 @@
       <div class="section-title">Pessoas</div>
       <div class="tools-grid">
 
+        <div class="tool-card ready" onclick="openTool('leitura-org')">
+          <div class="tool-icon">🔍</div>
+          <h3>Leitura Organizacional</h3>
+          <p>Diagnóstico de clima, cultura, poder informal e perfis comportamentais — DISC e MBTI aplicados ao escritório contábil.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
         <div class="tool-card locked">
           <div class="tool-icon">🗂️</div>
           <h3>Cargos &amp; Estrutura</h3>
@@ -726,12 +736,13 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" onclick="openTool('leitura-org')">
           <div class="tool-icon">🌱</div>
           <h3>Cultura &amp; Clima</h3>
-          <p>Valores, conduta, clima adaptado ao contexto contábil e endomarketing — a comunicação voltada pra dentro da casa.</p>
+          <p>Valores, conduta, clima e endomarketing — registre observações e leituras organizacionais na Leitura Organizacional.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -932,7 +943,8 @@
       'tarefas': './tarefas/tarefas.html',
       'checklist': './checklist/checklist.html',
       'painel': './painel/painel.html',
-      'central-relacionamento': './relacionamento/central-relacionamento-bif.html'
+      'central-relacionamento': './relacionamento/central-relacionamento-bif.html',
+      'leitura-org': './leitura-org/leitura-organizacional-bif.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
