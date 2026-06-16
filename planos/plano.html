@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Plano de Negócio — BIF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--navy:#0d1b2a;--navy-card:#1b2e42;--navy-hover:#223650;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.18);--gold-border:rgba(201,168,76,0.28);--text:#e8edf3;--text-muted:#8ba0b8;--text-dim:#5c7490;--danger:#e05757;--success:#4caf7d;--warn:#f4a261;--info:#7ec8e3;--purple:#c77dff;--radius:16px;--radius-sm:8px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);background-image:radial-gradient(ellipse at 20% 10%,rgba(201,168,76,0.06) 0%,transparent 50%),radial-gradient(ellipse at 80% 90%,rgba(30,80,140,0.15) 0%,transparent 50%);color:var(--text);min-height:100vh;padding-bottom:80px;}
+    /* HEADER */
+    header{border-bottom:1px solid var(--gold-border);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(13,27,42,0.95);backdrop-filter:blur(12px);gap:16px;flex-wrap:wrap;}
+    .header-left{display:flex;align-items:center;gap:16px;}
+    .logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:#0d1b2a;}
+    .header-title{font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:var(--gold-light);}
+    .header-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
+    .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .cloud-badge{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:10px;border-radius:20px;padding:3px 10px;background:rgba(34,197,94,0.1);color:#86efac;border:1px solid rgba(34,197,94,0.25);}
+    .cloud-badge.loading{background:rgba(201,168,76,0.1);color:var(--gold-light);border-color:var(--gold-dim);}
+    .cloud-badge.error{background:rgba(239,68,68,0.1);color:#fca5a5;border-color:rgba(239,68,68,0.3);}
+    .cloud-badge.dirty{background:rgba(244,162,97,0.12);color:var(--warn);border-color:rgba(244,162,97,0.3);}
+    .btn-save{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;transition:opacity .2s;}
+    .btn-save:hover{opacity:.88;}
+    .btn-back{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:12px;padding:7px 12px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .15s;}
+    .btn-back:hover{background:rgba(201,168,76,0.28);}
+    /* NAV LATERAL */
+    .layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 70px);}
+    .sidebar{border-right:1px solid var(--gold-border);padding:24px 0;position:sticky;top:70px;height:calc(100vh - 70px);overflow-y:auto;background:rgba(13,27,42,0.4);}
+    .sb-section{padding:0 16px;margin-bottom:4px;}
+    .sb-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;padding:12px 8px 6px;display:block;}
+    .sb-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;font-size:12.5px;color:var(--text-muted);cursor:pointer;transition:all .15s;border:1px solid transparent;}
+    .sb-item:hover{background:var(--gold-dim);color:var(--gold-light);}
+    .sb-item.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold-light);font-weight:500;}
+    .sb-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+    /* CONTEÚDO */
+    .content{padding:32px 40px;max-width:900px;}
+    .section-block{display:none;}
+    .section-block.active{display:block;}
+    .section-header{margin-bottom:28px;}
+    .section-title{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:var(--text);position:relative;padding-left:16px;}
+    .section-title::before{content:'';position:absolute;left:0;top:5px;width:4px;height:18px;background:linear-gradient(to bottom,var(--gold),var(--gold-light));border-radius:2px;}
+    .section-desc{font-size:13px;color:var(--text-dim);margin-top:6px;padding-left:16px;line-height:1.5;}
+    /* CAMPOS */
+    .field-group{margin-bottom:22px;}
+    .field-label{display:block;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+    .field-hint{font-size:11px;color:var(--text-dim);margin-bottom:6px;font-style:italic;}
+    .field-input,.field-textarea,.field-select{width:100%;background:rgba(13,27,42,0.6);border:1px solid var(--gold-border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 14px;outline:none;transition:border-color .2s;line-height:1.6;}
+    .field-textarea{min-height:90px;resize:vertical;}
+    .field-input:focus,.field-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,0.15);}
+    .field-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fa3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+    .field-select option{background:#1b2e42;}
+    /* CARD */
+    .card{background:var(--navy-card);border:1px solid var(--gold-border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+    .card-title{font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:var(--gold-light);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .separator{height:1px;background:linear-gradient(to right,var(--gold-border),transparent);margin:18px 0;}
+    .mono-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+    /* CANVAS GRID */
+    .canvas-grid{display:grid;gap:12px;margin-bottom:20px;}
+    .canvas-grid-5{grid-template-columns:repeat(5,1fr);}
+    .canvas-grid-2{grid-template-columns:1fr 1fr;}
+    .canvas-grid-3{grid-template-columns:1fr 1fr 1fr;}
+    .canvas-block{background:rgba(13,27,42,0.5);border:1px solid var(--gold-border);border-radius:10px;padding:14px;}
+    .canvas-block-title{font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;}
+    .canvas-block textarea{width:100%;background:transparent;border:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12.5px;resize:vertical;outline:none;min-height:80px;line-height:1.5;}
+    .canvas-block textarea:focus{color:var(--text);}
+    .canvas-block textarea::placeholder{color:var(--text-dim);}
+    /* SWOT */
+    .swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .swot-cell{border-radius:10px;padding:16px;}
+    .swot-s{background:rgba(76,175,125,0.08);border:1px solid rgba(76,175,125,0.25);}
+    .swot-w{background:rgba(224,87,87,0.08);border:1px solid rgba(224,87,87,0.25);}
+    .swot-o{background:rgba(126,200,227,0.08);border:1px solid rgba(126,200,227,0.25);}
+    .swot-t{background:rgba(244,162,97,0.08);border:1px solid rgba(244,162,97,0.25);}
+    .swot-label{font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;}
+    .swot-s .swot-label{color:var(--success);}
+    .swot-w .swot-label{color:var(--danger);}
+    .swot-o .swot-label{color:var(--info);}
+    .swot-t .swot-label{color:var(--warn);}
+    .swot-cell textarea{width:100%;background:transparent;border:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12.5px;resize:vertical;outline:none;min-height:100px;line-height:1.55;}
+    .swot-cell textarea:focus{color:var(--text);}
+    .swot-cell textarea::placeholder{color:rgba(255,255,255,0.15);}
+    /* FINANCEIRO */
+    .fin-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    .fin-item label{display:block;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+    .fin-input{width:100%;background:rgba(13,27,42,0.6);border:1px solid var(--gold-border);border-radius:8px;color:var(--gold-light);font-family:'DM Mono',monospace;font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s;}
+    .fin-input:focus{border-color:var(--gold);}
+    /* CONCORRENTES */
+    .concorrente-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+    .concorrente-item{background:rgba(13,27,42,0.5);border:1px solid var(--gold-border);border-radius:10px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:start;}
+    .concorrente-item input,.concorrente-item textarea{background:transparent;border:none;border-bottom:1px solid rgba(201,168,76,0.2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;padding:4px 0;outline:none;width:100%;resize:none;}
+    .concorrente-item input:focus,.concorrente-item textarea:focus{border-bottom-color:var(--gold);}
+    .btn-ghost{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;}
+    .btn-ghost:hover{background:rgba(201,168,76,0.28);}
+    .btn-del-sm{background:rgba(224,87,87,0.1);border:1px solid rgba(224,87,87,0.2);color:var(--danger);font-size:11px;padding:5px 9px;border-radius:7px;cursor:pointer;border-style:solid;align-self:start;transition:all .15s;}
+    .btn-del-sm:hover{background:rgba(224,87,87,0.2);}
+    /* CRONOGRAMA */
+    .crono-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+    .crono-item{background:rgba(13,27,42,0.5);border:1px solid var(--gold-border);border-radius:10px;padding:14px;display:grid;grid-template-columns:auto 1fr 120px 100px auto;gap:10px;align-items:center;}
+    .crono-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .crono-item input,.crono-item select{background:transparent;border:none;border-bottom:1px solid rgba(201,168,76,0.2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;padding:4px 0;outline:none;width:100%;}
+    .crono-item input:focus,.crono-item select:focus{border-bottom-color:var(--gold);}
+    .crono-item select option{background:#1b2e42;}
+    /* STATUS CHIP */
+    .status-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;}
+    .sc-pend{background:rgba(244,162,97,0.1);border:1px solid rgba(244,162,97,0.25);color:var(--warn);}
+    .sc-prog{background:rgba(126,200,227,0.1);border:1px solid rgba(126,200,227,0.25);color:var(--info);}
+    .sc-feito{background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.25);color:var(--success);}
+    /* VALUE PROP */
+    .vp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .vp-block{background:rgba(13,27,42,0.5);border:1px solid var(--gold-border);border-radius:10px;padding:16px;}
+    .vp-title{font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;}
+    .vp-block textarea{width:100%;background:transparent;border:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12.5px;resize:vertical;outline:none;min-height:90px;line-height:1.5;}
+    .vp-block textarea:focus{color:var(--text);}
+    .vp-block textarea::placeholder{color:rgba(255,255,255,0.15);}
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;right:28px;z-index:300;background:rgba(27,46,66,0.95);border:1px solid var(--gold-border);color:var(--text);font-size:13px;padding:12px 20px;border-radius:var(--radius-sm);backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    .toast .t-icon{color:var(--gold);font-size:16px;}
+    @media(max-width:860px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.content{padding:22px 18px;}.canvas-grid-5{grid-template-columns:1fr 1fr;}.fin-row{grid-template-columns:1fr;}.concorrente-item{grid-template-columns:1fr;}.crono-item{grid-template-columns:auto 1fr;}.vp-grid{grid-template-columns:1fr;}.swot-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-mark">BIF</div>
+    <div>
+      <div class="header-title" id="plano-nome-header">Plano de Negócio</div>
+      <div class="header-sub">Business Intelligence Fiscal · Planos de Negócio</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="cloudBadge" class="cloud-badge loading">⏳ Carregando...</div>
+    <button class="btn-save" onclick="salvarTudo()">↑ Salvar tudo</button>
+    <a href="index-planos.html" class="btn-back">← Planos</a>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="sb-label">Navegação</span>
+    <div class="sb-section">
+      <div class="sb-item active" onclick="showSection('sumario')" id="nav-sumario"><span class="sb-icon">📄</span>Sumário Executivo</div>
+      <div class="sb-item" onclick="showSection('canvas')" id="nav-canvas"><span class="sb-icon">🧩</span>Business Model Canvas</div>
+      <div class="sb-item" onclick="showSection('vp')" id="nav-vp"><span class="sb-icon">💎</span>Value Proposition</div>
+      <div class="sb-item" onclick="showSection('swot')" id="nav-swot"><span class="sb-icon">🎯</span>Análise SWOT</div>
+      <div class="sb-item" onclick="showSection('mercado')" id="nav-mercado"><span class="sb-icon">🔭</span>Mercado & Concorrentes</div>
+      <div class="sb-item" onclick="showSection('operacional')" id="nav-operacional"><span class="sb-icon">⚙️</span>Plano Operacional</div>
+      <div class="sb-item" onclick="showSection('financeiro')" id="nav-financeiro"><span class="sb-icon">💰</span>Análise Financeira</div>
+      <div class="sb-item" onclick="showSection('marketing')" id="nav-marketing"><span class="sb-icon">📣</span>Marketing & Canais</div>
+      <div class="sb-item" onclick="showSection('cronograma')" id="nav-cronograma"><span class="sb-icon">📅</span>Cronograma</div>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="content">
+
+    <!-- 1. SUMÁRIO EXECUTIVO -->
+    <div class="section-block active" id="sec-sumario">
+      <div class="section-header">
+        <div class="section-title">Sumário Executivo</div>
+        <div class="section-desc">Visão geral do negócio em uma página. O leitor deve entender o essencial sem ler o restante.</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Nome do negócio</label>
+        <input type="text" class="field-input" id="s-nome" placeholder="Ex: Fluignos"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Missão</label>
+        <div class="field-hint">Em uma frase: para quem, o quê e como.</div>
+        <textarea class="field-textarea" id="s-missao" placeholder="Ex: Estruturar escritórios contábeis por meio de SOPs, playbooks e Customer Success proativo, transformando operação reativa em gestão intencional."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Visão</label>
+        <div class="field-hint">Onde o negócio quer chegar em 3–5 anos.</div>
+        <textarea class="field-textarea" id="s-visao" placeholder="Ex: Ser referência em gestão de conhecimento para escritórios contábeis no Brasil, com metodologia replicável e produtos digitais escaláveis."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Valores</label>
+        <textarea class="field-textarea" id="s-valores" placeholder="Ex: Rigor técnico, entrega com propósito, aprendizado contínuo, autonomia com responsabilidade." style="min-height:70px;"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Problema que resolve</label>
+        <textarea class="field-textarea" id="s-problema" placeholder="Ex: Escritórios contábeis operam com conhecimento tácito, sem processos documentados, gerando dependência de pessoas, retrabalho e atendimento reativo."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Solução oferecida</label>
+        <textarea class="field-textarea" id="s-solucao" placeholder="Ex: Diagnóstico, documentação de SOPs, implantação de Customer Success proativo e treinamento da equipe — entregue de forma consultiva e escalável."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Estágio atual</label>
+        <select class="field-select" id="s-estagio">
+          <option>Ideação</option><option>Validação</option><option>MVP</option>
+          <option>Crescimento</option><option>Escala</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 2. BUSINESS MODEL CANVAS -->
+    <div class="section-block" id="sec-canvas">
+      <div class="section-header">
+        <div class="section-title">Business Model Canvas</div>
+        <div class="section-desc">Os 9 blocos de Osterwalder. Preencha cada bloco com os elementos do seu modelo.</div>
+      </div>
+      <div class="canvas-grid canvas-grid-5" style="grid-template-areas:'parceiros atividades vp relacionamento segmentos' 'parceiros recursos vp canais segmentos' 'custos custos custos receitas receitas';">
+        <div class="canvas-block" style="grid-area:parceiros">
+          <div class="canvas-block-title">🤝 Parceiros-Chave</div>
+          <textarea id="bmc-parceiros" placeholder="Quem são seus parceiros e fornecedores estratégicos?&#10;&#10;Ex: Plataformas de treinamento, associações contábeis, sistemas de gestão (Domínio, Alterdata)"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:atividades">
+          <div class="canvas-block-title">⚙️ Atividades-Chave</div>
+          <textarea id="bmc-atividades" placeholder="O que você faz de mais importante?&#10;&#10;Ex: Diagnóstico de processos, documentação de SOPs, treinamento de equipe, implantação de CS"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:vp;border-color:var(--gold);background:rgba(201,168,76,0.05);">
+          <div class="canvas-block-title" style="color:var(--gold-light);">💎 Proposta de Valor</div>
+          <textarea id="bmc-vp" placeholder="Que valor você entrega? Que problema resolve?&#10;&#10;Ex: Transforma operação reativa em gestão intencional. Documentação que fica na empresa, não na cabeça das pessoas."></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:relacionamento">
+          <div class="canvas-block-title">💬 Relacionamento</div>
+          <textarea id="bmc-relacionamento" placeholder="Como você se relaciona com os clientes?&#10;&#10;Ex: Consultoria personalizada, acompanhamento mensal, comunidade de prática para escritórios parceiros"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:segmentos">
+          <div class="canvas-block-title">👥 Segmentos</div>
+          <textarea id="bmc-segmentos" placeholder="Para quem você cria valor?&#10;&#10;Ex: Escritórios contábeis de 3–20 colaboradores, fase de estruturação ou crescimento, sem RH interno"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:recursos">
+          <div class="canvas-block-title">🏗️ Recursos-Chave</div>
+          <textarea id="bmc-recursos" placeholder="Que ativos são indispensáveis?&#10;&#10;Ex: Conhecimento técnico fiscal/contábil, metodologia própria, ferramentas digitais (BIF), rede de contatos"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:canais">
+          <div class="canvas-block-title">📡 Canais</div>
+          <textarea id="bmc-canais" placeholder="Como você chega ao cliente?&#10;&#10;Ex: Indicação de rede, LinkedIn, Instagram (@alefluizcamargo), conteúdo técnico, palestras em associações"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:custos;border-color:rgba(224,87,87,0.3);background:rgba(224,87,87,0.04);">
+          <div class="canvas-block-title" style="color:var(--danger);">📉 Estrutura de Custos</div>
+          <textarea id="bmc-custos" placeholder="Quais são os custos mais relevantes?&#10;&#10;Ex: Ferramentas SaaS, tempo de consultoria, produção de conteúdo, deslocamento, impostos sobre serviço"></textarea>
+        </div>
+        <div class="canvas-block" style="grid-area:receitas;border-color:rgba(76,175,125,0.3);background:rgba(76,175,125,0.04);">
+          <div class="canvas-block-title" style="color:var(--success);">📈 Fontes de Receita</div>
+          <textarea id="bmc-receitas" placeholder="Como você ganha dinheiro?&#10;&#10;Ex: Projeto de diagnóstico (avulso), implantação de SOPs (projeto), CS recorrente (mensalidade), licença de ferramentas"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. VALUE PROPOSITION CANVAS -->
+    <div class="section-block" id="sec-vp">
+      <div class="section-header">
+        <div class="section-title">Value Proposition Canvas</div>
+        <div class="section-desc">O encaixe entre o que você oferece e o que o cliente realmente precisa. Baseado em Osterwalder & Pigneur.</div>
+      </div>
+      <div class="vp-grid">
+        <div>
+          <div class="card-title" style="font-size:13px;margin-bottom:12px;">💎 Mapa de Valor (o que você entrega)</div>
+          <div class="vp-block" style="margin-bottom:12px;">
+            <div class="vp-title">Produtos & Serviços</div>
+            <textarea id="vp-produtos" placeholder="Ex: Diagnóstico de processos, SOPs, playbooks, implantação de CS proativo, treinamento de equipe, BIF (ferramenta digital)"></textarea>
+          </div>
+          <div class="vp-block" style="margin-bottom:12px;">
+            <div class="vp-title">Analgésicos (alivia dores)</div>
+            <textarea id="vp-analgésicos" placeholder="Ex: Elimina dependência de pessoas, reduz retrabalho, documenta antes que o conhecimento saia da empresa"></textarea>
+          </div>
+          <div class="vp-block">
+            <div class="vp-title">Criadores de Ganho</div>
+            <textarea id="vp-ganhos" placeholder="Ex: Gestão previsível, equipe mais autônoma, atendimento ao cliente de maior qualidade, crescimento escalável"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="card-title" style="font-size:13px;margin-bottom:12px;">👥 Perfil do Cliente</div>
+          <div class="vp-block" style="margin-bottom:12px;">
+            <div class="vp-title">Tarefas do Cliente</div>
+            <textarea id="vp-tarefas" placeholder="Ex: Gerir equipe sem RH formal, atender cliente com qualidade, fechar obrigações acessórias no prazo, crescer sem contratar em excesso"></textarea>
+          </div>
+          <div class="vp-block" style="margin-bottom:12px;">
+            <div class="vp-title">Dores</div>
+            <textarea id="vp-dores" placeholder="Ex: Conhecimento concentrado em uma pessoa, equipe sem autonomia, cliente reclama de falta de retorno, sócio apagando incêndio o tempo todo"></textarea>
+          </div>
+          <div class="vp-block">
+            <div class="vp-title">Ganhos Esperados</div>
+            <textarea id="vp-ganhos-cli" placeholder="Ex: Escritório que funciona sem o sócio presente, equipe que resolve sem perguntar tudo, cliente satisfeito e fidelizado"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. SWOT -->
+    <div class="section-block" id="sec-swot">
+      <div class="section-header">
+        <div class="section-title">Análise SWOT</div>
+        <div class="section-desc">Forças e fraquezas são internas (você controla). Oportunidades e ameaças são externas (o ambiente).</div>
+      </div>
+      <div class="swot-grid">
+        <div class="swot-cell swot-s">
+          <div class="swot-label">▲ Forças (Strengths)</div>
+          <textarea id="sw-forcas" placeholder="Ex:&#10;• Conhecimento técnico fiscal profundo&#10;• Visão sistêmica de processos&#10;• Experiência prática em escritório contábil&#10;• Metodologia documentada (MAPA, BIF)&#10;• Identidade de marca clara"></textarea>
+        </div>
+        <div class="swot-cell swot-w">
+          <div class="swot-label">▼ Fraquezas (Weaknesses)</div>
+          <textarea id="sw-fraquezas" placeholder="Ex:&#10;• Operação solo no início&#10;• Carteira de clientes ainda pequena&#10;• Tempo limitado (emprego paralelo)&#10;• Marca ainda pouco conhecida no mercado"></textarea>
+        </div>
+        <div class="swot-cell swot-o">
+          <div class="swot-label">◆ Oportunidades (Opportunities)</div>
+          <textarea id="sw-oportunidades" placeholder="Ex:&#10;• Reforma Tributária gerando demanda por estruturação&#10;• Mercado contábil carente de gestão profissional&#10;• Crescimento do interesse em CS no setor&#10;• Digitalização acelerada dos escritórios"></textarea>
+        </div>
+        <div class="swot-cell swot-t">
+          <div class="swot-label">◇ Ameaças (Threats)</div>
+          <textarea id="sw-ameacas" placeholder="Ex:&#10;• Consultores generalistas cobrando menos&#10;• Resistência cultural à mudança nos escritórios&#10;• Instabilidade econômica reduzindo investimento&#10;• Plataformas de automação reduzindo demanda por processo manual"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MERCADO & CONCORRENTES -->
+    <div class="section-block" id="sec-mercado">
+      <div class="section-header">
+        <div class="section-title">Mercado & Concorrentes</div>
+        <div class="section-desc">Tamanho de mercado, segmentação e análise competitiva.</div>
+      </div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">📊 Tamanho & Segmentação de Mercado</div>
+        <div class="field-group">
+          <label class="field-label">TAM — Mercado Total Endereçável</label>
+          <div class="field-hint">Toda a demanda existente para seu tipo de solução.</div>
+          <textarea class="field-textarea" id="m-tam" placeholder="Ex: ~80.000 escritórios contábeis ativos no Brasil (CFC, 2024). A maioria com 2–15 colaboradores, sem processos formalizados."></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">SAM — Mercado Endereçável pelo Serviço</label>
+          <div class="field-hint">A fatia que você pode alcançar com seu modelo atual.</div>
+          <textarea class="field-textarea" id="m-sam" placeholder="Ex: Escritórios de 3–20 colaboradores no estado de SP, em fase de estruturação ou crescimento. Estimativa: 8.000–12.000 escritórios."></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">SOM — Mercado Obtível Realisticamente</label>
+          <div class="field-hint">Quantos você consegue atender nos próximos 12–24 meses.</div>
+          <textarea class="field-textarea" id="m-som" placeholder="Ex: 10–20 clientes no primeiro ano, priorizando região de Tatuí/Sorocaba e rede de indicações."></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Tendências do mercado</label>
+          <textarea class="field-textarea" id="m-tendencias" placeholder="Ex: Reforma Tributária (2026–2033) criando demanda urgente por restruturação. Digitalização acelerada. Crescimento do BPO. Pressão por eficiência com margens comprimidas."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;">
+          <span>🥊 Análise de Concorrentes</span>
+          <button class="btn-ghost" onclick="addConcorrente()" style="font-size:11px;padding:5px 12px;">＋ Adicionar</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;padding:0 4px;">
+          <span class="mono-label">Concorrente</span>
+          <span class="mono-label">Pontos fortes</span>
+          <span class="mono-label">Diferencial nosso</span>
+          <span></span>
+        </div>
+        <div class="concorrente-list" id="concorrente-list"></div>
+      </div>
+    </div>
+
+    <!-- 6. PLANO OPERACIONAL -->
+    <div class="section-block" id="sec-operacional">
+      <div class="section-header">
+        <div class="section-title">Plano Operacional & Recursos</div>
+        <div class="section-desc">Como o negócio opera no dia a dia. Equipe, tecnologia, processos e infraestrutura.</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Estrutura da equipe</label>
+        <div class="field-hint">Quem faz o quê. Inclua você mesmo e eventuais parceiros.</div>
+        <textarea class="field-textarea" id="op-equipe" placeholder="Ex: Alef Luiz Camargo — fundador e consultor principal. No início, operação solo. A partir do 2º ano: 1 analista de processos para suporte à implantação."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Ferramentas & Tecnologia</label>
+        <textarea class="field-textarea" id="op-ferramentas" placeholder="Ex: BIF (ferramenta própria), Notion (documentação), GitHub Pages (hospedagem), Firebase (banco de dados), Canva (design), WhatsApp Business, Google Workspace."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Processo de entrega (passo a passo)</label>
+        <textarea class="field-textarea" id="op-processo" placeholder="Ex:&#10;1. Prospecção e diagnóstico gratuito (30 min)&#10;2. Proposta comercial customizada&#10;3. Onboarding do cliente (mapeamento de processos)&#10;4. Documentação dos SOPs priorizados&#10;5. Treinamento da equipe&#10;6. Acompanhamento mensal (CS proativo)" style="min-height:120px;"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Recursos necessários (físicos e digitais)</label>
+        <textarea class="field-textarea" id="op-recursos" placeholder="Ex: Computador, acesso a sistemas contábeis (Domínio), domínio do site, ferramentas SaaS, material de apoio impresso para treinamento."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Localização / Modelo de atendimento</label>
+        <select class="field-select" id="op-modelo">
+          <option>100% remoto</option><option>Presencial na região</option>
+          <option>Híbrido (remoto + visitas)</option><option>Coworking</option>
+        </select>
+      </div>
+      <div class="field-group" style="margin-top:8px;">
+        <label class="field-label">Observações de modelo</label>
+        <textarea class="field-textarea" id="op-modelo-obs" placeholder="Ex: Atendimento remoto como regra. Visitas presenciais no onboarding e revisões trimestrais para clientes da região de Tatuí/Sorocaba." style="min-height:60px;"></textarea>
+      </div>
+    </div>
+
+    <!-- 7. ANÁLISE FINANCEIRA -->
+    <div class="section-block" id="sec-financeiro">
+      <div class="section-header">
+        <div class="section-title">Análise Econômico-Financeira</div>
+        <div class="section-desc">Investimento, custos, receitas, ponto de equilíbrio e projeções.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">💸 Investimento Inicial</div>
+        <div class="fin-row">
+          <div class="fin-item"><label>Ferramentas & SaaS (anual)</label><input type="text" class="fin-input" id="fi-saas" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Branding & Identidade visual</label><input type="text" class="fin-input" id="fi-brand" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Domínio & Hospedagem</label><input type="text" class="fin-input" id="fi-host" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Outros investimentos</label><input type="text" class="fin-input" id="fi-outros" placeholder="R$ 0,00"/></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Observações sobre investimento</label>
+          <textarea class="field-textarea" id="fi-obs" placeholder="Ex: Modelo bootstrapped — sem necessidade de capital externo no início. Investimento concentrado em ferramentas e tempo." style="min-height:60px;"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">📉 Custos Fixos Mensais</div>
+        <div class="fin-row">
+          <div class="fin-item"><label>Ferramentas (rateio mensal)</label><input type="text" class="fin-input" id="cf-ferramentas" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Impostos s/ serviço (MEI/ME)</label><input type="text" class="fin-input" id="cf-impostos" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Marketing & conteúdo</label><input type="text" class="fin-input" id="cf-marketing" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Outros fixos</label><input type="text" class="fin-input" id="cf-outros" placeholder="R$ 0,00"/></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">📈 Projeção de Receita</div>
+        <div class="fin-row">
+          <div class="fin-item"><label>Ticket médio — Diagnóstico</label><input type="text" class="fin-input" id="rec-diag" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Ticket médio — Implantação</label><input type="text" class="fin-input" id="rec-impl" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Mensalidade CS (recorrente)</label><input type="text" class="fin-input" id="rec-cs" placeholder="R$ 0,00/mês"/></div>
+          <div class="fin-item"><label>Outros (licenças, cursos)</label><input type="text" class="fin-input" id="rec-outros" placeholder="R$ 0,00"/></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Projeção ano 1 / ano 2 / ano 3</label>
+          <textarea class="field-textarea" id="rec-projecao" placeholder="Ex:&#10;Ano 1: 5 diagnósticos + 3 implantações + 2 CS recorrentes = R$ X&#10;Ano 2: 10 CS recorrentes + 5 implantações = R$ Y&#10;Ano 3: Produto digital + 15 recorrentes = R$ Z"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚖️ Ponto de Equilíbrio & Capital de Giro</div>
+        <div class="fin-row">
+          <div class="fin-item"><label>Ponto de equilíbrio (R$/mês)</label><input type="text" class="fin-input" id="pe-valor" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Clientes necessários para PE</label><input type="text" class="fin-input" id="pe-clientes" placeholder="Ex: 3 contratos CS"/></div>
+          <div class="fin-item"><label>Capital de giro recomendado</label><input type="text" class="fin-input" id="pe-giro" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Prazo estimado para PE</label><input type="text" class="fin-input" id="pe-prazo" placeholder="Ex: 6 meses"/></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Premissas e observações financeiras</label>
+          <textarea class="field-textarea" id="pe-obs" placeholder="Ex: Estimativas conservadoras. Não inclui remuneração do fundador no ano 1 (mantém emprego CLT). Reinvestimento de 30% da receita no primeiro ano."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. MARKETING & CANAIS -->
+    <div class="section-block" id="sec-marketing">
+      <div class="section-header">
+        <div class="section-title">Plano de Marketing & Canais</div>
+        <div class="section-desc">Como você se posiciona, comunica e atrai clientes.</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Posicionamento de marca</label>
+        <div class="field-hint">Como você quer ser percebido. Em uma frase.</div>
+        <textarea class="field-textarea" id="mk-posicao" placeholder="Ex: O consultor que nomeia o que o escritório só sente — e transforma isso em processo."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Público-alvo primário</label>
+        <textarea class="field-textarea" id="mk-publico" placeholder="Ex: Sócio ou coordenador de escritório contábil de 5–15 colaboradores, região interior de SP, que sente que a operação depende demais de uma ou duas pessoas." style="min-height:70px;"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Canais de aquisição</label>
+        <textarea class="field-textarea" id="mk-canais" placeholder="Ex:&#10;• LinkedIn — conteúdo técnico de gestão contábil&#10;• Instagram (@alefluizcamargo) — posicionamento crítico e observações do setor&#10;• Indicação de rede (principal canal no início)&#10;• Palestras em associações contábeis&#10;• Parceria com sistemas contábeis"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Estratégia de conteúdo</label>
+        <textarea class="field-textarea" id="mk-conteudo" placeholder="Ex: Publicações semanais no LinkedIn sobre gestão de processos e Customer Success em escritórios. Instagram com observações sobre cultura organizacional e liderança. Nenhum conteúdo performático — só o que nomeia mecanismos reais."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Funil de vendas</label>
+        <textarea class="field-textarea" id="mk-funil" placeholder="Ex:&#10;Topo: Conteúdo gratuito (LinkedIn/Instagram) → gera autoridade&#10;Meio: Diagnóstico gratuito de 30 min → gera confiança&#10;Fundo: Proposta customizada → converte em cliente&#10;Retenção: CS proativo + entrega consistente → indicação"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Identidade visual & tom de comunicação</label>
+        <textarea class="field-textarea" id="mk-identidade" placeholder="Ex: Identidade dark navy/gold (BIF). Tom direto, técnico e sem jargões de guru. Comunicação que nomeia mecanismos sem simplificar demais." style="min-height:60px;"></textarea>
+      </div>
+    </div>
+
+    <!-- 9. CRONOGRAMA -->
+    <div class="section-block" id="sec-cronograma">
+      <div class="section-header">
+        <div class="section-title">Cronograma & Próximos Passos</div>
+        <div class="section-desc">Marcos, entregas e linha do tempo. Arraste para reordenar, edite inline.</div>
+      </div>
+      <div class="crono-list" id="crono-list"></div>
+      <button class="btn-ghost" onclick="addCrono()">＋ Adicionar marco</button>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"><span class="t-icon">✓</span><span id="toast-msg"></span></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain:"portal-treinamentos-lang.firebaseapp.com",
+  databaseURL:"https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId:"portal-treinamentos-lang",
+  storageBucket:"portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId:"1049839891406",
+  appId:"1:1049839891406:web:c5874166bdbee74139f19f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// Pega o ID do plano da URL
+const params = new URLSearchParams(window.location.search);
+const planoId = params.get('id') || 'pn_fluignos';
+const DB_PATH = `plano_dados_${planoId}`;
+
+function byId(id){ return document.getElementById(id); }
+function toast(msg){ const t=byId('toast'); byId('toast-msg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+function setCloud(state,msg){ const b=byId('cloudBadge'); b.className='cloud-badge'+(state==='ok'?'':state==='loading'?' loading':state==='dirty'?' dirty':' error'); b.textContent=(state==='ok'?'☁️ ':state==='loading'?'⏳ ':state==='dirty'?'✏️ ':'⚠️ ')+msg; }
+
+// Campos de texto simples
+const CAMPOS = [
+  's-nome','s-missao','s-visao','s-valores','s-problema','s-solucao','s-estagio',
+  'bmc-parceiros','bmc-atividades','bmc-vp','bmc-relacionamento','bmc-segmentos','bmc-recursos','bmc-canais','bmc-custos','bmc-receitas',
+  'vp-produtos','vp-analgésicos','vp-ganhos','vp-tarefas','vp-dores','vp-ganhos-cli',
+  'sw-forcas','sw-fraquezas','sw-oportunidades','sw-ameacas',
+  'm-tam','m-sam','m-som','m-tendencias',
+  'op-equipe','op-ferramentas','op-processo','op-recursos','op-modelo','op-modelo-obs',
+  'fi-saas','fi-brand','fi-host','fi-outros','fi-obs',
+  'cf-ferramentas','cf-impostos','cf-marketing','cf-outros',
+  'rec-diag','rec-impl','rec-cs','rec-outros','rec-projecao',
+  'pe-valor','pe-clientes','pe-giro','pe-prazo','pe-obs',
+  'mk-posicao','mk-publico','mk-canais','mk-conteudo','mk-funil','mk-identidade'
+];
+
+// Estado dinâmico
+let concorrentes = [];
+let cronograma   = [];
+let dirty = false;
+
+function markDirty(){ if(!dirty){ dirty=true; setCloud('dirty','Alterações não salvas'); } }
+
+CAMPOS.forEach(id=>{ const el=byId(id); if(el) el.addEventListener('input', markDirty); });
+
+// ── CONCORRENTES ──
+window.addConcorrente = function(c={}){
+  concorrentes.push(c);
+  renderConcorrentes();
+  markDirty();
+};
+
+function renderConcorrentes(){
+  const list = byId('concorrente-list');
+  list.innerHTML = '';
+  concorrentes.forEach((c,i)=>{
+    const div = document.createElement('div');
+    div.className = 'concorrente-item';
+    div.innerHTML = `
+      <input type="text" placeholder="Nome do concorrente" value="${c.nome||''}" oninput="concorrentes[${i}].nome=this.value;markDirty()"/>
+      <textarea placeholder="Pontos fortes" oninput="concorrentes[${i}].fortes=this.value;markDirty()">${c.fortes||''}</textarea>
+      <textarea placeholder="Nosso diferencial" oninput="concorrentes[${i}].diferencial=this.value;markDirty()">${c.diferencial||''}</textarea>
+      <button class="btn-del-sm" onclick="removerConcorrente(${i})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+
+window.removerConcorrente = function(i){ concorrentes.splice(i,1); renderConcorrentes(); markDirty(); };
+
+// ── CRONOGRAMA ──
+window.addCrono = function(c={}){
+  cronograma.push(c);
+  renderCrono();
+  markDirty();
+};
+
+function renderCrono(){
+  const list = byId('crono-list');
+  list.innerHTML = '';
+  cronograma.forEach((c,i)=>{
+    const div = document.createElement('div');
+    div.className = 'crono-item';
+    div.innerHTML = `
+      <div class="crono-num">${i+1}</div>
+      <input type="text" placeholder="Marco / entrega" value="${c.marco||''}" oninput="cronograma[${i}].marco=this.value;markDirty()"/>
+      <input type="text" placeholder="Prazo" value="${c.prazo||''}" oninput="cronograma[${i}].prazo=this.value;markDirty()"/>
+      <select oninput="cronograma[${i}].status=this.value;markDirty()">
+        <option value="pendente" ${(c.status||'pendente')==='pendente'?'selected':''}>Pendente</option>
+        <option value="progresso" ${c.status==='progresso'?'selected':''}>Em progresso</option>
+        <option value="feito" ${c.status==='feito'?'selected':''}>Concluído</option>
+      </select>
+      <button class="btn-del-sm" onclick="removerCrono(${i})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+
+window.removerCrono = function(i){ cronograma.splice(i,1); renderCrono(); markDirty(); };
+
+// ── NAV ──
+window.showSection = function(name){
+  document.querySelectorAll('.section-block').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  byId('sec-'+name).classList.add('active');
+  byId('nav-'+name).classList.add('active');
+};
+
+// ── SALVAR ──
+window.salvarTudo = async function(){
+  setCloud('loading','Salvando...');
+  try {
+    const dados = {};
+    CAMPOS.forEach(id=>{ const el=byId(id); if(el) dados[id]=el.value||el.selectedOptions?.[0]?.value||''; });
+    dados['_concorrentes'] = concorrentes;
+    dados['_cronograma']   = cronograma;
+    await set(ref(db, DB_PATH), dados);
+    dirty = false;
+    setCloud('ok','Salvo na nuvem');
+    toast('Plano salvo com sucesso ✓');
+  } catch(e){ setCloud('error','Erro ao salvar'); toast('Erro ao salvar. Verifique a conexão.'); }
+};
+
+// ── CARREGAR ──
+async function carregar(){
+  setCloud('loading','Carregando...');
+  try {
+    // Carrega nome do índice
+    const snapIdx = await get(ref(db, `planos_negocio_index/${planoId}`));
+    if(snapIdx.exists()){
+      const p = snapIdx.val();
+      byId('plano-nome-header').textContent = p.nome || 'Plano de Negócio';
+      document.title = p.nome+' — BIF';
+    }
+
+    const snap = await get(ref(db, DB_PATH));
+    if(snap.exists()){
+      const d = snap.val();
+      CAMPOS.forEach(id=>{
+        const el=byId(id);
+        if(el && d[id]!==undefined){
+          if(el.tagName==='SELECT'){ el.value=d[id]; }
+          else { el.value=d[id]; }
+        }
+      });
+      concorrentes = d['_concorrentes'] || [];
+      cronograma   = d['_cronograma']   || [];
+      renderConcorrentes();
+      renderCrono();
+      setCloud('ok','Plano carregado');
+    } else {
+      // Seed Fluignos se for o plano padrão
+      if(planoId==='pn_fluignos'){
+        seedFluignos();
+      }
+      setCloud('ok','Novo plano');
+    }
+  } catch(e){ setCloud('error','Erro de conexão'); }
+}
+
+function seedFluignos(){
+  const seed = {
+    's-nome':'Fluignos',
+    's-missao':'Estruturar escritórios contábeis por meio de SOPs, playbooks e Customer Success proativo, transformando operação reativa em gestão intencional.',
+    's-visao':'Ser referência em gestão de conhecimento para escritórios contábeis no Brasil, com metodologia replicável e produtos digitais escaláveis.',
+    's-valores':'Rigor técnico, entrega com propósito, aprendizado contínuo, autonomia com responsabilidade.',
+    's-problema':'Escritórios contábeis operam com conhecimento tácito, sem processos documentados, gerando dependência de pessoas, retrabalho e atendimento reativo ao cliente.',
+    's-solucao':'Diagnóstico, documentação de SOPs, implantação de Customer Success proativo e treinamento da equipe — entregue de forma consultiva e escalável.',
+    's-estagio':'Validação',
+    'bmc-vp':'Transforma operação reativa em gestão intencional. Documentação que fica na empresa, não na cabeça das pessoas. CS proativo que faz o escritório agir antes do cliente cobrar.',
+    'bmc-segmentos':'Escritórios contábeis de 3–20 colaboradores, fase de estruturação ou crescimento, sem RH interno, sócio sobrecarregado apagando incêndio.',
+    'bmc-canais':'Indicação de rede (principal), LinkedIn, Instagram (@alefluizcamargo), palestras em associações contábeis.',
+    'bmc-receitas':'Diagnóstico (avulso), implantação de SOPs (projeto), CS recorrente (mensalidade), licença de ferramentas digitais.',
+    'mk-posicao':'O consultor que nomeia o que o escritório só sente — e transforma isso em processo.',
+  };
+  Object.entries(seed).forEach(([id,val])=>{ const el=byId(id); if(el) el.value=val; });
+  concorrentes = [
+    {nome:'Consultores generalistas de gestão',fortes:'Preço menor, mercado mais amplo',diferencial:'Especialização no setor contábil — entendemos o Domínio, o SPED, o fechamento fiscal'},
+    {nome:'Escritórios de consultoria empresarial',fortes:'Marca consolidada, equipe maior',diferencial:'Entrega personalizada, sem overhead corporativo. Consultor é o produto.'}
+  ];
+  cronograma = [
+    {marco:'Finalizar metodologia Método MAPA',prazo:'Jul/2025',status:'feito'},
+    {marco:'Primeiro cliente piloto (diagnóstico)',prazo:'Set/2025',status:'progresso'},
+    {marco:'Documentar case do cliente piloto',prazo:'Nov/2025',status:'pendente'},
+    {marco:'Lançar produto CS recorrente',prazo:'Jan/2026',status:'pendente'},
+    {marco:'5 clientes CS ativos',prazo:'Jun/2026',status:'pendente'},
+  ];
+  renderConcorrentes();
+  renderCrono();
+}
+
+// Auto-save
+let autoTimer = null;
+document.addEventListener('input', ()=>{
+  markDirty();
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(()=>{ if(dirty) salvarTudo(); }, 4000);
+});
+
+carregar();
+</script>
+</body>
+</html>
