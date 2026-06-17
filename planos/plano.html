@@ -86,11 +86,39 @@
     .fin-item label{display:block;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
     .fin-input{width:100%;background:rgba(13,27,42,0.6);border:1px solid var(--gold-border);border-radius:8px;color:var(--gold-light);font-family:'DM Mono',monospace;font-size:14px;padding:10px 14px;outline:none;transition:border-color .2s;}
     .fin-input:focus{border-color:var(--gold);}
-    /* CONCORRENTES */
-    .concorrente-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
-    .concorrente-item{background:rgba(13,27,42,0.5);border:1px solid var(--gold-border);border-radius:10px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:start;}
-    .concorrente-item input,.concorrente-item textarea{background:transparent;border:none;border-bottom:1px solid rgba(201,168,76,0.2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;padding:4px 0;outline:none;width:100%;resize:none;}
-    .concorrente-item input:focus,.concorrente-item textarea:focus{border-bottom-color:var(--gold);}
+    /* CONCORRENTES — SISTEMA ROBUSTO */
+    .concorrente-list{display:flex;flex-direction:column;gap:16px;margin-bottom:14px;}
+    .concorrente-intro{font-size:12px;color:var(--text-muted);line-height:1.55;background:rgba(13,27,42,0.42);border:1px dashed var(--gold-border);border-radius:12px;padding:12px 14px;margin-bottom:14px;}
+    .concorrente-toolbar{position:sticky;top:76px;z-index:70;display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:rgba(13,27,42,0.96);border:1px solid var(--gold-border);border-radius:12px;padding:9px;margin-bottom:14px;backdrop-filter:blur(12px);}
+    .rich-tool,.rich-select,.rich-color{height:30px;background:rgba(13,27,42,0.78);border:1px solid rgba(201,168,76,0.26);color:var(--text);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:11px;outline:none;}
+    .rich-tool{min-width:31px;padding:0 8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--gold-light);}
+    .rich-tool:hover,.rich-select:hover{background:var(--gold-dim);border-color:var(--gold);}
+    .rich-select{padding:0 9px;cursor:pointer;}
+    .rich-select option{background:#1b2e42;color:var(--text);}
+    .rich-color{width:34px;padding:3px;cursor:pointer;}
+    .toolbar-sep{width:1px;height:24px;background:rgba(201,168,76,0.20);margin:0 2px;}
+    .concorrente-item{background:linear-gradient(145deg,rgba(27,46,66,0.88),rgba(13,27,42,0.74));border:1px solid var(--gold-border);border-radius:16px;padding:16px;box-shadow:0 16px 36px rgba(0,0,0,0.18);}
+    .concorrente-top{display:grid;grid-template-columns:minmax(180px,1.25fr) minmax(160px,1fr) 132px 92px auto;gap:10px;align-items:end;margin-bottom:12px;}
+    .concorrente-top .field-input,.concorrente-top .field-select{font-size:12.5px;padding:9px 10px;}
+    .concorrente-actions{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}
+    .btn-icon-sm{background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.22);color:var(--gold-light);font-size:11px;min-width:28px;height:30px;border-radius:8px;cursor:pointer;}
+    .btn-icon-sm:hover{background:rgba(201,168,76,0.22);}
+    .concorrente-rich-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .rich-block{background:rgba(13,27,42,0.50);border:1px solid rgba(201,168,76,0.18);border-radius:12px;padding:11px;}
+    .rich-block.wide{grid-column:1/-1;}
+    .rich-label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
+    .rich-label small{font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0;text-transform:none;color:var(--text-dim);font-style:italic;}
+    .rich-editor{min-height:92px;max-height:420px;overflow:auto;background:rgba(6,16,27,0.36);border:1px solid rgba(201,168,76,0.18);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.55;padding:10px 12px;outline:none;resize:vertical;}
+    .rich-editor:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,0.13);}
+    .rich-editor:empty::before{content:attr(data-placeholder);color:rgba(232,237,243,0.28);pointer-events:none;}
+    .rich-editor ul,.rich-editor ol{padding-left:22px;margin:6px 0;}
+    .rich-editor a{color:var(--gold-light);}
+    .rich-image{display:inline-block;position:relative;width:280px;max-width:100%;min-width:120px;min-height:80px;margin:8px 8px 8px 0;border:1px solid rgba(201,168,76,0.35);border-radius:12px;background:rgba(13,27,42,0.75);resize:both;overflow:auto;vertical-align:top;box-shadow:0 8px 18px rgba(0,0,0,0.22);}
+    .rich-image img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;border-radius:11px;}
+    .rich-img-remove{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:999px;border:1px solid rgba(224,87,87,0.42);background:rgba(13,27,42,0.82);color:#ff9b9b;font-size:12px;line-height:1;cursor:pointer;z-index:2;}
+    .rich-img-remove:hover{background:rgba(224,87,87,0.22);}
+    .rich-help{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--text-dim);}
+    .rich-help span{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.16);border-radius:999px;padding:4px 9px;}
     .btn-ghost{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;}
     .btn-ghost:hover{background:rgba(201,168,76,0.28);}
     .btn-del-sm{background:rgba(224,87,87,0.1);border:1px solid rgba(224,87,87,0.2);color:var(--danger);font-size:11px;padding:5px 9px;border-radius:7px;cursor:pointer;border-style:solid;align-self:start;transition:all .15s;}
@@ -141,6 +169,9 @@
     .mini-table th{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;}
     .pill-soft{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.22);color:var(--gold-light);font-size:10px;font-family:'DM Mono',monospace;}
     @media(max-width:860px){.bif-grid,.bif-grid-3,.checklist{grid-template-columns:1fr;}.kpi-grid{grid-template-columns:1fr 1fr;}}
+
+    @media(max-width:980px){.concorrente-top{grid-template-columns:1fr 1fr;}.concorrente-actions{justify-content:flex-start;}.concorrente-rich-grid{grid-template-columns:1fr;}.rich-block.wide{grid-column:auto;}.concorrente-toolbar{top:68px;}}
+    @media(max-width:640px){.concorrente-top{grid-template-columns:1fr;}.concorrente-toolbar{position:static;}.rich-editor{min-height:110px;}.rich-image{width:220px;height:150px;}}
 
     @media(max-width:860px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.content{padding:22px 18px;}.canvas-grid-5{grid-template-columns:1fr 1fr;}.fin-row{grid-template-columns:1fr;}.concorrente-item{grid-template-columns:1fr;}.crono-item{grid-template-columns:auto 1fr;}.vp-grid{grid-template-columns:1fr;}.swot-grid{grid-template-columns:1fr;}}
   </style>
@@ -374,17 +405,51 @@
       </div>
 
       <div class="card">
-        <div class="card-title" style="justify-content:space-between;">
-          <span>🥊 Análise de Concorrentes</span>
-          <button class="btn-ghost" onclick="addConcorrente()" style="font-size:11px;padding:5px 12px;">＋ Adicionar</button>
+        <div class="card-title" style="justify-content:space-between;align-items:center;">
+          <span>🥊 Inteligência de Concorrentes</span>
+          <button class="btn-ghost" onclick="addConcorrente()" style="font-size:11px;padding:5px 12px;">＋ Adicionar concorrente</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;padding:0 4px;">
-          <span class="mono-label">Concorrente</span>
-          <span class="mono-label">Pontos fortes</span>
-          <span class="mono-label">Diferencial nosso</span>
-          <span></span>
+
+        <div class="concorrente-intro">
+          Use este espaço como um dossiê vivo: cole prints, links, observações, argumentos de venda, preços percebidos, pontos fortes e brechas estratégicas.
+          As imagens coladas são compactadas antes de salvar e podem ser redimensionadas pelo canto inferior direito.
         </div>
+
+        <div class="concorrente-toolbar" id="concorrente-toolbar">
+          <select class="rich-select" title="Fonte" onchange="applyRichCommand('fontName', this.value); this.selectedIndex=0;">
+            <option value="">Fonte</option>
+            <option value="DM Sans">DM Sans</option>
+            <option value="Poppins">Poppins</option>
+            <option value="DM Mono">DM Mono</option>
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+          </select>
+          <select class="rich-select" title="Tamanho" onchange="applyRichCommand('fontSize', this.value); this.selectedIndex=0;">
+            <option value="">Tamanho</option>
+            <option value="2">Pequeno</option>
+            <option value="3">Normal</option>
+            <option value="4">Médio</option>
+            <option value="5">Grande</option>
+            <option value="6">Título</option>
+          </select>
+          <span class="toolbar-sep"></span>
+          <button class="rich-tool" type="button" title="Negrito" onclick="applyRichCommand('bold')"><b>B</b></button>
+          <button class="rich-tool" type="button" title="Itálico" onclick="applyRichCommand('italic')"><i>I</i></button>
+          <button class="rich-tool" type="button" title="Sublinhado" onclick="applyRichCommand('underline')"><u>U</u></button>
+          <button class="rich-tool" type="button" title="Lista" onclick="applyRichCommand('insertUnorderedList')">• Lista</button>
+          <span class="toolbar-sep"></span>
+          <input class="rich-color" type="color" value="#e8edf3" title="Cor do texto" onchange="applyRichCommand('foreColor', this.value)"/>
+          <input class="rich-color" type="color" value="#c9a84c" title="Marca-texto" onchange="applyRichCommand('hiliteColor', this.value)"/>
+          <button class="rich-tool" type="button" title="Limpar formatação" onclick="applyRichCommand('removeFormat')">Limpar</button>
+        </div>
+
         <div class="concorrente-list" id="concorrente-list"></div>
+
+        <div class="rich-help">
+          <span>🖼️ Cole print com Ctrl+V</span>
+          <span>↘️ Redimensione pelo canto da imagem</span>
+          <span>☁️ Autosave em poucos segundos</span>
+        </div>
       </div>
     </div>
 
@@ -964,6 +1029,7 @@ function escapeHtml(v){ return String(v??'').replace(/[&<>]/g, ch=>({'&':'&amp;'
 function escapeAttr(v){ return String(v??'').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 function toast(msg){ const t=byId('toast'); byId('toast-msg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
 function setCloud(state,msg){ const b=byId('cloudBadge'); b.className='cloud-badge'+(state==='ok'?'':state==='loading'?' loading':state==='dirty'?' dirty':' error'); b.textContent=(state==='ok'?'☁️ ':state==='loading'?'⏳ ':state==='dirty'?'✏️ ':'⚠️ ')+msg; }
+function scheduleAutoSave(){ if(typeof autoTimer === 'undefined') return; clearTimeout(autoTimer); autoTimer = setTimeout(()=>{ if(dirty && typeof window.salvarTudo === 'function') window.salvarTudo(); }, 4000); }
 
 // Campos de texto simples
 const CAMPOS = [
@@ -986,38 +1052,339 @@ let concorrentes = [];
 let cronograma   = [];
 let dirty = false;
 
-function markDirty(){ if(!dirty){ dirty=true; setCloud('dirty','Alterações não salvas'); } }
+function markDirty(){ if(!dirty){ dirty=true; setCloud('dirty','Alterações não salvas'); } scheduleAutoSave(); }
 
 CAMPOS.forEach(id=>{ const el=byId(id); if(el) el.addEventListener('input', markDirty); });
 
-// ── CONCORRENTES ──
+// ── CONCORRENTES — EDITOR ROBUSTO ──
+let activeRichEditor = null;
+let savedRichRange = null;
+
+document.addEventListener('selectionchange', ()=>{
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount) return;
+  const node = sel.anchorNode;
+  const editor = node && (node.nodeType === 1 ? node : node.parentElement)?.closest?.('.rich-editor');
+  if(editor){
+    activeRichEditor = editor;
+    savedRichRange = sel.getRangeAt(0).cloneRange();
+  }
+});
+function restoreRichSelection(editor){
+  if(!editor) return;
+  editor.focus();
+  if(savedRichRange && editor.contains(savedRichRange.commonAncestorContainer)){
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRichRange);
+  }
+}
+
+function uid(){ return 'cmp_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7); }
+function plainToRich(v){
+  const s = String(v || '');
+  if(!s) return '';
+  if(/<\/?[a-z][\s\S]*>/i.test(s)) return sanitizeRichHtml(s);
+  return escapeHtml(s).replace(/\n/g,'<br>');
+}
+function normalizarConcorrente(c={}){
+  return {
+    id: c.id || uid(),
+    nome: c.nome || '',
+    site: c.site || '',
+    segmento: c.segmento || '',
+    status: c.status || 'monitorando',
+    nota: c.nota || '',
+    oferta: c.oferta || c.posicionamento || '',
+    fortes: c.fortes || '',
+    fracos: c.fracos || '',
+    diferencial: c.diferencial || '',
+    evidencias: c.evidencias || c.prints || ''
+  };
+}
+function sanitizeRichHtml(html){
+  const box = document.createElement('div');
+  box.innerHTML = String(html || '');
+  box.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(n=>n.remove());
+  box.querySelectorAll('*').forEach(el=>{
+    [...el.attributes].forEach(a=>{
+      const name = a.name.toLowerCase();
+      const val = String(a.value || '').trim().toLowerCase();
+      if(name.startsWith('on')) el.removeAttribute(a.name);
+      if((name === 'href' || name === 'src') && val.startsWith('javascript:')) el.removeAttribute(a.name);
+    });
+  });
+  return box.innerHTML;
+}
+function setInputValue(root, sel, value){ const el=root.querySelector(sel); if(el) el.value=value||''; }
+function updateConcorrenteCampo(i, campo, valor){
+  concorrentes[i] = normalizarConcorrente(concorrentes[i]);
+  concorrentes[i][campo] = valor;
+  markDirty();
+}
+function updateRichEditorState(editor){
+  if(!editor) return;
+  normalizeRichImages(editor);
+  const i = Number(editor.dataset.index);
+  const campo = editor.dataset.field;
+  if(Number.isInteger(i) && concorrentes[i] && campo){
+    concorrentes[i][campo] = sanitizeRichHtml(editor.innerHTML);
+  }
+}
+function normalizeRichImages(editor){
+  if(!editor) return;
+  editor.querySelectorAll('.rich-image').forEach(observeRichImage);
+  editor.querySelectorAll('img').forEach(img=>{
+    if(img.closest('.rich-image')){ observeRichImage(img.closest('.rich-image')); return; }
+    const wrap = document.createElement('span');
+    wrap.className = 'rich-image';
+    wrap.contentEditable = 'false';
+    wrap.style.width = (img.naturalWidth && img.naturalWidth < 360 ? Math.max(160,img.naturalWidth) : 300) + 'px';
+    wrap.style.height = '190px';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'rich-img-remove';
+    btn.title = 'Remover imagem';
+    btn.textContent = '×';
+    img.parentNode.insertBefore(wrap, img);
+    wrap.appendChild(btn);
+    wrap.appendChild(img);
+    observeRichImage(wrap);
+  });
+}
+function createRichImage(src){
+  const wrap = document.createElement('span');
+  wrap.className = 'rich-image';
+  wrap.contentEditable = 'false';
+  wrap.style.width = '300px';
+  wrap.style.height = '190px';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'rich-img-remove';
+  btn.title = 'Remover imagem';
+  btn.textContent = '×';
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = 'Imagem colada no dossiê do concorrente';
+  wrap.appendChild(btn);
+  wrap.appendChild(img);
+  return wrap;
+}
+
+const richImageResizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(entries=>{
+  entries.forEach(entry=>{
+    const wrap = entry.target;
+    const w = Math.round(entry.contentRect.width);
+    const h = Math.round(entry.contentRect.height);
+    if(w > 0 && h > 0 && (wrap.dataset.w !== String(w) || wrap.dataset.h !== String(h))){
+      wrap.dataset.w = String(w);
+      wrap.dataset.h = String(h);
+      wrap.style.width = w + 'px';
+      wrap.style.height = h + 'px';
+      const editor = wrap.closest('.rich-editor');
+      if(editor){ updateRichEditorState(editor); markDirty(); }
+    }
+  });
+}) : null;
+function observeRichImage(wrap){
+  if(!wrap || wrap.dataset.resizeObserved) return;
+  wrap.dataset.resizeObserved = '1';
+  if(richImageResizeObserver) richImageResizeObserver.observe(wrap);
+}
+function insertNodeAtCursor(editor, node){
+  editor.focus();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount && editor.contains(sel.anchorNode)){
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } else {
+    editor.appendChild(node);
+  }
+  editor.appendChild(document.createTextNode(' '));
+}
+function compressImageFile(file, maxSize=1280, quality=.82){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = ()=>{
+        let {width, height} = img;
+        const ratio = Math.min(1, maxSize / Math.max(width, height));
+        width = Math.max(1, Math.round(width * ratio));
+        height = Math.max(1, Math.round(height * ratio));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#0d1b2a';
+        ctx.fillRect(0,0,width,height);
+        ctx.drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function handleRichPaste(e, editor){
+  const files = [...(e.clipboardData?.files || [])].filter(f=>f.type.startsWith('image/'));
+  const items = [...(e.clipboardData?.items || [])]
+    .filter(it=>it.kind === 'file' && it.type.startsWith('image/'))
+    .map(it=>it.getAsFile()).filter(Boolean);
+  const images = files.length ? files : items;
+  if(!images.length){
+    setTimeout(()=>{ updateRichEditorState(editor); normalizeRichImages(editor); markDirty(); }, 0);
+    return;
+  }
+  e.preventDefault();
+  setCloud('loading','Otimizando imagem...');
+  for(const file of images){
+    try{
+      const src = await compressImageFile(file);
+      insertNodeAtCursor(editor, createRichImage(src));
+    }catch(err){ toast('Não consegui colar esta imagem. Tente copiar novamente.'); }
+  }
+  updateRichEditorState(editor);
+  markDirty();
+  setCloud('dirty','Imagem adicionada');
+}
+window.applyRichCommand = function(cmd, value=null){
+  if(!activeRichEditor){ toast('Clique primeiro em um campo de texto rico do concorrente.'); return; }
+  restoreRichSelection(activeRichEditor);
+  document.execCommand('styleWithCSS', false, true);
+  document.execCommand(cmd, false, value);
+  updateRichEditorState(activeRichEditor);
+  markDirty();
+};
+
 window.addConcorrente = function(c={}){
-  concorrentes.push(c);
+  concorrentes.push(normalizarConcorrente(c));
   renderConcorrentes();
   markDirty();
 };
 
 function renderConcorrentes(){
   const list = byId('concorrente-list');
+  if(!list) return;
   list.innerHTML = '';
+  concorrentes = (concorrentes || []).map(normalizarConcorrente);
   concorrentes.forEach((c,i)=>{
     const div = document.createElement('div');
     div.className = 'concorrente-item';
+    div.dataset.index = i;
     div.innerHTML = `
-      <input type="text" placeholder="Nome do concorrente" value="${escapeAttr(c.nome||'')}"/>
-      <textarea placeholder="Pontos fortes">${escapeHtml(c.fortes||'')}</textarea>
-      <textarea placeholder="Nosso diferencial">${escapeHtml(c.diferencial||'')}</textarea>
-      <button class="btn-del-sm" type="button">✕</button>`;
-    const inputs = div.querySelectorAll('input,textarea');
-    inputs[0].addEventListener('input', e=>{ concorrentes[i].nome=e.target.value; markDirty(); });
-    inputs[1].addEventListener('input', e=>{ concorrentes[i].fortes=e.target.value; markDirty(); });
-    inputs[2].addEventListener('input', e=>{ concorrentes[i].diferencial=e.target.value; markDirty(); });
-    div.querySelector('button').addEventListener('click', ()=>removerConcorrente(i));
+      <div class="concorrente-top">
+        <div>
+          <label class="field-label">Concorrente</label>
+          <input type="text" class="field-input cmp-nome" placeholder="Nome do concorrente"/>
+        </div>
+        <div>
+          <label class="field-label">Site / link</label>
+          <input type="text" class="field-input cmp-site" placeholder="https://... ou @perfil"/>
+        </div>
+        <div>
+          <label class="field-label">Status</label>
+          <select class="field-select cmp-status">
+            <option value="monitorando">Monitorando</option>
+            <option value="benchmark">Benchmark forte</option>
+            <option value="ameaça">Ameaça direta</option>
+            <option value="inspiracao">Inspiração</option>
+            <option value="descartado">Descartado</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Nota</label>
+          <select class="field-select cmp-nota">
+            <option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
+        </div>
+        <div class="concorrente-actions" aria-label="Ações do concorrente">
+          <button class="btn-icon-sm cmp-up" type="button" title="Mover para cima">↑</button>
+          <button class="btn-icon-sm cmp-down" type="button" title="Mover para baixo">↓</button>
+          <button class="btn-icon-sm cmp-dup" type="button" title="Duplicar">⧉</button>
+          <button class="btn-del-sm cmp-del" type="button" title="Excluir">✕</button>
+        </div>
+      </div>
+      <div class="field-group" style="margin-bottom:12px;">
+        <label class="field-label">Segmento / posicionamento percebido</label>
+        <input type="text" class="field-input cmp-segmento" placeholder="Ex: consultoria contábil, plataforma, curso, automação, CS para escritórios..."/>
+      </div>
+      <div class="concorrente-rich-grid">
+        <div class="rich-block">
+          <div class="rich-label">Oferta / preço / promessa <small>aceita fonte, cor e links</small></div>
+          <div class="rich-editor cmp-rich" contenteditable="true" data-field="oferta" data-placeholder="O que ele vende? Qual promessa? Qual preço ou modelo comercial?"></div>
+        </div>
+        <div class="rich-block">
+          <div class="rich-label">Pontos fortes <small>o que copiar/benchmarkar</small></div>
+          <div class="rich-editor cmp-rich" contenteditable="true" data-field="fortes" data-placeholder="O que ele faz bem? Autoridade, produto, copy, conteúdo, prova social..."></div>
+        </div>
+        <div class="rich-block">
+          <div class="rich-label">Pontos fracos / brechas <small>onde podemos superar</small></div>
+          <div class="rich-editor cmp-rich" contenteditable="true" data-field="fracos" data-placeholder="O que falta? Onde parece genérico, caro, confuso, sem segmento, sem profundidade?"></div>
+        </div>
+        <div class="rich-block">
+          <div class="rich-label">Diferencial nosso <small>resposta estratégica</small></div>
+          <div class="rich-editor cmp-rich" contenteditable="true" data-field="diferencial" data-placeholder="Como nos posicionamos melhor? Qual argumento de venda contra esse concorrente?"></div>
+        </div>
+        <div class="rich-block wide">
+          <div class="rich-label">Evidências, prints e observações <small>cole imagens direto aqui</small></div>
+          <div class="rich-editor cmp-rich" contenteditable="true" data-field="evidencias" data-placeholder="Cole prints com Ctrl+V, links, trechos de página, comentários, ideias roubáveis e insights de benchmarking."></div>
+        </div>
+      </div>`;
+
+    setInputValue(div,'.cmp-nome',c.nome);
+    setInputValue(div,'.cmp-site',c.site);
+    setInputValue(div,'.cmp-segmento',c.segmento);
+    setInputValue(div,'.cmp-status',c.status);
+    setInputValue(div,'.cmp-nota',c.nota);
+
+    [
+      ['.cmp-nome','nome'],['.cmp-site','site'],['.cmp-segmento','segmento'],['.cmp-status','status'],['.cmp-nota','nota']
+    ].forEach(([sel,campo])=>{
+      const el = div.querySelector(sel);
+      if(el) el.addEventListener('input', e=>updateConcorrenteCampo(i,campo,e.target.value));
+      if(el && el.tagName === 'SELECT') el.addEventListener('change', e=>updateConcorrenteCampo(i,campo,e.target.value));
+    });
+
+    div.querySelectorAll('.cmp-rich').forEach(editor=>{
+      const campo = editor.dataset.field;
+      editor.dataset.index = i;
+      editor.innerHTML = plainToRich(c[campo] || '');
+      normalizeRichImages(editor);
+      editor.addEventListener('focus', ()=>{ activeRichEditor = editor; });
+      editor.addEventListener('click', e=>{
+        activeRichEditor = editor;
+        const btn = e.target.closest('.rich-img-remove');
+        if(btn){
+          e.preventDefault();
+          const wrap = btn.closest('.rich-image');
+          if(wrap) wrap.remove();
+          updateRichEditorState(editor);
+          markDirty();
+        }
+      });
+      editor.addEventListener('input', ()=>{ updateRichEditorState(editor); markDirty(); });
+      editor.addEventListener('paste', e=>handleRichPaste(e, editor));
+    });
+
+    div.querySelector('.cmp-del')?.addEventListener('click', ()=>removerConcorrente(i));
+    div.querySelector('.cmp-dup')?.addEventListener('click', ()=>duplicarConcorrente(i));
+    div.querySelector('.cmp-up')?.addEventListener('click', ()=>moverConcorrente(i,-1));
+    div.querySelector('.cmp-down')?.addEventListener('click', ()=>moverConcorrente(i,1));
     list.appendChild(div);
   });
 }
 
 window.removerConcorrente = function(i){ concorrentes.splice(i,1); renderConcorrentes(); markDirty(); };
+window.duplicarConcorrente = function(i){ const clone = JSON.parse(JSON.stringify(normalizarConcorrente(concorrentes[i]||{}))); clone.id = uid(); clone.nome = clone.nome ? clone.nome + ' (cópia)' : ''; concorrentes.splice(i+1,0,clone); renderConcorrentes(); markDirty(); };
+window.moverConcorrente = function(i,dir){ const j=i+dir; if(j<0 || j>=concorrentes.length) return; [concorrentes[i],concorrentes[j]]=[concorrentes[j],concorrentes[i]]; renderConcorrentes(); markDirty(); };
 
 // ── CRONOGRAMA ──
 window.addCrono = function(c={}){
@@ -1151,8 +1518,6 @@ function seedFluignos(){
 let autoTimer = null;
 document.addEventListener('input', ()=>{
   markDirty();
-  clearTimeout(autoTimer);
-  autoTimer = setTimeout(()=>{ if(dirty) salvarTudo(); }, 4000);
 });
 
 
