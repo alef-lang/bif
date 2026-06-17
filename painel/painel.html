@@ -408,6 +408,47 @@ select option{background:#1b2e42;color:#e8eaf0;}
   outline:2px solid var(--gold);
   box-shadow:0 0 0 4px rgba(201,168,76,0.18);
 }
+
+
+/* AJUSTE CIRÚRGICO — rich text não invade margem */
+.form-grid > *,
+.form-group,
+.rich-field{
+  min-width:0;
+}
+.rich-field{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-break:anywhere;
+}
+.rich-field *,
+.rich-field span,
+.rich-field font,
+.rich-field mark,
+.rich-field b,
+.rich-field strong,
+.rich-field i,
+.rich-field em,
+.rich-field u{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-break:anywhere;
+}
+.rich-field span,
+.rich-field font,
+.rich-field mark{
+  white-space:inherit !important;
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+}
+.rich-field [style*="white-space"]{
+  white-space:inherit !important;
+}
 .img-resize-wrap{
   display:inline-block;
   position:relative;
@@ -1292,7 +1333,7 @@ function addCompany(){
 
 
 // ════════════════════════════════════════════
-// MENU FLUTUANTE + EDITOR RICO DOS CAMPOS DA EMPRESA
+// MENU FLUTUANTE + EDITOR RICO DOS CAMPOS EDITÁVEIS (EXCETO DADOS DA EMPRESA)
 // ════════════════════════════════════════════
 let activeRichField = null;
 let savedRichRange = null;
@@ -1303,6 +1344,12 @@ const RICH_FIELD_IDS = [
 ];
 const TEXT_COLORS = ['#e8eaf0','#e8c97a','#c9a84c','#2ecc8a','#4a9eff','#a78bfa','#f97316','#ff7675','#ffffff','#111827'];
 const MARK_COLORS = ['transparent','#fff3a3','#fde68a','#bbf7d0','#bfdbfe','#ddd6fe','#fed7aa','#fecdd3','#e5e7eb'];
+
+function getCompanyRichFields(){
+  // Só pega os campos de texto livre/manual dentro da ficha.
+  // Os dados cadastrais da empresa continuam sendo inputs/selects normais, sem menu flutuante.
+  return Array.from(document.querySelectorAll('#modalEmpresa .rich-field'));
+}
 
 function initFloatingFormatMenu(){
   const menu = $('floatingFormatMenu');
@@ -1395,8 +1442,7 @@ function initFloatingFormatMenu(){
 
 function initCompanyRichFields(){
   initFloatingFormatMenu();
-  RICH_FIELD_IDS.forEach(fid => {
-    const el = $(fid);
+  getCompanyRichFields().forEach(el => {
     if(!el || el.dataset.richReady === '1') return;
     el.dataset.richReady = '1';
     el.addEventListener('mousedown', () => { activeRichField = el; });
@@ -1803,12 +1849,13 @@ function handleRichImageClick(ev){
   });
 }
 function setRichFieldsEditable(canEdit){
-  RICH_FIELD_IDS.forEach(fid => {
-    const el = $(fid);
-    if(el) el.setAttribute('contenteditable', canEdit ? 'true' : 'false');
+  getCompanyRichFields().forEach(el => {
+    el.setAttribute('contenteditable', canEdit ? 'true' : 'false');
+    el.setAttribute('aria-readonly', canEdit ? 'false' : 'true');
   });
   if(!canEdit) hideFloatingMenu();
 }
+
 
 function openEmpresa(id){
   const e = S.empresas.find(x=>x.id===id);
