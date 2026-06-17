@@ -84,6 +84,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .badge{font-size:0.58rem;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:0.06em;font-family:var(--mono);text-transform:uppercase}
 .badge-interaction{background:var(--coral-dim);color:var(--coral)}
 .badge-solo{background:var(--blue-dim);color:var(--blue)}
+.badge-parqueado{background:rgba(245,158,11,0.15);color:var(--amber)}
+.task.parqueado{opacity:0.75}
+.task.parqueado:hover{opacity:1}
+.park-info{margin-top:10px;padding:10px 14px;border-radius:var(--rsm);border:1px solid rgba(245,158,11,0.2);background:rgba(245,158,11,0.06)}
+.park-info-label{font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+.park-info-row{font-size:0.78rem;color:var(--text-muted);display:flex;gap:8px;margin-bottom:3px}
+.park-info-row span{color:var(--white)}
 .task-priority{display:flex;gap:2px;flex-shrink:0;margin-right:6px}
 .pri-dot{width:6px;height:18px;border-radius:3px;background:rgba(255,255,255,0.08)}
 .pri-dot.lit{}
@@ -303,6 +310,28 @@ input[type="file"]{display:none}
       <label>Prazo</label>
       <input type="date" id="tmDeadline" />
     </div>
+    <div style="border-top:1px solid var(--gold-dim);margin:14px 0 14px;"></div>
+    <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">⏸ Parqueamento (opcional)</div>
+    <div class="form-group">
+      <div class="toggle-row">
+        <button class="toggle" id="tmParqueado" onclick="this.classList.toggle('on');toggleParqueFields()"></button>
+        <span class="toggle-label">Tarefa parqueada (adiada conscientemente)</span>
+      </div>
+    </div>
+    <div id="parqueFields" style="display:none">
+      <div class="form-group">
+        <label>Onde está fisicamente / onde foi guardado</label>
+        <input type="text" id="tmParqueLocal" placeholder="Ex: Armário — clips laranja, pasta GDO" />
+      </div>
+      <div class="form-group">
+        <label>Motivo da priorização (justificativa técnica)</label>
+        <input type="text" id="tmParqueMotive" placeholder="Ex: Notas de serviço não bloqueiam SPED — priorizei guia ICMS a pedido do cliente" />
+      </div>
+      <div class="form-group">
+        <label>Janela de retorno</label>
+        <input type="date" id="tmParqueRetorno" />
+      </div>
+    </div>
     <div class="form-btns">
       <button class="btn" onclick="closeModal('taskModal')">Cancelar</button>
       <button class="btn btn-gold" onclick="saveTask()">Salvar</button>
@@ -391,7 +420,8 @@ function renderOverview(){
     <div class="ov-card"><div class="ov-label">Concluídas</div><div class="ov-val" style="color:var(--green)">${done}</div></div>
     <div class="ov-card"><div class="ov-label">Urgentes</div><div class="ov-val" style="color:var(--red)">${urgent}</div></div>
     <div class="ov-card"><div class="ov-label">Interação</div><div class="ov-val" style="color:var(--coral)">${interact}</div></div>
-    <div class="ov-card"><div class="ov-label">Pontos</div><div class="ov-val" style="color:var(--gold)">⭐ ${points}</div></div>`;
+    <div class="ov-card"><div class="ov-label">Pontos</div><div class="ov-val" style="color:var(--gold)">⭐ ${points}</div></div>
+    <div class="ov-card"><div class="ov-label">Parqueadas</div><div class="ov-val" style="color:var(--amber)">${tasks.filter(t=>t.parqueado&&!t.done).length}</div></div>`;
 
   document.getElementById('gp').innerHTML=`
     <div class="gp-track"><div class="gp-fill" style="width:${pct}%"></div></div>
@@ -404,7 +434,8 @@ function renderFilters(){
     `<button class="fchip ${filterPri==='urgent'?'active':''}" onclick="setFilter('urgent')">Urgentes</button>`+
     `<button class="fchip ${filterPri==='interaction'?'active':''}" onclick="setFilter('interaction')">Interação</button>`+
     `<button class="fchip ${filterPri==='solo'?'active':''}" onclick="setFilter('solo')">Solo</button>`+
-    `<button class="fchip ${filterPri==='done'?'active':''}" onclick="setFilter('done')">Concluídas</button>`;
+    `<button class="fchip ${filterPri==='done'?'active':''}" onclick="setFilter('done')">Concluídas</button>`+
+    `<button class="fchip ${filterPri==='parqueado'?'active':''}" onclick="setFilter('parqueado')" style="border-color:rgba(245,158,11,0.3);${filterPri==='parqueado'?'background:var(--amber);color:var(--navy);border-color:var(--amber)':'color:var(--amber)'}">⏸ Parqueadas</button>`;
 }
 function setFilter(f){filterPri=f;render()}
 
@@ -414,6 +445,7 @@ function getFiltered(){
   else if(filterPri==='interaction')f=f.filter(t=>t.interaction&&!t.done);
   else if(filterPri==='solo')f=f.filter(t=>!t.interaction&&!t.done);
   else if(filterPri==='done')f=f.filter(t=>t.done);
+  else if(filterPri==='parqueado')f=f.filter(t=>t.parqueado&&!t.done);
   f.sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
     return b.priority-a.priority;
@@ -435,7 +467,7 @@ function renderTasks(){
     let priDots='';
     for(let i=1;i<=5;i++){priDots+=`<div class="pri-dot" style="background:${i<=t.priority?c:'rgba(255,255,255,0.06)'}"></div>`}
 
-    return `<div class="task ${t.done?'done':''}" style="border-left-color:${c}">
+    return `<div class="task ${t.done?'done':''}${t.parqueado&&!t.done?' parqueado':''}" style="border-left-color:${t.parqueado&&!t.done?'var(--amber)':c}">
       <div class="task-header" onclick="toggleTask(${t.id})">
         <div class="task-check" onclick="event.stopPropagation();completeTask(${t.id})">${t.done?'&#9745;':'&#9744;'}</div>
         <div class="task-info">
@@ -446,6 +478,7 @@ function renderTasks(){
             ${subTotal?`<span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted)">${subDone}/${subTotal} sub</span>`:''}
             ${t.assigneeName?`<span class="badge" style="background:rgba(74,158,255,0.12);color:#4a9eff">👤 ${esc(t.assigneeName)}</span>`:''}
             ${t.deadline?`<span class="badge" style="background:rgba(201,168,76,0.12);color:var(--gold)">⏰ ${formatDate(t.deadline)}</span>`:''}
+            ${t.parqueado?`<span class="badge badge-parqueado">⏸ Parqueada</span>`:''}
           </div>
         </div>
         <div class="task-priority">${priDots}</div>
@@ -465,6 +498,13 @@ function renderTasks(){
           <button class="btn btn-sm" onclick="addSub(${t.id})">+</button>
         </div>
         ${t.reward?`<div style="margin-top:10px;font-size:0.75rem;color:var(--gold)">🎁 Recompensa: ${esc(t.reward)}</div>`:''}
+        ${t.parqueado?`<div class="park-info">
+          <div class="park-info-label">⏸ Tarefa Parqueada</div>
+          ${t.parqueLocal?`<div class="park-info-row">📍 Onde: <span>${esc(t.parqueLocal)}</span></div>`:''}
+          ${t.parqueMotive?`<div class="park-info-row">✅ Motivo: <span>${esc(t.parqueMotive)}</span></div>`:''}
+          ${t.parqueRetorno?`<div class="park-info-row">🔁 Retorno: <span>${formatDate(t.parqueRetorno)}</span></div>`:''}
+          <button class="btn btn-sm" style="margin-top:8px;border-color:rgba(245,158,11,0.3);color:var(--amber)" onclick="event.stopPropagation();desparquear(${t.id})">Reativar tarefa</button>
+        </div>`:''}
         <div class="task-footer">
           ${t.assigneeEmail?`<button class="btn btn-sm btn-ghost" onclick="sendAssignment(${t.id})" title="Enviar tarefa por e-mail">📧 Atribuir</button>`:''}
           ${t.assigneeEmail?`<button class="btn btn-sm btn-ghost" onclick="sendReminder(${t.id})" title="Enviar lembrete por e-mail">🔔 Lembrete</button>`:''}
@@ -533,6 +573,10 @@ function saveDraftTask(){
     assigneeEmail:document.getElementById('tmAssigneeEmail').value,
     deadline:document.getElementById('tmDeadline').value,
     interaction:document.getElementById('tmInteraction').classList.contains('on'),
+    parqueado:document.getElementById('tmParqueado').classList.contains('on'),
+    parqueLocal:document.getElementById('tmParqueLocal').value,
+    parqueMotive:document.getElementById('tmParqueMotive').value,
+    parqueRetorno:document.getElementById('tmParqueRetorno').value,
     priority:newPri,
     savedAt:new Date().toISOString()
   };
@@ -552,6 +596,11 @@ function restoreDraftTask(){
   document.getElementById('tmAssigneeEmail').value=draft.assigneeEmail||'';
   document.getElementById('tmDeadline').value=draft.deadline||'';
   draft.interaction?document.getElementById('tmInteraction').classList.add('on'):document.getElementById('tmInteraction').classList.remove('on');
+  document.getElementById('tmParqueLocal').value=draft.parqueLocal||'';
+  document.getElementById('tmParqueMotive').value=draft.parqueMotive||'';
+  document.getElementById('tmParqueRetorno').value=draft.parqueRetorno||'';
+  draft.parqueado?document.getElementById('tmParqueado').classList.add('on'):document.getElementById('tmParqueado').classList.remove('on');
+  document.getElementById('parqueFields').style.display=draft.parqueado?'block':'none';
   newPri=draft.priority||3;
   renderPriPicker('tmPriority',newPri);
   toast('Rascunho restaurado pelo autosave','info');
@@ -561,6 +610,9 @@ function bindDraftAutosave(){
     const el=document.getElementById(id);if(el)el.addEventListener('input',saveDraftTask);
   });
   const desc=document.getElementById('tmDesc');if(desc)desc.addEventListener('input',saveDraftTask);
+  ['tmParqueLocal','tmParqueMotive','tmParqueRetorno'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.addEventListener('input',saveDraftTask);
+  });
   const tog=document.getElementById('tmInteraction');if(tog)tog.addEventListener('click',()=>setTimeout(saveDraftTask,0));
 }
 
@@ -597,6 +649,11 @@ function openNewTask(){
   document.getElementById('tmAssigneeEmail').value='';
   document.getElementById('tmDeadline').value='';
   document.getElementById('tmInteraction').classList.remove('on');
+  document.getElementById('tmParqueado').classList.remove('on');
+  document.getElementById('tmParqueLocal').value='';
+  document.getElementById('tmParqueMotive').value='';
+  document.getElementById('tmParqueRetorno').value='';
+  document.getElementById('parqueFields').style.display='none';
   newPri=3;
   renderPriPicker('tmPriority',3);
   document.getElementById('taskModal').classList.add('open');
@@ -615,6 +672,12 @@ function openEditTask(id){
   document.getElementById('tmDeadline').value=t.deadline||'';
   const tog=document.getElementById('tmInteraction');
   t.interaction?tog.classList.add('on'):tog.classList.remove('on');
+  document.getElementById('tmParqueLocal').value=t.parqueLocal||'';
+  document.getElementById('tmParqueMotive').value=t.parqueMotive||'';
+  document.getElementById('tmParqueRetorno').value=t.parqueRetorno||'';
+  const togP=document.getElementById('tmParqueado');
+  t.parqueado?togP.classList.add('on'):togP.classList.remove('on');
+  document.getElementById('parqueFields').style.display=t.parqueado?'block':'none';
   newPri=t.priority;
   renderPriPicker('tmPriority',t.priority);
   document.getElementById('taskModal').classList.add('open');
@@ -628,15 +691,19 @@ function saveTask(){
   const assigneeName=document.getElementById('tmAssigneeName').value.trim();
   const assigneeEmail=document.getElementById('tmAssigneeEmail').value.trim();
   const deadline=document.getElementById('tmDeadline').value;
+  const parqueado=document.getElementById('tmParqueado').classList.contains('on');
+  const parqueLocal=document.getElementById('tmParqueLocal').value.trim();
+  const parqueMotive=document.getElementById('tmParqueMotive').value.trim();
+  const parqueRetorno=document.getElementById('tmParqueRetorno').value;
   const editId=document.getElementById('tmId').value;
   if(!name){toast('Nome obrigatório','error');return}
 
   if(editId){
     const t=tasks.find(x=>x.id===parseInt(editId));
-    if(t){t.name=name;t.desc=desc;t.priority=newPri;t.reward=reward;t.interaction=interaction;t.assigneeName=assigneeName;t.assigneeEmail=assigneeEmail;t.deadline=deadline}
+    if(t){t.name=name;t.desc=desc;t.priority=newPri;t.reward=reward;t.interaction=interaction;t.assigneeName=assigneeName;t.assigneeEmail=assigneeEmail;t.deadline=deadline;t.parqueado=parqueado;t.parqueLocal=parqueLocal;t.parqueMotive=parqueMotive;t.parqueRetorno=parqueRetorno}
     toast('Tarefa atualizada','success');
   }else{
-    const nt={id:nid(),name,desc,priority:newPri,reward,interaction,assigneeName,assigneeEmail,deadline,done:false,subtasks:[]};
+    const nt={id:nid(),name,desc,priority:newPri,reward,interaction,assigneeName,assigneeEmail,deadline,done:false,subtasks:[],parqueado,parqueLocal,parqueMotive,parqueRetorno};
     tasks.push(nt);expanded[nt.id]=true;
     toast('Tarefa criada!','info');
   }
@@ -734,6 +801,23 @@ document.getElementById('tmDesc').addEventListener('paste', function(e) {
   }
 });
 
+
+function toggleParqueFields(){
+  const on=document.getElementById('tmParqueado').classList.contains('on');
+  document.getElementById('parqueFields').style.display=on?'block':'none';
+}
+
+function desparquear(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  t.parqueado=false;t.parqueLocal='';t.parqueMotive='';t.parqueRetorno='';
+  save();render();toast('Tarefa reativada','success');
+}
+
+// Autosave periódico a cada 30s
+setInterval(()=>{
+  doSave();
+  setAutosaveStatus('saved','Salvo — '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+},30000);
 
 window.addEventListener('beforeunload',forceSave);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')forceSave()});
