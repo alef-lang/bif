@@ -1490,14 +1490,157 @@ function markActiveRichInput(){
   if(activeRichField) activeRichField.dispatchEvent(new Event('input', {bubbles:true}));
 }
 
+const INLINE_FORMAT_TAGS = new Set(['SPAN','FONT','B','STRONG','I','EM','U','S','STRIKE','MARK','SMALL','BIG']);
+
+function rangeCoversNodeContents(range, node){
+  if(!range || !node) return false;
+  try {
+    const test = document.createRange();
+    test.selectNodeContents(node);
+    return range.compareBoundaryPoints(Range.START_TO_START, test) === 0 &&
+           range.compareBoundaryPoints(Range.END_TO_END, test) === 0;
+  } catch(e) { return false; }
+}
+
+function expandRangeToWholeInlineContainers(range){
+  if(!range || !activeRichField) return;
+  let node = range.commonAncestorContainer;
+  if(node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  while(node && node !== activeRichField && node.nodeType === Node.ELEMENT_NODE && INLINE_FORMAT_TAGS.has(node.tagName) && rangeCoversNodeContents(range, node)){
+    range.selectNode(node);
+    node = node.parentElement;
+  }
+}
+
+function unwrapElementKeepChildren(el){
+  const parent = el.parentNode;
+  if(!parent) return;
+  while(el.firstChild) parent.insertBefore(el.firstChild, el);
+  parent.removeChild(el);
+}
+
+function stripInlineStylesFromFragment(fragment, styleKeys=[]){
+  const all = [];
+  if(fragment.nodeType === Node.ELEMENT_NODE) all.push(fragment);
+  all.push(...fragment.querySelectorAll?.('*') || []);
+
+  all.forEach(el => {
+    if(el.classList) el.classList.remove('img-selected');
+    styleKeys.forEach(key => {
+      if(key === 'backgroundColor'){
+        el.style.backgroundColor = '';
+        el.style.background = '';
+      } else if(key === 'color'){
+        el.style.color = '';
+      } else if(key === 'fontFamily'){
+        el.style.fontFamily = '';
+      } else if(key === 'fontSize'){
+        el.style.fontSize = '';
+      } else {
+        el.style[key] = '';
+      }
+    });
+    if(el.getAttribute && el.getAttribute('style') === '') el.removeAttribute('style');
+  });
+
+  const plainInline = Array.from(fragment.querySelectorAll?.('span,font,mark') || []).reverse();
+  plainInline.forEach(el => {
+    const hasAttrs = Array.from(el.attributes || []).some(a => a.name !== 'data-rich-clean');
+    if(!hasAttrs) unwrapElementKeepChildren(el);
+  });
+}
+
+function cleanFragmentFormatting(fragment){
+  const all = Array.from(fragment.querySelectorAll?.('*') || []);
+  all.forEach(el => {
+    if(el.tagName === 'IMG'){
+      el.classList.remove('img-selected');
+      return;
+    }
+    el.removeAttribute('style');
+    el.removeAttribute('class');
+  });
+  Array.from(fragment.querySelectorAll?.('span,font,b,strong,i,em,u,s,strike,mark,small,big') || [])
+    .reverse()
+    .forEach(unwrapElementKeepChildren);
+}
+
+function insertFragmentAndSelect(range, fragment, sel){
+  const start = document.createComment('rich-start');
+  const end = document.createComment('rich-end');
+  const pack = document.createDocumentFragment();
+  pack.appendChild(start);
+  pack.appendChild(fragment);
+  pack.appendChild(end);
+  range.insertNode(pack);
+  const newRange = document.createRange();
+  newRange.setStartAfter(start);
+  newRange.setEndBefore(end);
+  sel.removeAllRanges();
+  sel.addRange(newRange);
+  start.remove();
+  end.remove();
+  savedRichRange = newRange.cloneRange();
+}
+
+function collapseSelectionToEnd(){
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  savedRichRange = range.cloneRange();
+}
+
+function cleanSelectedFormatting(){
+  if(!restoreRichSelection()) return;
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed || !activeRichField) return;
+  const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)) return;
+
+  try {
+    expandRangeToWholeInlineContainers(range);
+    const fragment = range.extractContents();
+    cleanFragmentFormatting(fragment);
+
+    const cleanSpan = document.createElement('span');
+    cleanSpan.style.fontFamily = 'var(--font-body)';
+    cleanSpan.style.fontSize = '12px';
+    cleanSpan.style.fontWeight = '400';
+    cleanSpan.style.fontStyle = 'normal';
+    cleanSpan.style.textDecoration = 'none';
+    cleanSpan.style.color = 'var(--text)';
+    cleanSpan.style.backgroundColor = 'transparent';
+    cleanSpan.appendChild(fragment);
+
+    range.insertNode(cleanSpan);
+    const newRange = document.createRange();
+    newRange.selectNodeContents(cleanSpan);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+    collapseSelectionToEnd();
+    activeRichField.normalize();
+    markActiveRichInput();
+    hideFloatingMenu();
+  } catch(e) {
+    console.warn('Falha ao limpar formatação:', e);
+  }
+}
+
 function applyRichCommand(cmd){
+  if(cmd === 'removeFormat'){
+    cleanSelectedFormatting();
+    setTimeout(() => { richMenuInteracting = false; }, 80);
+    return;
+  }
   if(!restoreRichSelection()) return;
   const sel = window.getSelection();
   if(!sel || !sel.rangeCount || !activeRichField) return;
   try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
   try {
-    if(cmd === 'removeFormat') document.execCommand('removeFormat', false, null);
-    else document.execCommand(cmd, false, null);
+    document.execCommand(cmd, false, null);
     saveRichSelection(true);
     markActiveRichInput();
     setTimeout(updateFloatingMenu, 0);
@@ -1513,19 +1656,30 @@ function applyInlineStyle(styleObj){
   const range = sel.getRangeAt(0);
   if(!isRichRangeValid(range, activeRichField)) return;
 
-  const span = document.createElement('span');
-  Object.assign(span.style, styleObj);
-  if(styleObj.fontFamily) span.style.fontFamily = `'${styleObj.fontFamily}', sans-serif`;
-  if(styleObj.backgroundColor === 'transparent') span.style.backgroundColor = 'transparent';
-
   try {
-    span.appendChild(range.extractContents());
-    range.insertNode(span);
-    const newRange = document.createRange();
-    newRange.selectNodeContents(span);
-    sel.removeAllRanges();
-    sel.addRange(newRange);
-    savedRichRange = newRange.cloneRange();
+    expandRangeToWholeInlineContainers(range);
+    const fragment = range.extractContents();
+    const styleKeys = Object.keys(styleObj);
+    stripInlineStylesFromFragment(fragment, styleKeys);
+
+    const isOnlyClearingMark = styleObj.backgroundColor === 'transparent' && styleKeys.length === 1;
+    if(isOnlyClearingMark){
+      insertFragmentAndSelect(range, fragment, sel);
+      collapseSelectionToEnd();
+      hideFloatingMenu();
+    } else {
+      const span = document.createElement('span');
+      Object.assign(span.style, styleObj);
+      if(styleObj.fontFamily) span.style.fontFamily = `'${styleObj.fontFamily}', sans-serif`;
+      span.appendChild(fragment);
+      range.insertNode(span);
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+      savedRichRange = newRange.cloneRange();
+    }
+
     activeRichField.normalize();
     markActiveRichInput();
     setTimeout(updateFloatingMenu, 0);
