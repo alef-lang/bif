@@ -510,6 +510,74 @@ select option{background:#1b2e42;color:#e8eaf0;}
   overflow-wrap:anywhere !important;
   word-break:break-word !important;
 }
+
+
+/* CORREÇÃO CIRÚRGICA — quebra real dentro das caixas ricas
+   Alguns textos colados vêm com &nbsp;, <nobr> ou estilos inline de nowrap/inline-block.
+   Este bloco força o conteúdo formatado a respeitar a largura do campo, sem afetar dados cadastrais. */
+.rich-field{
+  box-sizing:border-box !important;
+  max-width:100% !important;
+  overflow-x:hidden !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+.rich-field *{
+  box-sizing:border-box !important;
+  max-width:100% !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+  line-break:anywhere !important;
+}
+.rich-field span:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint),
+.rich-field font,
+.rich-field mark,
+.rich-field nobr,
+.rich-field b,
+.rich-field strong,
+.rich-field i,
+.rich-field em,
+.rich-field u,
+.rich-field s,
+.rich-field strike,
+.rich-field small,
+.rich-field big,
+.rich-field a,
+.rich-field label,
+.rich-field sub,
+.rich-field sup{
+  display:inline !important;
+  white-space:normal !important;
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  float:none !important;
+  overflow:visible !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+}
+.rich-field [style*="white-space"],
+.rich-field [style*="display"],
+.rich-field [style*="width"],
+.rich-field [style*="overflow"]{
+  white-space:normal !important;
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+.rich-field div,
+.rich-field p{
+  width:100% !important;
+  max-width:100% !important;
+  white-space:pre-wrap !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+
 .img-resize-wrap{
   display:inline-block;
   position:relative;
@@ -1502,29 +1570,51 @@ function initFloatingFormatMenu(){
 }
 
 
+function normalizeTextNodesForWrapping(root){
+  if(!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const texts = [];
+  while(walker.nextNode()) texts.push(walker.currentNode);
+  texts.forEach(node => {
+    // NBSP e caracteres invisíveis costumam impedir quebra de linha em textos colados.
+    node.nodeValue = node.nodeValue
+      .replace(/[\u00A0\u202F\u2007]/g, ' ')
+      .replace(/[\u200B\u200C\u200D\u2060]/g, '')
+      .replace(/ {3,}/g, '  ');
+  });
+}
+
 function normalizeRichFieldLayout(field){
   if(!field) return;
-  const nodes = field.querySelectorAll('span,font,mark,b,strong,i,em,u,s,strike,small,big');
-  nodes.forEach(el => {
+  normalizeTextNodesForWrapping(field);
+
+  // <nobr> é um dos principais culpados quando o texto ignora a margem.
+  Array.from(field.querySelectorAll('nobr')).reverse().forEach(unwrapElementKeepChildren);
+
+  field.querySelectorAll('*').forEach(el => {
+    if(!el || el.tagName === 'IMG') return;
     if(el.classList?.contains('img-resize-wrap') || el.classList?.contains('img-resize-handle') || el.classList?.contains('img-resize-hint')) return;
     if(!el.style) return;
-    // Esses estilos são os que causavam o texto/marca-texto passar da margem.
-    el.style.whiteSpace = '';
-    el.style.display = '';
-    el.style.float = '';
-    el.style.width = '';
-    el.style.minWidth = '';
-    el.style.maxWidth = '';
-    el.style.overflow = '';
-    if(el.getAttribute('style') === '') el.removeAttribute('style');
-  });
-  field.querySelectorAll('div,p,pre,code,table').forEach(el => {
-    if(!el.style) return;
-    el.style.whiteSpace = '';
-    el.style.width = '';
-    el.style.minWidth = '';
-    el.style.maxWidth = '';
-    if(el.getAttribute('style') === '') el.removeAttribute('style');
+
+    // Remove somente estilos de layout que quebram a caixa. Mantém cor, marca-texto, negrito, fonte etc.
+    ['whiteSpace','display','float','width','minWidth','maxWidth','overflow','overflowX','position','left','right'].forEach(prop => {
+      try { el.style[prop] = ''; } catch(e) {}
+    });
+
+    // Proteção extra: alguns navegadores deixam display/nowrap como !important no atributo style.
+    const style = el.getAttribute('style') || '';
+    if(/white-space\s*:/i.test(style) || /display\s*:\s*inline-block/i.test(style) || /display\s*:\s*block/i.test(style) || /width\s*:/i.test(style) || /overflow\s*:/i.test(style)){
+      el.setAttribute('style', style
+        .replace(/\s*white-space\s*:[^;]+;?/gi, '')
+        .replace(/\s*display\s*:[^;]+;?/gi, '')
+        .replace(/\s*float\s*:[^;]+;?/gi, '')
+        .replace(/\s*(min-width|max-width|width)\s*:[^;]+;?/gi, '')
+        .replace(/\s*(overflow|overflow-x)\s*:[^;]+;?/gi, '')
+        .replace(/\s*(position|left|right)\s*:[^;]+;?/gi, '')
+        .trim()
+      );
+    }
+    if((el.getAttribute('style') || '').trim() === '') el.removeAttribute('style');
   });
 }
 
@@ -1870,6 +1960,81 @@ function insertImageAtSelection(src, alt='imagem'){
   }
   markActiveRichInput();
 }
+function sanitizePastedHtml(html, plainText=''){
+  const tpl = document.createElement('template');
+  if(html){
+    tpl.innerHTML = html;
+  } else {
+    const safe = document.createElement('div');
+    (plainText || '').replace(/[\u00A0\u202F\u2007]/g, ' ').split(/\r?\n/).forEach((line, i) => {
+      if(i) safe.appendChild(document.createElement('br'));
+      safe.appendChild(document.createTextNode(line));
+    });
+    tpl.content.appendChild(safe);
+  }
+
+  tpl.content.querySelectorAll('script,style,meta,link,iframe,object,embed').forEach(el => el.remove());
+  normalizeTextNodesForWrapping(tpl.content);
+  Array.from(tpl.content.querySelectorAll('nobr')).reverse().forEach(unwrapElementKeepChildren);
+
+  const allowedStyle = new Set(['color','background-color','font-weight','font-style','text-decoration','font-family','font-size']);
+  tpl.content.querySelectorAll('*').forEach(el => {
+    if(el.tagName === 'IMG'){
+      // Mantém imagens coladas de HTML, mas impede estouro.
+      el.removeAttribute('width');
+      el.removeAttribute('height');
+      el.style.maxWidth = '100%';
+      el.style.height = 'auto';
+      return;
+    }
+
+    Array.from(el.attributes || []).forEach(attr => {
+      const name = attr.name.toLowerCase();
+      if(name !== 'style' && name !== 'href') el.removeAttribute(attr.name);
+    });
+
+    const style = el.getAttribute('style') || '';
+    if(style){
+      const kept = [];
+      style.split(';').forEach(part => {
+        const [rawKey, ...rest] = part.split(':');
+        if(!rawKey || !rest.length) return;
+        const key = rawKey.trim().toLowerCase();
+        const val = rest.join(':').trim();
+        if(allowedStyle.has(key) && !/expression|javascript:/i.test(val)) kept.push(`${key}:${val}`);
+      });
+      if(kept.length) el.setAttribute('style', kept.join(';'));
+      else el.removeAttribute('style');
+    }
+  });
+  return tpl.content;
+}
+
+function insertSanitizedPaste(ev, fragment){
+  activeRichField = ev.currentTarget;
+  activeRichField.focus({preventScroll:true});
+  restoreRichSelection();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount){
+    const range = sel.getRangeAt(0);
+    if(isRichRangeValid(range, activeRichField)){
+      range.deleteContents();
+      range.insertNode(fragment);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      savedRichRange = range.cloneRange();
+    } else {
+      activeRichField.appendChild(fragment);
+    }
+  } else {
+    activeRichField.appendChild(fragment);
+  }
+  normalizeRichFieldLayout(activeRichField);
+  activeRichField.normalize();
+  markActiveRichInput();
+}
+
 function handleRichPaste(ev){
   const items = Array.from(ev.clipboardData?.items || []);
   const imageItems = items.filter(item => item.type.startsWith('image/'));
@@ -1881,6 +2046,18 @@ function handleRichPaste(ev){
       const file = item.getAsFile();
       if(file) insertImageFiles([file]);
     });
+    return;
+  }
+
+  // Texto/HTML colado passa por uma limpeza leve para não trazer nowrap, largura fixa ou NBSP.
+  const html = ev.clipboardData?.getData('text/html') || '';
+  const text = ev.clipboardData?.getData('text/plain') || '';
+  if(html || text){
+    ev.preventDefault();
+    activeRichField = ev.currentTarget;
+    saveRichSelection(true);
+    const fragment = sanitizePastedHtml(html, text);
+    insertSanitizedPaste(ev, fragment);
   }
 }
 function handleRichDrop(ev){
@@ -1965,6 +2142,7 @@ function openEmpresa(id){
   renderModalObrigacoes();
   renderModalImportacoes();
   initCompanyRichFields();
+  normalizeAllRichFields();
   openModal('modalEmpresa');
   // Abrir sempre em modo visualização
   const modalEl = document.querySelector('#modalEmpresa .modal');
