@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <title>Plano de Negócio — BIF</title>
+  <title>Plano de Negócio Contábil Completo — BIF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -118,6 +118,30 @@
     .toast{position:fixed;bottom:28px;right:28px;z-index:300;background:rgba(27,46,66,0.95);border:1px solid var(--gold-border);color:var(--text);font-size:13px;padding:12px 20px;border-radius:var(--radius-sm);backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;}
     .toast.show{opacity:1;transform:translateY(0);}
     .toast .t-icon{color:var(--gold);font-size:16px;}
+
+    /* ─────────────────────────────────────────
+       MÓDULOS CONTÁBEIS / BUROCRÁTICOS
+    ───────────────────────────────────────── */
+    .bif-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+    .bif-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+    .bif-note{font-size:12px;color:var(--text-muted);line-height:1.6;background:rgba(13,27,42,0.5);border:1px dashed var(--gold-border);border-radius:10px;padding:12px 14px;margin-bottom:16px;}
+    .mini-card{background:rgba(13,27,42,0.48);border:1px solid var(--gold-border);border-radius:12px;padding:14px;}
+    .mini-card h4{font-family:'Poppins',sans-serif;font-size:12px;color:var(--gold-light);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .mini-card .field-group{margin-bottom:12px;}
+    .checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 18px;}
+    .check-item{display:flex;align-items:flex-start;gap:8px;background:rgba(13,27,42,0.45);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:9px 10px;font-size:12px;color:var(--text-muted);line-height:1.4;}
+    .check-item input{margin-top:2px;accent-color:var(--gold);}
+    .projection-panel{background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(126,200,227,0.05));border:1px solid var(--gold-border);border-radius:14px;padding:16px;margin-bottom:18px;}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0;}
+    .kpi-box{background:rgba(13,27,42,0.66);border:1px solid rgba(201,168,76,0.22);border-radius:12px;padding:12px;}
+    .kpi-box b{display:block;color:var(--gold-light);font-family:'DM Mono',monospace;font-size:16px;margin-bottom:4px;}
+    .kpi-box span{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;}
+    .mini-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px;}
+    .mini-table th,.mini-table td{padding:9px 8px;border-bottom:1px solid rgba(201,168,76,0.16);text-align:left;}
+    .mini-table th{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;}
+    .pill-soft{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.22);color:var(--gold-light);font-size:10px;font-family:'DM Mono',monospace;}
+    @media(max-width:860px){.bif-grid,.bif-grid-3,.checklist{grid-template-columns:1fr;}.kpi-grid{grid-template-columns:1fr 1fr;}}
+
     @media(max-width:860px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.content{padding:22px 18px;}.canvas-grid-5{grid-template-columns:1fr 1fr;}.fin-row{grid-template-columns:1fr;}.concorrente-item{grid-template-columns:1fr;}.crono-item{grid-template-columns:auto 1fr;}.vp-grid{grid-template-columns:1fr;}.swot-grid{grid-template-columns:1fr;}}
   </style>
 </head>
@@ -128,7 +152,7 @@
     <div class="logo-mark">BIF</div>
     <div>
       <div class="header-title" id="plano-nome-header">Plano de Negócio</div>
-      <div class="header-sub">Business Intelligence Fiscal · Planos de Negócio</div>
+      <div class="header-sub">Business Intelligence Fiscal · Plano contábil, fiscal, societário e financeiro</div>
     </div>
   </div>
   <div class="header-right">
@@ -149,6 +173,15 @@
       <div class="sb-item" onclick="showSection('swot')" id="nav-swot"><span class="sb-icon">🎯</span>Análise SWOT</div>
       <div class="sb-item" onclick="showSection('mercado')" id="nav-mercado"><span class="sb-icon">🔭</span>Mercado & Concorrentes</div>
       <div class="sb-item" onclick="showSection('operacional')" id="nav-operacional"><span class="sb-icon">⚙️</span>Plano Operacional</div>
+
+      <div class="sb-item" onclick="showSection('burocratico')" id="nav-burocratico"><span class="sb-icon">🏛️</span>Burocrático & Legal</div>
+      <div class="sb-item" onclick="showSection('societario')" id="nav-societario"><span class="sb-icon">🤝</span>Societário</div>
+      <div class="sb-item" onclick="showSection('tributario')" id="nav-tributario"><span class="sb-icon">🧾</span>Enquadramento Tributário</div>
+      <div class="sb-item" onclick="showSection('fiscal')" id="nav-fiscal"><span class="sb-icon">📚</span>Fiscal & Obrigações</div>
+      <div class="sb-item" onclick="showSection('contabil')" id="nav-contabil"><span class="sb-icon">📘</span>Contábil</div>
+      <div class="sb-item" onclick="showSection('folha')" id="nav-folha"><span class="sb-icon">👥</span>Folha & Pró-labore</div>
+      <div class="sb-item" onclick="showSection('projecoes')" id="nav-projecoes"><span class="sb-icon">📊</span>Projeções Integradas</div>
+      <div class="sb-item" onclick="showSection('compliance')" id="nav-compliance"><span class="sb-icon">🛡️</span>Riscos & Compliance</div>
       <div class="sb-item" onclick="showSection('financeiro')" id="nav-financeiro"><span class="sb-icon">💰</span>Análise Financeira</div>
       <div class="sb-item" onclick="showSection('marketing')" id="nav-marketing"><span class="sb-icon">📣</span>Marketing & Canais</div>
       <div class="sb-item" onclick="showSection('cronograma')" id="nav-cronograma"><span class="sb-icon">📅</span>Cronograma</div>
@@ -391,6 +424,411 @@
       </div>
     </div>
 
+
+    <!-- 6B. BUROCRÁTICO & LEGAL -->
+    <div class="section-block" id="sec-burocratico">
+      <div class="section-header">
+        <div class="section-title">Burocrático & Legal — Abertura da Empresa</div>
+        <div class="section-desc">Checklist de constituição, regularização, licenças e documentos para tirar o negócio do papel com segurança.</div>
+      </div>
+
+      <div class="bif-note">
+        Este módulo funciona como um dossiê interno do escritório: tudo que precisa existir antes de vender, contratar, emitir nota, abrir conta PJ e operar sem gambiarra.
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">🏛️ Constituição e registro</div>
+          <div class="field-group">
+            <label class="field-label">Tipo jurídico pretendido</label>
+            <select class="field-select" id="bl-tipo-juridico">
+              <option>Empresário Individual</option>
+              <option>Sociedade Limitada Unipessoal — SLU</option>
+              <option>Sociedade Limitada — LTDA</option>
+              <option>Sociedade Simples</option>
+              <option>Associação / Entidade sem fins lucrativos</option>
+              <option>A definir com o contador</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Nome empresarial / razão social</label>
+            <input type="text" class="field-input" id="bl-razao" placeholder="Ex: Nome da Empresa LTDA"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Nome fantasia</label>
+            <input type="text" class="field-input" id="bl-fantasia" placeholder="Ex: Marca comercial"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Capital social previsto</label>
+            <input type="text" class="field-input" id="bl-capital" placeholder="Ex: R$ 10.000,00"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Órgãos de registro envolvidos</label>
+            <textarea class="field-textarea" id="bl-orgaos" placeholder="Ex: Junta Comercial, Receita Federal, Prefeitura, Secretaria da Fazenda Estadual, Conselho de Classe, Vigilância Sanitária, Corpo de Bombeiros..." style="min-height:80px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📍 Endereço, licenças e viabilidade</div>
+          <div class="field-group">
+            <label class="field-label">Endereço de operação</label>
+            <textarea class="field-textarea" id="bl-endereco" placeholder="Endereço físico, coworking, home office, escritório virtual ou endereço comercial." style="min-height:70px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Consulta de viabilidade</label>
+            <select class="field-select" id="bl-viabilidade">
+              <option>Não iniciada</option><option>Em análise</option><option>Aprovada</option><option>Reprovada / ajustar CNAE ou endereço</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Alvarás e licenças necessárias</label>
+            <textarea class="field-textarea" id="bl-licencas" placeholder="Ex: Alvará de funcionamento, AVCB/CLCB, licença sanitária, licença ambiental, conselho profissional..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Pendências burocráticas</label>
+            <textarea class="field-textarea" id="bl-pendencias" placeholder="O que falta resolver antes de operar?" style="min-height:70px;"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ Checklist de abertura</div>
+        <div class="checklist">
+          <label class="check-item"><input type="checkbox" id="ck-viabilidade"> Consulta de viabilidade realizada</label>
+          <label class="check-item"><input type="checkbox" id="ck-contrato-social"> Contrato social / ato constitutivo preparado</label>
+          <label class="check-item"><input type="checkbox" id="ck-cnpj"> CNPJ emitido</label>
+          <label class="check-item"><input type="checkbox" id="ck-ie"> Inscrição Estadual analisada / emitida</label>
+          <label class="check-item"><input type="checkbox" id="ck-im"> Inscrição Municipal analisada / emitida</label>
+          <label class="check-item"><input type="checkbox" id="ck-alvara"> Alvará / licença de funcionamento analisado</label>
+          <label class="check-item"><input type="checkbox" id="ck-certificado"> Certificado digital providenciado</label>
+          <label class="check-item"><input type="checkbox" id="ck-conta-pj"> Conta PJ aberta</label>
+          <label class="check-item"><input type="checkbox" id="ck-emissao-nf"> Emissão de NF-e / NFS-e configurada</label>
+          <label class="check-item"><input type="checkbox" id="ck-parametros"> Parâmetros fiscais/contábeis revisados</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6C. SOCIETÁRIO -->
+    <div class="section-block" id="sec-societario">
+      <div class="section-header">
+        <div class="section-title">Societário & Governança</div>
+        <div class="section-desc">Defina sócios, quotas, administração, poderes, retirada de pró-labore, distribuição de lucros e regras para evitar conflito futuro.</div>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">🤝 Estrutura societária</div>
+          <div class="field-group">
+            <label class="field-label">Sócios / titulares</label>
+            <textarea class="field-textarea" id="soc-socios" placeholder="Nome, CPF/CNPJ, percentual de participação, função real no negócio." style="min-height:120px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Distribuição de quotas</label>
+            <textarea class="field-textarea" id="soc-quotas" placeholder="Ex: Sócio A 70%, Sócio B 30%. Critério usado? Capital, trabalho, carteira, know-how?" style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Administração e poderes</label>
+            <textarea class="field-textarea" id="soc-administracao" placeholder="Quem assina? Quem contrata? Quem movimenta banco? Atos isolados ou em conjunto?" style="min-height:90px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📜 Acordos e proteção</div>
+          <div class="field-group">
+            <label class="field-label">Regras de retirada / pró-labore</label>
+            <textarea class="field-textarea" id="soc-prolabore" placeholder="Quando começa? Valor fixo? Variável? Depende do caixa?" style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Distribuição de lucros</label>
+            <textarea class="field-textarea" id="soc-lucros" placeholder="Periodicidade, reservas, critérios e pré-requisitos contábeis." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Saída de sócio / sucessão / não concorrência</label>
+            <textarea class="field-textarea" id="soc-saida" placeholder="Como calcular haveres? Pode levar cliente? Qual prazo de aviso? Regras de sucessão?" style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Documentos societários necessários</label>
+            <textarea class="field-textarea" id="soc-documentos" placeholder="Contrato social, acordo de sócios, procurações, ata, alteração contratual, DBE, documentos pessoais..." style="min-height:80px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6D. ENQUADRAMENTO TRIBUTÁRIO -->
+    <div class="section-block" id="sec-tributario">
+      <div class="section-header">
+        <div class="section-title">Enquadramento Tributário</div>
+        <div class="section-desc">CNAE, regime tributário, anexos, impedimentos e premissas para escolher o enquadramento mais coerente.</div>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">🧾 CNAE e atividade</div>
+          <div class="field-group">
+            <label class="field-label">Atividade principal</label>
+            <textarea class="field-textarea" id="tr-atividade-principal" placeholder="Descreva a atividade real, não só o CNAE." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">CNAE principal sugerido</label>
+            <input type="text" class="field-input" id="tr-cnae-principal" placeholder="Ex: 6920-6/01"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">CNAEs secundários</label>
+            <textarea class="field-textarea" id="tr-cnaes-secundarios" placeholder="Liste CNAEs secundários e motivo de cada um." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Riscos de CNAE / interpretação</label>
+            <textarea class="field-textarea" id="tr-risco-cnae" placeholder="Ex: atividade intelectual, cessão de mão de obra, retenções, ISS, ICMS, anexo do Simples..." style="min-height:90px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚖️ Regime tributário</div>
+          <div class="field-group">
+            <label class="field-label">Regime inicialmente recomendado</label>
+            <select class="field-select" id="tr-regime">
+              <option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option><option>MEI</option><option>A comparar</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Anexo / fator R / particularidades</label>
+            <textarea class="field-textarea" id="tr-anexo" placeholder="Ex: Anexo III ou V, análise do fator R, folha necessária, impedimentos." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Tributos envolvidos</label>
+            <textarea class="field-textarea" id="tr-tributos" placeholder="IRPJ, CSLL, PIS, COFINS, ISS, ICMS, IPI, CPP, INSS, FGTS, retenções..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Comparativo entre regimes</label>
+            <textarea class="field-textarea" id="tr-comparativo" placeholder="Premissas de faturamento, folha, margem, retenções e carga estimada por regime." style="min-height:100px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6E. FISCAL & OBRIGAÇÕES -->
+    <div class="section-block" id="sec-fiscal">
+      <div class="section-header">
+        <div class="section-title">Fiscal, Emissão e Obrigações Acessórias</div>
+        <div class="section-desc">Rotina fiscal prevista: documentos, notas, apuração de tributos, retenções e entregas acessórias.</div>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">📚 Operação fiscal</div>
+          <div class="field-group">
+            <label class="field-label">Documentos emitidos</label>
+            <textarea class="field-textarea" id="fis-documentos" placeholder="NFS-e, NF-e, NFC-e, CT-e, recibos, contratos, invoices..." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Regras de emissão de notas</label>
+            <textarea class="field-textarea" id="fis-emissao" placeholder="Quando emitir, código de serviço/produto, CFOP, NCM, CST/CSOSN, natureza da operação, ISS..." style="min-height:110px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Retenções e tomadores</label>
+            <textarea class="field-textarea" id="fis-retencoes" placeholder="INSS, IRRF, CSRF, ISS retido, tomadores públicos, substituição tributária..." style="min-height:90px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📅 Obrigações acessórias</div>
+          <div class="field-group">
+            <label class="field-label">Obrigações mensais previstas</label>
+            <textarea class="field-textarea" id="fis-obrigacoes-mensais" placeholder="PGDAS-D, DCTFWeb, EFD-Reinf, EFD Contribuições, GIA, DeSTDA, ISS eletrônico, Livro Fiscal..." style="min-height:100px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Obrigações anuais previstas</label>
+            <textarea class="field-textarea" id="fis-obrigacoes-anuais" placeholder="DEFIS, ECD, ECF, DIRF/substituições, informes, declarações municipais/estaduais..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Calendário fiscal crítico</label>
+            <textarea class="field-textarea" id="fis-calendario" placeholder="Datas de vencimento, responsáveis, risco de multa e dependências do cliente." style="min-height:100px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6F. CONTÁBIL -->
+    <div class="section-block" id="sec-contabil">
+      <div class="section-header">
+        <div class="section-title">Contábil, Controles e Demonstrações</div>
+        <div class="section-desc">Plano de contas, rotina contábil, conciliação, fechamento e demonstrações para tomada de decisão.</div>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">📘 Estrutura contábil</div>
+          <div class="field-group">
+            <label class="field-label">Plano de contas gerencial</label>
+            <textarea class="field-textarea" id="ct-plano-contas" placeholder="Receitas, deduções, custos, despesas, folha, impostos, ativos, passivos, distribuição de lucros..." style="min-height:110px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Centros de custo / projetos</label>
+            <textarea class="field-textarea" id="ct-centros-custo" placeholder="Ex: Administrativo, Comercial, Operação, Produto digital, Consultoria, Folha..." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Política de lançamentos</label>
+            <textarea class="field-textarea" id="ct-politica-lancamentos" placeholder="Critérios para competência, rateios, despesas pessoais x PJ, reembolsos, adiantamentos..." style="min-height:90px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 Fechamento e relatórios</div>
+          <div class="field-group">
+            <label class="field-label">Rotina de conciliação</label>
+            <textarea class="field-textarea" id="ct-conciliacao" placeholder="Banco, cartão, plataformas, notas emitidas, notas tomadas, folha, impostos pagos..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Demonstrações necessárias</label>
+            <textarea class="field-textarea" id="ct-demonstracoes" placeholder="Balancete, DRE, Balanço, Fluxo de Caixa, relatório gerencial, indicadores mensais..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Indicadores contábeis e gerenciais</label>
+            <textarea class="field-textarea" id="ct-indicadores" placeholder="Margem bruta, margem líquida, ponto de equilíbrio, lucro distribuível, inadimplência, burn rate..." style="min-height:90px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6G. FOLHA -->
+    <div class="section-block" id="sec-folha">
+      <div class="section-header">
+        <div class="section-title">Folha, Pró-labore e Rotina Trabalhista</div>
+        <div class="section-desc">Estrutura de contratação, encargos, eSocial, pró-labore, benefícios e custo real da equipe.</div>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">👥 Pessoas e vínculos</div>
+          <div class="field-group">
+            <label class="field-label">Estrutura inicial de equipe</label>
+            <textarea class="field-textarea" id="fl-equipe" placeholder="Sócios, funcionários CLT, autônomos, terceiros, estagiários, PJ..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Cargos e salários previstos</label>
+            <textarea class="field-textarea" id="fl-cargos" placeholder="Cargo, salário, carga horária, regime, início previsto." style="min-height:100px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Benefícios e políticas internas</label>
+            <textarea class="field-textarea" id="fl-beneficios" placeholder="VR, VA, VT, ajuda de custo, bônus, comissão, home office..." style="min-height:80px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧮 Encargos e obrigações trabalhistas</div>
+          <div class="field-group">
+            <label class="field-label">Pró-labore dos sócios</label>
+            <textarea class="field-textarea" id="fl-prolabore" placeholder="Valor, início, base de INSS, retirada variável, distribuição de lucros separada." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Encargos previstos</label>
+            <textarea class="field-textarea" id="fl-encargos" placeholder="INSS, FGTS, terceiros, RAT, férias, 13º, provisões, rescisões." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Obrigações de folha</label>
+            <textarea class="field-textarea" id="fl-obrigacoes" placeholder="eSocial, DCTFWeb, FGTS Digital, recibos, pró-labore, admissões, férias, afastamentos..." style="min-height:100px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6H. PROJEÇÕES INTEGRADAS -->
+    <div class="section-block" id="sec-projecoes">
+      <div class="section-header">
+        <div class="section-title">Projeções Integradas — Financeira, Contábil e Folha</div>
+        <div class="section-desc">Simule faturamento, impostos, custos operacionais, folha e margem. Use como visão preliminar para tomada de decisão.</div>
+      </div>
+
+      <div class="projection-panel">
+        <div class="card-title">📊 Simulador gerencial rápido</div>
+        <div class="bif-grid-3">
+          <div class="fin-item"><label>Receita mensal prevista</label><input type="text" class="fin-input" id="pj-receita" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Despesas operacionais</label><input type="text" class="fin-input" id="pj-despesas" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Investimento mensal / ferramentas</label><input type="text" class="fin-input" id="pj-investimento" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Colaboradores CLT</label><input type="number" class="fin-input" id="pj-colaboradores" placeholder="0"/></div>
+          <div class="fin-item"><label>Salário médio</label><input type="text" class="fin-input" id="pj-salario-medio" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Encargos/provisões folha (%)</label><input type="text" class="fin-input" id="pj-encargos" placeholder="Ex: 70"/></div>
+          <div class="fin-item"><label>Pró-labore total</label><input type="text" class="fin-input" id="pj-prolabore" placeholder="R$ 0,00"/></div>
+          <div class="fin-item"><label>Carga tributária estimada (%)</label><input type="text" class="fin-input" id="pj-tributos-pct" placeholder="Ex: 12"/></div>
+          <div class="fin-item"><label>Crescimento mensal (%)</label><input type="text" class="fin-input" id="pj-crescimento" placeholder="Ex: 3"/></div>
+        </div>
+
+        <div class="kpi-grid" id="pj-kpis">
+          <div class="kpi-box"><b>R$ 0,00</b><span>Impostos estimados</span></div>
+          <div class="kpi-box"><b>R$ 0,00</b><span>Custo folha estimado</span></div>
+          <div class="kpi-box"><b>R$ 0,00</b><span>Resultado mensal</span></div>
+          <div class="kpi-box"><b>0%</b><span>Margem estimada</span></div>
+        </div>
+
+        <table class="mini-table" id="pj-tabela">
+          <thead><tr><th>Mês</th><th>Receita</th><th>Impostos</th><th>Folha</th><th>Despesas</th><th>Resultado</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">💰 Projeção financeira</div>
+          <textarea class="field-textarea" id="pj-projecao-financeira" placeholder="Fluxo de caixa, investimentos, capital de giro, sazonalidade, inadimplência, prazo médio de recebimento, reserva de emergência..." style="min-height:150px;"></textarea>
+        </div>
+        <div class="card">
+          <div class="card-title">📘 Projeção contábil</div>
+          <textarea class="field-textarea" id="pj-projecao-contabil" placeholder="DRE projetada, lucro distribuível, provisões, depreciação, centro de custo, regime de competência..." style="min-height:150px;"></textarea>
+        </div>
+        <div class="card">
+          <div class="card-title">👥 Projeção de folha</div>
+          <textarea class="field-textarea" id="pj-projecao-folha" placeholder="Contratações futuras, pró-labore, encargos, benefícios, provisões trabalhistas, impacto do fator R..." style="min-height:150px;"></textarea>
+        </div>
+        <div class="card">
+          <div class="card-title">🧾 Projeção tributária</div>
+          <textarea class="field-textarea" id="pj-projecao-tributaria" placeholder="Simples, Presumido, Real, fator R, retenções, ISS/ICMS, comparativo de carga e gatilhos para mudar regime..." style="min-height:150px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6I. RISCOS & COMPLIANCE -->
+    <div class="section-block" id="sec-compliance">
+      <div class="section-header">
+        <div class="section-title">Riscos, Compliance e Controles Internos</div>
+        <div class="section-desc">Mapa de riscos legais, fiscais, trabalhistas, financeiros, operacionais e reputacionais.</div>
+      </div>
+
+      <div class="bif-grid">
+        <div class="card">
+          <div class="card-title">🛡️ Riscos por área</div>
+          <div class="field-group">
+            <label class="field-label">Riscos fiscais / tributários</label>
+            <textarea class="field-textarea" id="co-riscos-fiscais" placeholder="CNAE inadequado, regime incorreto, notas emitidas erradas, retenções não tratadas, obrigações acessórias..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Riscos societários</label>
+            <textarea class="field-textarea" id="co-riscos-societarios" placeholder="Conflito entre sócios, falta de acordo, retirada informal, mistura PF/PJ..." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Riscos trabalhistas / folha</label>
+            <textarea class="field-textarea" id="co-riscos-folha" placeholder="Pejotização, vínculo disfarçado, banco de horas, benefícios sem política, pró-labore inconsistente..." style="min-height:90px;"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🔐 Controles internos</div>
+          <div class="field-group">
+            <label class="field-label">Separação PF x PJ</label>
+            <textarea class="field-textarea" id="co-pf-pj" placeholder="Conta PJ, cartão PJ, política de reembolso, retirada de sócios, despesas pessoais proibidas..." style="min-height:80px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Documentos e evidências</label>
+            <textarea class="field-textarea" id="co-documentos" placeholder="Contratos, notas, recibos, comprovantes, aprovações, relatórios, atas, procurações, certificado digital..." style="min-height:90px;"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Rotina de revisão</label>
+            <textarea class="field-textarea" id="co-revisao" placeholder="Revisão mensal, trimestral e anual: fiscal, contábil, folha, societário, contratos e indicadores." style="min-height:90px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <!-- 7. ANÁLISE FINANCEIRA -->
     <div class="section-block" id="sec-financeiro">
       <div class="section-header">
@@ -522,6 +960,8 @@ const planoId = params.get('id') || 'pn_fluignos';
 const DB_PATH = `plano_dados_${planoId}`;
 
 function byId(id){ return document.getElementById(id); }
+function escapeHtml(v){ return String(v??'').replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch])); }
+function escapeAttr(v){ return String(v??'').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 function toast(msg){ const t=byId('toast'); byId('toast-msg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
 function setCloud(state,msg){ const b=byId('cloudBadge'); b.className='cloud-badge'+(state==='ok'?'':state==='loading'?' loading':state==='dirty'?' dirty':' error'); b.textContent=(state==='ok'?'☁️ ':state==='loading'?'⏳ ':state==='dirty'?'✏️ ':'⚠️ ')+msg; }
 
@@ -537,7 +977,8 @@ const CAMPOS = [
   'cf-ferramentas','cf-impostos','cf-marketing','cf-outros',
   'rec-diag','rec-impl','rec-cs','rec-outros','rec-projecao',
   'pe-valor','pe-clientes','pe-giro','pe-prazo','pe-obs',
-  'mk-posicao','mk-publico','mk-canais','mk-conteudo','mk-funil','mk-identidade'
+  'mk-posicao','mk-publico','mk-canais','mk-conteudo','mk-funil','mk-identidade',
+  'bl-tipo-juridico','bl-razao','bl-fantasia','bl-capital','bl-orgaos','bl-endereco','bl-viabilidade','bl-licencas','bl-pendencias','ck-viabilidade','ck-contrato-social','ck-cnpj','ck-ie','ck-im','ck-alvara','ck-certificado','ck-conta-pj','ck-emissao-nf','ck-parametros','soc-socios','soc-quotas','soc-administracao','soc-prolabore','soc-lucros','soc-saida','soc-documentos','tr-atividade-principal','tr-cnae-principal','tr-cnaes-secundarios','tr-risco-cnae','tr-regime','tr-anexo','tr-tributos','tr-comparativo','fis-documentos','fis-emissao','fis-retencoes','fis-obrigacoes-mensais','fis-obrigacoes-anuais','fis-calendario','ct-plano-contas','ct-centros-custo','ct-politica-lancamentos','ct-conciliacao','ct-demonstracoes','ct-indicadores','fl-equipe','fl-cargos','fl-beneficios','fl-prolabore','fl-encargos','fl-obrigacoes','pj-receita','pj-despesas','pj-investimento','pj-colaboradores','pj-salario-medio','pj-encargos','pj-prolabore','pj-tributos-pct','pj-crescimento','pj-projecao-financeira','pj-projecao-contabil','pj-projecao-folha','pj-projecao-tributaria','co-riscos-fiscais','co-riscos-societarios','co-riscos-folha','co-pf-pj','co-documentos','co-revisao'
 ];
 
 // Estado dinâmico
@@ -563,10 +1004,15 @@ function renderConcorrentes(){
     const div = document.createElement('div');
     div.className = 'concorrente-item';
     div.innerHTML = `
-      <input type="text" placeholder="Nome do concorrente" value="${c.nome||''}" oninput="concorrentes[${i}].nome=this.value;markDirty()"/>
-      <textarea placeholder="Pontos fortes" oninput="concorrentes[${i}].fortes=this.value;markDirty()">${c.fortes||''}</textarea>
-      <textarea placeholder="Nosso diferencial" oninput="concorrentes[${i}].diferencial=this.value;markDirty()">${c.diferencial||''}</textarea>
-      <button class="btn-del-sm" onclick="removerConcorrente(${i})">✕</button>`;
+      <input type="text" placeholder="Nome do concorrente" value="${escapeAttr(c.nome||'')}"/>
+      <textarea placeholder="Pontos fortes">${escapeHtml(c.fortes||'')}</textarea>
+      <textarea placeholder="Nosso diferencial">${escapeHtml(c.diferencial||'')}</textarea>
+      <button class="btn-del-sm" type="button">✕</button>`;
+    const inputs = div.querySelectorAll('input,textarea');
+    inputs[0].addEventListener('input', e=>{ concorrentes[i].nome=e.target.value; markDirty(); });
+    inputs[1].addEventListener('input', e=>{ concorrentes[i].fortes=e.target.value; markDirty(); });
+    inputs[2].addEventListener('input', e=>{ concorrentes[i].diferencial=e.target.value; markDirty(); });
+    div.querySelector('button').addEventListener('click', ()=>removerConcorrente(i));
     list.appendChild(div);
   });
 }
@@ -588,14 +1034,19 @@ function renderCrono(){
     div.className = 'crono-item';
     div.innerHTML = `
       <div class="crono-num">${i+1}</div>
-      <input type="text" placeholder="Marco / entrega" value="${c.marco||''}" oninput="cronograma[${i}].marco=this.value;markDirty()"/>
-      <input type="text" placeholder="Prazo" value="${c.prazo||''}" oninput="cronograma[${i}].prazo=this.value;markDirty()"/>
-      <select oninput="cronograma[${i}].status=this.value;markDirty()">
+      <input type="text" placeholder="Marco / entrega" value="${escapeAttr(c.marco||'')}"/>
+      <input type="text" placeholder="Prazo" value="${escapeAttr(c.prazo||'')}"/>
+      <select>
         <option value="pendente" ${(c.status||'pendente')==='pendente'?'selected':''}>Pendente</option>
         <option value="progresso" ${c.status==='progresso'?'selected':''}>Em progresso</option>
         <option value="feito" ${c.status==='feito'?'selected':''}>Concluído</option>
       </select>
-      <button class="btn-del-sm" onclick="removerCrono(${i})">✕</button>`;
+      <button class="btn-del-sm" type="button">✕</button>`;
+    const inputs = div.querySelectorAll('input,select');
+    inputs[0].addEventListener('input', e=>{ cronograma[i].marco=e.target.value; markDirty(); });
+    inputs[1].addEventListener('input', e=>{ cronograma[i].prazo=e.target.value; markDirty(); });
+    inputs[2].addEventListener('input', e=>{ cronograma[i].status=e.target.value; markDirty(); });
+    div.querySelector('button').addEventListener('click', ()=>removerCrono(i));
     list.appendChild(div);
   });
 }
@@ -615,7 +1066,7 @@ window.salvarTudo = async function(){
   setCloud('loading','Salvando...');
   try {
     const dados = {};
-    CAMPOS.forEach(id=>{ const el=byId(id); if(el) dados[id]=el.value||el.selectedOptions?.[0]?.value||''; });
+    CAMPOS.forEach(id=>{ const el=byId(id); if(el) dados[id]=(el.type==='checkbox' ? el.checked : (el.value||el.selectedOptions?.[0]?.value||'')); });
     dados['_concorrentes'] = concorrentes;
     dados['_cronograma']   = cronograma;
     await set(ref(db, DB_PATH), dados);
@@ -643,7 +1094,8 @@ async function carregar(){
       CAMPOS.forEach(id=>{
         const el=byId(id);
         if(el && d[id]!==undefined){
-          if(el.tagName==='SELECT'){ el.value=d[id]; }
+          if(el.type==='checkbox'){ el.checked=!!d[id]; }
+          else if(el.tagName==='SELECT'){ el.value=d[id]; }
           else { el.value=d[id]; }
         }
       });
@@ -651,6 +1103,7 @@ async function carregar(){
       cronograma   = d['_cronograma']   || [];
       renderConcorrentes();
       renderCrono();
+      atualizarProjecoesIntegradas();
       setCloud('ok','Plano carregado');
     } else {
       // Seed Fluignos se for o plano padrão
@@ -691,6 +1144,7 @@ function seedFluignos(){
   ];
   renderConcorrentes();
   renderCrono();
+  atualizarProjecoesIntegradas();
 }
 
 // Auto-save
@@ -701,6 +1155,57 @@ document.addEventListener('input', ()=>{
   autoTimer = setTimeout(()=>{ if(dirty) salvarTudo(); }, 4000);
 });
 
+
+function parseBRL(v){
+  const s = String(v||'').replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,'');
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : 0;
+}
+function fmtBRL(n){
+  return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
+}
+function atualizarProjecoesIntegradas(){
+  const receita = parseBRL(byId('pj-receita')?.value);
+  const despesas = parseBRL(byId('pj-despesas')?.value);
+  const investimento = parseBRL(byId('pj-investimento')?.value);
+  const colaboradores = parseFloat(byId('pj-colaboradores')?.value||'0') || 0;
+  const salario = parseBRL(byId('pj-salario-medio')?.value);
+  const encargosPct = parseBRL(byId('pj-encargos')?.value) / 100;
+  const prolabore = parseBRL(byId('pj-prolabore')?.value);
+  const tributosPct = parseBRL(byId('pj-tributos-pct')?.value) / 100;
+  const crescimentoPct = parseBRL(byId('pj-crescimento')?.value) / 100;
+
+  const folha = (colaboradores * salario * (1 + encargosPct)) + prolabore;
+  const tributos = receita * tributosPct;
+  const resultado = receita - tributos - folha - despesas - investimento;
+  const margem = receita > 0 ? (resultado / receita) * 100 : 0;
+
+  const kpis = byId('pj-kpis');
+  if(kpis){
+    kpis.innerHTML = `
+      <div class="kpi-box"><b>${fmtBRL(tributos)}</b><span>Impostos estimados</span></div>
+      <div class="kpi-box"><b>${fmtBRL(folha)}</b><span>Custo folha estimado</span></div>
+      <div class="kpi-box"><b>${fmtBRL(resultado)}</b><span>Resultado mensal</span></div>
+      <div class="kpi-box"><b>${margem.toFixed(1).replace('.',',')}%</b><span>Margem estimada</span></div>`;
+  }
+
+  const tbody = byId('pj-tabela')?.querySelector('tbody');
+  if(tbody){
+    const meses = ['Mês 1','Mês 2','Mês 3','Mês 4','Mês 5','Mês 6','Mês 7','Mês 8','Mês 9','Mês 10','Mês 11','Mês 12'];
+    tbody.innerHTML = meses.map((m,i)=>{
+      const rec = receita * Math.pow(1+crescimentoPct, i);
+      const imp = rec * tributosPct;
+      const res = rec - imp - folha - despesas - investimento;
+      return `<tr><td>${m}</td><td>${fmtBRL(rec)}</td><td>${fmtBRL(imp)}</td><td>${fmtBRL(folha)}</td><td>${fmtBRL(despesas+investimento)}</td><td style="color:${res>=0?'var(--success)':'var(--danger)'}">${fmtBRL(res)}</td></tr>`;
+    }).join('');
+  }
+}
+['pj-receita','pj-despesas','pj-investimento','pj-colaboradores','pj-salario-medio','pj-encargos','pj-prolabore','pj-tributos-pct','pj-crescimento'].forEach(id=>{
+  const el = byId(id);
+  if(el) el.addEventListener('input', atualizarProjecoesIntegradas);
+});
+
+atualizarProjecoesIntegradas();
 carregar();
 </script>
 </body>
