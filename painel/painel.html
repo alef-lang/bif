@@ -1296,6 +1296,7 @@ function addCompany(){
 // ════════════════════════════════════════════
 let activeRichField = null;
 let savedRichRange = null;
+let richMenuInteracting = false;
 const RICH_FIELD_IDS = [
   'f_parametros','f_regras','f_observacoes',
   'f_followup','f_comunicacaoGuias','f_acessosSistemas','f_apoioEscrituracao','f_ocorrencias'
@@ -1308,6 +1309,17 @@ function initFloatingFormatMenu(){
   if(!menu || menu.dataset.ready === '1') return;
   menu.dataset.ready = '1';
 
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+
+  // Evita que o clique no menu apague a seleção feita no texto.
+  menu.addEventListener('mousedown', ev => {
+    richMenuInteracting = true;
+    saveRichSelection(true);
+    if(ev.target.closest('button')) ev.preventDefault();
+  });
+  menu.addEventListener('mouseup', () => setTimeout(() => { richMenuInteracting = false; }, 180));
+  menu.addEventListener('mouseleave', () => setTimeout(() => { richMenuInteracting = false; }, 220));
+
   const textPalette = $('ffTextPalette');
   const markPalette = $('ffMarkPalette');
   if(textPalette && !textPalette.children.length){
@@ -1318,7 +1330,7 @@ function initFloatingFormatMenu(){
       b.dataset.hex = hex;
       b.title = hex;
       b.style.background = hex === 'transparent' ? 'repeating-linear-gradient(45deg,#fff 0 4px,#ccc 4px 8px)' : hex;
-      b.addEventListener('mousedown', ev => { ev.preventDefault(); applyInlineStyle({color: hex}); });
+      b.addEventListener('mousedown', ev => { ev.preventDefault(); richMenuInteracting = true; applyInlineStyle({color: hex}); });
       textPalette.appendChild(b);
     });
   }
@@ -1330,7 +1342,7 @@ function initFloatingFormatMenu(){
       b.dataset.hex = hex;
       b.title = hex === 'transparent' ? 'sem marca-texto' : hex;
       b.style.background = hex === 'transparent' ? 'repeating-linear-gradient(45deg,#fff 0 4px,#ccc 4px 8px)' : hex;
-      b.addEventListener('mousedown', ev => { ev.preventDefault(); applyInlineStyle({backgroundColor: hex}); });
+      b.addEventListener('mousedown', ev => { ev.preventDefault(); richMenuInteracting = true; applyInlineStyle({backgroundColor: hex}); });
       markPalette.appendChild(b);
     });
   }
@@ -1338,30 +1350,28 @@ function initFloatingFormatMenu(){
   menu.querySelectorAll('[data-cmd]').forEach(btn => {
     btn.addEventListener('mousedown', ev => {
       ev.preventDefault();
-      const cmd = btn.dataset.cmd;
-      restoreRichSelection();
-      if(cmd === 'removeFormat') {
-        document.execCommand('removeFormat', false, null);
-      } else {
-        document.execCommand(cmd, false, null);
-      }
-      markActiveRichInput();
-      updateFloatingMenu();
+      richMenuInteracting = true;
+      applyRichCommand(btn.dataset.cmd);
     });
   });
 
+  $('ffFont')?.addEventListener('mousedown', () => { richMenuInteracting = true; saveRichSelection(true); });
   $('ffFont')?.addEventListener('change', ev => {
     const val = ev.target.value;
     if(val) applyInlineStyle({fontFamily: val});
     ev.target.value = '';
+    setTimeout(() => { richMenuInteracting = false; }, 120);
   });
+  $('ffSize')?.addEventListener('mousedown', () => { richMenuInteracting = true; saveRichSelection(true); });
   $('ffSize')?.addEventListener('change', ev => {
     const val = ev.target.value;
     if(val) applyInlineStyle({fontSize: val});
     ev.target.value = '';
+    setTimeout(() => { richMenuInteracting = false; }, 120);
   });
   $('ffImageBtn')?.addEventListener('mousedown', ev => {
     ev.preventDefault();
+    richMenuInteracting = true;
     restoreRichSelection();
     $('ffImageInput')?.click();
   });
@@ -1369,9 +1379,13 @@ function initFloatingFormatMenu(){
     const files = Array.from(ev.target.files || []);
     if(files.length) insertImageFiles(files);
     ev.target.value = '';
+    setTimeout(() => { richMenuInteracting = false; }, 120);
   });
 
-  document.addEventListener('selectionchange', () => setTimeout(updateFloatingMenu, 0));
+  document.addEventListener('selectionchange', () => {
+    if(richMenuInteracting) return;
+    setTimeout(updateFloatingMenu, 0);
+  });
   document.addEventListener('mousedown', ev => {
     if(!menu.contains(ev.target) && !ev.target.closest('.rich-field')) hideFloatingMenu();
   });
@@ -1385,10 +1399,11 @@ function initCompanyRichFields(){
     const el = $(fid);
     if(!el || el.dataset.richReady === '1') return;
     el.dataset.richReady = '1';
-    el.addEventListener('focus', () => { activeRichField = el; });
-    el.addEventListener('mouseup', () => { activeRichField = el; saveRichSelection(); setTimeout(updateFloatingMenu, 0); });
-    el.addEventListener('keyup', () => { activeRichField = el; saveRichSelection(); setTimeout(updateFloatingMenu, 0); });
-    el.addEventListener('input', markActiveRichInput);
+    el.addEventListener('mousedown', () => { activeRichField = el; });
+    el.addEventListener('focus', () => { activeRichField = el; saveRichSelection(true); });
+    el.addEventListener('mouseup', () => { activeRichField = el; saveRichSelection(true); setTimeout(updateFloatingMenu, 0); });
+    el.addEventListener('keyup', () => { activeRichField = el; saveRichSelection(true); setTimeout(updateFloatingMenu, 0); });
+    el.addEventListener('input', () => { activeRichField = el; saveRichSelection(true); });
     el.addEventListener('paste', handleRichPaste);
     el.addEventListener('drop', handleRichDrop);
     el.addEventListener('dragover', ev => ev.preventDefault());
@@ -1396,77 +1411,127 @@ function initCompanyRichFields(){
   });
 }
 
-function saveRichSelection(){
+function getRichFieldFromNode(node){
+  if(!node) return null;
+  if(node.nodeType === 1) return node.closest?.('.rich-field') || null;
+  return node.parentElement?.closest?.('.rich-field') || null;
+}
+
+function isRichRangeValid(range, field){
+  if(!range || !field) return false;
+  const node = range.commonAncestorContainer;
+  return field === node || field.contains(node.nodeType === 1 ? node : node.parentNode);
+}
+
+function currentRichSelection(allowCollapsed=false){
   const sel = window.getSelection();
-  if(sel && sel.rangeCount && activeRichField && activeRichField.contains(sel.anchorNode)){
-    savedRichRange = sel.getRangeAt(0).cloneRange();
+  if(!sel || !sel.rangeCount) return null;
+  if(sel.isCollapsed && !allowCollapsed) return null;
+  const range = sel.getRangeAt(0);
+  const field = getRichFieldFromNode(range.commonAncestorContainer) || getRichFieldFromNode(sel.anchorNode);
+  if(!field || !isRichRangeValid(range, field)) return null;
+  return {sel, range, field};
+}
+
+function saveRichSelection(allowCollapsed=false){
+  const current = currentRichSelection(allowCollapsed);
+  if(current){
+    activeRichField = current.field;
+    savedRichRange = current.range.cloneRange();
   }
 }
+
 function restoreRichSelection(){
-  if(activeRichField) activeRichField.focus();
-  if(savedRichRange){
+  if(activeRichField) activeRichField.focus({preventScroll:true});
+  if(savedRichRange && activeRichField && isRichRangeValid(savedRichRange, activeRichField)){
     const sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(savedRichRange);
+    return true;
   }
+  return false;
 }
+
 function selectionInsideRichField(){
-  const sel = window.getSelection();
-  if(!sel || !sel.rangeCount || sel.isCollapsed) return null;
-  const node = sel.anchorNode;
-  const field = node?.nodeType === 1 ? node.closest?.('.rich-field') : node?.parentElement?.closest?.('.rich-field');
-  if(!field) return null;
-  return field;
+  const current = currentRichSelection(false);
+  return current ? current.field : null;
 }
+
 function updateFloatingMenu(){
   const menu = $('floatingFormatMenu');
-  const field = selectionInsideRichField();
-  if(!menu || !field || document.querySelector('#modalEmpresa .modal')?.classList.contains('view-mode')){
-    hideFloatingMenu(); return;
-  }
-  activeRichField = field;
-  saveRichSelection();
-  const sel = window.getSelection();
-  const range = sel.getRangeAt(0);
-  const rect = range.getBoundingClientRect();
+  const modalEl = document.querySelector('#modalEmpresa .modal');
+  if(!menu || modalEl?.classList.contains('view-mode')){ hideFloatingMenu(); return; }
+
+  const current = currentRichSelection(false);
+  if(!current){ hideFloatingMenu(); return; }
+
+  activeRichField = current.field;
+  savedRichRange = current.range.cloneRange();
+  const rect = current.range.getBoundingClientRect();
   if(!rect || (!rect.width && !rect.height)){ hideFloatingMenu(); return; }
+
   menu.classList.add('open');
   const menuW = menu.offsetWidth || 420;
+  const menuH = menu.offsetHeight || 46;
   let left = rect.left + rect.width/2 - menuW/2;
   left = Math.max(10, Math.min(left, window.innerWidth - menuW - 10));
-  let top = rect.top - menu.offsetHeight - 10;
+  let top = rect.top - menuH - 10;
   if(top < 10) top = rect.bottom + 10;
   menu.style.left = left + 'px';
   menu.style.top = top + 'px';
 }
+
 function hideFloatingMenu(){
   const menu = $('floatingFormatMenu');
   if(menu) menu.classList.remove('open');
 }
+
 function markActiveRichInput(){
   if(activeRichField) activeRichField.dispatchEvent(new Event('input', {bubbles:true}));
 }
-function applyInlineStyle(styleObj){
-  restoreRichSelection();
+
+function applyRichCommand(cmd){
+  if(!restoreRichSelection()) return;
   const sel = window.getSelection();
-  if(!sel || !sel.rangeCount || sel.isCollapsed) return;
+  if(!sel || !sel.rangeCount || !activeRichField) return;
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+  try {
+    if(cmd === 'removeFormat') document.execCommand('removeFormat', false, null);
+    else document.execCommand(cmd, false, null);
+    saveRichSelection(true);
+    markActiveRichInput();
+    setTimeout(updateFloatingMenu, 0);
+  } catch(e) {
+    console.warn('Falha ao aplicar formatação:', e);
+  }
+}
+
+function applyInlineStyle(styleObj){
+  if(!restoreRichSelection()) return;
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed || !activeRichField) return;
   const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)) return;
+
   const span = document.createElement('span');
   Object.assign(span.style, styleObj);
-  if(styleObj.fontFamily) span.style.fontFamily = `"${styleObj.fontFamily}", sans-serif`;
+  if(styleObj.fontFamily) span.style.fontFamily = `'${styleObj.fontFamily}', sans-serif`;
+  if(styleObj.backgroundColor === 'transparent') span.style.backgroundColor = 'transparent';
+
   try {
-    range.surroundContents(span);
-  } catch(e) {
     span.appendChild(range.extractContents());
     range.insertNode(span);
+    const newRange = document.createRange();
+    newRange.selectNodeContents(span);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+    savedRichRange = newRange.cloneRange();
+    activeRichField.normalize();
+    markActiveRichInput();
+    setTimeout(updateFloatingMenu, 0);
+  } catch(e) {
+    console.warn('Falha ao aplicar estilo:', e);
   }
-  sel.removeAllRanges();
-  const newRange = document.createRange();
-  newRange.selectNodeContents(span);
-  sel.addRange(newRange);
-  savedRichRange = newRange.cloneRange();
-  markActiveRichInput();
-  updateFloatingMenu();
 }
 
 function insertImageFiles(files){
@@ -1484,7 +1549,8 @@ function insertImageFiles(files){
 function insertImageAtSelection(src, alt='imagem'){
   const target = activeRichField || document.querySelector('#modalEmpresa .rich-field');
   if(!target) return;
-  target.focus();
+  activeRichField = target;
+  target.focus({preventScroll:true});
   restoreRichSelection();
   const img = document.createElement('img');
   img.src = src;
@@ -1492,13 +1558,17 @@ function insertImageAtSelection(src, alt='imagem'){
   const sel = window.getSelection();
   if(sel && sel.rangeCount){
     const range = sel.getRangeAt(0);
-    range.deleteContents();
-    range.insertNode(img);
-    range.setStartAfter(img);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
-    savedRichRange = range.cloneRange();
+    if(isRichRangeValid(range, target)){
+      range.deleteContents();
+      range.insertNode(img);
+      range.setStartAfter(img);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      savedRichRange = range.cloneRange();
+    } else {
+      target.appendChild(img);
+    }
   } else {
     target.appendChild(img);
   }
@@ -1510,6 +1580,7 @@ function handleRichPaste(ev){
   if(imageItems.length){
     ev.preventDefault();
     activeRichField = ev.currentTarget;
+    saveRichSelection(true);
     imageItems.forEach(item => {
       const file = item.getAsFile();
       if(file) insertImageFiles([file]);
@@ -1521,6 +1592,7 @@ function handleRichDrop(ev){
   if(files.some(f => f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg|avif|bmp|heic|heif)$/i.test(f.name))){
     ev.preventDefault();
     activeRichField = ev.currentTarget;
+    saveRichSelection(true);
     insertImageFiles(files);
   }
 }
