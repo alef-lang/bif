@@ -230,10 +230,76 @@ input[type="file"]{display:none}
         <div class="header-sub" id="headerDate"></div>
       </div>
       <div class="header-actions">
+        <button class="btn btn-sm btn-gold" id="btnSalvar" onclick="manualSave()" style="gap:6px">💾 Salvar</button>
         <button class="btn btn-sm" onclick="window.print()">&#128424; Imprimir</button>
         <button class="btn btn-sm" onclick="exportBackup()">&#9660; Backup</button>
         <button class="btn btn-sm" onclick="document.getElementById('importFile').click()">&#9650; Restaurar</button>
         <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- TUTORIAL -->
+  <div class="card" id="tutorialCard" style="border-top:1px solid rgba(255,255,255,0.07);padding:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 40px;cursor:pointer" onclick="toggleTutorial()">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1rem">📖</span>
+        <span style="font-family:var(--serif);font-size:0.9rem;color:var(--gold-light)">Por que este sistema existe — e como usar</span>
+      </div>
+      <span id="tutorialArrow" style="font-size:12px;color:var(--text-dim);transition:transform 0.2s">&#9662;</span>
+    </div>
+    <div id="tutorialBody" style="display:none;padding:0 40px 28px;border-top:1px solid rgba(255,255,255,0.05)">
+      <div style="max-width:680px;font-size:0.82rem;line-height:1.8;color:var(--text-muted)">
+
+        <p style="margin-top:18px;color:var(--white);font-weight:600;font-family:var(--serif);font-size:0.92rem">O problema que originou este painel</p>
+        <p style="margin-top:8px">Em ambientes de trabalho com alta demanda e urgências concorrentes, existe uma contradição silenciosa: a gestão pede que tudo seja feito "ponta a ponta, sem deixar rabo", mas o volume real do dia não permite essa linearidade. Quem trabalha por priorização — que é o jeito competente de operar sob pressão — frequentemente é cobrado como se tivesse "deixado algo solto", quando na verdade fez uma decisão técnica consciente.</p>
+        <p style="margin-top:10px">Este painel existe para tornar essa decisão <strong style="color:var(--white)">visível e defensável</strong>. Não para justificar bagunça — para documentar método.</p>
+
+        <div style="margin:20px 0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)"></div>
+
+        <p style="color:var(--white);font-weight:600;font-family:var(--serif);font-size:0.92rem">O conceito de Parqueamento</p>
+        <p style="margin-top:8px">Parquear uma tarefa não é abandoná-la. É uma decisão racional de adiar algo <strong style="color:var(--white)">não-bloqueante</strong> para atender o que é bloqueante agora. A diferença entre os dois:</p>
+        <ul style="margin:10px 0 0 18px;display:flex;flex-direction:column;gap:6px">
+          <li><strong style="color:var(--white)">Bloqueante:</strong> afeta cálculo fiscal, obrigação acessória (SPED, REINF), ou prazo pactuado com cliente. Vai primeiro.</li>
+          <li><strong style="color:var(--amber)">Parqueável:</strong> não entra no cálculo, não é entrega imediata, não gera risco de conformidade. Fica registrado com local, motivo e janela de retorno.</li>
+        </ul>
+        <p style="margin-top:10px">Quando uma tarefa está parqueada e alguém pergunta por ela, você não defende uma mesa — você apresenta um sistema. <em style="color:var(--gold-light)">"Está parqueada aqui, motivo técnico registrado, janela de retorno definida."</em> Isso é gestão de prioridade, não descuido.</p>
+
+        <div style="margin:20px 0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)"></div>
+
+        <p style="color:var(--white);font-weight:600;font-family:var(--serif);font-size:0.92rem">O custo do context switching</p>
+        <p style="margin-top:8px">Pesquisa consolidada mostra que interrupções não gerenciadas consomem até 40% do tempo produtivo e podem reduzir temporariamente a capacidade cognitiva de forma equivalente a uma noite sem dormir. Cada vez que você é arrancado de uma tarefa para atender algo não-urgente, há um custo real de reconstrução de contexto — seu cérebro precisa relembrar onde estava, o que já fez, e qual era o próximo passo.</p>
+        <p style="margin-top:10px">Para perfis com TDAH, esse custo é multiplicado: a memória de trabalho é o ponto mais frágil, e uma interrupção pode apagar o ponteiro de onde você estava num processo sequencial. Este painel compensa exatamente isso — ele lembra por você. Registre o estado da tarefa antes de ser interrompido.</p>
+
+        <div style="margin:20px 0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)"></div>
+
+        <p style="color:var(--white);font-weight:600;font-family:var(--serif);font-size:0.92rem">Como usar — guia rápido</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--gold);font-family:var(--mono);font-size:0.78rem;min-width:24px;padding-top:2px">01</span>
+            <span><strong style="color:var(--white)">Nova tarefa:</strong> use o botão dourado. Preencha nome, prioridade (1 baixa → 5 urgente) e se requer interação com alguém. O campo de recompensa é para TDAH — coloque um micro-reforço real.</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--gold);font-family:var(--mono);font-size:0.78rem;min-width:24px;padding-top:2px">02</span>
+            <span><strong style="color:var(--white)">Subtarefas:</strong> expanda a tarefa e adicione os passos do processo. Isso é especialmente útil para fechar o processo fiscal ponta a ponta — cada etapa vira uma subtarefa rastreável.</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--amber);font-family:var(--mono);font-size:0.78rem;min-width:24px;padding-top:2px">03</span>
+            <span><strong style="color:var(--amber)">Parquear:</strong> ao editar uma tarefa, ative o toggle de Parqueamento. Registre onde o material está fisicamente, o motivo técnico da priorização, e quando você vai retomar. Esse registro é sua proteção.</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--green);font-family:var(--mono);font-size:0.78rem;min-width:24px;padding-top:2px">04</span>
+            <span><strong style="color:var(--white)">Concluir:</strong> marque o checkbox. Você ganha pontos proporcionais à prioridade — um sistema de reforço simples para manter o momentum.</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="color:var(--blue);font-family:var(--mono);font-size:0.78rem;min-width:24px;padding-top:2px">05</span>
+            <span><strong style="color:var(--white)">Salvar:</strong> o sistema salva automaticamente a cada alteração e a cada 30 segundos. O botão "Salvar" no topo confirma manualmente. Sair da página sem salvar dispara um aviso.</span>
+          </div>
+        </div>
+
+        <div style="margin:20px 0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)"></div>
+
+        <p style="font-size:0.75rem;color:var(--text-dim);font-style:italic">Este sistema foi construído a partir de uma observação real: o profissional que opera por priorização competente precisa de rastreabilidade, não de desculpas. Quando a lógica está visível, a competência fala por si.</p>
       </div>
     </div>
   </div>
@@ -379,9 +445,11 @@ function doSave(){
   localStorage.setItem('fiscal_exp',JSON.stringify(expanded));
   localStorage.setItem('fiscal_pts',String(points));
   localStorage.setItem('fiscal_last_save',new Date().toISOString());
+  unsavedChanges=false;
 }
 
 function save(){
+  markUnsaved();
   setAutosaveStatus('saving','Salvando...');
   clearTimeout(autosaveTimer);
   autosaveTimer=setTimeout(()=>{
@@ -802,6 +870,44 @@ document.getElementById('tmDesc').addEventListener('paste', function(e) {
 });
 
 
+// ---- SALVAR MANUAL ----
+let unsavedChanges = false;
+function markUnsaved(){
+  unsavedChanges=true;
+  const btn=document.getElementById('btnSalvar');
+  if(btn){btn.textContent='💾 Salvar *';btn.style.background='var(--coral)';btn.style.borderColor='var(--coral)';btn.style.color='var(--white)'}
+  setAutosaveStatus('saving','Alterações não salvas');
+}
+function manualSave(){
+  forceSave();
+  unsavedChanges=false;
+  const btn=document.getElementById('btnSalvar');
+  if(btn){btn.textContent='💾 Salvo ✓';btn.style.background='var(--green)';btn.style.borderColor='var(--green)';btn.style.color='var(--navy)'}
+  setTimeout(()=>{
+    if(btn){btn.textContent='💾 Salvar';btn.style.background='';btn.style.borderColor='';btn.style.color=''}
+  },2000);
+  toast('Salvo manualmente','success');
+}
+
+// ---- TUTORIAL ----
+function toggleTutorial(){
+  const body=document.getElementById('tutorialBody');
+  const arrow=document.getElementById('tutorialArrow');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(arrow)arrow.style.transform=open?'':'rotate(180deg)';
+  localStorage.setItem('bif_tutorial_open',open?'0':'1');
+}
+function initTutorial(){
+  const pref=localStorage.getItem('bif_tutorial_open');
+  if(pref==='1'){
+    const body=document.getElementById('tutorialBody');
+    const arrow=document.getElementById('tutorialArrow');
+    if(body)body.style.display='block';
+    if(arrow)arrow.style.transform='rotate(180deg)';
+  }
+}
+
 function toggleParqueFields(){
   const on=document.getElementById('tmParqueado').classList.contains('on');
   document.getElementById('parqueFields').style.display=on?'block':'none';
@@ -819,10 +925,17 @@ setInterval(()=>{
   setAutosaveStatus('saved','Salvo — '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
 },30000);
 
-window.addEventListener('beforeunload',forceSave);
+window.addEventListener('beforeunload',function(e){
+  forceSave();
+  if(unsavedChanges){
+    e.preventDefault();
+    e.returnValue='Você tem alterações não salvas. Deseja sair mesmo assim?';
+    return e.returnValue;
+  }
+});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')forceSave()});
 bindDraftAutosave();
-load();render();
+load();render();initTutorial();
 </script>
 </body>
 </html>
