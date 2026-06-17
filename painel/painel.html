@@ -512,6 +512,28 @@ select option{background:#1b2e42;color:#e8eaf0;}
 }
 
 
+
+/* CORREÇÃO — digitação normal da esquerda para a direita
+   Evita qualquer herança/auto-detecção que possa inverter texto nos campos editáveis. */
+.form-group input,
+.form-group textarea,
+.obrig-add-row input,
+.config-row input,
+.search-box input,
+.rich-field,
+[contenteditable="true"],
+[contenteditable="false"]{
+  direction:ltr !important;
+  text-align:left;
+}
+.rich-field{
+  unicode-bidi:plaintext;
+}
+.rich-field *:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint){
+  direction:ltr !important;
+  unicode-bidi:normal !important;
+}
+
 /* CORREÇÃO CIRÚRGICA — quebra real dentro das caixas ricas
    Alguns textos colados vêm com &nbsp;, <nobr> ou estilos inline de nowrap/inline-block.
    Este bloco força o conteúdo formatado a respeitar a largura do campo, sem afetar dados cadastrais. */
@@ -1657,7 +1679,11 @@ function initCompanyRichFields(){
     el.addEventListener('focus', () => { activeRichField = el; saveRichSelection(true); });
     el.addEventListener('mouseup', () => { activeRichField = el; saveRichSelection(true); setTimeout(updateFloatingMenu, 0); });
     el.addEventListener('keyup', () => { activeRichField = el; saveRichSelection(true); setTimeout(updateFloatingMenu, 0); });
-    el.addEventListener('input', () => { activeRichField = el; normalizeRichFieldLayout(el); saveRichSelection(true); });
+    // IMPORTANTE: não normalizar o HTML a cada tecla.
+    // Isso fazia o navegador recriar nós do contenteditable e o cursor voltava para o início,
+    // então o texto digitado saía ao contrário: "Uso e consumo" -> "omusnoc e osU".
+    // A limpeza/normalização continua no Ctrl+V, ao abrir e ao salvar.
+    el.addEventListener('input', () => { activeRichField = el; saveRichSelection(true); });
     el.addEventListener('paste', handleRichPaste);
     el.addEventListener('drop', handleRichDrop);
     el.addEventListener('dragover', ev => ev.preventDefault());
