@@ -419,7 +419,24 @@ input[type="file"]{display:none}
 <div class="autosave-indicator saved" id="autosaveIndicator"><span class="autosave-dot"></span><span id="autosaveText">Salvo automaticamente</span></div>
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain:"portal-treinamentos-lang.firebaseapp.com",
+  databaseURL:"https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId:"portal-treinamentos-lang",
+  storageBucket:"portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId:"1049839891406",
+  appId:"1:1049839891406:web:c5874166bdbee74139f19f"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+const DB_PATH = 'bif_tarefas_fiscal';
+
 const PRI_COLORS=['','#2ecc8a','#2dd4bf','#f59e0b','#f97316','#e05a5a'];
 const PRI_LABELS=['','Baixa','Moderada','Média','Alta','Urgente'];
 const REWARDS_DEFAULT=['☕ Cafézinho','🚶 Levanta e anda 2 min','🎵 1 música favorita','💧 Copo d\'água','📱 5 min de redes','🍫 Um chocolate','🌬️ Respirar na janela'];
@@ -427,11 +444,6 @@ const REWARDS_DEFAULT=['☕ Cafézinho','🚶 Levanta e anda 2 min','🎵 1 mús
 let tasks=[],expanded={},filterPri='all',newPri=3,editPri=3,points=0;
 let autosaveTimer=null, autosaveStatusTimer=null;
 
-function load(){
-  try{tasks=JSON.parse(localStorage.getItem('fiscal_tasks')||'[]')}catch(e){tasks=[]}
-  try{expanded=JSON.parse(localStorage.getItem('fiscal_exp')||'{}')}catch(e){expanded={}}
-  try{points=parseInt(localStorage.getItem('fiscal_pts')||'0')}catch(e){points=0}
-}
 function setAutosaveStatus(status,msg){
   const box=document.getElementById('autosaveIndicator');
   const txt=document.getElementById('autosaveText');
@@ -440,30 +452,72 @@ function setAutosaveStatus(status,msg){
   txt.textContent=msg;
 }
 
-function doSave(){
-  localStorage.setItem('fiscal_tasks',JSON.stringify(tasks));
-  localStorage.setItem('fiscal_exp',JSON.stringify(expanded));
-  localStorage.setItem('fiscal_pts',String(points));
-  localStorage.setItem('fiscal_last_save',new Date().toISOString());
-  unsavedChanges=false;
+// ── FIREBASE: carregar ──
+async function load(){
+  setAutosaveStatus('saving','Conectando à nuvem...');
+  try {
+    const snap = await get(ref(db, DB_PATH));
+    if(snap.exists()){
+      const d = snap.val();
+      tasks    = d.tasks    || [];
+      expanded = d.expanded || {};
+      points   = d.points   || 0;
+      // Fallback localStorage para compatibilidade
+      localStorage.setItem('fiscal_tasks', JSON.stringify(tasks));
+      localStorage.setItem('fiscal_pts',   String(points));
+      setAutosaveStatus('saved','Nuvem sincronizada');
+    } else {
+      // Primeira vez — tenta migrar do localStorage
+      try{ tasks=JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'); }catch(e){ tasks=[]; }
+      try{ expanded=JSON.parse(localStorage.getItem('fiscal_exp')||'{}'); }catch(e){ expanded={}; }
+      try{ points=parseInt(localStorage.getItem('fiscal_pts')||'0'); }catch(e){ points=0; }
+      if(tasks.length) await doSave(); // migra para nuvem
+      setAutosaveStatus('saved','Pronto');
+    }
+  } catch(e){
+    // Offline — usa localStorage como fallback
+    try{ tasks=JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'); }catch(e){ tasks=[]; }
+    try{ expanded=JSON.parse(localStorage.getItem('fiscal_exp')||'{}'); }catch(e){ expanded={}; }
+    try{ points=parseInt(localStorage.getItem('fiscal_pts')||'0'); }catch(e){ points=0; }
+    setAutosaveStatus('saving','Offline — salvo localmente');
+  }
+  render();
+  initTutorial();
+}
+
+// ── FIREBASE: salvar ──
+async function doSave(){
+  // Salva local sempre (fallback)
+  localStorage.setItem('fiscal_tasks',   JSON.stringify(tasks));
+  localStorage.setItem('fiscal_exp',     JSON.stringify(expanded));
+  localStorage.setItem('fiscal_pts',     String(points));
+  localStorage.setItem('fiscal_last_save', new Date().toISOString());
+  unsavedChanges = false;
+  // Salva na nuvem
+  try {
+    await set(ref(db, DB_PATH), { tasks, expanded, points, updatedAt: new Date().toISOString() });
+  } catch(e){
+    setAutosaveStatus('saving','Salvo localmente — sem conexão');
+    return;
+  }
 }
 
 function save(){
   markUnsaved();
   setAutosaveStatus('saving','Salvando...');
   clearTimeout(autosaveTimer);
-  autosaveTimer=setTimeout(()=>{
-    doSave();
-    setAutosaveStatus('saved','Salvo automaticamente');
+  autosaveTimer=setTimeout(async ()=>{
+    await doSave();
+    setAutosaveStatus('saved','Salvo na nuvem ☁️');
     clearTimeout(autosaveStatusTimer);
-    autosaveStatusTimer=setTimeout(()=>setAutosaveStatus('saved','Salvo automaticamente'),1400);
-  },250);
+    autosaveStatusTimer=setTimeout(()=>setAutosaveStatus('saved','Salvo na nuvem ☁️'),1400);
+  },800);
 }
 
 function forceSave(){
   clearTimeout(autosaveTimer);
   doSave();
-  setAutosaveStatus('saved','Salvo automaticamente');
+  setAutosaveStatus('saved','Salvo na nuvem ☁️');
 }
 
 function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3000)}
@@ -933,9 +987,22 @@ window.addEventListener('beforeunload',function(e){
     return e.returnValue;
   }
 });
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')forceSave()});
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') forceSave(); });
+
+// Expõe funções usadas no HTML inline (onclick=)
+window.save=save; window.doSave=doSave; window.forceSave=forceSave;
+window.addSub=addSub; window.closeModal=closeModal; window.closeReward=closeReward;
+window.delSub=delSub; window.delTask=delTask; window.expandAll=expandAll;
+window.exportBackup=exportBackup; window.manualSave=manualSave;
+window.openEditTask=openEditTask; window.openNewTask=openNewTask;
+window.saveTask=saveTask; window.sendAssignment=sendAssignment;
+window.sendReminder=sendReminder; window.setFilter=setFilter;
+window.toggleSub=toggleSub; window.toggleTask=toggleTask;
+window.toggleTutorial=toggleTutorial; window.desparquear=desparquear;
+window.toggleParqueFields=toggleParqueFields;
+
 bindDraftAutosave();
-load();render();initTutorial();
+load(); // load já chama render() e initTutorial() internamente
 </script>
 </body>
 </html>
