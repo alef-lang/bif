@@ -335,6 +335,26 @@ select option{background:#1b2e42;color:#e8eaf0;}
   background:rgba(201,168,76,0.14);
   color:var(--gold-light);
 }
+.ff-btn.active,.ff-btn.format-copied{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(201,168,76,0.28),rgba(232,201,122,0.16));
+  color:var(--gold-light);
+  box-shadow:0 0 0 2px rgba(201,168,76,0.12);
+}
+.ff-btn.format-copied{
+  position:relative;
+}
+.ff-btn.format-copied::after{
+  content:'';
+  position:absolute;
+  right:4px;
+  top:4px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--simples);
+  box-shadow:0 0 8px rgba(0,206,201,0.75);
+}
 .ff-select{
   width:auto;
   padding:0 8px;
@@ -1050,6 +1070,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
   <button type="button" class="ff-btn" data-cmd="bold" title="Negrito"><b>N</b></button>
   <button type="button" class="ff-btn" data-cmd="italic" title="Itálico"><i>I</i></button>
   <button type="button" class="ff-btn" data-cmd="underline" title="Sublinhado"><u>S</u></button>
+  <button type="button" class="ff-btn" id="ffFormatPainterBtn" title="Copiar formatação / aplicar no trecho selecionado">🖌️</button>
   <span class="ff-sep"></span>
   <select class="ff-select" id="ffFont" title="Fonte">
     <option value="">Fonte</option>
@@ -1512,6 +1533,7 @@ function addCompany(){
 // ════════════════════════════════════════════
 let activeRichField = null;
 let savedRichRange = null;
+let copiedRichFormat = null;
 let richMenuInteracting = false;
 const RICH_FIELD_IDS = [
   'f_parametros','f_regras','f_observacoes',
@@ -1575,6 +1597,12 @@ function initFloatingFormatMenu(){
       richMenuInteracting = true;
       applyRichCommand(btn.dataset.cmd);
     });
+  });
+
+  $('ffFormatPainterBtn')?.addEventListener('mousedown', ev => {
+    ev.preventDefault();
+    richMenuInteracting = true;
+    handleFormatPainter();
   });
 
   $('ffFont')?.addEventListener('mousedown', () => { richMenuInteracting = true; saveRichSelection(true); });
@@ -1751,6 +1779,7 @@ function updateFloatingMenu(){
   if(!rect || (!rect.width && !rect.height)){ hideFloatingMenu(); return; }
 
   menu.classList.add('open');
+  refreshFloatingToolbarState();
   const menuW = menu.offsetWidth || 420;
   const menuH = menu.offsetHeight || 46;
   let left = rect.left + rect.width/2 - menuW/2;
@@ -1873,6 +1902,168 @@ function collapseSelectionToEnd(){
   savedRichRange = range.cloneRange();
 }
 
+
+function cssColorIsTransparent(value){
+  if(!value) return true;
+  const v = String(value).trim().toLowerCase();
+  return v === 'transparent' || v === 'rgba(0, 0, 0, 0)' || v === 'rgba(0,0,0,0)';
+}
+
+function getFirstTextElementInRange(range){
+  if(!range) return null;
+  const startNode = range.startContainer;
+  if(startNode?.nodeType === Node.TEXT_NODE && startNode.parentElement) return startNode.parentElement;
+  if(startNode?.nodeType === Node.ELEMENT_NODE){
+    const child = startNode.childNodes?.[range.startOffset] || startNode;
+    if(child.nodeType === Node.TEXT_NODE && child.parentElement) return child.parentElement;
+    if(child.nodeType === Node.ELEMENT_NODE){
+      const text = document.createTreeWalker(child, NodeFilter.SHOW_TEXT, null);
+      const first = text.nextNode();
+      if(first?.parentElement) return first.parentElement;
+      return child;
+    }
+  }
+  const clone = range.cloneContents?.();
+  const text = clone ? document.createTreeWalker(clone, NodeFilter.SHOW_TEXT, null).nextNode() : null;
+  if(text?.parentElement) return text.parentElement;
+  return activeRichField;
+}
+
+function getFormatFromCurrentSelection(){
+  if(!restoreRichSelection()) return null;
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField) return null;
+  const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)) return null;
+  const sourceEl = getFirstTextElementInRange(range) || activeRichField;
+  const computed = window.getComputedStyle(sourceEl);
+  const parentComputed = window.getComputedStyle(activeRichField);
+  const decoration = computed.textDecorationLine && computed.textDecorationLine !== 'none'
+    ? computed.textDecorationLine
+    : (sourceEl.closest?.('u') ? 'underline' : 'none');
+
+  return {
+    fontFamily: computed.fontFamily || parentComputed.fontFamily || '',
+    fontSize: computed.fontSize || parentComputed.fontSize || '',
+    fontWeight: computed.fontWeight || parentComputed.fontWeight || '400',
+    fontStyle: computed.fontStyle || parentComputed.fontStyle || 'normal',
+    textDecoration: decoration,
+    color: computed.color || parentComputed.color || '',
+    backgroundColor: cssColorIsTransparent(computed.backgroundColor) ? 'transparent' : computed.backgroundColor
+  };
+}
+
+function clearInlineFormatStructure(fragment){
+  const all = [];
+  if(fragment.nodeType === Node.ELEMENT_NODE) all.push(fragment);
+  all.push(...fragment.querySelectorAll?.('*') || []);
+  all.forEach(el => {
+    if(!el || el.tagName === 'IMG') return;
+    if(el.classList) el.classList.remove('plain-paste','img-selected');
+    ['color','background','backgroundColor','fontFamily','fontSize','fontWeight','fontStyle','textDecoration','textDecorationLine'].forEach(prop => {
+      try { el.style[prop] = ''; } catch(e) {}
+    });
+    if(el.getAttribute && (el.getAttribute('style') || '').trim() === '') el.removeAttribute('style');
+  });
+  Array.from(fragment.querySelectorAll?.('font,mark,b,strong,i,em,u,s,strike,small,big') || [])
+    .reverse()
+    .forEach(unwrapElementKeepChildren);
+}
+
+function applyFormatObjectToSelection(format){
+  if(!format || !restoreRichSelection()) return false;
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed || !activeRichField) return false;
+  const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)) return false;
+
+  try {
+    expandRangeToWholeInlineContainers(range);
+    const fragment = range.extractContents();
+    clearInlineFormatStructure(fragment);
+
+    const span = document.createElement('span');
+    span.style.fontFamily = format.fontFamily || 'var(--font-body)';
+    span.style.fontSize = format.fontSize || '12px';
+    span.style.fontWeight = format.fontWeight || '400';
+    span.style.fontStyle = format.fontStyle || 'normal';
+    span.style.textDecoration = format.textDecoration || 'none';
+    span.style.color = format.color || 'var(--text)';
+    span.style.backgroundColor = format.backgroundColor || 'transparent';
+    span.appendChild(fragment);
+
+    range.insertNode(span);
+    const newRange = document.createRange();
+    newRange.selectNodeContents(span);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+    savedRichRange = newRange.cloneRange();
+
+    normalizeRichFieldLayout(activeRichField);
+    activeRichField.normalize();
+    markActiveRichInput();
+    setTimeout(updateFloatingMenu, 0);
+    return true;
+  } catch(e) {
+    console.warn('Falha ao aplicar formatação copiada:', e);
+    return false;
+  }
+}
+
+function updateFormatPainterButton(){
+  const btn = $('ffFormatPainterBtn');
+  if(!btn) return;
+  btn.classList.toggle('format-copied', !!copiedRichFormat);
+  btn.title = copiedRichFormat
+    ? 'Formatação copiada: selecione um trecho e clique para aplicar'
+    : 'Copiar formatação do trecho selecionado';
+}
+
+function refreshFloatingToolbarState(){
+  const menu = $('floatingFormatMenu');
+  if(!menu) return;
+  ['bold','italic','underline'].forEach(cmd => {
+    const btn = menu.querySelector(`[data-cmd="${cmd}"]`);
+    if(!btn) return;
+    let active = false;
+    try { active = document.queryCommandState(cmd); } catch(e) {}
+    btn.classList.toggle('active', !!active);
+  });
+  updateFormatPainterButton();
+}
+
+function handleFormatPainter(){
+  if(!restoreRichSelection()){
+    toast('Selecione um trecho de texto primeiro.', 'error');
+    setTimeout(() => { richMenuInteracting = false; }, 120);
+    return;
+  }
+  const sel = window.getSelection();
+  const canApply = copiedRichFormat && sel && sel.rangeCount && !sel.isCollapsed && activeRichField;
+
+  if(canApply){
+    const ok = applyFormatObjectToSelection(copiedRichFormat);
+    if(ok){
+      copiedRichFormat = null;
+      updateFormatPainterButton();
+      toast('Formatação aplicada.', 'success');
+    } else {
+      toast('Não consegui aplicar a formatação neste trecho.', 'error');
+    }
+    setTimeout(() => { richMenuInteracting = false; }, 120);
+    return;
+  }
+
+  copiedRichFormat = getFormatFromCurrentSelection();
+  updateFormatPainterButton();
+  if(copiedRichFormat){
+    toast('Formatação copiada. Selecione outro trecho e clique no pincel para aplicar.', 'success');
+  } else {
+    toast('Não consegui copiar a formatação deste trecho.', 'error');
+  }
+  setTimeout(() => { richMenuInteracting = false; }, 120);
+}
+
 function cleanSelectedFormatting(){
   if(!restoreRichSelection()) return;
   const sel = window.getSelection();
@@ -1951,7 +2142,7 @@ function applyInlineStyle(styleObj){
     } else {
       const span = document.createElement('span');
       Object.assign(span.style, styleObj);
-      if(styleObj.fontFamily) span.style.fontFamily = `'${styleObj.fontFamily}', sans-serif`;
+      if(styleObj.fontFamily) span.style.fontFamily = styleObj.fontFamily;
       span.appendChild(fragment);
       range.insertNode(span);
       const newRange = document.createRange();
