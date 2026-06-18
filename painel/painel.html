@@ -212,6 +212,26 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .btn-secondary:hover{border-color:var(--gold);background:var(--gold-glow);}
 .btn-danger{padding:9px 16px;background:rgba(255,118,117,0.15);color:#ff7675;border:1.5px solid rgba(255,118,117,0.3);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
 .btn-danger:hover{background:#ff7675;color:#0d1b2a;border-color:#ff7675;}
+.btn-delete-subtle{
+  margin-right:auto;
+  padding:7px 10px;
+  background:transparent;
+  color:rgba(255,118,117,0.48);
+  border:1px solid rgba(255,118,117,0.12);
+  border-radius:var(--radius-sm);
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.18s;
+  font-family:var(--font-body);
+  opacity:0.72;
+}
+.btn-delete-subtle:hover{
+  color:#ff7675;
+  border-color:rgba(255,118,117,0.35);
+  background:rgba(255,118,117,0.08);
+  opacity:1;
+}
 .btn-export-rel{padding:9px 16px;background:linear-gradient(135deg,rgba(0,206,201,0.3),rgba(0,206,201,0.18));color:var(--simples);border:1.5px solid rgba(0,206,201,0.35);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
 .btn-export-rel:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,206,201,0.25);background:rgba(0,206,201,0.28);}
 
@@ -905,7 +925,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
     </div>
     <div class="modal-body" id="modalEmpresaBody"></div>
     <div class="modal-footer">
-      <button class="btn-danger" id="btnDeleteFromModal" onclick="askDelete(currentEditId)">🗑 Excluir</button>
+      <button class="btn-delete-subtle" id="btnDeleteFromModal" onclick="askDelete(currentEditId)" title="Excluir empresa">Excluir</button>
       <button class="btn-secondary" onclick="closeModal('modalEmpresa')">Fechar</button>
       <button class="btn-edit-mode" id="btnEditMode" onclick="enableEditMode()">✏️ Editar</button>
       <button class="btn-primary" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;">💾 Salvar</button>
@@ -2581,10 +2601,11 @@ function saveCompany(){
     importacoes: modalImportacoes
   });
   saveState();
-  closeModal('modalEmpresa');
+  $('modalEmpresaTitle').textContent = e.nome;
+  $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
   ensureActivityFilter();
   renderAll();
-  toast('Alterações salvas com sucesso.', 'success');
+  toast('Alterações salvas com sucesso. A ficha continua aberta.', 'success');
 }
 
 function askDelete(id){
