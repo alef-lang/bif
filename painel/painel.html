@@ -955,6 +955,55 @@ select option{background:#1b2e42;color:#e8eaf0;}
   .modal-footer{display:none!important;}
   .btn-close-modal,.btn-danger,.btn-secondary,.btn-remove-obrig,.btn-add-obrig{display:none!important;}
 }
+/* EDITOR RICO V2 — flutuante, hexadecimal e mais compatível com Ctrl+Z */
+.rich-toolbar-dock{display:none!important;}
+.rte-float-v2{
+  flex-direction:column;
+  align-items:stretch;
+  gap:6px;
+  width:min(760px, calc(100vw - 24px));
+  max-width:min(760px, calc(100vw - 24px));
+  padding:9px;
+}
+.rte-float-v2.open{display:flex;}
+.rte-float-v2 .ff-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.rte-float-v2 .ff-color-row{padding-top:5px;border-top:1px solid rgba(201,168,76,0.16);}
+.rte-float-v2 .ff-btn{min-width:30px;height:30px;padding:0 8px;}
+.rte-float-v2 .ff-soft{min-width:auto;color:var(--text-light);font-weight:700;}
+.rte-float-v2 .ff-apply{min-width:34px;color:var(--gold-light);}
+.rte-float-v2 .ff-select{height:30px;max-width:132px;}
+.rte-float-v2 .ff-size{max-width:92px;}
+.ff-hex{
+  height:30px;
+  width:86px;
+  border:1px solid rgba(201,168,76,0.28);
+  border-radius:8px;
+  background:rgba(255,255,255,0.055);
+  color:var(--text);
+  font:700 12px var(--font-mono);
+  padding:0 8px;
+  outline:none;
+  text-transform:uppercase;
+}
+.ff-hex:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
+.ff-picker{
+  width:32px;
+  height:30px;
+  padding:2px;
+  border:1px solid rgba(201,168,76,0.28);
+  border-radius:8px;
+  background:rgba(255,255,255,0.055);
+  cursor:pointer;
+}
+.rich-field font[size="1"]{font-size:10px;}
+.rich-field font[size="2"]{font-size:11px;}
+.rich-field font[size="3"]{font-size:12px;}
+.rich-field font[size="4"]{font-size:14px;}
+.rich-field font[size="5"]{font-size:18px;}
+.rich-field font[size="6"]{font-size:22px;}
+.rich-field font[size="7"]{font-size:26px;}
+@media(max-width:700px){.rte-float-v2{left:8px!important;right:8px!important;top:auto!important;bottom:12px!important;width:auto!important}.ff-hex{width:78px}.rte-float-v2 .ff-label{font-size:9px}}
+
 </style>
 </head>
 <body>
@@ -1230,9 +1279,9 @@ select option{background:#1b2e42;color:#e8eaf0;}
 
       <div class="config-section">
         <h3>🖨️ Padrão de impressão</h3>
-        <p>A tela continua livre para personalizar, mas a impressão usa sempre a fonte definida aqui.</p>
-        <div class="config-row">
-          <select id="cfgPrintFont" class="select-filter" style="border-radius:var(--radius-sm);flex:1;">
+        <p>A tela continua livre para personalizar, mas a impressão usa sempre a fonte e o tamanho definidos aqui.</p>
+        <div class="config-row" style="align-items:stretch;">
+          <select id="cfgPrintFont" class="select-filter" style="border-radius:var(--radius-sm);flex:1;min-height:36px;">
             <option value="Arial">Arial</option>
             <option value="Calibri">Calibri</option>
             <option value="Times New Roman">Times New Roman</option>
@@ -1241,7 +1290,14 @@ select option{background:#1b2e42;color:#e8eaf0;}
             <option value="Poppins">Poppins</option>
             <option value="DM Sans">DM Sans</option>
           </select>
-          <button class="btn-primary" onclick="savePrintFont()">Salvar fonte</button>
+          <select id="cfgPrintFontSize" class="select-filter" style="border-radius:var(--radius-sm);width:130px;min-height:36px;">
+            <option value="9pt">9 pt</option>
+            <option value="10pt">10 pt</option>
+            <option value="10.5pt">10,5 pt</option>
+            <option value="11pt">11 pt</option>
+            <option value="12pt">12 pt</option>
+          </select>
+          <button class="btn-primary" onclick="savePrintFont()">Salvar padrão</button>
         </div>
       </div>
       <div class="config-section">
@@ -1287,41 +1343,58 @@ select option{background:#1b2e42;color:#e8eaf0;}
 
 
 <!-- MENU FLUTUANTE DE FORMATAÇÃO -->
-<div class="floating-format-menu" id="floatingFormatMenu">
-  <button type="button" class="ff-btn" data-cmd="bold" title="Negrito"><b>N</b></button>
-  <button type="button" class="ff-btn" data-cmd="italic" title="Itálico"><i>I</i></button>
-  <button type="button" class="ff-btn" data-cmd="underline" title="Sublinhado"><u>S</u></button>
-  <button type="button" class="ff-btn" id="ffFormatPainterBtn" title="Copiar formatação / aplicar no trecho selecionado">🖌️</button>
-  <span class="ff-sep"></span>
-  <select class="ff-select" id="ffFont" title="Fonte">
-    <option value="">Fonte</option>
-    <option value="DM Sans">DM Sans</option>
-    <option value="Poppins">Poppins</option>
-    <option value="Arial">Arial</option>
-    <option value="Verdana">Verdana</option>
-    <option value="Georgia">Georgia</option>
-    <option value="Courier New">Courier</option>
-  </select>
-  <select class="ff-select" id="ffSize" title="Tamanho">
-    <option value="">Tamanho</option>
-    <option value="11px">11</option>
-    <option value="12px">12</option>
-    <option value="14px">14</option>
-    <option value="16px">16</option>
-    <option value="18px">18</option>
-    <option value="22px">22</option>
-    <option value="26px">26</option>
-  </select>
-  <span class="ff-sep"></span>
-  <span class="ff-label">Texto</span>
-  <span class="ff-palette" id="ffTextPalette"></span>
-  <span class="ff-label">Marca</span>
-  <span class="ff-palette" id="ffMarkPalette"></span>
-  <span class="ff-sep"></span>
-  <button type="button" class="ff-btn" data-cmd="insertUnorderedList" title="Lista com marcadores">•</button>
-  <button type="button" class="ff-btn" data-cmd="insertOrderedList" title="Lista numerada">1.</button>
-  <button type="button" class="ff-btn" id="ffImageBtn" title="Inserir imagem">🖼️</button>
-  <button type="button" class="ff-btn" data-cmd="removeFormat" title="Limpar formatação">✕</button>
+<div class="floating-format-menu rte-float-v2" id="floatingFormatMenu" aria-label="Menu flutuante de formatação">
+  <div class="ff-row">
+    <button type="button" class="ff-btn" data-cmd="undo" title="Desfazer — Ctrl+Z">↶</button>
+    <button type="button" class="ff-btn" data-cmd="redo" title="Refazer — Ctrl+Y">↷</button>
+    <span class="ff-sep"></span>
+    <button type="button" class="ff-btn" data-cmd="bold" title="Negrito"><b>N</b></button>
+    <button type="button" class="ff-btn" data-cmd="italic" title="Itálico"><i>I</i></button>
+    <button type="button" class="ff-btn" data-cmd="underline" title="Sublinhado"><u>S</u></button>
+    <button type="button" class="ff-btn" data-cmd="strikeThrough" title="Tachado"><s>T</s></button>
+    <button type="button" class="ff-btn" id="ffFormatPainterBtn" title="Copiar/aplicar formatação">🖌️</button>
+    <span class="ff-sep"></span>
+    <select class="ff-select" id="ffFont" title="Fonte da tela">
+      <option value="">Fonte</option>
+      <option value="DM Sans">DM Sans</option>
+      <option value="Poppins">Poppins</option>
+      <option value="Arial">Arial</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Courier New">Courier</option>
+    </select>
+    <select class="ff-select ff-size" id="ffSize" title="Tamanho da tela">
+      <option value="">Tamanho</option>
+      <option value="1">10</option>
+      <option value="2">11</option>
+      <option value="3">12</option>
+      <option value="4">14</option>
+      <option value="5">18</option>
+      <option value="6">22</option>
+      <option value="7">26</option>
+    </select>
+  </div>
+  <div class="ff-row ff-color-row">
+    <span class="ff-label">Texto</span>
+    <input type="text" id="ffTextHex" class="ff-hex" value="#E8EAF0" maxlength="7" spellcheck="false" title="Cor hexadecimal do texto">
+    <input type="color" id="ffTextPicker" class="ff-picker" value="#e8eaf0" title="Escolher cor do texto">
+    <button type="button" class="ff-btn ff-apply" id="ffApplyTextHex" title="Aplicar cor do texto">OK</button>
+    <span class="ff-sep"></span>
+    <span class="ff-label">Marca</span>
+    <input type="text" id="ffMarkHex" class="ff-hex" value="#FFF3A3" maxlength="7" spellcheck="false" title="Cor hexadecimal do marca-texto">
+    <input type="color" id="ffMarkPicker" class="ff-picker" value="#fff3a3" title="Escolher marca-texto">
+    <button type="button" class="ff-btn ff-apply" id="ffApplyMarkHex" title="Aplicar marca-texto">OK</button>
+    <button type="button" class="ff-btn ff-soft" id="ffClearMark" title="Remover marca-texto">sem marca</button>
+  </div>
+  <div class="ff-row">
+    <button type="button" class="ff-btn" data-cmd="insertUnorderedList" title="Lista com marcadores">• lista</button>
+    <button type="button" class="ff-btn" data-cmd="insertOrderedList" title="Lista numerada">1. lista</button>
+    <button type="button" class="ff-btn" data-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
+    <button type="button" class="ff-btn" data-cmd="justifyCenter" title="Centralizar">⇆</button>
+    <button type="button" class="ff-btn" data-cmd="justifyRight" title="Alinhar à direita">⇥</button>
+    <button type="button" class="ff-btn" id="ffImageBtn" title="Inserir imagem">🖼️</button>
+    <button type="button" class="ff-btn ff-soft" data-cmd="removeFormat" title="Limpar formatação do trecho">Limpar</button>
+  </div>
   <input type="file" id="ffImageInput" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.svg,.avif,.bmp,.heic,.heif" style="display:none">
 </div>
 
@@ -1335,6 +1408,7 @@ let S = {
   senha: '1234',
   nomeEscritorio: 'Painel de Gestão',
   printFont: 'Arial',
+  printFontSize: '10.5pt',
   camposEstaticos: [],
   activeFilters: [],       // filtros por nome de obrigação
   activeStatusObrig: [],   // filtros por status de entrega (entregue/pendente/atrasado)
@@ -1506,6 +1580,7 @@ async function init(){
   S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
   S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
   S.printFont = S.printFont || 'Arial';
+  S.printFontSize = S.printFontSize || '10.5pt';
   S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length ? S.filterObrigacoes : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
   S.empresas = (S.empresas || []).map(e => ({
     ...e,
@@ -2749,46 +2824,7 @@ function empresaFormHtml(e){
   </div>
   <div class="form-section">
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
-    <div class="rich-hint">💡 Ao colar texto, ele entra sem formatação por padrão. Depois selecione o trecho para formatar pelo menu flutuante. Imagens continuam pelo Ctrl+V, arraste para o campo ou use 🖼️ no menu. Clique na imagem para redimensionar.</div>
-    <div class="rich-toolbar-dock" id="richToolbarDock" aria-label="Barra de formatação avançada">
-      <span class="rte-group">
-        <button type="button" data-rte-cmd="bold" title="Negrito"><b>N</b></button>
-        <button type="button" data-rte-cmd="italic" title="Itálico"><i>I</i></button>
-        <button type="button" data-rte-cmd="underline" title="Sublinhado"><u>S</u></button>
-        <button type="button" data-rte-cmd="strikeThrough" title="Tachado"><s>T</s></button>
-      </span>
-      <span class="rte-group">
-        <select data-rte-select="font" title="Fonte da tela">
-          <option value="">Fonte da tela</option>
-          <option value="DM Sans">DM Sans</option>
-          <option value="Poppins">Poppins</option>
-          <option value="Arial">Arial</option>
-          <option value="Verdana">Verdana</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Courier New">Courier</option>
-        </select>
-        <select data-rte-select="size" title="Tamanho">
-          <option value="">Tamanho</option>
-          <option value="11px">11</option><option value="12px">12</option><option value="14px">14</option><option value="16px">16</option><option value="18px">18</option><option value="22px">22</option><option value="26px">26</option>
-        </select>
-      </span>
-      <span class="rte-group">
-        <span class="rte-label">Texto</span><input type="color" data-rte-color="text" value="#e8eaf0" title="Cor do texto">
-        <span class="rte-label">Marca</span><input type="color" data-rte-color="mark" value="#fff3a3" title="Marca-texto">
-        <button type="button" class="rte-soft" data-rte-clear="mark" title="Remover marca-texto">sem marca</button>
-      </span>
-      <span class="rte-group">
-        <button type="button" data-rte-cmd="insertUnorderedList" title="Lista com marcadores">• lista</button>
-        <button type="button" data-rte-cmd="insertOrderedList" title="Lista numerada">1. lista</button>
-        <button type="button" data-rte-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
-        <button type="button" data-rte-cmd="justifyCenter" title="Centralizar">⇆</button>
-      </span>
-      <span class="rte-group">
-        <button type="button" data-rte-action="copyFormat" title="Copiar/aplicar formatação">🖌️</button>
-        <button type="button" data-rte-action="image" title="Inserir imagem">🖼️</button>
-        <button type="button" class="rte-soft" data-rte-cmd="removeFormat" title="Remover formatação do trecho">Limpar</button>
-      </span>
-    </div>
+    <div class="rich-hint">💡 Selecione um trecho para abrir o menu flutuante. Use hexadecimal para cor do texto e marca-texto. Ctrl+Z/Ctrl+Y usam o histórico nativo do navegador. Imagens continuam por Ctrl+V, arraste para o campo ou 🖼️ no menu.</div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Parâmetros</label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
       <div class="form-group"><label>Regras / Procedimentos</label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
@@ -3055,6 +3091,7 @@ function openConfigModal(){
   $('cfgNome').value = S.nomeEscritorio || '';
   $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; $('cfgNovaObrig').value='';
   if($('cfgPrintFont')) $('cfgPrintFont').value = S.printFont || 'Arial';
+  if($('cfgPrintFontSize')) $('cfgPrintFontSize').value = S.printFontSize || '10.5pt';
   if($('cfgNovoCampoEstatico')) $('cfgNovoCampoEstatico').value = '';
   renderCfgObrigList();
   renderCfgCamposEstaticosList();
@@ -3260,6 +3297,10 @@ function printFontStack(){
   const fallback = /times/i.test(f) ? 'serif' : 'Arial, Helvetica, sans-serif';
   return `"${f}", ${fallback}`;
 }
+function printFontSize(){
+  const v = String(S.printFontSize || '10.5pt').replace(/[^0-9.pt]/g, '');
+  return v || '10.5pt';
+}
 
 function sanitizeRichForPrint(html){
   const tpl = document.createElement('template');
@@ -3300,7 +3341,7 @@ function buildEmpresaPrintHtml(e){
   <style>
     @page{size:A4;margin:12mm;}
     *{box-sizing:border-box;}
-    body{margin:0;background:#fff;color:#111;font-family:${printFontStack()};font-size:10.5pt;line-height:1.35;}
+    body{margin:0;background:#fff;color:#111;font-family:${printFontStack()};font-size:${printFontSize()};line-height:1.35;}
     .page{width:100%;}
     .p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
     .p-title{font-size:18pt;font-weight:700;letter-spacing:.02em;margin:0 0 3px;}
@@ -3316,7 +3357,7 @@ function buildEmpresaPrintHtml(e){
     th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top;}
     th{background:#eee;text-transform:uppercase;font-size:8pt;letter-spacing:.04em;}
     .p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word;word-break:normal;}
-    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;font-family:inherit!important;color:#111!important;background:transparent!important;}
+    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important;}
     .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
     .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt;}
     .muted{color:#666;}
@@ -3439,9 +3480,11 @@ function removeStaticFieldConfig(i){
 }
 function savePrintFont(){
   const v = $('cfgPrintFont')?.value || 'Arial';
+  const size = $('cfgPrintFontSize')?.value || '10.5pt';
   S.printFont = v;
+  S.printFontSize = size;
   saveState();
-  toast('Fonte padrão de impressão salva: ' + v + '.', 'success');
+  toast('Padrão de impressão salvo: ' + v + ' • ' + size + '.', 'success');
 }
 function renderStaticFieldsForModal(e){
   const el = $('staticFieldsList');
@@ -3618,6 +3661,271 @@ function applyInlineStyle(styleObj){
     saveRichSelection(true);
     setTimeout(updateFloatingMenu, 0);
   }catch(e){ console.warn('Falha ao aplicar estilo:', e); toast('Não consegui aplicar a formatação.', 'error'); }
+}
+
+// ════════════════════════════════════════════
+// EDITOR RICO V2 — comandos nativos + hexadecimal flutuante
+// ════════════════════════════════════════════
+function normalizeHexColor(value, fallback){
+  let v = String(value || '').trim();
+  if(!v) return fallback || '';
+  if(v.toLowerCase() === 'transparent') return 'transparent';
+  if(v[0] !== '#') v = '#' + v;
+  if(/^#[0-9a-fA-F]{3}$/.test(v)){
+    v = '#' + v.slice(1).split('').map(c => c+c).join('');
+  }
+  if(!/^#[0-9a-fA-F]{6}$/.test(v)) return fallback || '';
+  return v.toUpperCase();
+}
+function syncHexPair(textId, pickerId, value){
+  const hex = normalizeHexColor(value, '');
+  if(!hex || hex === 'transparent') return '';
+  const t = $(textId); const p = $(pickerId);
+  if(t) t.value = hex;
+  if(p) p.value = hex.toLowerCase();
+  return hex;
+}
+function execRichCommand(cmd, value=null){
+  if(!restoreRichSelection()){ toast('Selecione um trecho primeiro.', 'error'); return false; }
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField) return false;
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+  try {
+    activeRichField.focus({preventScroll:true});
+    const ok = document.execCommand(cmd, false, value);
+    saveRichSelection(true);
+    markActiveRichInput();
+    setTimeout(updateFloatingMenu, 0);
+    return ok !== false;
+  } catch(e) {
+    console.warn('Falha no comando rich:', cmd, value, e);
+    toast('Não consegui aplicar esta formatação.', 'error');
+    return false;
+  }
+}
+function initFloatingFormatMenu(){
+  const menu = $('floatingFormatMenu');
+  if(!menu || menu.dataset.ready === '1') return;
+  menu.dataset.ready = '1';
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+
+  menu.addEventListener('mousedown', ev => {
+    richMenuInteracting = true;
+    saveRichSelection(true);
+    const interactive = ev.target.matches('input,select') || ev.target.closest('input,select');
+    if(!interactive) ev.preventDefault();
+  });
+  menu.addEventListener('mouseup', () => setTimeout(() => { richMenuInteracting = false; }, 120));
+  menu.addEventListener('mouseleave', () => setTimeout(() => { richMenuInteracting = false; }, 180));
+
+  menu.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.preventDefault();
+      richMenuInteracting = true;
+      const cmd = btn.dataset.cmd;
+      applyRichCommand(cmd);
+      setTimeout(() => { richMenuInteracting = false; }, 120);
+    });
+  });
+
+  $('ffFont')?.addEventListener('change', ev => {
+    const val = ev.target.value;
+    if(val) applyInlineStyle({fontFamily: val});
+    ev.target.value = '';
+    setTimeout(() => { richMenuInteracting = false; }, 120);
+  });
+  $('ffSize')?.addEventListener('change', ev => {
+    const val = ev.target.value;
+    if(val) applyInlineStyle({fontSize: val});
+    ev.target.value = '';
+    setTimeout(() => { richMenuInteracting = false; }, 120);
+  });
+
+  const applyText = () => {
+    const hex = syncHexPair('ffTextHex','ffTextPicker', $('ffTextHex')?.value || '#E8EAF0');
+    if(hex) applyInlineStyle({color: hex});
+  };
+  const applyMark = () => {
+    const hex = syncHexPair('ffMarkHex','ffMarkPicker', $('ffMarkHex')?.value || '#FFF3A3');
+    if(hex) applyInlineStyle({backgroundColor: hex});
+  };
+  $('ffApplyTextHex')?.addEventListener('click', ev => { ev.preventDefault(); richMenuInteracting = true; applyText(); setTimeout(() => { richMenuInteracting=false; }, 120); });
+  $('ffApplyMarkHex')?.addEventListener('click', ev => { ev.preventDefault(); richMenuInteracting = true; applyMark(); setTimeout(() => { richMenuInteracting=false; }, 120); });
+  $('ffTextHex')?.addEventListener('keydown', ev => { if(ev.key === 'Enter'){ ev.preventDefault(); applyText(); } });
+  $('ffMarkHex')?.addEventListener('keydown', ev => { if(ev.key === 'Enter'){ ev.preventDefault(); applyMark(); } });
+  $('ffTextPicker')?.addEventListener('input', ev => { syncHexPair('ffTextHex','ffTextPicker', ev.target.value); });
+  $('ffMarkPicker')?.addEventListener('input', ev => { syncHexPair('ffMarkHex','ffMarkPicker', ev.target.value); });
+  $('ffTextPicker')?.addEventListener('change', ev => { syncHexPair('ffTextHex','ffTextPicker', ev.target.value); applyInlineStyle({color: ev.target.value}); });
+  $('ffMarkPicker')?.addEventListener('change', ev => { syncHexPair('ffMarkHex','ffMarkPicker', ev.target.value); applyInlineStyle({backgroundColor: ev.target.value}); });
+  $('ffClearMark')?.addEventListener('click', ev => { ev.preventDefault(); richMenuInteracting = true; applyInlineStyle({backgroundColor:'transparent'}); setTimeout(() => { richMenuInteracting=false; }, 120); });
+
+  $('ffFormatPainterBtn')?.addEventListener('click', ev => {
+    ev.preventDefault();
+    richMenuInteracting = true;
+    handleFormatPainter();
+    setTimeout(() => { richMenuInteracting = false; }, 120);
+  });
+  $('ffImageBtn')?.addEventListener('click', ev => {
+    ev.preventDefault();
+    richMenuInteracting = true;
+    restoreRichSelection();
+    $('ffImageInput')?.click();
+  });
+  $('ffImageInput')?.addEventListener('change', ev => {
+    const files = Array.from(ev.target.files || []);
+    if(files.length) insertImageFiles(files);
+    ev.target.value = '';
+    setTimeout(() => { richMenuInteracting = false; }, 120);
+  });
+
+  document.addEventListener('selectionchange', () => {
+    if(richMenuInteracting) return;
+    setTimeout(updateFloatingMenu, 0);
+  });
+  document.addEventListener('mousedown', ev => {
+    if(!menu.contains(ev.target) && !ev.target.closest('.rich-field')) hideFloatingMenu();
+  });
+  window.addEventListener('scroll', hideFloatingMenu, true);
+  window.addEventListener('resize', hideFloatingMenu);
+}
+function refreshFloatingToolbarState(){
+  const menu = $('floatingFormatMenu');
+  if(!menu) return;
+  ['bold','italic','underline','strikeThrough'].forEach(cmd => {
+    const btn = menu.querySelector(`[data-cmd="${cmd}"]`);
+    if(!btn) return;
+    let active = false;
+    try { active = document.queryCommandState(cmd); } catch(e) {}
+    btn.classList.toggle('active', !!active);
+  });
+  updateFormatPainterButton();
+}
+function cleanSelectedFormatting(){
+  if(!restoreRichSelection()){ toast('Selecione um trecho primeiro.', 'error'); return; }
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+  try{
+    document.execCommand('removeFormat', false, null);
+    document.execCommand('unlink', false, null);
+    normalizeRichFieldLayout(activeRichField);
+    activeRichField?.normalize();
+    markActiveRichInput();
+    saveRichSelection(true);
+    setTimeout(updateFloatingMenu, 0);
+    toast('Formatação removida.', 'success');
+  }catch(e){ console.warn('Falha ao limpar formatação:', e); toast('Não consegui limpar a formatação.', 'error'); }
+}
+function applyRichCommand(cmd){
+  if(cmd === 'removeFormat'){ cleanSelectedFormatting(); return; }
+  if(cmd === 'undo' || cmd === 'redo'){
+    try { document.execCommand(cmd, false, null); markActiveRichInput(); saveRichSelection(true); } catch(e) { console.warn(e); }
+    return;
+  }
+  execRichCommand(cmd, null);
+}
+function applyInlineStyle(styleObj){
+  if(!styleObj || !Object.keys(styleObj).length) return;
+  const key = Object.keys(styleObj)[0];
+  const rawVal = styleObj[key];
+  if(!restoreRichSelection()){ toast('Selecione um trecho primeiro.', 'error'); return; }
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField) return;
+  if(sel.isCollapsed && !['fontFamily','fontSize','color','backgroundColor'].includes(key)){
+    toast('Selecione o trecho que deseja formatar.', 'error');
+    return;
+  }
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+  try{
+    if(key === 'color'){
+      const hex = normalizeHexColor(rawVal, '#E8EAF0');
+      if(hex && hex !== 'transparent') document.execCommand('foreColor', false, hex);
+    } else if(key === 'backgroundColor'){
+      const val = rawVal === 'transparent' ? 'transparent' : normalizeHexColor(rawVal, '#FFF3A3');
+      try { document.execCommand('hiliteColor', false, val); }
+      catch(e) { document.execCommand('backColor', false, val); }
+    } else if(key === 'fontFamily'){
+      document.execCommand('fontName', false, String(rawVal || 'Arial'));
+    } else if(key === 'fontSize'){
+      const size = String(rawVal || '3').replace(/[^1-7]/g, '') || '3';
+      document.execCommand('fontSize', false, size);
+    }
+    normalizeRichFieldLayout(activeRichField);
+    activeRichField?.normalize();
+    markActiveRichInput();
+    saveRichSelection(true);
+    setTimeout(updateFloatingMenu, 0);
+  }catch(e){ console.warn('Falha ao aplicar estilo:', e); toast('Não consegui aplicar a formatação.', 'error'); }
+}
+function getFormatFromCurrentSelection(){
+  if(!restoreRichSelection()) return null;
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField) return null;
+  const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)) return null;
+  const sourceEl = getFirstTextElementInRange(range) || activeRichField;
+  const computed = window.getComputedStyle(sourceEl);
+  return {
+    bold: /^(bold|[6-9]00)$/.test(computed.fontWeight),
+    italic: computed.fontStyle === 'italic',
+    underline: (computed.textDecorationLine || '').includes('underline'),
+    strikeThrough: (computed.textDecorationLine || '').includes('line-through'),
+    fontFamily: (computed.fontFamily || '').split(',')[0].replace(/["']/g,'').trim(),
+    color: rgbToHex(computed.color) || '#E8EAF0',
+    backgroundColor: cssColorIsTransparent(computed.backgroundColor) ? 'transparent' : (rgbToHex(computed.backgroundColor) || '#FFF3A3')
+  };
+}
+function rgbToHex(color){
+  if(!color || color === 'transparent') return '';
+  if(/^#[0-9a-fA-F]{6}$/.test(color)) return color.toUpperCase();
+  const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if(!m) return '';
+  return '#' + [m[1],m[2],m[3]].map(n => Math.max(0, Math.min(255, parseInt(n,10))).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function applyFormatObjectToSelection(format){
+  if(!format || !restoreRichSelection()) return false;
+  try{
+    try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+    if(format.fontFamily) document.execCommand('fontName', false, format.fontFamily);
+    if(format.color) document.execCommand('foreColor', false, format.color);
+    if(format.backgroundColor && format.backgroundColor !== 'transparent') document.execCommand('hiliteColor', false, format.backgroundColor);
+    ['bold','italic','underline','strikeThrough'].forEach(cmd => {
+      let on = false;
+      try { on = document.queryCommandState(cmd); } catch(e) {}
+      if(!!format[cmd] !== !!on) document.execCommand(cmd, false, null);
+    });
+    markActiveRichInput();
+    saveRichSelection(true);
+    setTimeout(updateFloatingMenu, 0);
+    return true;
+  }catch(e){ console.warn('Falha ao aplicar formatação copiada:', e); return false; }
+}
+function plainFragmentToText(fragment){
+  let out = '';
+  function walk(node){
+    if(node.nodeType === Node.TEXT_NODE){ out += node.nodeValue || ''; return; }
+    if(node.nodeType !== Node.ELEMENT_NODE) return;
+    if(node.tagName === 'BR'){ out += '\n'; return; }
+    Array.from(node.childNodes || []).forEach(walk);
+  }
+  Array.from(fragment?.childNodes || []).forEach(walk);
+  return out;
+}
+function insertPlainPaste(ev, fragment){
+  activeRichField = ev.currentTarget;
+  activeRichField.focus({preventScroll:true});
+  const text = plainFragmentToText(fragment);
+  try {
+    document.execCommand('insertText', false, text);
+  } catch(e) {
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount){
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(document.createTextNode(text));
+    }
+  }
+  normalizeRichFieldLayout(activeRichField);
+  markActiveRichInput();
+  setTimeout(() => { saveRichSelection(true); updateFloatingMenu(); }, 0);
 }
 
 // Fechar modal clicando fora
