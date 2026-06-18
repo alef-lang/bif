@@ -141,6 +141,23 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .badge-fechada{background:rgba(99,110,114,0.25);color:#b2bec3;border:1px solid rgba(99,110,114,0.35);}
 .card-meta{display:flex;flex-direction:column;gap:2px;margin-bottom:5px;}
 .card-meta-row{display:flex;align-items:flex-start;gap:5px;font-size:10px;color:var(--text-light);line-height:1.4;font-family:var(--font-mono);}
+
+.card-name,
+.card-meta-text{
+  min-width:0;
+  white-space:normal;
+  overflow-wrap:break-word;
+  word-break:normal;
+  hyphens:auto;
+}
+.card-meta-row{
+  display:grid;
+  grid-template-columns:16px minmax(0,1fr);
+  align-items:start;
+  column-gap:5px;
+}
+.card-meta-icon{line-height:1.4;flex-shrink:0;}
+.card-meta-text{line-height:1.45;}
 .card-obligations{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
 .obrig-tag{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:700;border:1px solid;}
 .obrig-tag.entregue{background:rgba(0,206,201,0.15);color:var(--simples);border-color:rgba(0,206,201,0.3);}
@@ -681,6 +698,76 @@ select option{background:#1b2e42;color:#e8eaf0;}
   font-family:var(--font-mono);
   line-height:1.5;
 }
+
+.custom-fields-list{display:flex;flex-direction:column;gap:10px;}
+.custom-field-card{
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  background:rgba(255,255,255,0.025);
+  overflow:hidden;
+}
+.custom-field-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  background:rgba(201,168,76,0.06);
+  border-bottom:1px solid var(--border);
+}
+.custom-field-title-input{
+  flex:1;
+  min-width:0;
+  padding:6px 8px;
+  border:1px solid rgba(201,168,76,0.22);
+  border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  color:var(--gold-light);
+  font-family:var(--font-title);
+  font-size:12px;
+  font-weight:700;
+  outline:none;
+}
+.custom-field-title-input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
+.btn-remove-custom-field{
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  border:1px solid rgba(255,118,117,0.16);
+  background:transparent;
+  color:rgba(255,118,117,0.55);
+  cursor:pointer;
+  font-size:14px;
+  line-height:1;
+  font-family:inherit;
+  transition:all .18s;
+}
+.btn-remove-custom-field:hover{background:rgba(255,118,117,0.12);border-color:rgba(255,118,117,0.38);color:#ff7675;}
+.custom-field-body{padding:10px;}
+.custom-field-add{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top:10px;
+  padding:10px;
+  border:1px dashed var(--gold-dim);
+  border-radius:var(--radius-sm);
+  background:rgba(201,168,76,0.04);
+}
+.custom-field-add input{
+  flex:1;
+  min-width:0;
+  padding:8px 10px;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  background:var(--bg-input);
+  color:var(--text);
+  outline:none;
+  font-family:var(--font-body);
+  font-size:12px;
+}
+.custom-field-add input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
+.unsaved-pulse{animation:unsavedPulse .72s ease-in-out 2;}
+@keyframes unsavedPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px);box-shadow:0 0 0 3px rgba(232,201,122,0.16)}}
 .modal.view-mode .floating-format-menu{display:none!important;}
 .modal.view-mode .rich-field{contenteditable:false;}
 @media(max-width:700px){
@@ -757,8 +844,16 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .modal.view-mode .btn-add-obrig,
 .modal.view-mode #btnBuscarCnpjEdit,
 .modal.view-mode .importacao-add-row,
-.modal.view-mode .btn-remove-importacao {
+.modal.view-mode .btn-remove-importacao,
+.modal.view-mode .custom-field-add,
+.modal.view-mode .btn-remove-custom-field {
   display: none !important;
+}
+.modal.view-mode .custom-field-title-input{
+  pointer-events:none;
+  border-color:transparent;
+  background:transparent;
+  padding-left:0;
 }
 .modal.view-mode .status-select {
   pointer-events: none;
@@ -926,6 +1021,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
     <div class="modal-body" id="modalEmpresaBody"></div>
     <div class="modal-footer">
       <button class="btn-delete-subtle" id="btnDeleteFromModal" onclick="askDelete(currentEditId)" title="Excluir empresa">Excluir</button>
+      <button class="btn-secondary" id="btnPrintEmpresa" onclick="printEmpresa()">🖨️ Imprimir A4</button>
       <button class="btn-secondary" onclick="closeModal('modalEmpresa')">Fechar</button>
       <button class="btn-edit-mode" id="btnEditMode" onclick="enableEditMode()">✏️ Editar</button>
       <button class="btn-primary" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;">💾 Salvar</button>
@@ -1145,6 +1241,9 @@ let pendingDeleteId = null;
 let currentPin = '';
 let modalObrigacoes = [];
 let modalImportacoes = [];
+let modalCamposPersonalizados = [];
+let empresaFormInitialSnapshot = '';
+let empresaDirtyNoticeTimer = null;
 
 // ════════════════════════════════════════════
 // DADOS DE EXEMPLO
@@ -1305,6 +1404,7 @@ async function init(){
     fechada:!!e.fechada,
     obrigacoes:Array.isArray(e.obrigacoes)?e.obrigacoes:[],
     importacoes:Array.isArray(e.importacoes)?e.importacoes:[],
+    camposPersonalizados:Array.isArray(e.camposPersonalizados)?e.camposPersonalizados:[],
     parametros:e.parametros || '',
     regras:e.regras || '',
     observacoes:e.observacoes || '',
@@ -1491,9 +1591,9 @@ function renderCard(e){
     <button class="btn-delete" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir empresa">×</button>
     <div class="card-top"><div class="card-name">${esc(e.nome)}</div><span class="card-status-badge ${e.fechada?'badge-fechada':'badge-ativa'}">${e.fechada?'FECHADA':'ABERTA'}</span></div>
     <div class="card-meta">
-      <div class="card-meta-row">🏷️ ${esc(regimeLabel(e.regime))}</div>
-      <div class="card-meta-row">💼 ${esc(e.atividade || 'Sem atividade informada')}</div>
-      <div class="card-meta-row">👤 ${esc(e.colaborador || 'Sem responsável')}</div>
+      <div class="card-meta-row"><span class="card-meta-icon">🏷️</span><span class="card-meta-text">${esc(regimeLabel(e.regime))}</span></div>
+      <div class="card-meta-row"><span class="card-meta-icon">💼</span><span class="card-meta-text">${esc(e.atividade || 'Sem atividade informada')}</span></div>
+      <div class="card-meta-row"><span class="card-meta-icon">👤</span><span class="card-meta-text">${esc(e.colaborador || 'Sem responsável')}</span></div>
     </div>
     ${obrigList || more ? `<div class="card-obligations" style="margin-top:5px;">${obrigList}${more}</div>` : ''}
     <span class="apuracao-badge ${apClass}" title="Status atualizado pelo Checklist">${apLabel}</span>
@@ -1508,7 +1608,45 @@ function updateStats(){
 }
 
 function openModal(id){ $(id).classList.add('open'); }
-function closeModal(id){ $(id).classList.remove('open'); }
+function closeModal(id, force=false){
+  if(id === 'modalEmpresa' && !force && shouldBlockEmpresaClose()) return false;
+  const el = $(id);
+  if(el) el.classList.remove('open');
+  if(id === 'modalEmpresa'){
+    hideFloatingMenu();
+    empresaFormInitialSnapshot = '';
+  }
+  return true;
+}
+
+function isEmpresaInEditMode(){
+  const modalEl = document.querySelector('#modalEmpresa .modal');
+  return !!modalEl && !modalEl.classList.contains('view-mode') && $('modalEmpresa')?.classList.contains('open');
+}
+
+function getCompanySnapshotString(){
+  try { return JSON.stringify(collectCompanyFormData()); }
+  catch(e) { return ''; }
+}
+
+function isCompanyFormDirty(){
+  if(!currentEditId || !$('modalEmpresa')?.classList.contains('open')) return false;
+  return empresaFormInitialSnapshot !== '' && getCompanySnapshotString() !== empresaFormInitialSnapshot;
+}
+
+function shouldBlockEmpresaClose(){
+  if(!isEmpresaInEditMode() || !isCompanyFormDirty()) return false;
+  toast('Você tem alterações não salvas. Clique em Salvar antes de fechar a ficha.', 'error');
+  const btn = $('btnSaveEmpresa');
+  if(btn){
+    btn.classList.remove('unsaved-pulse');
+    void btn.offsetWidth;
+    btn.classList.add('unsaved-pulse');
+  }
+  clearTimeout(empresaDirtyNoticeTimer);
+  empresaDirtyNoticeTimer = setTimeout(() => btn?.classList.remove('unsaved-pulse'), 1500);
+  return true;
+}
 
 function openAddModal(regime){
   $('addNome').value=''; $('addCnpj').value=''; $('addAtividade').value=''; $('addColaborador').value=''; $('addFechada').checked=false;
@@ -1532,7 +1670,7 @@ function addCompany(){
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
     observacoes:'', parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: []
+    obrigacoes: [], importacoes: [], camposPersonalizados: []
   };
   S.empresas.push(e);
   try {
@@ -1731,7 +1869,7 @@ function initCompanyRichFields(){
     // Isso fazia o navegador recriar nós do contenteditable e o cursor voltava para o início,
     // então o texto digitado saía ao contrário: "Uso e consumo" -> "omusnoc e osU".
     // A limpeza/normalização continua no Ctrl+V, ao abrir e ao salvar.
-    el.addEventListener('input', () => { activeRichField = el; saveRichSelection(true); });
+    el.addEventListener('input', () => { activeRichField = el; saveRichSelection(true); markCompanyDirtySoft(); });
     el.addEventListener('paste', handleRichPaste);
     el.addEventListener('drop', handleRichDrop);
     el.addEventListener('dragover', ev => ev.preventDefault());
@@ -2087,7 +2225,13 @@ function handleFormatPainter(){
 function cleanSelectedFormatting(){
   if(!restoreRichSelection()) return;
   const sel = window.getSelection();
-  if(!sel || !sel.rangeCount || sel.isCollapsed || !activeRichField) return;
+  if(!sel || !sel.rangeCount || !activeRichField) return;
+  if(sel.isCollapsed){
+    try { document.execCommand('removeFormat', false, null); } catch(e) {}
+    markActiveRichInput();
+    hideFloatingMenu();
+    return;
+  }
   const range = sel.getRangeAt(0);
   if(!isRichRangeValid(range, activeRichField)) return;
 
@@ -2095,29 +2239,19 @@ function cleanSelectedFormatting(){
     expandRangeToWholeInlineContainers(range);
     const fragment = range.extractContents();
     cleanFragmentFormatting(fragment);
+    normalizeTextNodesForWrapping(fragment);
 
-    const cleanSpan = document.createElement('span');
-    cleanSpan.style.fontFamily = 'var(--font-body)';
-    cleanSpan.style.fontSize = '12px';
-    cleanSpan.style.fontWeight = '400';
-    cleanSpan.style.fontStyle = 'normal';
-    cleanSpan.style.textDecoration = 'none';
-    cleanSpan.style.color = 'var(--text)';
-    cleanSpan.style.backgroundColor = 'transparent';
-    cleanSpan.appendChild(fragment);
-
-    range.insertNode(cleanSpan);
-    const newRange = document.createRange();
-    newRange.selectNodeContents(cleanSpan);
-    sel.removeAllRanges();
-    sel.addRange(newRange);
+    // Reinsere sem span artificial. Isso evita o bug de “limpar” criando cor/fundo travado.
+    insertFragmentAndSelect(range, fragment, sel);
     collapseSelectionToEnd();
     normalizeRichFieldLayout(activeRichField);
     activeRichField.normalize();
     markActiveRichInput();
     hideFloatingMenu();
+    toast('Formatação removida do trecho selecionado.', 'success');
   } catch(e) {
     console.warn('Falha ao limpar formatação:', e);
+    toast('Não consegui limpar a formatação deste trecho.', 'error');
   }
 }
 
@@ -2154,15 +2288,22 @@ function applyInlineStyle(styleObj){
     const styleKeys = Object.keys(styleObj);
     stripInlineStylesFromFragment(fragment, styleKeys);
 
-    const isOnlyClearingMark = styleObj.backgroundColor === 'transparent' && styleKeys.length === 1;
-    if(isOnlyClearingMark){
+    const isClearingOnly = styleKeys.length === 1 && (
+      styleObj.backgroundColor === 'transparent' ||
+      styleObj.color === 'transparent' ||
+      styleObj[styleKeys[0]] === ''
+    );
+
+    if(isClearingOnly){
       insertFragmentAndSelect(range, fragment, sel);
       collapseSelectionToEnd();
-      hideFloatingMenu();
     } else {
       const span = document.createElement('span');
-      Object.assign(span.style, styleObj);
-      if(styleObj.fontFamily) span.style.fontFamily = styleObj.fontFamily;
+      styleKeys.forEach(key => {
+        let val = styleObj[key];
+        if(key === 'backgroundColor' && val === 'transparent') val = '';
+        if(val) span.style[key] = val;
+      });
       span.appendChild(fragment);
       range.insertNode(span);
       const newRange = document.createRange();
@@ -2175,9 +2316,13 @@ function applyInlineStyle(styleObj){
     normalizeRichFieldLayout(activeRichField);
     activeRichField.normalize();
     markActiveRichInput();
+    saveRichSelection(true);
     setTimeout(updateFloatingMenu, 0);
   } catch(e) {
     console.warn('Falha ao aplicar estilo:', e);
+    toast('Não consegui aplicar a formatação neste trecho.', 'error');
+  } finally {
+    setTimeout(() => { richMenuInteracting = false; }, 120);
   }
 }
 
@@ -2381,12 +2526,15 @@ function openEmpresa(id){
   currentEditId = id;
   modalObrigacoes = JSON.parse(JSON.stringify(e.obrigacoes || []));
   modalImportacoes = JSON.parse(JSON.stringify(e.importacoes || []));
+  modalCamposPersonalizados = JSON.parse(JSON.stringify(e.camposPersonalizados || []));
   $('modalEmpresaTitle').textContent = e.nome;
   $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
   renderModalImportacoes();
+  renderModalCamposPersonalizados();
   initCompanyRichFields();
+  setupCompanyDirtyTracking();
   normalizeAllRichFields();
   openModal('modalEmpresa');
   // Abrir sempre em modo visualização
@@ -2397,6 +2545,7 @@ function openEmpresa(id){
   $('btnEditMode').style.display = 'flex';
   $('btnSaveEmpresa').style.display = 'none';
   setRichFieldsEditable(false);
+  setCompanyFormSnapshot();
 }
 
 function enableEditMode(){
@@ -2407,6 +2556,7 @@ function enableEditMode(){
   $('btnEditMode').style.display = 'none';
   $('btnSaveEmpresa').style.display = '';
   setRichFieldsEditable(true);
+  setupCompanyDirtyTracking();
 }
 
 function empresaFormHtml(e){
@@ -2521,7 +2671,133 @@ function empresaFormHtml(e){
     <div class="form-grid cols-1">
       <div class="form-group"><label>Ocorrências</label><div class="rich-field" id="f_ocorrencias" contenteditable="true">${e.ocorrencias||''}</div></div>
     </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">➕ Campos dinâmicos</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Crie campos sob medida para esta empresa. Cada campo aceita texto formatado, marca-texto, imagens e impressão.</p>
+    <div class="custom-fields-list" id="customFieldsList"></div>
+    <div class="custom-field-add">
+      <input id="newCustomFieldLabel" placeholder="Nome do novo campo. Ex: Particularidades do cliente">
+      <button class="btn-add-obrig" type="button" onclick="addCustomFieldToModal()">Adicionar campo</button>
+    </div>
   </div>`;
+}
+
+function collectModalCamposPersonalizados(){
+  const cards = Array.from(document.querySelectorAll('#customFieldsList .custom-field-card'));
+  if(cards.length){
+    return cards.map((card, i) => {
+      const label = card.querySelector('.custom-field-title-input')?.value?.trim() || `Campo ${i+1}`;
+      const rich = card.querySelector('.rich-field');
+      return {
+        id: card.dataset.id || genId(),
+        label,
+        content: rich ? rich.innerHTML : ''
+      };
+    }).filter(c => c.label || c.content);
+  }
+  return Array.isArray(modalCamposPersonalizados) ? modalCamposPersonalizados : [];
+}
+
+function renderModalCamposPersonalizados(){
+  const el = $('customFieldsList');
+  if(!el) return;
+  const campos = Array.isArray(modalCamposPersonalizados) ? modalCamposPersonalizados : [];
+  if(!campos.length){
+    el.innerHTML = '<div class="empty-state" style="padding:16px 10px;"><p>Nenhum campo dinâmico criado ainda.</p></div>';
+    return;
+  }
+  el.innerHTML = campos.map((c, i) => {
+    const id = esc(c.id || genId());
+    const label = esc(c.label || `Campo ${i+1}`);
+    const content = c.content || '';
+    return `<div class="custom-field-card" data-id="${id}">
+      <div class="custom-field-head">
+        <input class="custom-field-title-input" value="${label}" oninput="markCompanyDirtySoft()" aria-label="Nome do campo personalizado">
+        <button class="btn-remove-custom-field" type="button" onclick="removeCustomFieldFromModal(${i})" title="Remover campo">×</button>
+      </div>
+      <div class="custom-field-body">
+        <div class="rich-field custom-rich-field" id="f_custom_${i}" contenteditable="true">${content}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addCustomFieldToModal(){
+  modalCamposPersonalizados = collectModalCamposPersonalizados();
+  const input = $('newCustomFieldLabel');
+  const label = (input?.value || '').trim();
+  if(!label){ toast('Dê um nome para o novo campo.', 'error'); return; }
+  modalCamposPersonalizados.push({id:genId(), label, content:''});
+  if(input) input.value = '';
+  renderModalCamposPersonalizados();
+  initCompanyRichFields();
+  setupCompanyDirtyTracking();
+  setRichFieldsEditable(isEmpresaInEditMode());
+  markCompanyDirtySoft();
+}
+
+function removeCustomFieldFromModal(i){
+  modalCamposPersonalizados = collectModalCamposPersonalizados();
+  modalCamposPersonalizados.splice(i, 1);
+  renderModalCamposPersonalizados();
+  initCompanyRichFields();
+  setupCompanyDirtyTracking();
+  setRichFieldsEditable(isEmpresaInEditMode());
+  markCompanyDirtySoft();
+}
+
+function markCompanyDirtySoft(){
+  // A verificação real acontece ao fechar/salvar. Esta função existe para os campos dinâmicos e menu rico.
+}
+
+function setupCompanyDirtyTracking(){
+  const body = $('modalEmpresaBody');
+  if(!body || body.dataset.dirtyReady === '1') return;
+  body.dataset.dirtyReady = '1';
+  body.addEventListener('input', markCompanyDirtySoft, true);
+  body.addEventListener('change', markCompanyDirtySoft, true);
+}
+
+function collectCompanyFormData(){
+  normalizeAllRichFields();
+  const original = S.empresas.find(x=>x.id===currentEditId) || {};
+  return {
+    nome: $('f_nome')?.value?.trim() || '',
+    cnpj: $('f_cnpj')?.value?.trim() || '',
+    regime: $('f_regime')?.value || 'outros',
+    atividade: $('f_atividade')?.value?.trim() || '',
+    colaborador: $('f_colaborador')?.value?.trim() || '',
+    inscricaoEstadual: $('f_ie')?.value?.trim() || '',
+    inscricaoMunicipal: $('f_im')?.value?.trim() || '',
+    fechada: !!$('f_fechada')?.checked,
+    statusApuracao: original.statusApuracao || 'nao_apurada',
+    endereco: $('f_endereco')?.value?.trim() || '',
+    cep: $('f_cep')?.value?.trim() || '',
+    cidade: $('f_cidade')?.value?.trim() || '',
+    uf: ($('f_uf')?.value || '').trim().toUpperCase(),
+    responsavel: $('f_responsavel')?.value?.trim() || '',
+    email: $('f_email')?.value?.trim() || '',
+    telefone: $('f_telefone')?.value?.trim() || '',
+    dataAbertura: $('f_dataAbertura')?.value?.trim() || '',
+    capitalSocial: $('f_capitalSocial')?.value?.trim() || '',
+    parametros: $('f_parametros')?.innerHTML || '',
+    regras: $('f_regras')?.innerHTML || '',
+    observacoes: $('f_observacoes')?.innerHTML || '',
+    followup: $('f_followup')?.innerHTML || '',
+    comunicacaoGuias: $('f_comunicacaoGuias')?.innerHTML || '',
+    acessosSistemas: $('f_acessosSistemas')?.innerHTML || '',
+    apoioEscrituracao: $('f_apoioEscrituracao')?.innerHTML || '',
+    ocorrencias: $('f_ocorrencias')?.innerHTML || '',
+    obrigacoes: JSON.parse(JSON.stringify(modalObrigacoes || [])),
+    importacoes: JSON.parse(JSON.stringify(modalImportacoes || [])),
+    camposPersonalizados: collectModalCamposPersonalizados()
+  };
+}
+
+function setCompanyFormSnapshot(){
+  empresaFormInitialSnapshot = getCompanySnapshotString();
 }
 
 function renderModalObrigacoes(){
@@ -2540,9 +2816,9 @@ function addObrigToModal(){
   modalObrigacoes.push({nome, vencimento:$('newObrigVenc').value.trim(), status:'pendente'});
   if(!S.filterObrigacoes.includes(nome)) S.filterObrigacoes.push(nome);
   $('newObrigNome').value=''; $('newObrigVenc').value='';
-  renderModalObrigacoes(); renderFilterTags(); renderCfgObrigList();
+  renderModalObrigacoes(); renderFilterTags(); renderCfgObrigList(); markCompanyDirtySoft();
 }
-function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); }
+function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); markCompanyDirtySoft(); }
 
 function renderModalImportacoes(){
   const el = $('modalImportacoesTags');
@@ -2560,51 +2836,22 @@ function addImportacaoToModal(){
   if(modalImportacoes.includes(nome)){ toast('Importação já cadastrada.','error'); return; }
   modalImportacoes.push(nome);
   $('newImportacaoNome').value='';
-  renderModalImportacoes();
+  renderModalImportacoes(); markCompanyDirtySoft();
 }
-function removeImportacaoFromModal(i){ modalImportacoes.splice(i,1); renderModalImportacoes(); }
+function removeImportacaoFromModal(i){ modalImportacoes.splice(i,1); renderModalImportacoes(); markCompanyDirtySoft(); }
 
 function saveCompany(){
-  normalizeAllRichFields();
   const e = S.empresas.find(x=>x.id===currentEditId);
   if(!e){ toast('Empresa não encontrada.','error'); return; }
-  const nome = $('f_nome')?.value?.trim();
-  if(!nome){ toast('A razão social não pode estar vazia.','error'); return; }
-  Object.assign(e, {
-    nome,
-    cnpj: $('f_cnpj').value.trim(),
-    regime: $('f_regime').value,
-    atividade: $('f_atividade').value.trim(),
-    colaborador: $('f_colaborador').value.trim(),
-    inscricaoEstadual: $('f_ie').value.trim(),
-    inscricaoMunicipal: $('f_im').value.trim(),
-    fechada: $('f_fechada').checked,
-    statusApuracao: e.statusApuracao || 'nao_apurada',
-    endereco: $('f_endereco').value.trim(),
-    cep: $('f_cep').value.trim(),
-    cidade: $('f_cidade').value.trim(),
-    uf: $('f_uf').value.trim().toUpperCase(),
-    responsavel: $('f_responsavel').value.trim(),
-    email: $('f_email').value.trim(),
-    telefone: $('f_telefone').value.trim(),
-    dataAbertura: $('f_dataAbertura').value.trim(),
-    capitalSocial: $('f_capitalSocial').value.trim(),
-    parametros: $('f_parametros').innerHTML,
-    regras: $('f_regras').innerHTML,
-    observacoes: $('f_observacoes').innerHTML,
-    followup: $('f_followup')?.innerHTML || '',
-    comunicacaoGuias: $('f_comunicacaoGuias')?.innerHTML || '',
-    acessosSistemas: $('f_acessosSistemas')?.innerHTML || '',
-    apoioEscrituracao: $('f_apoioEscrituracao')?.innerHTML || '',
-    ocorrencias: $('f_ocorrencias')?.innerHTML || '',
-    obrigacoes: modalObrigacoes,
-    importacoes: modalImportacoes
-  });
+  const data = collectCompanyFormData();
+  if(!data.nome){ toast('A razão social não pode estar vazia.','error'); return; }
+  Object.assign(e, data);
   saveState();
   $('modalEmpresaTitle').textContent = e.nome;
   $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
   ensureActivityFilter();
   renderAll();
+  setCompanyFormSnapshot();
   toast('Alterações salvas com sucesso. A ficha continua aberta.', 'success');
 }
 
@@ -2618,7 +2865,7 @@ function confirmDelete(){
   if(!pendingDeleteId) return;
   S.empresas = S.empresas.filter(e=>e.id!==pendingDeleteId);
   closeModal('modalConfirm');
-  closeModal('modalEmpresa');
+  closeModal('modalEmpresa', true);
   pendingDeleteId = null;
   saveState(); renderAll(); toast('Empresa excluída.', 'success');
 }
@@ -2629,7 +2876,7 @@ function updatePinDots(){ document.querySelectorAll('#pinDots .pin-dot').forEach
 function checkPin(){
   if(currentPin === S.senha){
     S.empresas = S.empresas.filter(e=>e.id!==pendingDeleteId);
-    closeModal('modalSenha'); closeModal('modalEmpresa');
+    closeModal('modalSenha'); closeModal('modalEmpresa', true);
     pendingDeleteId=null; currentPin='';
     saveState(); renderAll(); toast('Empresa excluída.', 'success');
   }else{
@@ -2839,6 +3086,116 @@ function renderRelatorioTabela(){
     ${rows.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>Regime</th><th>Colaborador</th><th>Obrigação</th><th>Vencimento</th><th>Status Apuração</th><th>Status Empresa</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.empresa.nome)}</td><td>${esc(regimeLabel(r.empresa.regime))}</td><td>${esc(r.empresa.colaborador||'-')}</td><td>${esc(r.obrig.nome)}</td><td style="font-family:var(--font-mono)">${esc(r.obrig.vencimento||'-')}</td><td><span class="rel-badge ${apuracaoClass(r.empresa.statusApuracao)}">${apuracaoLabel(r.empresa.statusApuracao)}</span></td><td><span class="rel-badge ${r.empresa.fechada?'fechada':'ativa'}">${r.empresa.fechada?'Fechada':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhum item encontrado.</p></div>'}
   </div>`;
 }
+function sanitizeRichForPrint(html){
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html || '';
+  tpl.content.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(el => el.remove());
+  tpl.content.querySelectorAll('*').forEach(el => {
+    Array.from(el.attributes || []).forEach(attr => {
+      if(/^on/i.test(attr.name) || attr.name === 'contenteditable' || attr.name === 'id') el.removeAttribute(attr.name);
+    });
+    if(el.tagName === 'IMG'){
+      el.style.maxWidth = '100%';
+      el.style.height = 'auto';
+      el.style.filter = 'grayscale(100%)';
+    }
+  });
+  return tpl.innerHTML;
+}
+
+function printRow(label, value){
+  const v = safe(value).trim() || '—';
+  return `<div class="p-field"><div class="p-label">${esc(label)}</div><div class="p-value">${esc(v)}</div></div>`;
+}
+
+function printRichSection(title, html){
+  const clean = sanitizeRichForPrint(html);
+  const hasText = clean.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim().length || /<img/i.test(clean);
+  return `<section class="p-section"><h2>${esc(title)}</h2><div class="p-rich">${hasText ? clean : '<span class="muted">—</span>'}</div></section>`;
+}
+
+function buildEmpresaPrintHtml(e){
+  const obrigacoes = (e.obrigacoes || []).map(o => `<tr><td>${esc(o.nome)}</td><td>${esc(o.vencimento || '—')}</td></tr>`).join('') || '<tr><td colspan="2">—</td></tr>';
+  const importacoes = (e.importacoes || []).map(i => `<span class="pill">${esc(i)}</span>`).join('') || '<span class="muted">—</span>';
+  const custom = (e.camposPersonalizados || []).map(c => printRichSection(c.label || 'Campo personalizado', c.content || '')).join('');
+  const status = e.fechada ? 'Empresa fechada / encerrada' : 'Empresa aberta';
+  const printedAt = new Date().toLocaleString('pt-BR');
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(e.nome || 'Ficha da Empresa')}</title>
+  <style>
+    @page{size:A4;margin:12mm;}
+    *{box-sizing:border-box;}
+    body{margin:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;line-height:1.35;}
+    .page{width:100%;}
+    .p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+    .p-title{font-size:18pt;font-weight:700;letter-spacing:.02em;margin:0 0 3px;}
+    .p-sub{font-size:9pt;color:#333;margin:0;}
+    .stamp{border:1px solid #111;padding:5px 8px;font-size:8.5pt;text-align:right;min-width:145px;}
+    .p-section{margin-top:12px;break-inside:avoid;page-break-inside:avoid;}
+    .p-section h2{font-size:11pt;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #111;margin:0 0 6px;padding-bottom:3px;}
+    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;border:1px solid #999;border-bottom:none;}
+    .p-field{display:grid;grid-template-columns:37% 63%;min-height:24px;border-bottom:1px solid #999;break-inside:avoid;}
+    .p-label{font-size:8pt;font-weight:700;text-transform:uppercase;background:#eee;border-right:1px solid #999;padding:5px 6px;}
+    .p-value{padding:5px 6px;overflow-wrap:break-word;word-break:normal;}
+    table{width:100%;border-collapse:collapse;break-inside:avoid;}
+    th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top;}
+    th{background:#eee;text-transform:uppercase;font-size:8pt;letter-spacing:.04em;}
+    .p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word;word-break:normal;}
+    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;}
+    .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
+    .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt;}
+    .muted{color:#666;}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;} .page{break-after:auto;}}
+  </style></head><body><main class="page">
+    <header class="p-header">
+      <div><h1 class="p-title">${esc(e.nome || 'Ficha da Empresa')}</h1><p class="p-sub">${esc(regimeLabel(e.regime))} • ${esc(status)}</p></div>
+      <div class="stamp"><strong>Ficha da Empresa</strong><br>Impresso em ${esc(printedAt)}</div>
+    </header>
+
+    <section class="p-section"><h2>Dados cadastrais</h2><div class="p-grid">
+      ${printRow('Razão Social', e.nome)}${printRow('CNPJ', e.cnpj)}${printRow('Regime', regimeLabel(e.regime))}${printRow('Status', status)}
+      ${printRow('Atividade Econômica', e.atividade)}${printRow('Colaborador', e.colaborador)}${printRow('Inscrição Estadual', e.inscricaoEstadual)}${printRow('Inscrição Municipal', e.inscricaoMunicipal)}
+    </div></section>
+
+    <section class="p-section"><h2>Contato e localização</h2><div class="p-grid">
+      ${printRow('Endereço', e.endereco)}${printRow('CEP', e.cep)}${printRow('Cidade', e.cidade)}${printRow('UF', e.uf)}
+      ${printRow('Responsável', e.responsavel)}${printRow('E-mail', e.email)}${printRow('Telefone', e.telefone)}${printRow('Data de abertura', e.dataAbertura)}${printRow('Capital Social', e.capitalSocial)}
+    </div></section>
+
+    <section class="p-section"><h2>Obrigações acessórias</h2><table><thead><tr><th>Obrigação</th><th>Vencimento</th></tr></thead><tbody>${obrigacoes}</tbody></table></section>
+    <section class="p-section"><h2>Importações XML</h2><div>${importacoes}</div></section>
+    ${printRichSection('Parâmetros', e.parametros)}
+    ${printRichSection('Regras / Procedimentos', e.regras)}
+    ${printRichSection('Observações', e.observacoes)}
+    ${printRichSection('Rotina de Follow-up', e.followup)}
+    ${printRichSection('Comunicação / Envio de guias', e.comunicacaoGuias)}
+    ${printRichSection('Acesso a sistemas', e.acessosSistemas)}
+    ${printRichSection('Apoio à escrituração', e.apoioEscrituracao)}
+    ${printRichSection('Ocorrências', e.ocorrencias)}
+    ${custom}
+  </main></body></html>`;
+}
+
+function printEmpresa(){
+  const e = S.empresas.find(x=>x.id===currentEditId);
+  if(!e){ toast('Abra uma empresa para imprimir.', 'error'); return; }
+  const data = $('modalEmpresa')?.classList.contains('open') ? collectCompanyFormData() : {...e};
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+  iframe.srcdoc = buildEmpresaPrintHtml(data);
+  iframe.onload = () => {
+    setTimeout(() => {
+      try { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+      finally { setTimeout(() => iframe.remove(), 1200); }
+    }, 120);
+  };
+}
+
 function printRelatorio(){ window.print(); }
 function exportRelatorioCSV(){
   const type = $('relTipo').value;
@@ -2876,12 +3233,12 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
   overlay.addEventListener('mouseup', ev => {
     if(mdOnSelf && ev.target === overlay){
-      overlay.classList.remove('open');
+      closeModal(overlay.id);
     }
     mdOnSelf = false;
   });
 });
-window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
+window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>closeModal(m.id)); });
 </script>
 
 <script type="module">
