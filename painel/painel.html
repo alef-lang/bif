@@ -798,6 +798,61 @@ select option{background:#1b2e42;color:#e8eaf0;}
   white-space:inherit !important;
 }
 
+
+
+/* EDITOR RICO ROBUSTO — barra fixa dentro da ficha */
+.rich-toolbar-dock{
+  position:sticky;
+  top:-20px;
+  z-index:80;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  padding:9px;
+  margin:0 0 12px;
+  background:linear-gradient(135deg,rgba(13,27,42,0.98),rgba(27,46,66,0.97));
+  border:1px solid var(--gold-dim);
+  border-radius:14px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.36);
+  backdrop-filter:blur(10px);
+}
+.rich-toolbar-dock .rte-group{display:inline-flex;align-items:center;gap:4px;padding:3px;border-radius:10px;background:rgba(255,255,255,0.035);border:1px solid rgba(201,168,76,0.10);}
+.rich-toolbar-dock button,.rich-toolbar-dock select,.rich-toolbar-dock input[type="color"]{
+  height:30px;
+  min-width:30px;
+  border:1px solid rgba(201,168,76,0.24);
+  border-radius:8px;
+  background:rgba(255,255,255,0.05);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  outline:none;
+}
+.rich-toolbar-dock button:hover,.rich-toolbar-dock select:hover,.rich-toolbar-dock input[type="color"]:hover{border-color:var(--gold);background:rgba(201,168,76,0.14);color:var(--gold-light);}
+.rich-toolbar-dock select{width:auto;max-width:140px;padding:0 8px;}
+.rich-toolbar-dock input[type="color"]{width:34px;padding:2px;}
+.rich-toolbar-dock .rte-label{font-size:10px;color:var(--text-light);font-family:var(--font-mono);margin:0 2px;}
+.rich-toolbar-dock .rte-soft{color:var(--text-light);font-weight:600;min-width:auto;padding:0 9px;}
+.modal.view-mode .rich-toolbar-dock{display:none!important;}
+.config-list-box{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.config-list-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--gold-dim);border-radius:10px;background:rgba(201,168,76,0.06);}
+.config-list-item span{font-size:12px;color:var(--text);font-weight:700;overflow-wrap:anywhere;}
+.config-list-item button{border:1px solid rgba(255,118,117,0.18);background:transparent;color:rgba(255,118,117,0.65);border-radius:8px;padding:5px 8px;cursor:pointer;font-family:var(--font-body);font-weight:700;}
+.config-list-item button:hover{background:rgba(255,118,117,0.12);color:#ff7675;border-color:rgba(255,118,117,0.38);}
+.static-field-card{border:1px solid rgba(201,168,76,0.18);border-radius:var(--radius-sm);background:rgba(201,168,76,0.035);overflow:hidden;margin-bottom:10px;}
+.static-field-head{padding:8px 10px;border-bottom:1px solid rgba(201,168,76,0.14);font-family:var(--font-title);font-size:12px;font-weight:700;color:var(--gold-light);}
+.static-field-body{padding:10px;}
+.unsaved-actions{text-align:center;padding:24px 28px;}
+.unsaved-actions .confirm-icon{font-size:36px;margin-bottom:12px;}
+.unsaved-actions p{font-size:14px;color:var(--text);line-height:1.5;margin-bottom:6px;}
+.unsaved-actions small{display:block;color:var(--text-light);font-size:11px;font-family:var(--font-mono);margin-top:6px;}
+.btn-warning{padding:9px 16px;background:rgba(253,203,110,0.15);color:#fdcb6e;border:1.5px solid rgba(253,203,110,0.35);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.18s;font-family:var(--font-body);}
+.btn-warning:hover{background:#fdcb6e;color:#0d1b2a;border-color:#fdcb6e;}
+@media(max-width:700px){.rich-toolbar-dock{top:-20px}.rich-toolbar-dock select{max-width:110px}.rich-toolbar-dock .rte-label{display:none}}
+
 /* CONFIRM MODAL */
 .confirm-body{padding:24px 28px;text-align:center;}
 .confirm-body .confirm-icon{font-size:36px;margin-bottom:12px;}
@@ -1093,6 +1148,29 @@ select option{background:#1b2e42;color:#e8eaf0;}
   </div>
 </div>
 
+
+
+<!-- MODAL: ALTERAÇÕES NÃO SALVAS -->
+<div class="modal-overlay" id="modalUnsavedEmpresa">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-header-info"><h2>💾 Alterações não salvas</h2><p>Antes de sair da ficha</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalUnsavedEmpresa', true)">✕</button>
+    </div>
+    <div class="unsaved-actions">
+      <div class="confirm-icon">⚠️</div>
+      <p>Você editou esta empresa.</p>
+      <p>Quer salvar as alterações antes de fechar?</p>
+      <small>Escolha “Continuar editando” para voltar sem perder nada.</small>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalUnsavedEmpresa', true)">Continuar editando</button>
+      <button class="btn-warning" onclick="discardEmpresaChangesAndClose()">Sair sem salvar</button>
+      <button class="btn-primary" onclick="saveEmpresaAndClose()">💾 Salvar e sair</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: SENHA PIN -->
 <div class="modal-overlay" id="modalSenha">
   <div class="modal modal-sm">
@@ -1149,6 +1227,33 @@ select option{background:#1b2e42;color:#e8eaf0;}
           <button class="btn-primary" onclick="changePassword()">Alterar</button>
         </div>
       </div>
+
+      <div class="config-section">
+        <h3>🖨️ Padrão de impressão</h3>
+        <p>A tela continua livre para personalizar, mas a impressão usa sempre a fonte definida aqui.</p>
+        <div class="config-row">
+          <select id="cfgPrintFont" class="select-filter" style="border-radius:var(--radius-sm);flex:1;">
+            <option value="Arial">Arial</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Poppins">Poppins</option>
+            <option value="DM Sans">DM Sans</option>
+          </select>
+          <button class="btn-primary" onclick="savePrintFont()">Salvar fonte</button>
+        </div>
+      </div>
+      <div class="config-section">
+        <h3>📌 Campos estáticos da ficha</h3>
+        <p>Campos criados aqui aparecem em todas as empresas. O conteúdo preenchido continua individual por empresa.</p>
+        <div class="config-row">
+          <input type="text" id="cfgNovoCampoEstatico" placeholder="Ex: Particularidades fiscais fixas">
+          <button class="btn-primary" onclick="addStaticFieldConfig()">Adicionar</button>
+        </div>
+        <div id="cfgCamposEstaticosList" class="config-list-box"></div>
+      </div>
+
       <div class="config-section">
         <h3>📋 Obrigações nos filtros</h3>
         <p>Gerencie as obrigações que aparecem nos filtros rápidos</p>
@@ -1229,6 +1334,8 @@ select option{background:#1b2e42;color:#e8eaf0;}
 let S = {
   senha: '1234',
   nomeEscritorio: 'Painel de Gestão',
+  printFont: 'Arial',
+  camposEstaticos: [],
   activeFilters: [],       // filtros por nome de obrigação
   activeStatusObrig: [],   // filtros por status de entrega (entregue/pendente/atrasado)
   filterObrigacoes: ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'],
@@ -1397,6 +1504,8 @@ async function init(){
   }
   S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
   S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
+  S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
+  S.printFont = S.printFont || 'Arial';
   S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length ? S.filterObrigacoes : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
   S.empresas = (S.empresas || []).map(e => ({
     ...e,
@@ -1405,6 +1514,7 @@ async function init(){
     obrigacoes:Array.isArray(e.obrigacoes)?e.obrigacoes:[],
     importacoes:Array.isArray(e.importacoes)?e.importacoes:[],
     camposPersonalizados:Array.isArray(e.camposPersonalizados)?e.camposPersonalizados:[],
+    camposEstaticosData: e.camposEstaticosData && typeof e.camposEstaticosData === 'object' ? e.camposEstaticosData : {},
     parametros:e.parametros || '',
     regras:e.regras || '',
     observacoes:e.observacoes || '',
@@ -1418,6 +1528,7 @@ async function init(){
   updateHeaderName();
   renderFilterTags();
   renderCfgObrigList();
+  renderCfgCamposEstaticosList();
   renderAll();
 }
 
@@ -1636,16 +1747,22 @@ function isCompanyFormDirty(){
 
 function shouldBlockEmpresaClose(){
   if(!isEmpresaInEditMode() || !isCompanyFormDirty()) return false;
-  toast('Você tem alterações não salvas. Clique em Salvar antes de fechar a ficha.', 'error');
-  const btn = $('btnSaveEmpresa');
-  if(btn){
-    btn.classList.remove('unsaved-pulse');
-    void btn.offsetWidth;
-    btn.classList.add('unsaved-pulse');
-  }
-  clearTimeout(empresaDirtyNoticeTimer);
-  empresaDirtyNoticeTimer = setTimeout(() => btn?.classList.remove('unsaved-pulse'), 1500);
+  openModal('modalUnsavedEmpresa');
   return true;
+}
+
+function saveEmpresaAndClose(){
+  const ok = saveCompany({silent:true});
+  if(ok === false) return;
+  closeModal('modalUnsavedEmpresa', true);
+  closeModal('modalEmpresa', true);
+  toast('Alterações salvas e ficha fechada.', 'success');
+}
+
+function discardEmpresaChangesAndClose(){
+  closeModal('modalUnsavedEmpresa', true);
+  closeModal('modalEmpresa', true);
+  toast('Edições descartadas. Nada foi salvo.', 'error');
 }
 
 function openAddModal(regime){
@@ -1670,7 +1787,7 @@ function addCompany(){
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
     observacoes:'', parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], camposPersonalizados: []
+    obrigacoes: [], importacoes: [], camposEstaticosData: {}, camposPersonalizados: []
   };
   S.empresas.push(e);
   try {
@@ -1856,6 +1973,7 @@ function normalizeAllRichFields(){
 
 function initCompanyRichFields(){
   initFloatingFormatMenu();
+  initRichDockToolbar();
   getCompanyRichFields().forEach(el => {
     if(!el) return;
     normalizeRichFieldLayout(el);
@@ -2532,6 +2650,7 @@ function openEmpresa(id){
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
   renderModalImportacoes();
+  renderStaticFieldsForModal(e);
   renderModalCamposPersonalizados();
   initCompanyRichFields();
   setupCompanyDirtyTracking();
@@ -2631,6 +2750,45 @@ function empresaFormHtml(e){
   <div class="form-section">
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
     <div class="rich-hint">💡 Ao colar texto, ele entra sem formatação por padrão. Depois selecione o trecho para formatar pelo menu flutuante. Imagens continuam pelo Ctrl+V, arraste para o campo ou use 🖼️ no menu. Clique na imagem para redimensionar.</div>
+    <div class="rich-toolbar-dock" id="richToolbarDock" aria-label="Barra de formatação avançada">
+      <span class="rte-group">
+        <button type="button" data-rte-cmd="bold" title="Negrito"><b>N</b></button>
+        <button type="button" data-rte-cmd="italic" title="Itálico"><i>I</i></button>
+        <button type="button" data-rte-cmd="underline" title="Sublinhado"><u>S</u></button>
+        <button type="button" data-rte-cmd="strikeThrough" title="Tachado"><s>T</s></button>
+      </span>
+      <span class="rte-group">
+        <select data-rte-select="font" title="Fonte da tela">
+          <option value="">Fonte da tela</option>
+          <option value="DM Sans">DM Sans</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Courier New">Courier</option>
+        </select>
+        <select data-rte-select="size" title="Tamanho">
+          <option value="">Tamanho</option>
+          <option value="11px">11</option><option value="12px">12</option><option value="14px">14</option><option value="16px">16</option><option value="18px">18</option><option value="22px">22</option><option value="26px">26</option>
+        </select>
+      </span>
+      <span class="rte-group">
+        <span class="rte-label">Texto</span><input type="color" data-rte-color="text" value="#e8eaf0" title="Cor do texto">
+        <span class="rte-label">Marca</span><input type="color" data-rte-color="mark" value="#fff3a3" title="Marca-texto">
+        <button type="button" class="rte-soft" data-rte-clear="mark" title="Remover marca-texto">sem marca</button>
+      </span>
+      <span class="rte-group">
+        <button type="button" data-rte-cmd="insertUnorderedList" title="Lista com marcadores">• lista</button>
+        <button type="button" data-rte-cmd="insertOrderedList" title="Lista numerada">1. lista</button>
+        <button type="button" data-rte-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
+        <button type="button" data-rte-cmd="justifyCenter" title="Centralizar">⇆</button>
+      </span>
+      <span class="rte-group">
+        <button type="button" data-rte-action="copyFormat" title="Copiar/aplicar formatação">🖌️</button>
+        <button type="button" data-rte-action="image" title="Inserir imagem">🖼️</button>
+        <button type="button" class="rte-soft" data-rte-cmd="removeFormat" title="Remover formatação do trecho">Limpar</button>
+      </span>
+    </div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Parâmetros</label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
       <div class="form-group"><label>Regras / Procedimentos</label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
@@ -2671,6 +2829,12 @@ function empresaFormHtml(e){
     <div class="form-grid cols-1">
       <div class="form-group"><label>Ocorrências</label><div class="rich-field" id="f_ocorrencias" contenteditable="true">${e.ocorrencias||''}</div></div>
     </div>
+  </div>
+
+  <div class="form-section" id="staticFieldsSection">
+    <div class="form-section-title">📌 Campos estáticos</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Campos definidos em Configurações. Eles aparecem em todas as empresas, mas o preenchimento é individual.</p>
+    <div id="staticFieldsList"></div>
   </div>
 
   <div class="form-section">
@@ -2792,6 +2956,7 @@ function collectCompanyFormData(){
     ocorrencias: $('f_ocorrencias')?.innerHTML || '',
     obrigacoes: JSON.parse(JSON.stringify(modalObrigacoes || [])),
     importacoes: JSON.parse(JSON.stringify(modalImportacoes || [])),
+    camposEstaticosData: collectStaticFieldsData(),
     camposPersonalizados: collectModalCamposPersonalizados()
   };
 }
@@ -2840,11 +3005,11 @@ function addImportacaoToModal(){
 }
 function removeImportacaoFromModal(i){ modalImportacoes.splice(i,1); renderModalImportacoes(); markCompanyDirtySoft(); }
 
-function saveCompany(){
+function saveCompany(options={}){
   const e = S.empresas.find(x=>x.id===currentEditId);
-  if(!e){ toast('Empresa não encontrada.','error'); return; }
+  if(!e){ toast('Empresa não encontrada.','error'); return false; }
   const data = collectCompanyFormData();
-  if(!data.nome){ toast('A razão social não pode estar vazia.','error'); return; }
+  if(!data.nome){ toast('A razão social não pode estar vazia.','error'); return false; }
   Object.assign(e, data);
   saveState();
   $('modalEmpresaTitle').textContent = e.nome;
@@ -2852,7 +3017,8 @@ function saveCompany(){
   ensureActivityFilter();
   renderAll();
   setCompanyFormSnapshot();
-  toast('Alterações salvas com sucesso. A ficha continua aberta.', 'success');
+  if(!options.silent) toast('Alterações salvas com sucesso. A ficha continua aberta.', 'success');
+  return true;
 }
 
 function askDelete(id){
@@ -2888,7 +3054,10 @@ function checkPin(){
 function openConfigModal(){
   $('cfgNome').value = S.nomeEscritorio || '';
   $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; $('cfgNovaObrig').value='';
+  if($('cfgPrintFont')) $('cfgPrintFont').value = S.printFont || 'Arial';
+  if($('cfgNovoCampoEstatico')) $('cfgNovoCampoEstatico').value = '';
   renderCfgObrigList();
+  renderCfgCamposEstaticosList();
   openModal('modalConfig');
 }
 function saveOfficeName(){
@@ -3086,6 +3255,12 @@ function renderRelatorioTabela(){
     ${rows.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>Regime</th><th>Colaborador</th><th>Obrigação</th><th>Vencimento</th><th>Status Apuração</th><th>Status Empresa</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.empresa.nome)}</td><td>${esc(regimeLabel(r.empresa.regime))}</td><td>${esc(r.empresa.colaborador||'-')}</td><td>${esc(r.obrig.nome)}</td><td style="font-family:var(--font-mono)">${esc(r.obrig.vencimento||'-')}</td><td><span class="rel-badge ${apuracaoClass(r.empresa.statusApuracao)}">${apuracaoLabel(r.empresa.statusApuracao)}</span></td><td><span class="rel-badge ${r.empresa.fechada?'fechada':'ativa'}">${r.empresa.fechada?'Fechada':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhum item encontrado.</p></div>'}
   </div>`;
 }
+function printFontStack(){
+  const f = (S.printFont || 'Arial').replace(/["'<>]/g, '').trim() || 'Arial';
+  const fallback = /times/i.test(f) ? 'serif' : 'Arial, Helvetica, sans-serif';
+  return `"${f}", ${fallback}`;
+}
+
 function sanitizeRichForPrint(html){
   const tpl = document.createElement('template');
   tpl.innerHTML = html || '';
@@ -3117,6 +3292,7 @@ function printRichSection(title, html){
 function buildEmpresaPrintHtml(e){
   const obrigacoes = (e.obrigacoes || []).map(o => `<tr><td>${esc(o.nome)}</td><td>${esc(o.vencimento || '—')}</td></tr>`).join('') || '<tr><td colspan="2">—</td></tr>';
   const importacoes = (e.importacoes || []).map(i => `<span class="pill">${esc(i)}</span>`).join('') || '<span class="muted">—</span>';
+  const staticSections = (S.camposEstaticos || []).map(c => printRichSection(c.label || 'Campo estático', (e.camposEstaticosData || {})[c.id] || '')).join('');
   const custom = (e.camposPersonalizados || []).map(c => printRichSection(c.label || 'Campo personalizado', c.content || '')).join('');
   const status = e.fechada ? 'Empresa fechada / encerrada' : 'Empresa aberta';
   const printedAt = new Date().toLocaleString('pt-BR');
@@ -3124,7 +3300,7 @@ function buildEmpresaPrintHtml(e){
   <style>
     @page{size:A4;margin:12mm;}
     *{box-sizing:border-box;}
-    body{margin:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;line-height:1.35;}
+    body{margin:0;background:#fff;color:#111;font-family:${printFontStack()};font-size:10.5pt;line-height:1.35;}
     .page{width:100%;}
     .p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
     .p-title{font-size:18pt;font-weight:700;letter-spacing:.02em;margin:0 0 3px;}
@@ -3140,7 +3316,7 @@ function buildEmpresaPrintHtml(e){
     th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top;}
     th{background:#eee;text-transform:uppercase;font-size:8pt;letter-spacing:.04em;}
     .p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word;word-break:normal;}
-    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;}
+    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;font-family:inherit!important;color:#111!important;background:transparent!important;}
     .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
     .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt;}
     .muted{color:#666;}
@@ -3171,6 +3347,7 @@ function buildEmpresaPrintHtml(e){
     ${printRichSection('Acesso a sistemas', e.acessosSistemas)}
     ${printRichSection('Apoio à escrituração', e.apoioEscrituracao)}
     ${printRichSection('Ocorrências', e.ocorrencias)}
+    ${staticSections}
     ${custom}
   </main></body></html>`;
 }
@@ -3222,6 +3399,225 @@ function exportRelatorioCSV(){
   a.download = 'relatorio_'+type+'_'+new Date().toISOString().slice(0,10)+'.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
   toast('Relatório exportado em CSV.', 'success');
+}
+
+
+// ════════════════════════════════════════════
+// CAMPOS ESTÁTICOS + EDITOR RICO ROBUSTO
+// ════════════════════════════════════════════
+function escAttr(v){ return esc(v || ''); }
+
+function renderCfgCamposEstaticosList(){
+  const el = $('cfgCamposEstaticosList');
+  if(!el) return;
+  const campos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
+  if(!campos.length){
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);padding:6px 2px;">Nenhum campo estático definido.</div>';
+    return;
+  }
+  el.innerHTML = campos.map((c,i)=>`<div class="config-list-item"><span>📌 ${esc(c.label || 'Campo sem nome')}</span><button type="button" onclick="removeStaticFieldConfig(${i})">Remover</button></div>`).join('');
+}
+function addStaticFieldConfig(){
+  const input = $('cfgNovoCampoEstatico');
+  const label = (input?.value || '').trim();
+  if(!label){ toast('Informe o nome do campo estático.', 'error'); return; }
+  S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
+  if(S.camposEstaticos.some(c => (c.label||'').toLowerCase() === label.toLowerCase())){ toast('Esse campo estático já existe.', 'error'); return; }
+  S.camposEstaticos.push({id:genId(), label});
+  if(input) input.value = '';
+  saveState();
+  renderCfgCamposEstaticosList();
+  toast('Campo estático adicionado.', 'success');
+}
+function removeStaticFieldConfig(i){
+  S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
+  const removed = S.camposEstaticos.splice(i,1)[0];
+  // Mantém os conteúdos antigos salvos dentro das empresas, para evitar perda acidental.
+  saveState();
+  renderCfgCamposEstaticosList();
+  toast(removed ? 'Campo estático removido da ficha.' : 'Campo removido.', 'success');
+}
+function savePrintFont(){
+  const v = $('cfgPrintFont')?.value || 'Arial';
+  S.printFont = v;
+  saveState();
+  toast('Fonte padrão de impressão salva: ' + v + '.', 'success');
+}
+function renderStaticFieldsForModal(e){
+  const el = $('staticFieldsList');
+  const section = $('staticFieldsSection');
+  if(!el || !section) return;
+  const campos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
+  if(!campos.length){
+    section.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  section.style.display = '';
+  const data = e.camposEstaticosData && typeof e.camposEstaticosData === 'object' ? e.camposEstaticosData : {};
+  el.innerHTML = campos.map((c,i)=>`<div class="static-field-card" data-id="${escAttr(c.id)}">
+    <div class="static-field-head">${esc(c.label || `Campo estático ${i+1}`)}</div>
+    <div class="static-field-body"><div class="rich-field static-rich-field" id="f_static_${i}" contenteditable="true">${data[c.id] || ''}</div></div>
+  </div>`).join('');
+}
+function collectStaticFieldsData(){
+  const out = {};
+  document.querySelectorAll('#staticFieldsList .static-field-card').forEach(card => {
+    const id = card.dataset.id;
+    const rich = card.querySelector('.rich-field');
+    if(id) out[id] = rich ? rich.innerHTML : '';
+  });
+  return out;
+}
+
+function initRichDockToolbar(){
+  const dock = $('richToolbarDock');
+  if(!dock || dock.dataset.ready === '1') return;
+  dock.dataset.ready = '1';
+  dock.addEventListener('mousedown', ev => {
+    richMenuInteracting = true;
+    saveRichSelection(true);
+    if(!ev.target.matches('select,input[type="color"]')) ev.preventDefault();
+  });
+  dock.addEventListener('click', ev => {
+    const btn = ev.target.closest('button');
+    if(!btn) return;
+    ev.preventDefault();
+    richMenuInteracting = true;
+    const cmd = btn.dataset.rteCmd;
+    const action = btn.dataset.rteAction;
+    const clear = btn.dataset.rteClear;
+    if(cmd) applyRichCommand(cmd);
+    if(action === 'copyFormat') handleFormatPainter();
+    if(action === 'image') { restoreRichSelection(); $('ffImageInput')?.click(); }
+    if(clear === 'mark') applyInlineStyle({backgroundColor:'transparent'});
+    setTimeout(() => { richMenuInteracting = false; updateFloatingMenu(); }, 160);
+  });
+  dock.querySelectorAll('select[data-rte-select]').forEach(sel => {
+    sel.addEventListener('mousedown', () => { richMenuInteracting = true; saveRichSelection(true); });
+    sel.addEventListener('change', ev => {
+      const val = ev.target.value;
+      if(ev.target.dataset.rteSelect === 'font' && val) applyInlineStyle({fontFamily:val});
+      if(ev.target.dataset.rteSelect === 'size' && val) applyInlineStyle({fontSize:val});
+      ev.target.value = '';
+      setTimeout(() => { richMenuInteracting = false; updateFloatingMenu(); }, 160);
+    });
+  });
+  dock.querySelectorAll('input[type="color"][data-rte-color]').forEach(inp => {
+    inp.addEventListener('mousedown', () => { richMenuInteracting = true; saveRichSelection(true); });
+    inp.addEventListener('input', ev => {
+      const val = ev.target.value;
+      if(ev.target.dataset.rteColor === 'text') applyInlineStyle({color:val});
+      if(ev.target.dataset.rteColor === 'mark') applyInlineStyle({backgroundColor:val});
+    });
+    inp.addEventListener('change', () => setTimeout(() => { richMenuInteracting = false; updateFloatingMenu(); }, 160));
+  });
+}
+
+function rebuildPlainFragmentKeepBreaks(fragment){
+  const out = document.createDocumentFragment();
+  function walk(node){
+    if(node.nodeType === Node.TEXT_NODE){ out.appendChild(document.createTextNode(node.nodeValue || '')); return; }
+    if(node.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = node.tagName;
+    if(tag === 'BR'){ out.appendChild(document.createElement('br')); return; }
+    if(tag === 'IMG'){
+      const img = node.cloneNode(false);
+      img.removeAttribute('class');
+      img.removeAttribute('style');
+      out.appendChild(img);
+      return;
+    }
+    const beforeBlock = /^(DIV|P|LI|TR|H[1-6])$/.test(tag) && out.childNodes.length;
+    if(beforeBlock) out.appendChild(document.createElement('br'));
+    Array.from(node.childNodes).forEach(walk);
+    if(/^(DIV|P|LI|TR|H[1-6])$/.test(tag)) out.appendChild(document.createElement('br'));
+  }
+  Array.from(fragment.childNodes).forEach(walk);
+  return out;
+}
+function cleanSelectedFormatting(){
+  if(!restoreRichSelection()){ toast('Selecione um trecho primeiro.', 'error'); return; }
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField){ return; }
+  const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)){ return; }
+  try{
+    if(sel.isCollapsed){
+      document.execCommand('removeFormat', false, null);
+    }else{
+      const fragment = range.extractContents();
+      const clean = rebuildPlainFragmentKeepBreaks(fragment);
+      normalizeTextNodesForWrapping(clean);
+      insertFragmentAndSelect(range, clean, sel);
+      // Mantém o trecho limpo selecionado para permitir aplicar uma nova formatação em seguida.
+    }
+    normalizeRichFieldLayout(activeRichField);
+    activeRichField.normalize();
+    markActiveRichInput();
+    saveRichSelection(true);
+    setTimeout(updateFloatingMenu, 0);
+    toast('Formatação removida.', 'success');
+  }catch(e){ console.warn('Falha ao limpar formatação:', e); toast('Não consegui limpar a formatação.', 'error'); }
+}
+function applyRichCommand(cmd){
+  if(cmd === 'removeFormat'){ cleanSelectedFormatting(); return; }
+  if(!restoreRichSelection()){ toast('Selecione um trecho primeiro.', 'error'); return; }
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField) return;
+  try { document.execCommand('styleWithCSS', false, true); } catch(e) {}
+  try {
+    document.execCommand(cmd, false, null);
+    saveRichSelection(true);
+    normalizeRichFieldLayout(activeRichField);
+    markActiveRichInput();
+    setTimeout(updateFloatingMenu, 0);
+  } catch(e) { console.warn('Falha ao aplicar formatação:', e); toast('Não consegui aplicar esta formatação.', 'error'); }
+}
+function stripStyleKeys(el, keys){
+  keys.forEach(key => {
+    if(key === 'backgroundColor'){ el.style.backgroundColor = ''; el.style.background = ''; }
+    else if(key === 'color'){ el.style.color = ''; }
+    else if(key === 'fontFamily'){ el.style.fontFamily = ''; }
+    else if(key === 'fontSize'){ el.style.fontSize = ''; }
+    else { try { el.style[key] = ''; } catch(e) {} }
+  });
+  if((el.getAttribute('style') || '').trim() === '') el.removeAttribute('style');
+}
+function applyInlineStyle(styleObj){
+  if(!restoreRichSelection()){ toast('Selecione um trecho primeiro.', 'error'); return; }
+  const sel = window.getSelection();
+  if(!sel || !sel.rangeCount || !activeRichField) return;
+  if(sel.isCollapsed){ toast('Selecione o trecho que deseja formatar.', 'error'); return; }
+  const range = sel.getRangeAt(0);
+  if(!isRichRangeValid(range, activeRichField)) return;
+  try{
+    const styleKeys = Object.keys(styleObj);
+    const fragment = range.extractContents();
+    const all = [];
+    if(fragment.nodeType === Node.ELEMENT_NODE) all.push(fragment);
+    all.push(...(fragment.querySelectorAll?.('*') || []));
+    all.forEach(el => { if(el.tagName !== 'IMG') stripStyleKeys(el, styleKeys); });
+
+    const clearing = styleKeys.length === 1 && (styleObj.backgroundColor === 'transparent' || styleObj.color === 'transparent' || styleObj[styleKeys[0]] === '');
+    let nodeToInsert = fragment;
+    if(!clearing){
+      const span = document.createElement('span');
+      styleKeys.forEach(key => {
+        const val = styleObj[key];
+        if(val && !(key === 'backgroundColor' && val === 'transparent')) span.style[key] = val;
+      });
+      span.appendChild(fragment);
+      nodeToInsert = document.createDocumentFragment();
+      nodeToInsert.appendChild(span);
+    }
+    insertFragmentAndSelect(range, nodeToInsert, sel);
+    normalizeRichFieldLayout(activeRichField);
+    activeRichField.normalize();
+    markActiveRichInput();
+    saveRichSelection(true);
+    setTimeout(updateFloatingMenu, 0);
+  }catch(e){ console.warn('Falha ao aplicar estilo:', e); toast('Não consegui aplicar a formatação.', 'error'); }
 }
 
 // Fechar modal clicando fora
