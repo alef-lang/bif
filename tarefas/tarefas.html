@@ -63,6 +63,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .gp-text{display:flex;justify-content:space-between;margin-top:6px;font-size:0.7rem;color:var(--text-muted);font-family:var(--mono)}
 
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;display:flex;align-items:center;min-width:260px;max-width:480px;flex:1;margin-left:auto}
+.search-ico{position:absolute;left:12px;color:var(--gold);font-family:var(--mono);font-size:0.86rem;pointer-events:none}
+.search-wrap input{width:100%;padding:9px 38px 9px 34px;font-size:0.8rem;font-family:var(--sans);border:1px solid var(--gold-dim);border-radius:999px;background:rgba(255,255,255,0.04);color:var(--white);transition:all 0.18s}
+.search-wrap input::placeholder{color:var(--text-dim)}
+.search-wrap input:focus{outline:none;border-color:var(--gold);background:var(--gold-glow);box-shadow:0 0 0 3px rgba(201,168,76,0.08)}
+.search-clear{display:none;align-items:center;justify-content:center;position:absolute;right:8px;width:22px;height:22px;border:none;border-radius:50%;background:rgba(255,255,255,0.07);color:var(--text-muted);cursor:pointer;font-size:16px;line-height:1}
+.search-clear.show{display:flex}
+.search-clear:hover{background:var(--red-dim);color:var(--red)}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
 .fchip{padding:5px 12px;font-size:0.7rem;font-weight:600;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-muted);font-family:var(--sans);transition:all 0.15s}
 .fchip:hover{border-color:var(--gold-dim);color:var(--white)}
@@ -76,6 +84,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .task-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer}
 .task-check{font-size:18px;cursor:pointer;flex-shrink:0;color:var(--text-muted);transition:all 0.15s}
 .task-check:hover{color:var(--gold)}
+.task-check.locked{color:var(--amber);cursor:not-allowed;opacity:0.95}
+.task-check.locked:hover{color:var(--amber)}
 .task.done .task-check{color:var(--green)}
 .task-info{flex:1;min-width:0}
 .task-name{font-size:0.88rem;font-weight:700;color:var(--white)}
@@ -194,6 +204,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 
 input[type="file"]{display:none}
+@media(max-width:700px){.search-wrap{flex-basis:100%;max-width:none;margin-left:0}}
 @media(max-width:600px){.header,.card{padding-left:18px;padding-right:18px}.overview{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr}}
 @media print{
   body{background:#fff!important;color:#1a1a1a!important;padding:0!important}
@@ -314,6 +325,11 @@ input[type="file"]{display:none}
       <button class="btn btn-gold" onclick="openNewTask()">+ Nova tarefa</button>
       <button class="btn btn-sm" onclick="expandAll(true)">Expandir</button>
       <button class="btn btn-sm" onclick="expandAll(false)">Recolher</button>
+      <div class="search-wrap" role="search">
+        <span class="search-ico">⌕</span>
+        <input type="search" id="taskSearch" placeholder="Pesquisar tarefas, subtarefas, responsável..." oninput="setSearch(this.value)" autocomplete="off" />
+        <button type="button" id="btnClearSearch" class="search-clear" onclick="clearSearch()" title="Limpar pesquisa">×</button>
+      </div>
     </div>
     <div class="filter-row" id="filterRow"></div>
   </div>
@@ -441,7 +457,7 @@ const PRI_COLORS=['','#2ecc8a','#2dd4bf','#f59e0b','#f97316','#e05a5a'];
 const PRI_LABELS=['','Baixa','Moderada','Média','Alta','Urgente'];
 const REWARDS_DEFAULT=['☕ Cafézinho','🚶 Levanta e anda 2 min','🎵 1 música favorita','💧 Copo d\'água','📱 5 min de redes','🍫 Um chocolate','🌬️ Respirar na janela'];
 
-let tasks=[],expanded={},filterPri='all',newPri=3,editPri=3,points=0;
+let tasks=[],expanded={},filterPri='all',searchQuery='',newPri=3,editPri=3,points=0;
 let autosaveTimer=null, autosaveStatusTimer=null;
 
 function setAutosaveStatus(status,msg){
@@ -560,6 +576,32 @@ function renderFilters(){
     `<button class="fchip ${filterPri==='parqueado'?'active':''}" onclick="setFilter('parqueado')" style="border-color:rgba(245,158,11,0.3);${filterPri==='parqueado'?'background:var(--amber);color:var(--navy);border-color:var(--amber)':'color:var(--amber)'}">⏸ Parqueadas</button>`;
 }
 function setFilter(f){filterPri=f;render()}
+function setSearch(value){
+  searchQuery=value||'';
+  const btn=document.getElementById('btnClearSearch');
+  if(btn)btn.classList.toggle('show',!!searchQuery.trim());
+  renderTasks();
+}
+function clearSearch(){
+  searchQuery='';
+  const input=document.getElementById('taskSearch');
+  if(input)input.value='';
+  const btn=document.getElementById('btnClearSearch');
+  if(btn)btn.classList.remove('show');
+  renderTasks();
+}
+function stripHtml(html){
+  const d=document.createElement('div');
+  d.innerHTML=html||'';
+  return d.textContent||d.innerText||'';
+}
+function normalizeText(s){
+  return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+function taskSearchBlob(t){
+  const subs=(t.subtasks||[]).map(s=>s.name).join(' ');
+  return [t.name,stripHtml(t.desc),t.reward,t.assigneeName,t.assigneeEmail,t.deadline,t.parqueLocal,t.parqueMotive,t.parqueRetorno,subs].join(' ');
+}
 
 function getFiltered(){
   let f=[...tasks];
@@ -568,6 +610,10 @@ function getFiltered(){
   else if(filterPri==='solo')f=f.filter(t=>!t.interaction&&!t.done);
   else if(filterPri==='done')f=f.filter(t=>t.done);
   else if(filterPri==='parqueado')f=f.filter(t=>t.parqueado&&!t.done);
+
+  const q=normalizeText(searchQuery);
+  if(q)f=f.filter(t=>normalizeText(taskSearchBlob(t)).includes(q));
+
   f.sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
     return b.priority-a.priority;
@@ -578,26 +624,33 @@ function getFiltered(){
 function renderTasks(){
   const list=getFiltered();
   const el=document.getElementById('taskList');
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-dim);font-size:0.85rem">Nenhuma tarefa encontrada</div>';return}
+  if(!list.length){
+    const msg=searchQuery.trim()?`Nenhuma tarefa encontrada para “${esc(searchQuery.trim())}”`:'Nenhuma tarefa encontrada';
+    el.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--text-dim);font-size:0.85rem">${msg}</div>`;
+    return;
+  }
 
   el.innerHTML=list.map(t=>{
     const c=PRI_COLORS[t.priority]||PRI_COLORS[3];
     const isOpen=expanded[t.id];
     const subDone=t.subtasks?t.subtasks.filter(s=>s.done).length:0;
     const subTotal=t.subtasks?t.subtasks.length:0;
+    const pendingSub=subTotal-subDone;
+    const canComplete=t.done||subTotal===0||pendingSub===0;
 
     let priDots='';
     for(let i=1;i<=5;i++){priDots+=`<div class="pri-dot" style="background:${i<=t.priority?c:'rgba(255,255,255,0.06)'}"></div>`}
 
     return `<div class="task ${t.done?'done':''}${t.parqueado&&!t.done?' parqueado':''}" style="border-left-color:${t.parqueado&&!t.done?'var(--amber)':c}">
       <div class="task-header" onclick="toggleTask(${t.id})">
-        <div class="task-check" onclick="event.stopPropagation();completeTask(${t.id})">${t.done?'&#9745;':'&#9744;'}</div>
+        <div class="task-check ${!canComplete?'locked':''}" title="${!canComplete?`Conclua as ${pendingSub} subtarefa(s) pendente(s) primeiro`:'Marcar tarefa como concluída'}" onclick="event.stopPropagation();completeTask(${t.id})">${t.done?'&#9745;':'&#9744;'}</div>
         <div class="task-info">
           <div class="task-name">${esc(t.name)}</div>
           <div class="task-badges">
             <span class="badge" style="background:${c}22;color:${c}">${PRI_LABELS[t.priority]}</span>
             ${t.interaction?'<span class="badge badge-interaction">Interação</span>':'<span class="badge badge-solo">Solo</span>'}
-            ${subTotal?`<span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted)">${subDone}/${subTotal} sub</span>`:''}
+            ${subTotal?`<span class="badge" style="background:${pendingSub?'rgba(245,158,11,0.15)':'rgba(46,204,138,0.12)'};color:${pendingSub?'var(--amber)':'var(--green)'}">${subDone}/${subTotal} sub</span>`:''}
+            ${pendingSub&&!t.done?`<span class="badge" style="background:rgba(245,158,11,0.12);color:var(--amber)">faltam ${pendingSub}</span>`:''}
             ${t.assigneeName?`<span class="badge" style="background:rgba(74,158,255,0.12);color:#4a9eff">👤 ${esc(t.assigneeName)}</span>`:''}
             ${t.deadline?`<span class="badge" style="background:rgba(201,168,76,0.12);color:var(--gold)">⏰ ${formatDate(t.deadline)}</span>`:''}
             ${t.parqueado?`<span class="badge badge-parqueado">⏸ Parqueada</span>`:''}
@@ -643,6 +696,17 @@ function expandAll(o){tasks.forEach(t=>expanded[t.id]=o);save();renderTasks()}
 
 function completeTask(id){
   const t=tasks.find(x=>x.id===id);if(!t)return;
+  const subTotal=t.subtasks?t.subtasks.length:0;
+  const pendingSub=subTotal?(t.subtasks.filter(s=>!s.done).length):0;
+
+  if(!t.done&&pendingSub>0){
+    expanded[id]=true;
+    toast(`Conclua as ${pendingSub} subtarefa(s) pendente(s) antes de finalizar a tarefa.`,'error');
+    save();
+    render();
+    return;
+  }
+
   t.done=!t.done;
   if(t.done){
     points+=t.priority*10;
@@ -667,7 +731,14 @@ function closeReward(){document.getElementById('rewardOverlay').classList.remove
 
 function toggleSub(tid,si){
   const t=tasks.find(x=>x.id===tid);if(!t||!t.subtasks)return;
-  t.subtasks[si].done=!t.subtasks[si].done;save();render();
+  t.subtasks[si].done=!t.subtasks[si].done;
+  const hasPending=t.subtasks.some(s=>!s.done);
+  if(t.done&&hasPending){
+    t.done=false;
+    points=Math.max(0,points-t.priority*10);
+    toast('A tarefa voltou para pendente porque uma subtarefa foi desmarcada.','info');
+  }
+  save();render();
 }
 function addSub(tid){
   const input=document.getElementById('sub_'+tid);
@@ -993,11 +1064,12 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 window.save=save; window.doSave=doSave; window.forceSave=forceSave;
 window.addSub=addSub; window.closeModal=closeModal; window.closeReward=closeReward;
 window.delSub=delSub; window.delTask=delTask; window.expandAll=expandAll;
-window.exportBackup=exportBackup; window.manualSave=manualSave;
+window.exportBackup=exportBackup; window.importBackup=importBackup; window.manualSave=manualSave;
 window.openEditTask=openEditTask; window.openNewTask=openNewTask;
 window.saveTask=saveTask; window.sendAssignment=sendAssignment;
 window.sendReminder=sendReminder; window.setFilter=setFilter;
-window.toggleSub=toggleSub; window.toggleTask=toggleTask;
+window.setSearch=setSearch; window.clearSearch=clearSearch;
+window.completeTask=completeTask; window.toggleSub=toggleSub; window.toggleTask=toggleTask;
 window.toggleTutorial=toggleTutorial; window.desparquear=desparquear;
 window.toggleParqueFields=toggleParqueFields;
 
