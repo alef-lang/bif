@@ -1637,21 +1637,42 @@
       return data;
     }
 
-    // Salvar dados no navegador (localStorage)
-    function saveLocal(silent = false) {
+    // ── SAVE / LOAD ──────────────────────────────────────────────────────────
+    // saveLocal: fallback offline (localStorage)
+    function saveLocal(silent = true) {
       const existing = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
       const data = coletarDados();
-      // Preserva dados do painel que são gerenciados separadamente
       if (existing.painelObs) data.painelObs = existing.painelObs;
       if (existing.colaboradorSelecionado) data.colaboradorSelecionado = existing.colaboradorSelecionado;
       localStorage.setItem('checklistFiscal', JSON.stringify(data));
-      if (!silent) alert('Dados salvos neste navegador.');
     }
 
-    // Autosave
+    // autosave: salva local + dispara save na nuvem via módulo Firebase
     function autosave() {
       clearTimeout(window._autosaveTimer);
-      window._autosaveTimer = setTimeout(() => saveLocal(true), 1500);
+      window._autosaveTimer = setTimeout(() => {
+        saveLocal(true);
+        if (typeof window._saveChecklistCloud === 'function') {
+          window._saveChecklistCloud();
+        }
+      }, 1500);
+    }
+
+    // Indicador visual de save
+    function mostrarSaveStatus(ok) {
+      let el = document.getElementById('cloudSaveStatus');
+      if (!el) {
+        el = document.createElement('span');
+        el.id = 'cloudSaveStatus';
+        el.style.cssText = 'font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);margin-left:10px;transition:opacity 0.4s;';
+        const titulo = document.querySelector('h1');
+        if (titulo) titulo.insertAdjacentElement('afterend', el);
+      }
+      el.textContent = ok ? '☁ salvo' : '⚠ erro ao salvar';
+      el.style.color = ok ? 'var(--green)' : 'var(--red)';
+      el.style.opacity = '1';
+      clearTimeout(window._saveStatusTimer);
+      window._saveStatusTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
     }
 
     // Aplica dados (de localStorage ou de backup)
@@ -1732,12 +1753,23 @@
       atualizarTotais();
     }
 
-    // Carregar dados salvos do localStorage
+    // loadLocal: carrega do localStorage (fallback / offline)
     function loadLocal() {
       const raw = localStorage.getItem('checklistFiscal');
       if (!raw) return;
       const data = JSON.parse(raw);
       aplicarDados(data, false);
+    }
+
+    // aplicarCamposGerais: aplica competência, responsável, conclusão
+    function aplicarCamposGerais(data) {
+      if (!data) return;
+      if (data.competencia != null && document.getElementById('competenciaField'))
+        document.getElementById('competenciaField').value = data.competencia;
+      if (data.responsavel != null && document.getElementById('responsavelField'))
+        document.getElementById('responsavelField').value = data.responsavel;
+      if (data.conclusao != null && document.getElementById('conclusaoField'))
+        document.getElementById('conclusaoField').value = data.conclusao;
     }
 
     // Backup: baixa JSON com dados do checklist manual
@@ -1840,7 +1872,8 @@
       }
 
       atualizarTotais();
-      saveLocal();
+      saveLocal(true);
+      if (typeof window._saveChecklistCloud === 'function') window._saveChecklistCloud();
 
       // Limpa obs do mês do checklist manual
       if (window._getManualItems) {
@@ -1871,10 +1904,16 @@
     window.addEventListener('DOMContentLoaded', () => {
       aplicarMascaraCompetencia();
       bindCheckboxListeners();
-      loadLocal();
+
+      // Tenta carregar da nuvem; se falhar, localStorage é o fallback
+      loadLocal(); // carrega imediatamente o que tem local
+      if (typeof window._loadChecklistCloud === 'function') {
+        window._loadChecklistCloud(); // sobrescreve com dados da nuvem quando disponível
+      }
+
       atualizarTotais();
 
-      // Autosave em qualquer alteração
+      // Autosave em qualquer alteração (local + nuvem)
       document.getElementById('contentRoot').addEventListener('input', autosave);
       document.getElementById('contentRoot').addEventListener('change', autosave);
       document.getElementById('competenciaField').addEventListener('input', autosave);
@@ -1901,6 +1940,42 @@
   const db  = getDatabase(app);
   const painelStatus = document.getElementById('painelStatus');
 
+  // ── SAVE / LOAD NA NUVEM (campos gerais do checklist) ────────────────────
+  const CHECKLIST_META_PATH = 'checklist/meta';
+
+  window._saveChecklistCloud = async function() {
+    try {
+      const data = {
+        competencia:  document.getElementById('competenciaField')?.value  || '',
+        responsavel:  document.getElementById('responsavelField')?.value  || '',
+        conclusao:    document.getElementById('conclusaoField')?.value    || '',
+        updatedAt:    Date.now()
+      };
+      await set(ref(db, CHECKLIST_META_PATH), data);
+      if (typeof mostrarSaveStatus === 'function') mostrarSaveStatus(true);
+    } catch(e) {
+      console.error('Erro ao salvar checklist na nuvem:', e);
+      if (typeof mostrarSaveStatus === 'function') mostrarSaveStatus(false);
+    }
+  };
+
+  window._loadChecklistCloud = async function() {
+    try {
+      const snap = await get(ref(db, CHECKLIST_META_PATH));
+      if (snap.exists()) {
+        const data = snap.val();
+        if (typeof aplicarCamposGerais === 'function') aplicarCamposGerais(data);
+        // Espelha no localStorage para fallback offline
+        const local = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+        Object.assign(local, { competencia: data.competencia, responsavel: data.responsavel, conclusao: data.conclusao });
+        localStorage.setItem('checklistFiscal', JSON.stringify(local));
+      }
+    } catch(e) {
+      console.warn('Nuvem indisponível, usando localStorage:', e);
+      if (typeof loadLocal === 'function') loadLocal();
+    }
+  };
+
   async function carregarColaboradores() {
     painelStatus.textContent = '⏳';
     try {
@@ -1918,10 +1993,10 @@
       window._painelEmpresas = empresas;
       painelStatus.textContent = `✅ ${colaboradores.length}`;
 
-      // Restaura colaborador selecionado anteriormente
+      // Restaura colaborador selecionado (localStorage como fonte rápida)
       const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
       const colSaved = saved.colaboradorSelecionado || '__manual__';
-      sel.value = colSaved;
+      if (sel.querySelector(`option[value="${colSaved}"]`)) sel.value = colSaved;
       window.carregarDoPanel();
     } catch(e) {
       painelStatus.textContent = '⚠️';
@@ -1960,10 +2035,12 @@
     const container   = document.getElementById('painelSection');
     const manualSec   = document.getElementById('manualSections');
 
-    // Salva seleção
+    // Salva seleção (local + nuvem)
     const saved = getPainelObsSaved();
     saved.colaboradorSelecionado = colaborador;
     localStorage.setItem('checklistFiscal', JSON.stringify(saved));
+    // Persiste colaborador selecionado na nuvem junto com os campos gerais
+    if (typeof window._saveChecklistCloud === 'function') window._saveChecklistCloud();
 
     // Manual → mostra manual, esconde painel
     if (colaborador === '__manual__') {
