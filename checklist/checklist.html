@@ -1345,11 +1345,74 @@
       const hint = document.getElementById('scopeHint');
       if (hint) {
         hint.textContent = escopoAtualChecklist === 'geral'
-          ? 'No Geral, a empresa só conclui quando tudo estiver feito.'
+          ? 'No Geral, a empresa só conclui quando tudo estiver feito. Nos escopos, a conclusão vale só para as subtarefas daquele grupo.'
           : `Escopo ativo: ${escopoLabel()}. O checkbox principal considera somente subtarefas deste grupo.`;
       }
 
+      // Filtra subtarefas visíveis dentro de cada empresa conforme o escopo
+      filtrarSubtarefasPorEscopo();
+
       atualizarTotais();
+    }
+
+    function filtrarSubtarefasPorEscopo() {
+      const isGeral = escopoAtualChecklist === 'geral';
+
+      document.querySelectorAll('.empresa-item').forEach(item => {
+        const panel = item.querySelector('.subtasks-panel');
+        if (!panel) return;
+
+        // Mostra/oculta linhas de subtarefa individualmente
+        panel.querySelectorAll('.sub-check').forEach(cb => {
+          const row = cb.closest('div[style*="border-bottom"]');
+          if (!row) return;
+          if (isGeral) {
+            row.style.display = '';
+          } else {
+            const pertence = subtaskPertenceAoEscopo(cb, escopoAtualChecklist);
+            row.style.display = pertence ? '' : 'none';
+          }
+        });
+
+        // Mostra/oculta os cabeçalhos de grupo (Obrigações, Importações XML, Impostos)
+        panel.querySelectorAll('div[style*="font-weight:700"][style*="text-transform:uppercase"]').forEach(header => {
+          // Verifica se há alguma subtarefa visível logo abaixo deste header
+          let next = header.nextElementSibling;
+          let temVisivel = false;
+          while (next && !next.style.textTransform) {
+            if (next.querySelector && next.querySelector('.sub-check')) {
+              if (next.style.display !== 'none') { temVisivel = true; break; }
+            }
+            next = next.nextElementSibling;
+          }
+          header.style.display = temVisivel ? '' : 'none';
+        });
+
+        // Fecha o painel quando muda o escopo (força reabrir consciente)
+        panel.style.display = 'none';
+        const btn = item.querySelector('button[onclick*="toggleSubtasks"]');
+        if (btn) {
+          // Recalcula contagem visível
+          const totalVis = Array.from(panel.querySelectorAll('.sub-check'))
+            .filter(cb => {
+              const row = cb.closest('div[style*="border-bottom"]');
+              return row && row.style.display !== 'none';
+            }).length;
+          const doneVis = Array.from(panel.querySelectorAll('.sub-check'))
+            .filter(cb => {
+              const row = cb.closest('div[style*="border-bottom"]');
+              return row && row.style.display !== 'none' && cb.checked;
+            }).length;
+          const totalAll = panel.querySelectorAll('.sub-check').length;
+          // Atualiza label do botão
+          if (isGeral) {
+            btn.textContent = btn.textContent.replace(/▶|▼/, '▶').replace(/\d+\/\d+ tarefa/, `${doneVis}/${totalAll} tarefa`);
+            if (totalAll !== 1) btn.textContent = btn.textContent.replace('tarefa', 'tarefas');
+          } else {
+            btn.textContent = `▶ ${doneVis}/${totalVis} tarefa${totalVis !== 1 ? 's' : ''}`;
+          }
+        }
+      });
     }
 
     function aplicarFiltroStatus(filter) {
@@ -2086,6 +2149,7 @@
       // Atualiza a apuração do Painel com base no status geral real.
       if (empresaId) updatePainelApuracao(empresaId, empresaConcluidaNoEscopo(item, 'geral'));
     }));
+    filtrarSubtarefasPorEscopo();
     atualizarTotais();
     aplicarFiltroStatus('pending');
   };
@@ -2097,7 +2161,17 @@
     el.style.display = open ? 'none' : 'block';
     const btn = el.previousElementSibling?.querySelector('button[onclick*="toggleSubtasks"]') ||
                 el.closest('.item-main')?.querySelector('button[onclick*="toggleSubtasks"]');
-    if (btn) btn.textContent = btn.textContent.replace(/[▶▼]/, open ? '▶' : '▼');
+    if (btn) {
+      btn.textContent = btn.textContent.replace(/[▶▼]/, open ? '▶' : '▼');
+      // Recalcula contagem conforme escopo ativo
+      if (!open) {
+        const totalVis = Array.from(el.querySelectorAll('.sub-check'))
+          .filter(cb => { const r = cb.closest('div[style*="border-bottom"]'); return r && r.style.display !== 'none'; }).length;
+        const doneVis = Array.from(el.querySelectorAll('.sub-check'))
+          .filter(cb => { const r = cb.closest('div[style*="border-bottom"]'); return r && r.style.display !== 'none' && cb.checked; }).length;
+        btn.textContent = `▼ ${doneVis}/${totalVis} tarefa${totalVis !== 1 ? 's' : ''}`;
+      }
+    }
   };
 
   window.salvarPainelObs = function() {
