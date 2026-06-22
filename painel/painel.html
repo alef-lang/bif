@@ -467,6 +467,85 @@ select option{background:#1b2e42;color:#e8eaf0;}
   box-shadow:0 0 0 4px rgba(201,168,76,0.18);
 }
 
+.rich-field table.rich-excel-table,
+.rich-field .rich-excel-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:8px 0;
+  table-layout:auto;
+  font-family:var(--font-body);
+  font-size:12px;
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--gold-dim);
+  border-radius:8px;
+  overflow:hidden;
+}
+.rich-field .rich-excel-table th,
+.rich-field .rich-excel-table td{
+  border:1px solid rgba(201,168,76,0.20);
+  padding:6px 8px;
+  vertical-align:top;
+  min-width:80px;
+  max-width:280px;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  white-space:pre-wrap;
+  color:var(--text);
+}
+.rich-field .rich-excel-table tr:first-child td{
+  background:rgba(201,168,76,0.10);
+  color:var(--gold-light);
+  font-weight:700;
+}
+.img-resize-delete{
+  position:absolute;
+  width:20px;
+  height:20px;
+  right:-8px;
+  top:-8px;
+  border-radius:999px;
+  background:#ff7675;
+  color:#0d1b2a;
+  border:2px solid #0d1b2a;
+  cursor:pointer;
+  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  box-shadow:0 4px 14px rgba(0,0,0,0.35);
+}
+.img-resize-delete:hover{filter:brightness(1.08);transform:scale(1.04);}
+.report-logo-tools,
+.logo-config-card{
+  border:1.5px solid var(--gold-dim);
+  border-radius:var(--radius-sm);
+  background:rgba(201,168,76,0.045);
+  padding:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.logo-preview-box{
+  width:150px;
+  min-height:54px;
+  border:1.5px dashed var(--gold-dim);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px;
+  background:rgba(255,255,255,0.03);
+  color:var(--text-light);
+  font:700 10px var(--font-mono);
+  text-align:center;
+}
+.logo-preview-box img{max-width:100%;max-height:64px;object-fit:contain;display:block;}
+.logo-help{font-size:11px;color:var(--text-light);font-family:var(--font-mono);line-height:1.45;flex:1;min-width:190px;}
+
 
 /* AJUSTE CIRÚRGICO — rich text não invade margem */
 .form-grid > *,
@@ -1394,6 +1473,17 @@ select option{background:#1b2e42;color:#e8eaf0;}
         </div>
       </div>
       <div class="config-section">
+        <h3>🖼️ Logo dos relatórios</h3>
+        <p>Use aqui a logo do escritório. Ela será salva e aparecerá no PDF dos relatórios.</p>
+        <div class="logo-config-card">
+          <div class="logo-preview-box" id="cfgRelLogoPreview"><span>Sem logo</span></div>
+          <div class="logo-help">Formatos aceitos: PNG, JPG, WEBP ou SVG. Prefira imagem horizontal e leve para não pesar o arquivo.</div>
+          <input type="file" id="cfgRelLogoInput" accept="image/*,.svg,.webp,.png,.jpg,.jpeg" style="display:none" onchange="handleRelatorioLogoInput(this)">
+          <button type="button" class="btn-primary" onclick="$('cfgRelLogoInput').click()">Inserir logo</button>
+          <button type="button" class="btn-secondary" onclick="removeRelatorioLogo()">Remover</button>
+        </div>
+      </div>
+      <div class="config-section">
         <h3>🔒 Alterar senha de exclusão</h3>
         <p>PIN de 4 dígitos para confirmar exclusões. Padrão: <strong>1234</strong></p>
         <div class="config-row"><input type="password" id="cfgSenhaAtual" placeholder="Senha atual" maxlength="4"></div>
@@ -1533,6 +1623,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
 let S = {
   senha: '1234',
   nomeEscritorio: 'Painel de Gestão',
+  relatorioLogo: '',
   printFont: 'Arial',
   printFontSize: '10.5pt',
   camposEstaticos: [],
@@ -1706,6 +1797,7 @@ async function init(){
   S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
   S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
   S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
+  S.relatorioLogo = typeof S.relatorioLogo === 'string' ? S.relatorioLogo : '';
   S.printFont = S.printFont || 'Arial';
   S.printFontSize = S.printFontSize || '10.5pt';
   S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length ? S.filterObrigacoes : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
@@ -2392,6 +2484,7 @@ function initCompanyRichFields(){
     el.addEventListener('drop', handleRichDrop);
     el.addEventListener('dragover', ev => ev.preventDefault());
     el.addEventListener('click', handleRichImageClick);
+    el.addEventListener('keydown', handleRichImageKeydown);
   });
 }
 
@@ -2939,6 +3032,85 @@ function insertPlainPaste(ev, fragment){
   markActiveRichInput();
 }
 
+function matrixToRichTable(matrix){
+  const table = document.createElement('table');
+  table.className = 'rich-excel-table';
+  table.setAttribute('data-origin', 'excel');
+  const tbody = document.createElement('tbody');
+  matrix.forEach(row => {
+    const tr = document.createElement('tr');
+    row.forEach(cell => {
+      const td = document.createElement('td');
+      td.textContent = cell == null ? '' : String(cell);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  return table;
+}
+function parseTsvMatrix(text){
+  const normalized = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let lines = normalized.split('\n');
+  while(lines.length && lines[lines.length - 1] === '') lines.pop();
+  if(!lines.length || !lines.some(line => line.includes('\t'))) return null;
+  const matrix = lines.map(line => line.split('\t').map(cell => cell.replace(/[\u00A0\u202F\u2007]/g, ' ').trim()));
+  const maxCols = Math.max(...matrix.map(r => r.length));
+  if(maxCols < 2) return null;
+  return matrix.map(row => row.concat(Array(Math.max(0, maxCols - row.length)).fill('')));
+}
+function parseHtmlTableMatrix(html){
+  if(!html || !/<table[\s>]/i.test(html)) return null;
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
+  const table = tpl.content.querySelector('table');
+  if(!table) return null;
+  const rows = Array.from(table.querySelectorAll('tr')).map(tr => {
+    return Array.from(tr.querySelectorAll('th,td')).map(td => (td.innerText || td.textContent || '').replace(/\s+$/g, '').trim());
+  }).filter(row => row.length);
+  if(!rows.length) return null;
+  const maxCols = Math.max(...rows.map(r => r.length));
+  if(maxCols < 2) return null;
+  return rows.map(row => row.concat(Array(Math.max(0, maxCols - row.length)).fill('')));
+}
+function excelFragmentFromClipboard(text, html){
+  const matrix = parseHtmlTableMatrix(html) || parseTsvMatrix(text);
+  if(!matrix) return null;
+  const frag = document.createDocumentFragment();
+  frag.appendChild(matrixToRichTable(matrix));
+  frag.appendChild(document.createElement('br'));
+  return frag;
+}
+function insertRichContentFragment(editor, fragment){
+  if(!editor || !fragment) return;
+  activeRichField = editor;
+  editor.focus({preventScroll:true});
+  restoreRichSelection();
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount){
+    const range = sel.getRangeAt(0);
+    if(isRichRangeValid(range, editor)){
+      range.deleteContents();
+      const marker = document.createTextNode('');
+      fragment.appendChild(marker);
+      range.insertNode(fragment);
+      const next = document.createRange();
+      next.setStartAfter(marker);
+      next.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(next);
+      savedRichRange = next.cloneRange();
+    } else {
+      editor.appendChild(fragment);
+    }
+  } else {
+    editor.appendChild(fragment);
+  }
+  normalizeRichFieldLayout(editor);
+  markActiveRichInput();
+  setTimeout(() => { saveRichSelection(true); updateFloatingMenu(); }, 0);
+}
+
 function handleRichPaste(ev){
   const items = Array.from(ev.clipboardData?.items || []);
   const imageItems = items.filter(item => item.type.startsWith('image/'));
@@ -2962,7 +3134,14 @@ function handleRichPaste(ev){
     activeRichField = ev.currentTarget;
     saveRichSelection(true);
 
-    // Padrão definitivo: ignorar HTML/Word/WhatsApp/Excel/browser e usar somente texto puro.
+    // Excel/planilhas: transforma a área copiada em tabela editável dentro da ficha.
+    const excelFragment = excelFragmentFromClipboard(text, html);
+    if(excelFragment){
+      insertRichContentFragment(activeRichField, excelFragment);
+      return;
+    }
+
+    // Demais fontes: mantém o padrão seguro de colar sem formatação.
     const plain = text || html.replace(/<br\s*\/?>(?![^<]*>)/gi, '\n').replace(/<[^>]+>/g, ' ');
     const fragment = plainTextToFragment(plain);
     insertPlainPaste(ev, fragment);
@@ -2977,20 +3156,53 @@ function handleRichDrop(ev){
     insertImageFiles(files);
   }
 }
+function unwrapImageTool(wrap, keepImg=true){
+  if(!wrap || !wrap.classList?.contains('img-resize-wrap')) return;
+  const img = wrap.querySelector('img');
+  if(keepImg && img){
+    img.classList.remove('img-selected');
+    wrap.parentNode.insertBefore(img, wrap);
+  }
+  wrap.remove();
+}
 function unwrapSelectedImages(editor){
-  editor.querySelectorAll('.img-resize-wrap').forEach(wrap => {
-    const img = wrap.querySelector('img');
-    if(img){
-      img.classList.remove('img-selected');
-      wrap.parentNode.insertBefore(img, wrap);
-    }
-    wrap.remove();
-  });
+  if(!editor) return;
+  editor.querySelectorAll('.img-resize-wrap').forEach(wrap => unwrapImageTool(wrap, true));
+}
+function cleanupImageToolsInField(editor){
+  if(!editor) return;
+  editor.querySelectorAll('.img-resize-wrap').forEach(wrap => unwrapImageTool(wrap, true));
+  editor.querySelectorAll('img').forEach(img => img.classList.remove('img-selected'));
+}
+function cleanupAllImageTools(){
+  getCompanyRichFields().forEach(cleanupImageToolsInField);
+}
+function deleteSelectedImage(editor){
+  if(!editor) editor = activeRichField;
+  const wrap = editor?.querySelector('.img-resize-wrap');
+  const img = wrap?.querySelector('img') || editor?.querySelector('img.img-selected');
+  if(wrap){ unwrapImageTool(wrap, false); }
+  else if(img){ img.remove(); }
+  if(editor){ markActiveRichInput(); toast('Imagem removida.', 'success'); }
+}
+function handleRichImageKeydown(ev){
+  if((ev.key === 'Delete' || ev.key === 'Backspace') && ev.currentTarget.querySelector('.img-resize-wrap, img.img-selected')){
+    ev.preventDefault();
+    deleteSelectedImage(ev.currentTarget);
+  }
 }
 function handleRichImageClick(ev){
   const editor = ev.currentTarget;
+  const deleteBtn = ev.target.closest?.('.img-resize-delete');
+  if(deleteBtn){
+    ev.preventDefault();
+    ev.stopPropagation();
+    deleteSelectedImage(editor);
+    return;
+  }
+  if(ev.target.closest?.('.img-resize-handle')) return;
   if(ev.target.tagName !== 'IMG'){
-    unwrapSelectedImages(editor);
+    if(!ev.target.closest?.('.img-resize-wrap')) unwrapSelectedImages(editor);
     return;
   }
   ev.preventDefault();
@@ -3000,34 +3212,58 @@ function handleRichImageClick(ev){
   img.classList.add('img-selected');
   const wrap = document.createElement('span');
   wrap.className = 'img-resize-wrap';
+  wrap.setAttribute('contenteditable','false');
   img.parentNode.insertBefore(wrap, img);
   wrap.appendChild(img);
+
   const hint = document.createElement('span');
   hint.className = 'img-resize-hint';
-  hint.textContent = 'arraste para redimensionar';
+  hint.textContent = 'arraste para redimensionar • × exclui';
+
+  const del = document.createElement('span');
+  del.className = 'img-resize-delete';
+  del.title = 'Excluir imagem';
+  del.textContent = '×';
+
   const handle = document.createElement('span');
   handle.className = 'img-resize-handle';
+  handle.title = 'Arraste para redimensionar';
+
   wrap.appendChild(hint);
+  wrap.appendChild(del);
   wrap.appendChild(handle);
-  let startX = 0, startW = 0;
-  handle.addEventListener('mousedown', e => {
+
+  let startX = 0, startW = 0, maxW = 0;
+  const startResize = e => {
     e.preventDefault();
     e.stopPropagation();
-    startX = e.clientX;
-    startW = img.getBoundingClientRect().width;
+    const point = e.touches?.[0] || e;
+    startX = point.clientX;
+    startW = img.getBoundingClientRect().width || img.width || 180;
+    maxW = Math.max(120, editor.clientWidth - 24);
+    document.body.style.userSelect = 'none';
     const onMove = mv => {
-      const newW = Math.max(60, startW + (mv.clientX - startX));
+      const p = mv.touches?.[0] || mv;
+      const newW = Math.max(60, Math.min(maxW, startW + (p.clientX - startX)));
       img.style.width = newW + 'px';
-      img.style.maxWidth = 'none';
+      img.style.height = 'auto';
+      img.style.maxWidth = '100%';
     };
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+      document.body.style.userSelect = '';
       markActiveRichInput();
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  });
+    document.addEventListener('touchmove', onMove, {passive:false});
+    document.addEventListener('touchend', onUp);
+  };
+  handle.addEventListener('mousedown', startResize);
+  handle.addEventListener('touchstart', startResize, {passive:false});
 }
 function setRichFieldsEditable(canEdit){
   getCompanyRichFields().forEach(el => {
@@ -3177,7 +3413,7 @@ function empresaFormHtml(e){
   </div>
   <div class="form-section">
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
-    <div class="rich-hint">💡 Selecione um trecho para abrir o menu flutuante. Use hexadecimal para cor do texto e marca-texto. Ctrl+Z/Ctrl+Y usam o histórico nativo do navegador. Imagens continuam por Ctrl+V, arraste para o campo ou 🖼️ no menu.</div>
+    <div class="rich-hint">💡 Selecione um trecho para abrir o menu flutuante. Cole uma faixa do Excel para virar tabela automaticamente. Imagens entram por Ctrl+V, arraste ou 🖼️; clique na imagem para redimensionar ou excluir.</div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Parâmetros</label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
       <div class="form-group"><label>Regras / Procedimentos</label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
@@ -3314,6 +3550,7 @@ function setupCompanyDirtyTracking(){
 }
 
 function collectCompanyFormData(){
+  cleanupAllImageTools();
   normalizeAllRichFields();
   const original = S.empresas.find(x=>x.id===currentEditId) || {};
   return {
@@ -3496,6 +3733,48 @@ function checkPin(){
   }
 }
 
+function relatorioLogoPreviewHtml(){
+  return S.relatorioLogo
+    ? `<img src="${escAttr(S.relatorioLogo)}" alt="Logo do relatório">`
+    : '<span>Logo / Escritório</span>';
+}
+function refreshRelatorioLogoPreviews(){
+  ['cfgRelLogoPreview','relLogoPreview'].forEach(id => {
+    const el = $(id);
+    if(el) el.innerHTML = relatorioLogoPreviewHtml();
+  });
+}
+function handleRelatorioLogoInput(input){
+  const file = input?.files?.[0];
+  if(!file) return;
+  if(!/^image\//i.test(file.type) && !/\.(svg|png|jpe?g|webp|gif)$/i.test(file.name || '')){
+    toast('Escolha uma imagem válida para a logo.', 'error');
+    input.value = '';
+    return;
+  }
+  if(file.size > 2.5 * 1024 * 1024){
+    toast('A logo está muito pesada. Use uma imagem menor que 2,5 MB.', 'error');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    S.relatorioLogo = String(reader.result || '');
+    saveState();
+    refreshRelatorioLogoPreviews();
+    toast('Logo dos relatórios salva.', 'success');
+  };
+  reader.onerror = () => toast('Não consegui ler a imagem da logo.', 'error');
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+function removeRelatorioLogo(){
+  S.relatorioLogo = '';
+  saveState();
+  refreshRelatorioLogoPreviews();
+  toast('Logo removida dos relatórios.', 'success');
+}
+
 function openConfigModal(){
   $('cfgNome').value = S.nomeEscritorio || '';
   $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; $('cfgNovaObrig').value='';
@@ -3504,6 +3783,7 @@ function openConfigModal(){
   if($('cfgNovoCampoEstatico')) $('cfgNovoCampoEstatico').value = '';
   renderCfgObrigList();
   renderCfgCamposEstaticosList();
+  refreshRelatorioLogoPreviews();
   openModal('modalConfig');
 }
 function saveOfficeName(){
@@ -3548,6 +3828,7 @@ function openRelatorio(){
   $('relatorioBody').innerHTML = relatorioHtml();
   openModal('modalRelatorio');
   renderRelatorioTabela();
+  refreshRelatorioLogoPreviews();
 }
 function relatorioHtml(){
   const atOpts = getAllActivities().map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
@@ -3582,6 +3863,13 @@ function relatorioHtml(){
     <select id="relAtividade" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todas as atividades</option>${atOpts}</select>
     <select id="relRegime" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todos os regimes</option><option value="simples">Simples Nacional</option><option value="presumido">Lucro Presumido</option><option value="real">Lucro Real</option><option value="outros">Outros</option></select>
     <button class="btn-export-rel" onclick="exportRelatorioCSV()">⬇️ Exportar CSV</button>
+  </div>
+  <div class="report-logo-tools" style="margin-bottom:14px;">
+    <div class="logo-preview-box" id="relLogoPreview">${relatorioLogoPreviewHtml()}</div>
+    <div class="logo-help">Logo usada no PDF deste relatório. Você pode inserir/remover por aqui sem sair da emissão.</div>
+    <input type="file" id="relLogoInput" accept="image/*,.svg,.webp,.png,.jpg,.jpeg" style="display:none" onchange="handleRelatorioLogoInput(this)">
+    <button type="button" class="btn-primary" onclick="$('relLogoInput').click()">Inserir logo</button>
+    <button type="button" class="btn-secondary" onclick="removeRelatorioLogo()">Remover</button>
   </div>
   <div id="relatorioConteudo"></div>`;
 }
@@ -3735,7 +4023,8 @@ function printFontSize(){
 function sanitizeRichForPrint(html){
   const tpl = document.createElement('template');
   tpl.innerHTML = html || '';
-  tpl.content.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(el => el.remove());
+  tpl.content.querySelectorAll('script,style,iframe,object,embed,link,meta,.img-resize-handle,.img-resize-hint,.img-resize-delete').forEach(el => el.remove());
+  tpl.content.querySelectorAll('.img-resize-wrap').forEach(wrap => unwrapImageTool(wrap, true));
   tpl.content.querySelectorAll('*').forEach(el => {
     Array.from(el.attributes || []).forEach(attr => {
       if(/^on/i.test(attr.name) || attr.name === 'contenteditable' || attr.name === 'id') el.removeAttribute(attr.name);
@@ -3789,6 +4078,8 @@ function buildEmpresaPrintHtml(e){
     .p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word;word-break:normal;}
     .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important;}
     .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
+    .p-rich table{width:100%;border-collapse:collapse;margin:6px 0;table-layout:auto;}
+    .p-rich table td,.p-rich table th{border:1px solid #999;padding:4px 5px;vertical-align:top;overflow-wrap:anywhere;}
     .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt;}
     .muted{color:#666;}
     @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;} .page{break-after:auto;}}
@@ -3893,6 +4184,8 @@ function buildRelatorioPrintHtml(){
   const colaboradores = new Set(rows.map(r=>r.colaborador).filter(v=>v && v !== '—')).size;
   const regimes = rows.reduce((acc,r)=>{ acc[r.regime]=(acc[r.regime]||0)+1; return acc; },{});
   const emitido = new Date().toLocaleString('pt-BR');
+  const logoHtml = S.relatorioLogo ? `<img src="${escAttr(S.relatorioLogo)}" alt="Logo do escritório">` : 'Logo / Escritório';
+  const logoClass = S.relatorioLogo ? 'logo-box has-logo' : 'logo-box';
   const tableRows = rows.map((r,i)=>`<tr><td class="num">${i+1}</td><td class="empresa">${esc(r.empresa)}</td><td>${esc(r.cnpj)}</td><td>${esc(r.regime)}</td><td>${esc(r.colaborador)}</td><td>${esc(r.atividade)}</td><td>${esc(r.impostos)}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">Nenhum registro encontrado.</td></tr>';
   const regimeSummary = Object.keys(regimes).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(k=>`<span><strong>${esc(k)}:</strong> ${regimes[k]}</span>`).join('');
   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(titulo)}</title>
@@ -3905,6 +4198,8 @@ function buildRelatorioPrintHtml(){
     .topbar{height:6px;background:linear-gradient(90deg,#c9a84c,#e8c97a 45%,#0d1b2a 100%);flex-shrink:0;}
     .doc-header{padding:24px 44px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;border-bottom:2px solid #f1f3f6;}
     .logo-box{width:150px;min-height:50px;border:1.5px dashed #c9a84c;border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 9px 'DM Mono',monospace;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase;}
+    .logo-box.has-logo{border:none;min-height:54px;justify-content:flex-start;}
+    .logo-box img{max-width:150px;max-height:68px;object-fit:contain;display:block;}
     .title-area{flex:1;text-align:right;}
     .office{font-size:11px;font-style:italic;color:#c9a84c;font-weight:600;margin-bottom:3px;font-family:'DM Sans',sans-serif;}
     h1{font-size:20px;font-weight:800;color:#0d1b2a;letter-spacing:-.3px;line-height:1.1;text-transform:uppercase;margin:0;}
@@ -3937,7 +4232,7 @@ function buildRelatorioPrintHtml(){
     @media print{.sheet{width:100%;min-height:100vh;box-shadow:none;margin:0;} body{background:#fff;}}
   </style></head><body><main class="sheet">
     <div class="topbar"></div>
-    <header class="doc-header"><div class="logo-box">Logo / Escritório</div><div class="title-area"><div class="office">${esc(S.nomeEscritorio || 'Painel de Gestão')}</div><h1>${esc(titulo)}</h1><div class="sub">Relatório fiscal operacional • Emitido em ${esc(emitido)}</div></div></header>
+    <header class="doc-header"><div class="${logoClass}">${logoHtml}</div><div class="title-area"><div class="office">${esc(S.nomeEscritorio || 'Painel de Gestão')}</div><h1>${esc(titulo)}</h1><div class="sub">Relatório fiscal operacional • Emitido em ${esc(emitido)}</div></div></header>
     <section class="info-banner"><div class="icon">📌</div><div><h3>Lista para conferência de fechamento</h3><p>Empresas marcadas como sem movimento ou fechadas não entram no relatório de empresas com movimento. Use o filtro do painel antes de exportar caso queira restringir por regime, colaborador, atividade ou obrigação.</p></div></section>
     <section class="summary"><div class="field"><span class="label">Total no relatório</span><span class="value">${total}</span></div><div class="field"><span class="label">Colaboradores</span><span class="value">${colaboradores}</span></div><div class="field"><span class="label">Tipo</span><span class="value">${esc(titulo)}</span></div><div class="regimes">${regimeSummary || '<span><strong>Regimes:</strong> —</span>'}</div></section>
     <div class="section-title">Empresas listadas</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Atividade / obrigação</th><th>Impostos / venc.</th></tr></thead><tbody>${tableRows}</tbody></table></div>
