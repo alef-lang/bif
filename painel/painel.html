@@ -1029,58 +1029,6 @@ select option{background:#1b2e42;color:#e8eaf0;}
 
 
 
-/* CNPJ NUMÉRICO COPIÁVEL */
-.cnpj-numerico-wrap{
-  margin-top:7px;
-  padding:7px 8px;
-  border:1px solid rgba(201,168,76,0.18);
-  border-radius:9px;
-  background:rgba(201,168,76,0.045);
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:7px;
-  align-items:center;
-}
-.cnpj-numerico-label{
-  grid-column:1/-1;
-  font-size:9px;
-  font-weight:700;
-  color:var(--gold);
-  text-transform:uppercase;
-  letter-spacing:.55px;
-  font-family:var(--font-mono);
-}
-.cnpj-numerico-input{
-  width:100%;
-  min-width:0;
-  padding:6px 8px !important;
-  border:1px solid rgba(201,168,76,0.18) !important;
-  border-radius:7px !important;
-  background:rgba(13,27,42,0.22) !important;
-  color:var(--gold-light) !important;
-  font-family:var(--font-mono) !important;
-  font-size:12px !important;
-  font-weight:700 !important;
-  letter-spacing:.5px;
-}
-.btn-copy-cnpj{
-  padding:6px 9px;
-  border-radius:7px;
-  border:1px solid var(--gold-dim);
-  background:rgba(201,168,76,0.12);
-  color:var(--gold-light);
-  cursor:pointer;
-  font-size:11px;
-  font-weight:700;
-  font-family:var(--font-body);
-  white-space:nowrap;
-  transition:all .16s;
-}
-.btn-copy-cnpj:hover{background:rgba(201,168,76,0.24);border-color:var(--gold);transform:translateY(-1px);}
-.modal.view-mode .btn-copy-cnpj{display:inline-flex!important;align-items:center;justify-content:center;}
-@media(max-width:560px){.cnpj-numerico-wrap{grid-template-columns:1fr}.btn-copy-cnpj{width:100%;justify-content:center;}}
-
-
 /* IMPOSTOS FIXOS NA FICHA */
 .impostos-manager{
   border:1.5px solid var(--border);
@@ -2008,39 +1956,6 @@ function esc(v){
   return safe(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 }
 function norm(v){ return safe(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-function cnpjDigits(v){ return safe(v).replace(/\D/g,'').slice(0,14); }
-function updateCnpjNumericoMirror(){
-  const input = $('f_cnpj');
-  const mirror = $('f_cnpj_numerico');
-  if(!input || !mirror) return;
-  mirror.value = cnpjDigits(input.value);
-}
-function copyCnpjNumerico(){
-  updateCnpjNumericoMirror();
-  const mirror = $('f_cnpj_numerico');
-  if(!mirror) return;
-  const value = mirror.value;
-  if(!value){ toast('Não há CNPJ numérico para copiar.', 'error'); return; }
-  const fallbackCopy = () => {
-    mirror.removeAttribute('readonly');
-    mirror.select();
-    mirror.setSelectionRange?.(0, mirror.value.length);
-    const ok = document.execCommand('copy');
-    mirror.setAttribute('readonly','readonly');
-    return ok;
-  };
-  if(navigator.clipboard && window.isSecureContext){
-    navigator.clipboard.writeText(value)
-      .then(() => toast('CNPJ numérico copiado.', 'success'))
-      .catch(() => {
-        try{ fallbackCopy() ? toast('CNPJ numérico copiado.', 'success') : toast('Não consegui copiar automaticamente.', 'error'); }
-        catch(e){ toast('Não consegui copiar automaticamente.', 'error'); }
-      });
-  } else {
-    try{ fallbackCopy() ? toast('CNPJ numérico copiado.', 'success') : toast('Não consegui copiar automaticamente.', 'error'); }
-    catch(e){ toast('Não consegui copiar automaticamente.', 'error'); }
-  }
-}
 function regimeLabel(r){ return ({simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[r] || 'Outros'); }
 function statusLabel(s){ return ({entregue:'Entregue',pendente:'Pendente',atrasado:'Atrasado'}[s] || 'Pendente'); }
 function empresaStatus(e){ return e.fechada ? 'fechada' : e.semMovimento ? 'sem_movimento' : 'ativa'; }
@@ -3242,16 +3157,11 @@ function matrixToRichTable(matrix){
   return table;
 }
 function parseTsvMatrix(text){
-  const normalized = String(text || '').replace(/
-/g, '
-').replace(/
-/g, '
-');
-  let lines = normalized.split('
-');
+  const normalized = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let lines = normalized.split('\n');
   while(lines.length && lines[lines.length - 1] === '') lines.pop();
-  if(!lines.length || !lines.some(line => line.includes('	'))) return null;
-  const matrix = lines.map(line => line.split('	').map(cell => cell.replace(/[   ]/g, ' ').trim()));
+  if(!lines.length || !lines.some(line => line.includes('\t'))) return null;
+  const matrix = lines.map(line => line.split('\t').map(cell => cell.replace(/[\u00A0\u202F\u2007]/g, ' ').trim()));
   const maxCols = Math.max(...matrix.map(r => r.length));
   if(maxCols < 2) return null;
   return matrix.map(row => row.concat(Array(Math.max(0, maxCols - row.length)).fill('')));
@@ -3339,8 +3249,7 @@ function handleRichPaste(ev){
     }
 
     // Demais fontes: mantém o padrão seguro de colar sem formatação.
-    const plain = text || html.replace(/<br\s*\/?>(?![^<]*>)/gi, '
-').replace(/<[^>]+>/g, ' ');
+    const plain = text || html.replace(/<br\s*\/?>(?![^<]*>)/gi, '\n').replace(/<[^>]+>/g, ' ');
     const fragment = plainTextToFragment(plain);
     insertPlainPaste(ev, fragment);
   }
@@ -3587,15 +3496,15 @@ function empresaFormHtml(e){
       <div class="form-group">
         <label>CNPJ</label>
         <div style="display:flex;gap:6px;align-items:center;">
-          <input id="f_cnpj" value="${esc(e.cnpj)}" style="flex:1;" oninput="maskCnpj(this);updateCnpjNumericoMirror();">
+          <input id="f_cnpj" value="${esc(e.cnpj)}" style="flex:1;" oninput="maskCnpj(this)">
           <button type="button" onclick="buscarCnpjEdit()" id="btnBuscarCnpjEdit" style="border-radius:8px;padding:6px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;">🔍 Buscar</button>
         </div>
-        <div class="cnpj-numerico-wrap">
-          <div class="cnpj-numerico-label">CNPJ somente números — para e-CAC, Receita e portais</div>
-          <input id="f_cnpj_numerico" class="cnpj-numerico-input" value="${esc(cnpjDigits(e.cnpj))}" readonly onclick="this.select()" aria-label="CNPJ somente números">
-          <button type="button" class="btn-copy-cnpj" onclick="copyCnpjNumerico()">📋 Copiar</button>
-        </div>
         <div id="cnpjEditStatus" style="font-size:11px;margin-top:4px;min-height:16px;font-family:var(--font-mono);"></div>
+        ${e.cnpj ? `<div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+          <span style="font-size:10px;color:var(--text-light);font-family:var(--font-mono);letter-spacing:0.3px;">Só números:</span>
+          <span id="cnpjNumerico" style="font-size:11px;font-family:var(--font-mono);color:var(--gold-light);background:rgba(201,168,76,0.08);border:1px solid var(--gold-dim);border-radius:5px;padding:2px 7px;letter-spacing:0.5px;">${esc((e.cnpj||'').replace(/\D/g,''))}</span>
+          <button type="button" onclick="(function(){var t=document.getElementById('cnpjNumerico');var v=t.textContent.trim();navigator.clipboard.writeText(v).then(function(){toast('CNPJ copiado!','success');}).catch(function(){var i=document.createElement('input');i.value=v;document.body.appendChild(i);i.select();document.execCommand('copy');document.body.removeChild(i);toast('CNPJ copiado!','success');});})()" title="Copiar CNPJ sem formatação" style="background:rgba(201,168,76,0.12);border:1px solid var(--gold-dim);color:var(--gold-light);border-radius:5px;padding:2px 8px;font-size:10px;cursor:pointer;font-family:var(--font-body);transition:all 0.15s;" onmouseover="this.style.background='rgba(201,168,76,0.25)'" onmouseout="this.style.background='rgba(201,168,76,0.12)'">📋 Copiar</button>
+        </div>` : ''}
       </div>
       <div class="form-group"><label>Regime Tributário</label><select id="f_regime">
         <option value="simples" ${e.regime==='simples'?'selected':''}>Simples Nacional</option>
