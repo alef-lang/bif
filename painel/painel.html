@@ -139,6 +139,7 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .card-status-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;white-space:nowrap;flex-shrink:0;}
 .badge-ativa{background:rgba(0,206,201,0.2);color:var(--simples);border:1px solid rgba(0,206,201,0.3);}
 .badge-fechada{background:rgba(99,110,114,0.25);color:#b2bec3;border:1px solid rgba(99,110,114,0.35);}
+.badge-sem-movimento{background:rgba(116,185,255,0.15);color:#74b9ff;border:1px solid rgba(116,185,255,0.3);}
 .card-meta{display:flex;flex-direction:column;gap:2px;margin-bottom:5px;}
 .card-meta-row{display:flex;align-items:flex-start;gap:5px;font-size:10px;color:var(--text-light);line-height:1.4;font-family:var(--font-mono);}
 
@@ -1170,6 +1171,10 @@ select option{background:#1b2e42;color:#e8eaf0;}
             <input type="checkbox" id="addFechada">
             <label for="addFechada">Empresa fechada / encerrada</label>
           </div>
+          <div class="checkbox-row" style="margin-top:8px;">
+            <input type="checkbox" id="addSemMovimento">
+            <label for="addSemMovimento">Empresa sem movimento</label>
+          </div>
         </div>
       </div>
     </div>
@@ -1844,7 +1849,7 @@ function renderCard(e){
   const apClass = apStatus;
   return `<div class="company-card ${esc(e.regime||'outros')} ${e.fechada?'fechada-card':''}" onclick="openEmpresa('${esc(e.id)}')">
     <button class="btn-delete" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir empresa">×</button>
-    <div class="card-top"><div class="card-name">${esc(e.nome)}</div><span class="card-status-badge ${e.fechada?'badge-fechada':'badge-ativa'}">${e.fechada?'FECHADA':'ABERTA'}</span></div>
+    <div class="card-top"><div class="card-name">${esc(e.nome)}</div><span class="card-status-badge ${e.fechada?'badge-fechada':e.semMovimento?'badge-sem-movimento':'badge-ativa'}">${e.fechada?'FECHADA':e.semMovimento?'SEM MOVIMENTO':'ABERTA'}</span></div>
     <div class="card-meta">
       <div class="card-meta-row"><span class="card-meta-icon">🏷️</span><span class="card-meta-text">${esc(regimeLabel(e.regime))}</span></div>
       <div class="card-meta-row"><span class="card-meta-icon">💼</span><span class="card-meta-text">${esc(e.atividade || 'Sem atividade informada')}</span></div>
@@ -1910,7 +1915,7 @@ function discardEmpresaChangesAndClose(){
 }
 
 function openAddModal(regime){
-  $('addNome').value=''; $('addCnpj').value=''; $('addAtividade').value=''; $('addColaborador').value=''; $('addFechada').checked=false;
+  $('addNome').value=''; $('addCnpj').value=''; $('addAtividade').value=''; $('addColaborador').value=''; $('addFechada').checked=false; if($('addSemMovimento')) $('addSemMovimento').checked=false;
   $('addRegime').value = regime || 'simples';
   openModal('modalAdd');
   setTimeout(()=>$('addNome').focus(),100);
@@ -2110,6 +2115,7 @@ function addCompany(){
     atividade: $('addAtividade').value.trim(),
     colaborador: $('addColaborador').value.trim(),
     fechada: $('addFechada').checked,
+    semMovimento: $('addSemMovimento')?.checked || false,
     statusApuracao: 'nao_apurada',
     inscricaoEstadual:'', inscricaoMunicipal:'', endereco:'', cep:'', cidade:'', uf:'',
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
@@ -3033,6 +3039,7 @@ function empresaFormHtml(e){
       <div class="form-group"><label>Inscrição Estadual</label><input id="f_ie" value="${esc(e.inscricaoEstadual)}"></div>
       <div class="form-group"><label>Inscrição Municipal</label><input id="f_im" value="${esc(e.inscricaoMunicipal)}"></div>
       <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_fechada" ${e.fechada?'checked':''}><label for="f_fechada">Empresa fechada / encerrada</label></div></div>
+      <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_semMovimento" ${e.semMovimento?'checked':''}><label for="f_semMovimento">Empresa sem movimento</label></div></div>
     </div>
   </div>
   <div class="form-section">
@@ -3225,6 +3232,7 @@ function collectCompanyFormData(){
     inscricaoEstadual: $('f_ie')?.value?.trim() || '',
     inscricaoMunicipal: $('f_im')?.value?.trim() || '',
     fechada: !!$('f_fechada')?.checked,
+    semMovimento: !!$('f_semMovimento')?.checked,
     statusApuracao: original.statusApuracao || 'nao_apurada',
     endereco: $('f_endereco')?.value?.trim() || '',
     cep: $('f_cep')?.value?.trim() || '',
