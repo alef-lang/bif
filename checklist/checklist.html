@@ -935,8 +935,8 @@
       <div class="filter-panel" id="filterBar" aria-label="Filtros do checklist">
         <div class="filter-title"><span class="filter-title-icon">⌁</span> Visualização</div>
         <div class="filter-segments">
-          <span class="cat-chip all active" data-filter="all" onclick="aplicarFiltroStatus('all')">Todas</span>
-          <span class="cat-chip pending-filter" data-filter="pending" onclick="aplicarFiltroStatus('pending')">Pendentes</span>
+          <span class="cat-chip all" data-filter="all" onclick="aplicarFiltroStatus('all')">Todas</span>
+          <span class="cat-chip pending-filter active" data-filter="pending" onclick="aplicarFiltroStatus('pending')">Pendentes</span>
           <span class="cat-chip done-filter" data-filter="done" onclick="aplicarFiltroStatus('done')">Concluídas</span>
         </div>
         <div class="filter-count-hint" id="filterHint">Mostrando todas</div>
@@ -953,7 +953,54 @@
 
   <script>
     // Filtro por status
-    let filtroAtualChecklist = 'all';
+    let filtroAtualChecklist = 'pending';
+
+    function subtasksDaEmpresa(item) {
+      return Array.from(item?.querySelectorAll('.sub-check') || []);
+    }
+
+    function todasSubtasksMarcadas(item) {
+      const subs = subtasksDaEmpresa(item);
+      return !subs.length || subs.every(cb => cb.checked);
+    }
+
+    function abrirSubtasksEmpresa(item) {
+      const panel = item?.querySelector('.subtasks-panel');
+      if (!panel) return;
+      panel.style.display = 'block';
+      const btn = item.querySelector('button[onclick*="toggleSubtasks"]');
+      if (btn) btn.textContent = btn.textContent.replace(/[▶▼]/, '▼');
+    }
+
+    function avisoChecklist(msg) {
+      let toast = document.getElementById('checklistToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'checklistToast';
+        toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:99999;max-width:360px;padding:11px 16px;border-radius:12px;border:1px solid rgba(201,168,76,0.35);background:#1b2e42;color:#e8c97a;font-family:DM Sans,sans-serif;font-size:12px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.45);opacity:0;transform:translateY(20px);transition:all .22s;';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+      clearTimeout(window._checklistToastTimer);
+      window._checklistToastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+      }, 3200);
+    }
+
+    function validarConclusaoEmpresa(cb) {
+      if (!cb || !cb.checked) return true;
+      const item = cb.closest('.empresa-item');
+      const pendentes = subtasksDaEmpresa(item).filter(sub => !sub.checked);
+      if (pendentes.length) {
+        cb.checked = false;
+        abrirSubtasksEmpresa(item);
+        avisoChecklist(`Antes de concluir a empresa, marque todas as subtarefas. Ainda falta${pendentes.length === 1 ? '' : 'm'} ${pendentes.length}.`);
+        return false;
+      }
+      return true;
+    }
 
     function aplicarFiltroStatus(filter) {
       filtroAtualChecklist = filter || 'all';
@@ -1015,8 +1062,12 @@
     // Adiciona listeners em todos os checkboxes
     function bindCheckboxListeners() {
       document.querySelectorAll(".empresa-check").forEach((cb) => {
-        cb.removeEventListener("change", atualizarTotais);
-        cb.addEventListener("change", atualizarTotais);
+        if (cb._checklistMainBound) return;
+        cb._checklistMainBound = true;
+        cb.addEventListener("change", () => {
+          validarConclusaoEmpresa(cb);
+          atualizarTotais();
+        });
       });
     }
 
@@ -1351,6 +1402,7 @@
         const cb = item.querySelector('.empresa-check');
         const obsMes = item.querySelector('.obs-mes');
         if (cb) cb.checked = false;
+        item.querySelectorAll('.sub-check').forEach(sub => { sub.checked = false; });
         if (obsMes) obsMes.value = '';
       });
 
@@ -1360,6 +1412,9 @@
         Object.keys(saved.painelObs).forEach(k => {
           saved.painelObs[k].obs = '';
           saved.painelObs[k].checked = false;
+          if (saved.painelObs[k].subtasks) {
+            Object.keys(saved.painelObs[k].subtasks).forEach(subKey => { saved.painelObs[k].subtasks[subKey] = false; });
+          }
         });
         localStorage.setItem('checklistFiscal', JSON.stringify(saved));
       }
@@ -1453,13 +1508,40 @@
     }
   }
 
+  function escChecklist(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  function normalizeImpostoChecklist(item) {
+    if (typeof item === 'string') return { nome: item.trim(), periodicidade: 'Mensal', observacao: '' };
+    const obj = item || {};
+    return {
+      nome: String(obj.nome || obj.name || '').trim(),
+      periodicidade: String(obj.periodicidade || obj.periodo || obj.frequencia || 'Mensal').trim() || 'Mensal',
+      observacao: String(obj.observacao || obj.obs || obj.vencimento || '').trim()
+    };
+  }
+
+  function impostosChecklist(e) {
+    return (Array.isArray(e?.impostos) ? e.impostos : []).map(normalizeImpostoChecklist).filter(i => i.nome);
+  }
+
+  function impostoSubKey(imposto) {
+    return 'tax_' + String(imposto.nome || '').trim();
+  }
+
+  function getPainelObsSaved() {
+    try { return JSON.parse(localStorage.getItem('checklistFiscal') || '{}'); }
+    catch(e) { return {}; }
+  }
+
   window.carregarDoPanel = async function() {
     const colaborador = document.getElementById('colaboradorSelect').value;
     const container   = document.getElementById('painelSection');
     const manualSec   = document.getElementById('manualSections');
 
     // Salva seleção
-    const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+    const saved = getPainelObsSaved();
     saved.colaboradorSelecionado = colaborador;
     localStorage.setItem('checklistFiscal', JSON.stringify(saved));
 
@@ -1468,6 +1550,7 @@
       container.innerHTML = '';
       manualSec.style.display = '';
       atualizarTotais();
+      aplicarFiltroStatus('pending');
       return;
     }
 
@@ -1492,8 +1575,9 @@
 
     const empresas = window._painelEmpresas.filter(e => e.colaborador === colaborador);
     if (!empresas.length) {
-      container.innerHTML = `<div class="section-card from-painel"><div class="section-header"><div class="section-title">Do Painel — ${colaborador}</div></div><p style="font-size:0.85rem;color:var(--text-muted);padding:8px 0;">Nenhuma empresa encontrada para este colaborador.</p></div>`;
+      container.innerHTML = `<div class="section-card from-painel"><div class="section-header"><div class="section-title">Do Painel — ${escChecklist(colaborador)}</div></div><p style="font-size:0.85rem;color:var(--text-muted);padding:8px 0;">Nenhuma empresa encontrada para este colaborador.</p></div>`;
       atualizarTotais();
+      aplicarFiltroStatus('pending');
       return;
     }
 
@@ -1502,54 +1586,84 @@
     let rows = '';
     empresas.forEach(e => {
       const key = String(e.id || e.cnpj || e.nome);
-      const obs     = (painelObs[key]?.obs  || '').replace(/</g,'&lt;');
-      const perm    = (painelObs[key]?.perm || '').replace(/</g,'&lt;');
-      const checked = painelObs[key]?.checked ? 'checked' : '';
+      const safeKey = escChecklist(key);
+      const subId = 'sub_' + key.replace(/[^a-z0-9]/gi,'_');
+      const obsData = painelObs[key] || {};
+      const obs     = escChecklist(obsData.obs  || '');
+      const perm    = escChecklist(obsData.perm || '');
+      const subtasksChecked = obsData.subtasks || {};
       const regimeLabel = {simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[e.regime] || e.regime || '';
 
-      // Subtarefas: obrigações acessórias da empresa
+      // Subtarefas: obrigações acessórias, importações XML e impostos cadastrados no Painel
       const obrigacoes = Array.isArray(e.obrigacoes) ? e.obrigacoes : [];
       const importacoes = Array.isArray(e.importacoes) ? e.importacoes : [];
-      const subtasksChecked = painelObs[key]?.subtasks || {};
-      const hasSubtasks = obrigacoes.length || importacoes.length;
+      const impostos = impostosChecklist(e);
+
+      const obrigKeys = obrigacoes.map(o => String(o?.nome || '').trim()).filter(Boolean);
+      const importKeys = importacoes.map(nome => 'imp_' + String(nome || '').trim()).filter(Boolean);
+      const impostoKeys = impostos.map(impostoSubKey).filter(Boolean);
+      const allSubKeys = [...obrigKeys, ...importKeys, ...impostoKeys];
+      const totalSub = allSubKeys.length;
+      const doneSub = allSubKeys.filter(k => !!subtasksChecked[k]).length;
+      const podeConcluir = totalSub === 0 || doneSub === totalSub;
+      const checked = (obsData.checked && podeConcluir) ? 'checked' : '';
+      const hasSubtasks = totalSub > 0;
+
       let subtasksHtml = '';
       if (hasSubtasks) {
         const obrigItems = obrigacoes.map(o => {
-          const subChecked = subtasksChecked[o.nome] ? 'checked' : '';
+          const nome = String(o?.nome || 'Obrigação').trim();
+          const subChecked = subtasksChecked[nome] ? 'checked' : '';
           const statusColor = o.status === 'entregue' ? '#2ecc8a' : o.status === 'atrasado' ? '#e05a5a' : '#c9a84c';
           return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="sub-check" data-empresa-key="${key}" data-sub-nome="${o.nome}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
-            <span style="font-size:0.82rem;flex:1;">${o.nome}</span>
-            <span style="font-size:0.68rem;font-family:var(--mono);color:${statusColor};">${o.vencimento||''}</span>
+            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(nome)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
+            <span style="font-size:0.82rem;flex:1;">${escChecklist(nome)}</span>
+            <span style="font-size:0.68rem;font-family:var(--mono);color:${statusColor};">${escChecklist(o.vencimento || '')}</span>
           </div>`;
         }).join('');
+
         const importItems = importacoes.map(nome => {
-          const subChecked = subtasksChecked['imp_'+nome] ? 'checked' : '';
+          const nomeTxt = String(nome || '').trim();
+          const subKey = 'imp_' + nomeTxt;
+          const subChecked = subtasksChecked[subKey] ? 'checked' : '';
           return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="sub-check" data-empresa-key="${key}" data-sub-nome="imp_${nome}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:#2ecc8a;">
-            <span style="font-size:0.82rem;flex:1;">📂 ${nome}</span>
+            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(subKey)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:#2ecc8a;">
+            <span style="font-size:0.82rem;flex:1;">📂 ${escChecklist(nomeTxt)}</span>
           </div>`;
         }).join('');
+
+        const impostoItems = impostos.map(imposto => {
+          const subKey = impostoSubKey(imposto);
+          const subChecked = subtasksChecked[subKey] ? 'checked' : '';
+          const detalhe = [imposto.periodicidade, imposto.observacao].filter(Boolean).join(' • ');
+          return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(subKey)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
+            <span style="font-size:0.82rem;flex:1;">💰 ${escChecklist(imposto.nome)}</span>
+            <span style="font-size:0.68rem;font-family:var(--mono);color:var(--gold-light);">${escChecklist(detalhe)}</span>
+          </div>`;
+        }).join('');
+
         subtasksHtml = `
-          <div class="subtasks-panel" id="sub_${key.replace(/[^a-z0-9]/gi,'_')}" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:6px;border:1px solid var(--gold-dim);">
+          <div class="subtasks-panel" id="${subId}" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:6px;border:1px solid var(--gold-dim);">
             ${obrigacoes.length ? `<div style="font-size:0.68rem;font-weight:700;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Obrigações Acessórias</div>${obrigItems}` : ''}
             ${importacoes.length ? `<div style="font-size:0.68rem;font-weight:700;color:#2ecc8a;letter-spacing:0.08em;text-transform:uppercase;margin:${obrigacoes.length?'10px':0} 0 6px;">Importações XML</div>${importItems}` : ''}
+            ${impostos.length ? `<div style="font-size:0.68rem;font-weight:700;color:var(--gold-light);letter-spacing:0.08em;text-transform:uppercase;margin:${(obrigacoes.length||importacoes.length)?'10px':0} 0 6px;">Impostos</div>${impostoItems}` : ''}
           </div>`;
       }
-      const totalSub = obrigacoes.length + importacoes.length;
+
       const subtaskBtn = hasSubtasks
-        ? `<button type="button" onclick="toggleSubtasks('sub_${key.replace(/[^a-z0-9]/gi,'_')}')" style="font-size:0.72rem;padding:2px 9px;border-radius:999px;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);cursor:pointer;font-family:var(--mono);">▶ ${totalSub} tarefa${totalSub!==1?'s':''}</button>`
+        ? `<button type="button" onclick="toggleSubtasks('${subId}')" style="font-size:0.72rem;padding:2px 9px;border-radius:999px;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);cursor:pointer;font-family:var(--mono);">▶ ${doneSub}/${totalSub} tarefa${totalSub!==1?'s':''}</button>`
         : '';
 
       rows += `
-        <div class="item-row empresa-item" data-painel-id="${key}">
-          <div class="item-check"><input type="checkbox" class="empresa-check" ${checked}/></div>
+        <div class="item-row empresa-item" data-painel-id="${safeKey}">
+          <div class="item-check"><input type="checkbox" class="empresa-check" ${checked} title="Só conclui depois que todas as subtarefas estiverem marcadas."/></div>
           <div class="item-main">
-            <input class="item-title-input" value="${(e.nome||'').replace(/"/g,'&quot;')}" readonly style="opacity:0.85;cursor:default;">
+            <input class="item-title-input" value="${escChecklist(e.nome || '')}" readonly style="opacity:0.85;cursor:default;">
             <div class="item-meta" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;">
               <span class="painel-badge">Painel</span>
-              ${regimeLabel ? `<span style="font-size:0.72rem;color:var(--text-muted);">${regimeLabel}</span>` : ''}
-              ${e.cnpj ? `<span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);">${e.cnpj}</span>` : ''}
+              ${regimeLabel ? `<span style="font-size:0.72rem;color:var(--text-muted);">${escChecklist(regimeLabel)}</span>` : ''}
+              ${e.cnpj ? `<span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);">${escChecklist(e.cnpj)}</span>` : ''}
               ${subtaskBtn}
             </div>
             ${subtasksHtml}
@@ -1566,22 +1680,44 @@
     container.innerHTML = `
       <section class="section-card from-painel">
         <div class="section-header">
-          <div class="section-title">Do Painel — ${colaborador} <span>(${empresas.length} empresas)</span></div>
+          <div class="section-title">Do Painel — ${escChecklist(colaborador)} <span>(${empresas.length} empresas)</span></div>
         </div>
         <div class="section-body">${rows}</div>
       </section>`;
 
     container.querySelectorAll('textarea').forEach(ta => ta.addEventListener('input', salvarPainelObs));
     container.querySelectorAll('.empresa-check').forEach(cb => cb.addEventListener('change', () => {
+      const validou = validarConclusaoEmpresa(cb);
       salvarPainelObs();
       atualizarTotais();
-      // Sincroniza apuração no Painel
       const item = cb.closest('.empresa-item');
       const empresaId = item?.dataset?.painelId;
-      if (empresaId) updatePainelApuracao(empresaId, cb.checked);
+      if (empresaId && validou) updatePainelApuracao(empresaId, cb.checked);
     }));
-    container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', salvarPainelObs));
+    container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', () => {
+      const item = cb.closest('.empresa-item');
+      const mainCb = item?.querySelector('.empresa-check');
+      const empresaId = item?.dataset?.painelId;
+      let mudouConclusao = false;
+
+      if (mainCb) {
+        const antes = mainCb.checked;
+        if (todasSubtasksMarcadas(item)) {
+          mainCb.checked = true;
+          if (!antes) avisoChecklist('Todas as subtarefas foram marcadas. Empresa concluída automaticamente.');
+        } else if (mainCb.checked) {
+          mainCb.checked = false;
+          avisoChecklist('Empresa voltou para pendente porque uma subtarefa foi desmarcada.');
+        }
+        mudouConclusao = antes !== mainCb.checked;
+      }
+
+      salvarPainelObs();
+      atualizarTotais();
+      if (empresaId && mainCb && mudouConclusao) updatePainelApuracao(empresaId, mainCb.checked);
+    }));
     atualizarTotais();
+    aplicarFiltroStatus('pending');
   };
 
   window.toggleSubtasks = function(id) {
@@ -1595,8 +1731,8 @@
   };
 
   window.salvarPainelObs = function() {
-    const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-    const painelObs = {};
+    const saved = getPainelObsSaved();
+    const painelObs = saved.painelObs || {};
     document.querySelectorAll('#painelSection .empresa-item').forEach(item => {
       const key = item.dataset.painelId;
       if (!key) return;
@@ -1666,6 +1802,7 @@
     // Checkboxes
     body.querySelectorAll('.empresa-check').forEach((cb, i) => {
       cb.addEventListener('change', () => {
+        validarConclusaoEmpresa(cb);
         if (manualItems[i]) manualItems[i].checked = cb.checked;
         salvarManual(); atualizarTotais();
       });
