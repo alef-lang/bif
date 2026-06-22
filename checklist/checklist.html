@@ -847,6 +847,158 @@
       padding-right: 2px;
     }
 
+
+    .scope-panel {
+      margin-top: -8px;
+      align-items: flex-start;
+    }
+
+    .scope-panel .filter-title {
+      padding-top: 8px;
+    }
+
+    .scope-panel .filter-segments {
+      flex: 1;
+      justify-content: flex-start;
+      border-radius: 14px;
+    }
+
+    .scope-chip.active {
+      color: #0d1b2a;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      border-color: rgba(232,201,122,0.62);
+    }
+
+    .scope-hint {
+      width: 100%;
+      font-size: 0.72rem;
+      color: rgba(139,160,184,0.86);
+      line-height: 1.45;
+      font-family: var(--sans);
+      padding: 0 4px 2px;
+    }
+
+
+
+    .search-movement-panel {
+      margin-top: -8px;
+      align-items: stretch;
+    }
+
+    .checklist-search-wrap {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(13,27,42,0.48);
+      border: 1px solid rgba(201,168,76,0.16);
+    }
+
+    .checklist-search-wrap .search-symbol {
+      color: var(--gold-light);
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    .checklist-search-wrap input {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.86rem;
+      font-weight: 600;
+      min-width: 0;
+    }
+
+    .checklist-search-wrap input::placeholder {
+      color: rgba(139,160,184,0.72);
+      font-weight: 500;
+    }
+
+    .movement-select-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(13,27,42,0.48);
+      border: 1px solid rgba(201,168,76,0.16);
+      min-width: 220px;
+    }
+
+    .movement-select-wrap .movement-symbol {
+      color: var(--gold-light);
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    .movement-select-wrap select {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .movement-select-wrap select option {
+      background: var(--navy-card);
+      color: var(--text);
+    }
+
+    .movement-badge {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:0.65rem;
+      font-family:var(--mono);
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+
+    .movement-badge.com-movimento {
+      background: rgba(46,204,138,0.10);
+      color: #2ecc8a;
+      border: 1px solid rgba(46,204,138,0.24);
+    }
+
+    .movement-badge.sem-movimento {
+      background: rgba(116,185,255,0.12);
+      color: #74b9ff;
+      border: 1px solid rgba(116,185,255,0.26);
+    }
+
+    .item-row.sem-escopo {
+      display: none !important;
+    }
+
+    .subtask-scope-pill {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:52px;
+      padding:2px 6px;
+      border-radius:999px;
+      font-size:0.62rem;
+      font-family:var(--mono);
+      border:1px solid rgba(201,168,76,0.20);
+      color:var(--text-muted);
+      background:rgba(255,255,255,0.035);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+
     @media (max-width: 640px) {
       .filter-panel { align-items: stretch; }
       .filter-title, .filter-count-hint { width: 100%; justify-content: center; }
@@ -939,7 +1091,41 @@
           <span class="cat-chip pending-filter active" data-filter="pending" onclick="aplicarFiltroStatus('pending')">Pendentes</span>
           <span class="cat-chip done-filter" data-filter="done" onclick="aplicarFiltroStatus('done')">Concluídas</span>
         </div>
-        <div class="filter-count-hint" id="filterHint">Mostrando todas</div>
+        <div class="filter-count-hint" id="filterHint">Mostrando pendentes</div>
+      </div>
+
+      <div class="filter-panel scope-panel" id="scopeBar" aria-label="Escopo do checklist">
+        <div class="filter-title"><span class="filter-title-icon">◎</span> Escopo</div>
+        <div class="filter-segments">
+          <span class="cat-chip scope-chip active" data-scope-filter="geral" onclick="aplicarFiltroEscopo('geral')">Geral</span>
+          <span class="cat-chip scope-chip" data-scope-filter="pis_cofins" onclick="aplicarFiltroEscopo('pis_cofins')">PIS/COFINS</span>
+          <span class="cat-chip scope-chip" data-scope-filter="icms" onclick="aplicarFiltroEscopo('icms')">ICMS</span>
+          <span class="cat-chip scope-chip" data-scope-filter="das" onclick="aplicarFiltroEscopo('das')">DAS</span>
+          <span class="cat-chip scope-chip" data-scope-filter="irpj_csll" onclick="aplicarFiltroEscopo('irpj_csll')">IRPJ/CSLL</span>
+          <span class="cat-chip scope-chip" data-scope-filter="sped" onclick="aplicarFiltroEscopo('sped')">SPED</span>
+          <span class="cat-chip scope-chip" data-scope-filter="impostos" onclick="aplicarFiltroEscopo('impostos')">Impostos</span>
+          <span class="cat-chip scope-chip" data-scope-filter="obrigacoes" onclick="aplicarFiltroEscopo('obrigacoes')">Obrigações</span>
+          <span class="cat-chip scope-chip" data-scope-filter="importacoes" onclick="aplicarFiltroEscopo('importacoes')">Importações</span>
+        </div>
+        <div class="scope-hint" id="scopeHint">No Geral, a empresa só conclui quando tudo estiver feito. Nos escopos, a conclusão vale só para as subtarefas daquele grupo.</div>
+      </div>
+
+
+
+      <div class="filter-panel search-movement-panel" id="buscaMovimentoBar" aria-label="Busca e movimento do checklist">
+        <div class="filter-title"><span class="filter-title-icon">⌕</span> Busca / Movimento</div>
+        <label class="checklist-search-wrap" for="checklistSearchInput">
+          <span class="search-symbol">🔎</span>
+          <input id="checklistSearchInput" type="text" placeholder="Buscar empresa, CNPJ, regime, imposto, obrigação ou importação..." oninput="aplicarBuscaChecklist(this.value)">
+        </label>
+        <label class="movement-select-wrap" for="movimentoChecklistFilter">
+          <span class="movement-symbol">📌</span>
+          <select id="movimentoChecklistFilter" onchange="aplicarFiltroMovimento(this.value)">
+            <option value="todos">Todas as empresas</option>
+            <option value="com_movimento">Com movimento</option>
+            <option value="sem_movimento">Sem movimento</option>
+          </select>
+        </label>
       </div>
 
       <!-- SEÇÃO DO PAINEL (gerada dinamicamente) -->
@@ -952,16 +1138,151 @@
   </div><!-- /page -->
 
   <script>
-    // Filtro por status
+    // Filtro por status + escopo fiscal
     let filtroAtualChecklist = 'pending';
+    let escopoAtualChecklist = 'geral';
+    let buscaAtualChecklist = '';
+    let movimentoAtualChecklist = 'todos';
 
-    function subtasksDaEmpresa(item) {
-      return Array.from(item?.querySelectorAll('.sub-check') || []);
+    const ESCOPO_LABELS = {
+      geral: 'Geral',
+      pis_cofins: 'PIS/COFINS',
+      icms: 'ICMS',
+      das: 'DAS',
+      irpj_csll: 'IRPJ/CSLL',
+      sped: 'SPED',
+      impostos: 'Impostos',
+      obrigacoes: 'Obrigações',
+      importacoes: 'Importações'
+    };
+
+    function escopoLabel(scope = escopoAtualChecklist) {
+      return ESCOPO_LABELS[scope] || 'Geral';
+    }
+
+    function normalizarTextoFiscal(value) {
+      return String(value || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    }
+
+    function textoBuscaEmpresa(item) {
+      if (!item) return '';
+      const partes = [item.textContent || '', item.dataset?.movimento || ''];
+      item.querySelectorAll('input, textarea, select').forEach(el => {
+        partes.push(el.value || '');
+        if (el.dataset?.subLabel) partes.push(el.dataset.subLabel);
+        if (el.dataset?.subNome) partes.push(el.dataset.subNome);
+        if (el.dataset?.scopes) partes.push(el.dataset.scopes);
+      });
+      item.querySelectorAll('[data-sub-label], [data-sub-nome], [data-scopes]').forEach(el => {
+        if (el.dataset?.subLabel) partes.push(el.dataset.subLabel);
+        if (el.dataset?.subNome) partes.push(el.dataset.subNome);
+        if (el.dataset?.scopes) partes.push(el.dataset.scopes);
+      });
+      return normalizarTextoFiscal(partes.join(' '));
+    }
+
+    function empresaPassaBusca(item) {
+      const termo = normalizarTextoFiscal(buscaAtualChecklist).trim();
+      if (!termo) return true;
+      return textoBuscaEmpresa(item).includes(termo);
+    }
+
+    function empresaPassaMovimento(item) {
+      if (movimentoAtualChecklist === 'todos') return true;
+      return String(item?.dataset?.movimento || '') === movimentoAtualChecklist;
+    }
+
+    function empresaPassaFiltrosBase(item, escopo = escopoAtualChecklist) {
+      return empresaTemEscopo(item, escopo) && empresaPassaBusca(item) && empresaPassaMovimento(item);
+    }
+
+    function aplicarBuscaChecklist(value) {
+      buscaAtualChecklist = value || '';
+      atualizarTotais();
+    }
+
+    function aplicarFiltroMovimento(value) {
+      movimentoAtualChecklist = value || 'todos';
+      atualizarTotais();
+    }
+
+
+    function escoposSubtarefa(nome, tipo) {
+      const n = normalizarTextoFiscal(nome);
+      const scopes = new Set();
+
+      if (tipo === 'importacao') scopes.add('importacoes');
+
+      if (tipo === 'imposto') {
+        scopes.add('impostos');
+        if (/\bpis\b|cofins/.test(n)) scopes.add('pis_cofins');
+        if (/\bicms\b/.test(n)) scopes.add('icms');
+        if (/\bdas\b|simples nacional|pgdas/.test(n)) scopes.add('das');
+        if (/\birpj\b|\bcsll\b/.test(n)) scopes.add('irpj_csll');
+      }
+
+      if (tipo === 'obrigacao') {
+        scopes.add('obrigacoes');
+        if (/sped|efd/.test(n)) scopes.add('sped');
+        if (/dctf|dirf|reinf|gia|gias|destda|pgdas|defis|ecd|ecf/.test(n)) scopes.add('obrigacoes');
+        // Importante: SPED Contribuições fica em SPED/Obrigações, não em PIS/COFINS.
+        // Assim a apuração de PIS/COFINS pode ser concluída sem esperar a entrega do SPED.
+      }
+
+      return Array.from(scopes);
+    }
+
+    function scopesDaSubtask(cb) {
+      return String(cb?.dataset?.scopes || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function subtaskPertenceAoEscopo(cb, escopo = escopoAtualChecklist) {
+      if (escopo === 'geral') return true;
+      return scopesDaSubtask(cb).includes(escopo);
+    }
+
+    function subtasksDaEmpresa(item, escopo = escopoAtualChecklist) {
+      const subs = Array.from(item?.querySelectorAll('.sub-check') || []);
+      if (escopo === 'geral') return subs;
+      return subs.filter(cb => subtaskPertenceAoEscopo(cb, escopo));
+    }
+
+    function empresaTemEscopo(item, escopo = escopoAtualChecklist) {
+      if (!item) return false;
+      if (escopo === 'geral') return true;
+      return subtasksDaEmpresa(item, escopo).length > 0;
+    }
+
+    function empresaConcluidaNoEscopo(item, escopo = escopoAtualChecklist) {
+      if (!item) return false;
+      const subs = subtasksDaEmpresa(item, escopo);
+
+      // Em escopos específicos, empresa sem subtarefa daquele grupo não entra no checklist.
+      if (escopo !== 'geral' && !subs.length) return false;
+
+      // Se existem subtarefas, o status é derivado delas.
+      if (subs.length) return subs.every(cb => cb.checked);
+
+      // Empresas manuais sem subtarefas continuam respeitando o checkbox principal no Geral.
+      return !!item.querySelector('.empresa-check')?.checked;
+    }
+
+    function atualizarCheckboxPrincipalVisual(item) {
+      const cb = item?.querySelector('.empresa-check');
+      if (!cb) return;
+      cb.checked = empresaConcluidaNoEscopo(item, escopoAtualChecklist);
+      cb.title = escopoAtualChecklist === 'geral'
+        ? 'Conclusão geral: só marca quando todas as subtarefas da empresa estiverem concluídas.'
+        : `Conclusão do escopo ${escopoLabel()}: considera apenas as subtarefas deste grupo.`;
     }
 
     function todasSubtasksMarcadas(item) {
-      const subs = subtasksDaEmpresa(item);
-      return !subs.length || subs.every(cb => cb.checked);
+      return empresaConcluidaNoEscopo(item, escopoAtualChecklist);
     }
 
     function abrirSubtasksEmpresa(item) {
@@ -977,7 +1298,7 @@
       if (!toast) {
         toast = document.createElement('div');
         toast.id = 'checklistToast';
-        toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:99999;max-width:360px;padding:11px 16px;border-radius:12px;border:1px solid rgba(201,168,76,0.35);background:#1b2e42;color:#e8c97a;font-family:DM Sans,sans-serif;font-size:12px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.45);opacity:0;transform:translateY(20px);transition:all .22s;';
+        toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:99999;max-width:380px;padding:11px 16px;border-radius:12px;border:1px solid rgba(201,168,76,0.35);background:#1b2e42;color:#e8c97a;font-family:DM Sans,sans-serif;font-size:12px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.45);opacity:0;transform:translateY(20px);transition:all .22s;';
         document.body.appendChild(toast);
       }
       toast.textContent = msg;
@@ -986,20 +1307,49 @@
       window._checklistToastTimer = setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(20px)';
-      }, 3200);
+      }, 3600);
     }
 
     function validarConclusaoEmpresa(cb) {
-      if (!cb || !cb.checked) return true;
+      if (!cb) return true;
+      if (!cb.checked) return true;
+
       const item = cb.closest('.empresa-item');
-      const pendentes = subtasksDaEmpresa(item).filter(sub => !sub.checked);
+      if (!empresaTemEscopo(item, escopoAtualChecklist)) {
+        cb.checked = false;
+        avisoChecklist(`Esta empresa não possui subtarefas no escopo ${escopoLabel()}.`);
+        return false;
+      }
+
+      const pendentes = subtasksDaEmpresa(item, escopoAtualChecklist).filter(sub => !sub.checked);
       if (pendentes.length) {
         cb.checked = false;
         abrirSubtasksEmpresa(item);
-        avisoChecklist(`Antes de concluir a empresa, marque todas as subtarefas. Ainda falta${pendentes.length === 1 ? '' : 'm'} ${pendentes.length}.`);
+        const nomes = pendentes.slice(0, 3).map(sub => sub.dataset.subLabel || sub.dataset.subNome || 'subtarefa').join(', ');
+        const resto = pendentes.length > 3 ? ` +${pendentes.length - 3}` : '';
+        avisoChecklist(`Antes de concluir em ${escopoLabel()}, marque as subtarefas pendentes: ${nomes}${resto}.`);
         return false;
       }
+
+      cb.checked = true;
       return true;
+    }
+
+    function aplicarFiltroEscopo(scope) {
+      escopoAtualChecklist = scope || 'geral';
+
+      document.querySelectorAll('#scopeBar [data-scope-filter]').forEach(c => {
+        c.classList.toggle('active', c.dataset.scopeFilter === escopoAtualChecklist);
+      });
+
+      const hint = document.getElementById('scopeHint');
+      if (hint) {
+        hint.textContent = escopoAtualChecklist === 'geral'
+          ? 'No Geral, a empresa só conclui quando tudo estiver feito.'
+          : `Escopo ativo: ${escopoLabel()}. O checkbox principal considera somente subtarefas deste grupo.`;
+      }
+
+      atualizarTotais();
     }
 
     function aplicarFiltroStatus(filter) {
@@ -1011,36 +1361,42 @@
 
       let visiveis = 0;
       document.querySelectorAll('.empresa-item').forEach(item => {
-        const checked = item.querySelector('.empresa-check')?.checked;
-        const mostrar = filtroAtualChecklist === 'all'
-          || (filtroAtualChecklist === 'done' && checked)
-          || (filtroAtualChecklist === 'pending' && !checked);
+        const temEscopo = empresaTemEscopo(item, escopoAtualChecklist);
+        const aplicavel = empresaPassaFiltrosBase(item, escopoAtualChecklist);
+        const concluida = empresaConcluidaNoEscopo(item, escopoAtualChecklist);
+        atualizarCheckboxPrincipalVisual(item);
 
+        const mostrar = aplicavel && (
+          filtroAtualChecklist === 'all'
+          || (filtroAtualChecklist === 'done' && concluida)
+          || (filtroAtualChecklist === 'pending' && !concluida)
+        );
+
+        item.classList.toggle('sem-escopo', !temEscopo);
         item.style.display = mostrar ? '' : 'none';
         if (mostrar) visiveis++;
       });
 
       const hint = document.getElementById('filterHint');
       if (hint) {
+        const escopo = escopoLabel();
+        const movLabel = movimentoAtualChecklist === 'com_movimento' ? ' • com movimento' : movimentoAtualChecklist === 'sem_movimento' ? ' • sem movimento' : '';
+        const buscaLabel = buscaAtualChecklist.trim() ? ' • com busca' : '';
         const labels = {
-          all: 'Mostrando todas',
-          pending: `Mostrando ${visiveis} pendente${visiveis === 1 ? '' : 's'}`,
-          done: `Mostrando ${visiveis} concluída${visiveis === 1 ? '' : 's'}`
+          all: `Mostrando ${visiveis} em ${escopo}${movLabel}${buscaLabel}`,
+          pending: `Mostrando ${visiveis} pendente${visiveis === 1 ? '' : 's'} em ${escopo}${movLabel}${buscaLabel}`,
+          done: `Mostrando ${visiveis} concluída${visiveis === 1 ? '' : 's'} em ${escopo}${movLabel}${buscaLabel}`
         };
-        hint.textContent = labels[filtroAtualChecklist] || 'Mostrando todas';
+        hint.textContent = labels[filtroAtualChecklist] || `Mostrando ${visiveis} em ${escopo}`;
       }
     }
 
-    // Atualiza contadores de concluídas/pendentes e total fechado
+    // Atualiza contadores de concluídas/pendentes e total fechado no escopo ativo
     function atualizarTotais() {
-      const checkboxes = document.querySelectorAll(".empresa-check");
-      const total = checkboxes.length;
-      let concluidas = 0;
-
-      checkboxes.forEach((cb) => {
-        if (cb.checked) concluidas++;
-      });
-
+      const items = Array.from(document.querySelectorAll('.empresa-item'))
+        .filter(item => empresaPassaFiltrosBase(item, escopoAtualChecklist));
+      const total = items.length;
+      const concluidas = items.filter(item => empresaConcluidaNoEscopo(item, escopoAtualChecklist)).length;
       const pendentes = total - concluidas;
 
       const badgeTotal = document.getElementById("totalEmpresasBadge");
@@ -1051,8 +1407,10 @@
       if (badgeTotal) badgeTotal.textContent = total;
       if (badgeConcluidas) badgeConcluidas.textContent = concluidas;
       if (badgePendentes) badgePendentes.textContent = pendentes;
-      if (totalFechadoField)
-        totalFechadoField.value = concluidas + " / " + total + " empresas";
+      if (totalFechadoField) {
+        const escopo = escopoAtualChecklist === 'geral' ? '' : ` (${escopoLabel()})`;
+        totalFechadoField.value = concluidas + " / " + total + " empresas" + escopo;
+      }
 
       if (typeof filtroAtualChecklist !== 'undefined') {
         aplicarFiltroStatus(filtroAtualChecklist);
@@ -1062,8 +1420,7 @@
     // Adiciona listeners em todos os checkboxes
     function bindCheckboxListeners() {
       document.querySelectorAll(".empresa-check").forEach((cb) => {
-        if (cb._checklistMainBound) return;
-        cb._checklistMainBound = true;
+        cb.onchange = null;
         cb.addEventListener("change", () => {
           validarConclusaoEmpresa(cb);
           atualizarTotais();
@@ -1615,9 +1972,12 @@
           const nome = String(o?.nome || 'Obrigação').trim();
           const subChecked = subtasksChecked[nome] ? 'checked' : '';
           const statusColor = o.status === 'entregue' ? '#2ecc8a' : o.status === 'atrasado' ? '#e05a5a' : '#c9a84c';
+          const scopes = escoposSubtarefa(nome, 'obrigacao').join(',');
+          const scopeTag = scopes.includes('sped') ? 'SPED' : 'OBRIG.';
           return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(nome)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
+            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(nome)}" data-sub-label="${escChecklist(nome)}" data-scopes="${escChecklist(scopes)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
             <span style="font-size:0.82rem;flex:1;">${escChecklist(nome)}</span>
+            <span class="subtask-scope-pill">${scopeTag}</span>
             <span style="font-size:0.68rem;font-family:var(--mono);color:${statusColor};">${escChecklist(o.vencimento || '')}</span>
           </div>`;
         }).join('');
@@ -1626,9 +1986,11 @@
           const nomeTxt = String(nome || '').trim();
           const subKey = 'imp_' + nomeTxt;
           const subChecked = subtasksChecked[subKey] ? 'checked' : '';
+          const scopes = escoposSubtarefa(nomeTxt, 'importacao').join(',');
           return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(subKey)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:#2ecc8a;">
+            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(subKey)}" data-sub-label="${escChecklist(nomeTxt)}" data-scopes="${escChecklist(scopes)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:#2ecc8a;">
             <span style="font-size:0.82rem;flex:1;">📂 ${escChecklist(nomeTxt)}</span>
+            <span class="subtask-scope-pill">XML</span>
           </div>`;
         }).join('');
 
@@ -1636,9 +1998,12 @@
           const subKey = impostoSubKey(imposto);
           const subChecked = subtasksChecked[subKey] ? 'checked' : '';
           const detalhe = [imposto.periodicidade, imposto.observacao].filter(Boolean).join(' • ');
+          const scopes = escoposSubtarefa(imposto.nome, 'imposto').join(',');
+          const scopeTag = scopes.includes('pis_cofins') ? 'PIS/COFINS' : scopes.includes('icms') ? 'ICMS' : scopes.includes('das') ? 'DAS' : scopes.includes('irpj_csll') ? 'IRPJ/CSLL' : 'IMPOSTO';
           return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(subKey)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
+            <input type="checkbox" class="sub-check" data-empresa-key="${safeKey}" data-sub-nome="${escChecklist(subKey)}" data-sub-label="${escChecklist(imposto.nome)}" data-scopes="${escChecklist(scopes)}" ${subChecked} style="width:14px;height:14px;cursor:pointer;accent-color:var(--gold);">
             <span style="font-size:0.82rem;flex:1;">💰 ${escChecklist(imposto.nome)}</span>
+            <span class="subtask-scope-pill">${scopeTag}</span>
             <span style="font-size:0.68rem;font-family:var(--mono);color:var(--gold-light);">${escChecklist(detalhe)}</span>
           </div>`;
         }).join('');
@@ -1656,12 +2021,13 @@
         : '';
 
       rows += `
-        <div class="item-row empresa-item" data-painel-id="${safeKey}">
-          <div class="item-check"><input type="checkbox" class="empresa-check" ${checked} title="Só conclui depois que todas as subtarefas estiverem marcadas."/></div>
+        <div class="item-row empresa-item" data-painel-id="${safeKey}" data-movimento="${e.semMovimento ? 'sem_movimento' : 'com_movimento'}">
+          <div class="item-check"><input type="checkbox" class="empresa-check" ${checked} title="Conclusão conforme o escopo ativo."/></div>
           <div class="item-main">
             <input class="item-title-input" value="${escChecklist(e.nome || '')}" readonly style="opacity:0.85;cursor:default;">
             <div class="item-meta" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;">
               <span class="painel-badge">Painel</span>
+              <span class="movement-badge ${e.semMovimento ? 'sem-movimento' : 'com-movimento'}">${e.semMovimento ? 'Sem movimento' : 'Com movimento'}</span>
               ${regimeLabel ? `<span style="font-size:0.72rem;color:var(--text-muted);">${escChecklist(regimeLabel)}</span>` : ''}
               ${e.cnpj ? `<span style="font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);">${escChecklist(e.cnpj)}</span>` : ''}
               ${subtaskBtn}
@@ -1687,34 +2053,38 @@
 
     container.querySelectorAll('textarea').forEach(ta => ta.addEventListener('input', salvarPainelObs));
     container.querySelectorAll('.empresa-check').forEach(cb => cb.addEventListener('change', () => {
-      const validou = validarConclusaoEmpresa(cb);
-      salvarPainelObs();
-      atualizarTotais();
       const item = cb.closest('.empresa-item');
       const empresaId = item?.dataset?.painelId;
-      if (empresaId && validou) updatePainelApuracao(empresaId, cb.checked);
+      const validou = validarConclusaoEmpresa(cb);
+
+      salvarPainelObs();
+      atualizarTotais();
+
+      // O status de apuração do Painel só deve refletir o Geral, não um escopo parcial.
+      if (empresaId && validou && escopoAtualChecklist === 'geral') {
+        updatePainelApuracao(empresaId, empresaConcluidaNoEscopo(item, 'geral'));
+      }
     }));
     container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', () => {
       const item = cb.closest('.empresa-item');
       const mainCb = item?.querySelector('.empresa-check');
       const empresaId = item?.dataset?.painelId;
-      let mudouConclusao = false;
 
       if (mainCb) {
-        const antes = mainCb.checked;
-        if (todasSubtasksMarcadas(item)) {
-          mainCb.checked = true;
-          if (!antes) avisoChecklist('Todas as subtarefas foram marcadas. Empresa concluída automaticamente.');
-        } else if (mainCb.checked) {
-          mainCb.checked = false;
-          avisoChecklist('Empresa voltou para pendente porque uma subtarefa foi desmarcada.');
+        const concluidaNoEscopo = empresaConcluidaNoEscopo(item, escopoAtualChecklist);
+        mainCb.checked = concluidaNoEscopo;
+        if (concluidaNoEscopo) {
+          avisoChecklist(`Escopo ${escopoLabel()} concluído para esta empresa.`);
+        } else if (escopoAtualChecklist !== 'geral') {
+          avisoChecklist(`Empresa pendente no escopo ${escopoLabel()}.`);
         }
-        mudouConclusao = antes !== mainCb.checked;
       }
 
       salvarPainelObs();
       atualizarTotais();
-      if (empresaId && mainCb && mudouConclusao) updatePainelApuracao(empresaId, mainCb.checked);
+
+      // Atualiza a apuração do Painel com base no status geral real.
+      if (empresaId) updatePainelApuracao(empresaId, empresaConcluidaNoEscopo(item, 'geral'));
     }));
     atualizarTotais();
     aplicarFiltroStatus('pending');
@@ -1741,7 +2111,7 @@
         if (cb.dataset.subNome) subtasks[cb.dataset.subNome] = cb.checked;
       });
       painelObs[key] = {
-        checked: item.querySelector('.empresa-check')?.checked || false,
+        checked: empresaConcluidaNoEscopo(item, 'geral'),
         obs:  item.querySelector('.obs-mes')?.value || '',
         perm: item.querySelector('.obs-permanente')?.value || '',
         subtasks
