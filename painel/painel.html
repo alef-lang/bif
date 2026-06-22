@@ -1020,6 +1020,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
   <div class="header-right">
     <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
     <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
+    <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
     <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
     <a href="#" onclick="history.back();return false;" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:8px;padding:7px 14px;background:rgba(201,168,76,0.08);transition:background 0.2s;font-family:var(--font-body);">◈ BIF</a>
@@ -1173,6 +1174,65 @@ select option{background:#1b2e42;color:#e8eaf0;}
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modalAdd')">Cancelar</button>
       <button class="btn-primary" onclick="addCompany()">✅ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: IMPORTAR EMPRESAS -->
+<div class="modal-overlay" id="modalImport">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <h2>⬆️ Importar Empresas</h2>
+        <p>Cole os CNPJs ou envie um arquivo CSV/Excel com CNPJs na coluna A</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalImport')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Área de cola -->
+      <div class="form-group full" style="margin-bottom:14px;">
+        <label>CNPJs (um por linha, ou separados por vírgula/ponto-e-vírgula)</label>
+        <textarea id="importCnpjText" rows="6"
+          style="width:100%;background:rgba(13,27,42,0.6);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:13px;padding:10px 12px;resize:vertical;outline:none;line-height:1.6;"
+          placeholder="12.345.678/0001-90&#10;23.456.789/0001-01&#10;34.567.890/0001-12"></textarea>
+      </div>
+
+      <!-- Upload arquivo -->
+      <div class="form-group full" style="margin-bottom:14px;">
+        <label>Ou envie um arquivo (.csv, .txt, .xlsx)</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="file" id="importFile" accept=".csv,.txt,.xlsx,.xls"
+            style="flex:1;background:rgba(13,27,42,0.6);border:1px solid var(--gold-dim);border-radius:8px;color:var(--text-muted);font-size:12px;padding:8px 10px;cursor:pointer;"/>
+          <button type="button" onclick="lerArquivoImport()"
+            style="border-radius:8px;padding:8px 14px;font-size:12px;white-space:nowrap;background:var(--gold-dim);border:1px solid var(--gold-dim);color:var(--gold);cursor:pointer;">
+            📂 Ler arquivo
+          </button>
+        </div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px;font-family:var(--font-mono);">
+          Para Excel: CNPJs na coluna A (sem cabeçalho, ou com cabeçalho — detectamos automaticamente).
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="importPreview" style="display:none;margin-bottom:14px;">
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--gold);margin-bottom:6px;" id="importPreviewLabel"></div>
+        <div id="importPreviewList" style="max-height:120px;overflow-y:auto;background:rgba(13,27,42,0.4);border:1px solid var(--gold-dim);border-radius:8px;padding:8px 12px;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);line-height:1.8;"></div>
+      </div>
+
+      <!-- Progresso -->
+      <div id="importProgress" style="display:none;">
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--gold);margin-bottom:8px;" id="importProgressLabel">Iniciando importação...</div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;height:8px;margin-bottom:10px;">
+          <div id="importProgressBar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:20px;width:0%;transition:width .3s;"></div>
+        </div>
+        <div id="importLog" style="max-height:160px;overflow-y:auto;background:rgba(13,27,42,0.4);border:1px solid var(--gold-dim);border-radius:8px;padding:8px 12px;font-family:var(--font-mono);font-size:11.5px;line-height:1.8;"></div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalImport')" id="importBtnCancelar">Cancelar</button>
+      <button class="btn-primary" onclick="iniciarImportacao()" id="importBtnIniciar">🚀 Importar</button>
     </div>
   </div>
 </div>
@@ -1845,6 +1905,190 @@ function openAddModal(regime){
   $('addRegime').value = regime || 'simples';
   openModal('modalAdd');
   setTimeout(()=>$('addNome').focus(),100);
+}
+
+// ════════════════════════════════════════════
+// IMPORTAÇÃO DE EMPRESAS VIA CNPJ
+// ════════════════════════════════════════════
+
+function openImportModal(){
+  document.getElementById('importCnpjText').value = '';
+  document.getElementById('importFile').value = '';
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importProgress').style.display = 'none';
+  document.getElementById('importBtnIniciar').disabled = false;
+  document.getElementById('importBtnIniciar').textContent = '🚀 Importar';
+  openModal('modalImport');
+}
+
+function extrairCnpjs(texto){
+  // Remove tudo que não é dígito ou separador, divide e filtra CNPJs válidos (14 dígitos)
+  return texto
+    .split(/[\n,;|\t\r]+/)
+    .map(s => s.replace(/\D/g,'').trim())
+    .filter(s => s.length === 14);
+}
+
+function lerArquivoImport(){
+  const file = document.getElementById('importFile').files[0];
+  if(!file){ toast('Selecione um arquivo primeiro.','error'); return; }
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if(ext === 'xlsx' || ext === 'xls'){
+    // Usa SheetJS se disponível, senão avisa
+    if(typeof XLSX === 'undefined'){
+      // Carrega SheetJS dinamicamente
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      script.onload = () => lerExcel(file);
+      document.head.appendChild(script);
+    } else {
+      lerExcel(file);
+    }
+  } else {
+    // CSV / TXT
+    const reader = new FileReader();
+    reader.onload = e => {
+      const cnpjs = extrairCnpjs(e.target.result);
+      mostrarPreview(cnpjs);
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+}
+
+function lerExcel(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:false});
+    // Coluna A — índice 0
+    const texto = rows.map(r => String(r[0]||'')).join('\n');
+    const cnpjs = extrairCnpjs(texto);
+    mostrarPreview(cnpjs);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function mostrarPreview(cnpjs){
+  const preview = document.getElementById('importPreview');
+  const label   = document.getElementById('importPreviewLabel');
+  const list    = document.getElementById('importPreviewList');
+  if(!cnpjs.length){
+    toast('Nenhum CNPJ válido encontrado no arquivo.','error');
+    return;
+  }
+  // Filtra os que já existem
+  const existentes = new Set((S.empresas||[]).map(e=>(e.cnpj||'').replace(/\D/g,'')));
+  const novos   = cnpjs.filter(c => !existentes.has(c));
+  const duplicados = cnpjs.length - novos.length;
+
+  label.textContent = `${novos.length} CNPJ(s) prontos para importar${duplicados>0?' · '+duplicados+' já existem (serão ignorados)':''}`;
+  list.innerHTML = novos.map(c =>
+    `<div>${c.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5')}</div>`
+  ).join('') || '<div style="color:var(--text-light);">Nenhum CNPJ novo.</div>';
+  preview.style.display = 'block';
+  preview._cnpjs = novos; // guarda para uso na importação
+}
+
+async function iniciarImportacao(){
+  // Coleta CNPJs — do preview (arquivo) ou da textarea
+  let cnpjs = [];
+  const preview = document.getElementById('importPreview');
+  if(preview.style.display !== 'none' && preview._cnpjs){
+    cnpjs = preview._cnpjs;
+  } else {
+    const texto = document.getElementById('importCnpjText').value;
+    const todos = extrairCnpjs(texto);
+    const existentes = new Set((S.empresas||[]).map(e=>(e.cnpj||'').replace(/\D/g,'')));
+    cnpjs = todos.filter(c => !existentes.has(c));
+    if(todos.length !== cnpjs.length)
+      toast(`${todos.length - cnpjs.length} CNPJ(s) ignorado(s) por já existirem.`,'error');
+  }
+
+  if(!cnpjs.length){ toast('Nenhum CNPJ novo para importar.','error'); return; }
+
+  // UI: modo progresso
+  document.getElementById('importProgress').style.display = 'block';
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importBtnIniciar').disabled = true;
+  document.getElementById('importBtnIniciar').textContent = '⏳ Importando...';
+  document.getElementById('importBtnCancelar').textContent = 'Fechar';
+
+  const log  = document.getElementById('importLog');
+  const bar  = document.getElementById('importProgressBar');
+  const lbl  = document.getElementById('importProgressLabel');
+  log.innerHTML = '';
+
+  let ok = 0, erro = 0;
+
+  for(let i = 0; i < cnpjs.length; i++){
+    const cnpjRaw = cnpjs[i];
+    const cnpjFmt = cnpjRaw.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
+    lbl.textContent = `Processando ${i+1} de ${cnpjs.length}...`;
+    bar.style.width  = Math.round(((i+1)/cnpjs.length)*100)+'%';
+
+    const logItem = document.createElement('div');
+    logItem.style.color = 'var(--gold)';
+    logItem.textContent = `⏳ ${cnpjFmt} — consultando...`;
+    log.appendChild(logItem);
+    log.scrollTop = log.scrollHeight;
+
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjRaw}`);
+      if(!res.ok) throw new Error('não encontrado');
+      const d = await res.json();
+
+      const e = {
+        id: genId(),
+        nome:       d.razao_social || cnpjFmt,
+        cnpj:       cnpjFmt,
+        regime:     d.opcao_pelo_simples ? 'simples' : '',
+        atividade:  d.cnae_fiscal_descricao
+                      ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' ('+d.cnae_fiscal+')' : ''}`
+                      : '',
+        colaborador:'',
+        fechada:    (d.descricao_situacao_cadastral||'').toUpperCase() !== 'ATIVA',
+        statusApuracao: 'nao_apurada',
+        endereco:   [d.logradouro, d.numero, d.complemento, d.bairro].filter(Boolean).join(', '),
+        cep:        d.cep || '',
+        cidade:     d.municipio || '',
+        uf:         d.uf || '',
+        responsavel:'',
+        email:      d.email || '',
+        telefone:   d.ddd_telefone_1 ? `(${d.ddd_telefone_1}) ${d.telefone_1||''}` : '',
+        dataAbertura: d.data_inicio_atividade || '',
+        capitalSocial: d.capital_social ? String(d.capital_social) : '',
+        inscricaoEstadual:'', inscricaoMunicipal:'',
+        observacoes: `Importado automaticamente em ${new Date().toLocaleDateString('pt-BR')}. Situação RF: ${d.descricao_situacao_cadastral||'—'}.`,
+        parametros:'', regras:'',
+        followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
+        obrigacoes:[], importacoes:[], camposEstaticosData:{}, camposPersonalizados:[]
+      };
+
+      S.empresas.push(e);
+      ok++;
+      logItem.style.color = '#2ecc8a';
+      logItem.textContent = `✅ ${cnpjFmt} — ${d.razao_social||'importado'} (${d.descricao_situacao_cadastral||'—'})`;
+
+    } catch(err){
+      erro++;
+      logItem.style.color = '#e05a5a';
+      logItem.textContent = `⚠️ ${cnpjFmt} — não encontrado na Receita Federal`;
+    }
+
+    // Delay entre requisições para não throttle a API (1s)
+    if(i < cnpjs.length - 1) await new Promise(r => setTimeout(r, 1100));
+  }
+
+  // Salva tudo de uma vez
+  saveState();
+  renderAll();
+
+  bar.style.width = '100%';
+  lbl.textContent = `✅ Importação concluída — ${ok} adicionada(s)${erro>0?', '+erro+' com erro':''}`;
+  document.getElementById('importBtnIniciar').style.display = 'none';
+  toast(`${ok} empresa(s) importada(s) com sucesso.`, 'success');
 }
 
 function addCompany(){
