@@ -606,7 +606,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
   hyphens:auto;
   contain:inline-size;
 }
-.rich-field span:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint),
+.rich-field span:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label),
 .rich-field font,
 .rich-field mark,
 .rich-field b,
@@ -688,7 +688,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
   word-break:break-word !important;
   line-break:anywhere !important;
 }
-.rich-field span:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint),
+.rich-field span:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label),
 .rich-field font,
 .rich-field mark,
 .rich-field nobr,
@@ -717,10 +717,10 @@ select option{background:#1b2e42;color:#e8eaf0;}
   box-decoration-break:clone;
   -webkit-box-decoration-break:clone;
 }
-.rich-field [style*="white-space"],
-.rich-field [style*="display"],
-.rich-field [style*="width"],
-.rich-field [style*="overflow"]{
+.rich-field [style*="white-space"]:not(img):not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label),
+.rich-field [style*="display"]:not(img):not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label),
+.rich-field [style*="width"]:not(img):not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label),
+.rich-field [style*="overflow"]:not(img):not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label){
   white-space:normal !important;
   width:auto !important;
   min-width:0 !important;
@@ -1085,6 +1085,113 @@ select option{background:#1b2e42;color:#e8eaf0;}
   .imposto-periodo,.imposto-obs{grid-column:1/-1;}
   .imposto-add-row{grid-template-columns:1fr;}
 }
+
+
+
+/* AJUSTE FINAL DAS IMAGENS DOS CAMPOS RICOS — largura real, botões e Ctrl+Z */
+.rich-field .img-resize-wrap{
+  display:inline-block !important;
+  position:relative !important;
+  max-width:100% !important;
+  line-height:0 !important;
+  margin:6px 0 !important;
+  width:auto !important;
+  min-width:60px !important;
+  overflow:visible !important;
+  vertical-align:top !important;
+}
+.rich-field .img-resize-wrap img,
+.rich-field img.img-selected,
+.rich-field img[data-user-width="1"]{
+  width:var(--rich-img-width, auto) !important;
+  max-width:100% !important;
+  height:auto !important;
+  display:block !important;
+}
+.rich-field .img-resize-delete{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:absolute !important;
+  width:22px !important;
+  height:22px !important;
+  right:-9px !important;
+  top:-9px !important;
+  border-radius:999px !important;
+  background:#ff7675 !important;
+  color:#0d1b2a !important;
+  border:2px solid #0d1b2a !important;
+  cursor:pointer !important;
+  z-index:12 !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  user-select:none !important;
+}
+.rich-field .img-resize-handle{
+  display:block !important;
+  position:absolute !important;
+  width:16px !important;
+  height:16px !important;
+  right:-6px !important;
+  bottom:-6px !important;
+  border-radius:5px !important;
+  background:var(--gold) !important;
+  border:2px solid #0d1b2a !important;
+  cursor:se-resize !important;
+  z-index:11 !important;
+}
+.rich-field .img-resize-hint{
+  display:block !important;
+  position:absolute !important;
+  left:0 !important;
+  bottom:calc(100% + 8px) !important;
+  background:rgba(13,27,42,0.97) !important;
+  border:1px solid var(--gold-dim) !important;
+  color:var(--gold-light) !important;
+  padding:4px 7px !important;
+  border-radius:7px !important;
+  font-size:10px !important;
+  font-family:var(--font-mono) !important;
+  white-space:nowrap !important;
+  line-height:1.2 !important;
+  z-index:10 !important;
+}
+.rich-field .img-resize-toolbar{
+  display:flex !important;
+  align-items:center !important;
+  gap:4px !important;
+  position:absolute !important;
+  left:0 !important;
+  top:calc(100% + 7px) !important;
+  padding:4px !important;
+  border-radius:9px !important;
+  background:rgba(13,27,42,0.97) !important;
+  border:1px solid var(--gold-dim) !important;
+  box-shadow:0 8px 22px rgba(0,0,0,0.35) !important;
+  z-index:13 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+.rich-field .img-resize-btn,
+.rich-field .img-size-label{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-width:28px !important;
+  height:24px !important;
+  padding:0 7px !important;
+  border-radius:7px !important;
+  border:1px solid rgba(201,168,76,0.25) !important;
+  background:rgba(255,255,255,0.06) !important;
+  color:var(--gold-light) !important;
+  font:700 10px var(--font-mono) !important;
+  cursor:pointer !important;
+  user-select:none !important;
+}
+.rich-field .img-size-label{cursor:default !important;color:var(--text-light) !important;min-width:44px !important;}
+.rich-field .img-resize-btn:hover{background:rgba(201,168,76,0.18) !important;border-color:var(--gold) !important;}
+.rich-field:has(.img-resize-wrap){overflow:visible !important;}
 
 /* PRINT STYLES */
 @media print{
@@ -3179,11 +3286,33 @@ function cleanupAllImageTools(){
 }
 function deleteSelectedImage(editor){
   if(!editor) editor = activeRichField;
-  const wrap = editor?.querySelector('.img-resize-wrap');
-  const img = wrap?.querySelector('img') || editor?.querySelector('img.img-selected');
-  if(wrap){ unwrapImageTool(wrap, false); }
-  else if(img){ img.remove(); }
-  if(editor){ markActiveRichInput(); toast('Imagem removida.', 'success'); }
+  if(!editor) return;
+  activeRichField = editor;
+  editor.focus({preventScroll:true});
+
+  const wrap = editor.querySelector('.img-resize-wrap');
+  const img = wrap?.querySelector('img') || editor.querySelector('img.img-selected');
+  const target = wrap || img;
+  if(!target) return;
+
+  // Excluir via seleção + execCommand coloca a remoção na pilha nativa de undo.
+  // Assim CTRL+Z consegue recuperar a imagem, diferente de target.remove().
+  try{
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNode(target);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    const ok = document.execCommand('delete', false, null);
+    if(!ok && target.parentNode) target.parentNode.removeChild(target);
+  } catch(e){
+    if(target.parentNode) target.parentNode.removeChild(target);
+  }
+
+  unwrapSelectedImages(editor);
+  markActiveRichInput();
+  saveRichSelection(true);
+  toast('Imagem removida. Use Ctrl+Z para recuperar se precisar.', 'success');
 }
 function handleRichImageKeydown(ev){
   if((ev.key === 'Delete' || ev.key === 'Backspace') && ev.currentTarget.querySelector('.img-resize-wrap, img.img-selected')){
@@ -3218,7 +3347,7 @@ function handleRichImageClick(ev){
 
   const hint = document.createElement('span');
   hint.className = 'img-resize-hint';
-  hint.textContent = 'arraste para redimensionar • × exclui';
+  hint.textContent = 'arraste o canto • use −/+ • × exclui';
 
   const del = document.createElement('span');
   del.className = 'img-resize-delete';
@@ -3229,9 +3358,46 @@ function handleRichImageClick(ev){
   handle.className = 'img-resize-handle';
   handle.title = 'Arraste para redimensionar';
 
+  const toolbar = document.createElement('span');
+  toolbar.className = 'img-resize-toolbar';
+  toolbar.setAttribute('contenteditable','false');
+  const minus = document.createElement('span');
+  minus.className = 'img-resize-btn';
+  minus.title = 'Diminuir imagem';
+  minus.textContent = '−';
+  const plus = document.createElement('span');
+  plus.className = 'img-resize-btn';
+  plus.title = 'Aumentar imagem';
+  plus.textContent = '+';
+  const full = document.createElement('span');
+  full.className = 'img-resize-btn';
+  full.title = 'Ajustar à largura do campo';
+  full.textContent = '100%';
+  const label = document.createElement('span');
+  label.className = 'img-size-label';
+  toolbar.append(minus, plus, full, label);
+
   wrap.appendChild(hint);
   wrap.appendChild(del);
   wrap.appendChild(handle);
+  wrap.appendChild(toolbar);
+
+  const maxAllowedWidth = () => Math.max(120, editor.clientWidth - 24);
+  const getCurrentWidth = () => img.getBoundingClientRect().width || parseFloat(img.style.width) || img.naturalWidth || 180;
+  const setImageWidth = (newW, save=true) => {
+    const width = Math.max(60, Math.min(maxAllowedWidth(), Math.round(newW)));
+    img.style.setProperty('--rich-img-width', width + 'px');
+    img.style.width = width + 'px';
+    img.style.height = 'auto';
+    img.style.maxWidth = '100%';
+    img.dataset.userWidth = '1';
+    label.textContent = width + 'px';
+    if(save){ markActiveRichInput(); saveRichSelection(true); }
+  };
+
+  // Garante que imagens já salvas com width inline não sejam anuladas por CSS.
+  const initialW = parseFloat(img.style.width) || getCurrentWidth();
+  if(initialW) setImageWidth(initialW, false);
 
   let startX = 0, startW = 0, maxW = 0;
   const startResize = e => {
@@ -3239,15 +3405,13 @@ function handleRichImageClick(ev){
     e.stopPropagation();
     const point = e.touches?.[0] || e;
     startX = point.clientX;
-    startW = img.getBoundingClientRect().width || img.width || 180;
-    maxW = Math.max(120, editor.clientWidth - 24);
+    startW = getCurrentWidth();
+    maxW = maxAllowedWidth();
     document.body.style.userSelect = 'none';
     const onMove = mv => {
+      mv.preventDefault?.();
       const p = mv.touches?.[0] || mv;
-      const newW = Math.max(60, Math.min(maxW, startW + (p.clientX - startX)));
-      img.style.width = newW + 'px';
-      img.style.height = 'auto';
-      img.style.maxWidth = '100%';
+      setImageWidth(Math.max(60, Math.min(maxW, startW + (p.clientX - startX))), false);
     };
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
@@ -3256,6 +3420,7 @@ function handleRichImageClick(ev){
       document.removeEventListener('touchend', onUp);
       document.body.style.userSelect = '';
       markActiveRichInput();
+      saveRichSelection(true);
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
@@ -3264,6 +3429,10 @@ function handleRichImageClick(ev){
   };
   handle.addEventListener('mousedown', startResize);
   handle.addEventListener('touchstart', startResize, {passive:false});
+
+  minus.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); setImageWidth(getCurrentWidth() - 80); });
+  plus.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); setImageWidth(getCurrentWidth() + 80); });
+  full.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); setImageWidth(maxAllowedWidth()); });
 }
 function setRichFieldsEditable(canEdit){
   getCompanyRichFields().forEach(el => {
