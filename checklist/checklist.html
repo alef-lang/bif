@@ -1018,6 +1018,383 @@
       }
       h1, .section-title { color: #0c2d5a !important; }
     }
+
+    /* ── MODAL ENVIO DE GUIA — REFINADO ── */
+    .guia-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99990;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(201,168,76,0.14), transparent 32%),
+        radial-gradient(circle at 85% 85%, rgba(116,185,255,0.10), transparent 34%),
+        rgba(5, 12, 22, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .guia-modal-overlay.open {
+      display: flex;
+      animation: guiaOverlayIn 0.18s ease-out;
+    }
+
+    .guia-modal {
+      width: min(780px, calc(100vw - 28px));
+      max-height: min(92vh, 840px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border-radius: 24px;
+      border: 1px solid rgba(232,201,122,0.32);
+      background:
+        linear-gradient(180deg, rgba(27,46,66,0.98), rgba(13,27,42,0.98)),
+        var(--navy-card);
+      box-shadow:
+        0 28px 90px rgba(0,0,0,0.52),
+        0 0 0 1px rgba(255,255,255,0.045) inset,
+        0 0 38px rgba(201,168,76,0.08);
+      position: relative;
+      transform-origin: center;
+      animation: guiaModalIn 0.20s ease-out;
+    }
+
+    .guia-modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), transparent);
+    }
+
+    .guia-modal-head {
+      padding: 21px 24px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgba(201,168,76,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+    }
+
+    .guia-title-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .guia-kicker {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      background: rgba(201,168,76,0.10);
+      border: 1px solid rgba(201,168,76,0.20);
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+
+    .guia-kicker::before {
+      content: '●';
+      font-size: 0.52rem;
+      color: var(--green);
+    }
+
+    .guia-modal h3 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(1.12rem, 2.4vw, 1.45rem);
+      line-height: 1.14;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .guia-modal-subtitle {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+      max-width: 590px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .guia-modal-badge {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--navy);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 10px 24px rgba(201,168,76,0.16);
+      text-transform: uppercase;
+    }
+
+    .guia-modal-aviso {
+      margin: 16px 24px 0;
+      padding: 11px 13px;
+      border-radius: 15px;
+      border: 1px solid rgba(232,201,122,0.22);
+      background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.045));
+      color: var(--gold-light);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .guia-modal-body {
+      padding: 16px 24px 18px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(201,168,76,0.55) rgba(255,255,255,0.04);
+    }
+
+    .guia-modal-body::-webkit-scrollbar { width: 8px; }
+    .guia-modal-body::-webkit-scrollbar-track { background: rgba(255,255,255,0.035); border-radius: 999px; }
+    .guia-modal-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.48); border-radius: 999px; }
+
+    .guia-field-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .guia-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .guia-field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .guia-field input,
+    .guia-field select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid rgba(201,168,76,0.20);
+      border-radius: 13px;
+      background: rgba(255,255,255,0.055);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      font-weight: 600;
+      outline: none;
+      padding: 9px 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+      transition: border-color 0.16s, box-shadow 0.16s, background 0.16s, transform 0.12s;
+      color-scheme: dark;
+    }
+
+    .guia-field input::placeholder { color: rgba(139,160,184,0.76); font-weight: 500; }
+
+    .guia-field input:hover,
+    .guia-field select:hover {
+      border-color: rgba(232,201,122,0.36);
+      background: rgba(255,255,255,0.072);
+    }
+
+    .guia-field input:focus,
+    .guia-field select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.085);
+    }
+
+    .guia-field input.is-invalid,
+    .guia-field select.is-invalid {
+      border-color: var(--red) !important;
+      box-shadow: 0 0 0 3px rgba(224,90,90,0.14) !important;
+    }
+
+    .guia-field select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 36px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--gold-light) 50%),
+        linear-gradient(135deg, var(--gold-light) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 18px, calc(100% - 12px) 18px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .guia-field select option {
+      background: var(--navy-card);
+      color: var(--text);
+    }
+
+    #gValor,
+    #gCodBarras {
+      font-family: var(--mono);
+      letter-spacing: 0.01em;
+    }
+
+    #gCodBarras {
+      min-height: 46px;
+      font-size: 0.95rem;
+    }
+
+    .guia-canal-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .guia-canal-opt {
+      min-height: 48px;
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 15px;
+      background: rgba(255,255,255,0.045);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 9px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      transition: transform 0.12s, border-color 0.16s, background 0.16s, color 0.16s, box-shadow 0.16s;
+    }
+
+    .guia-canal-opt:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+      border-color: rgba(232,201,122,0.34);
+      background: rgba(255,255,255,0.065);
+    }
+
+    .guia-canal-opt input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .guia-canal-opt.checked {
+      color: var(--navy);
+      border-color: rgba(232,201,122,0.65);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 10px 22px rgba(201,168,76,0.16);
+    }
+
+    .guia-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 24px 19px;
+      border-top: 1px solid rgba(201,168,76,0.14);
+      background: linear-gradient(180deg, rgba(13,27,42,0.45), rgba(13,27,42,0.78));
+    }
+
+    .guia-footer-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      line-height: 1.35;
+      max-width: 360px;
+    }
+
+    .guia-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .guia-btn {
+      min-height: 40px;
+      border-radius: 999px;
+      padding: 9px 17px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      box-shadow: none;
+    }
+
+    .guia-btn-ghost {
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .guia-btn-ghost:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.075);
+      border-color: rgba(201,168,76,0.18);
+    }
+
+    .guia-btn-gold {
+      color: var(--navy);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 12px 24px rgba(201,168,76,0.14);
+    }
+
+    @keyframes guiaOverlayIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes guiaModalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 720px) {
+      .guia-modal-overlay { padding: 12px; align-items: flex-start; overflow: auto; }
+      .guia-modal { margin: 10px 0; max-height: none; }
+      .guia-modal-head { flex-direction: column; padding: 18px 18px 13px; }
+      .guia-modal-badge { align-self: flex-start; }
+      .guia-modal-aviso { margin: 14px 18px 0; }
+      .guia-modal-body { padding: 14px 18px 16px; }
+      .guia-field-row { grid-template-columns: 1fr; }
+      .guia-canal-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .guia-modal-footer { flex-direction: column; align-items: stretch; padding: 14px 18px 18px; }
+      .guia-footer-hint { max-width: none; }
+      .guia-footer-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+      .guia-btn { width: 100%; justify-content: center; }
+      .guia-modal-subtitle { white-space: normal; }
+    }
+
+    @media (max-width: 420px) {
+      .guia-canal-options { grid-template-columns: 1fr; }
+      .guia-footer-actions { grid-template-columns: 1fr; }
+    }
+
 </style>
 </head>
 <body>
@@ -2205,11 +2582,21 @@
         updatePainelApuracao(empresaId, empresaConcluidaNoEscopo(item, 'geral'));
       }
     }));
-    container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', () => {
-      const item = cb.closest('.empresa-item');
-      const mainCb = item?.querySelector('.empresa-check');
-      const empresaId = item?.dataset?.painelId;
+    container.querySelectorAll('.sub-check').forEach(cb => cb.addEventListener('change', (e) => {
+      const item       = cb.closest('.empresa-item');
+      const mainCb     = item?.querySelector('.empresa-check');
+      const empresaId  = item?.dataset?.painelId;
+      const scopes     = cb.dataset?.scopes || '';
+      const ehImposto  = scopes.split(',').some(s => ['impostos','pis_cofins','icms','das','irpj_csll'].includes(s.trim()));
 
+      // Se está marcando (checked) uma subtarefa de IMPOSTO → abre modal bloqueante
+      if (cb.checked && ehImposto) {
+        cb.checked = false; // reverte temporariamente até confirmar
+        window._abrirGuiaModal(cb, item, mainCb, empresaId);
+        return;
+      }
+
+      // Fluxo normal para outros tipos
       if (mainCb) {
         const concluidaNoEscopo = empresaConcluidaNoEscopo(item, escopoAtualChecklist);
         mainCb.checked = concluidaNoEscopo;
@@ -2222,8 +2609,6 @@
 
       salvarPainelObs();
       atualizarTotais();
-
-      // Atualiza a apuração do Painel com base no status geral real.
       if (empresaId) updatePainelApuracao(empresaId, empresaConcluidaNoEscopo(item, 'geral'));
     }));
     filtrarSubtarefasPorEscopo();
@@ -2403,6 +2788,212 @@
 
   carregarColaboradores();
   carregarManual();
+
+  // ── MODAL DE ENVIO DE GUIA (bloqueante) ────────────────────────────────────
+  let _guiaCbPendente   = null;
+  let _guiaItemPendente = null;
+
+  window._abrirGuiaModal = function(cb, item, mainCb, empresaId) {
+    _guiaCbPendente   = cb;
+    _guiaItemPendente = item;
+    window._guiaMainCb    = mainCb;
+    window._guiaEmpresaId = empresaId;
+
+    const label    = cb.dataset?.subLabel || cb.dataset?.subNome || 'Imposto';
+    const scopes   = cb.dataset?.scopes || '';
+    const scopeTag = scopes.includes('pis_cofins') ? 'PIS/COFINS'
+                   : scopes.includes('icms')       ? 'ICMS'
+                   : scopes.includes('das')        ? 'DAS'
+                   : scopes.includes('irpj_csll')  ? 'IRPJ/CSLL'
+                   : 'IMPOSTO';
+
+    document.getElementById('guiaModalTitulo').textContent = `Registrar envio — ${label}`;
+    document.getElementById('guiaModalBadge').textContent  = scopeTag;
+
+    const empresa  = item?.querySelector('.item-title-input')?.value || '';
+    const empresaNomeEl = document.getElementById('guiaModalEmpresaNome');
+    if (empresaNomeEl) empresaNomeEl.textContent = empresa ? `Empresa: ${empresa}` : 'Empresa não identificada';
+    const hoje     = new Date();
+    const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
+
+    document.getElementById('gCompetencia').value = mesAtual;
+    document.getElementById('gDataEnvio').value   = hoje.toISOString().slice(0,10);
+    document.getElementById('gVencimento').value  = '';
+    document.getElementById('gValor').value       = '';
+    document.getElementById('gCodBarras').value   = '';
+    document.getElementById('gEnviadoPara').value = '';
+    document.getElementById('gObs').value         = '';
+    document.getElementById('gStatus').value      = 'enviada';
+    document.querySelectorAll('.guia-canal-opt').forEach(el => { el.classList.remove('checked'); const inp = el.querySelector('input'); if (inp) inp.checked = false; });
+    document.querySelectorAll('#guiaModalOverlay .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+    window._guiaModalEmpresa = empresa;
+    window._guiaModalTipo    = label;
+
+    document.getElementById('guiaModalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('gVencimento').focus(), 150);
+  };
+
+  window.cancelarGuiaModal = function() {
+    document.getElementById('guiaModalOverlay').classList.remove('open');
+    _guiaCbPendente = null;
+  };
+
+  window.confirmarGuiaModal = async function() {
+    const vencimentoEl = document.getElementById('gVencimento');
+    const vencimento = vencimentoEl.value;
+    if (!vencimento) {
+      vencimentoEl.classList.add('is-invalid');
+      vencimentoEl.focus();
+      if (typeof avisoChecklist === 'function') avisoChecklist('Informe o vencimento da guia antes de confirmar.');
+      else alert('Informe o vencimento da guia.');
+      return;
+    }
+    vencimentoEl.classList.remove('is-invalid');
+
+    const canais = Array.from(document.querySelectorAll('.guia-canal-opt input:checked'))
+      .map(inp => inp.value);
+
+    const dadosGuia = {
+      empresa:     window._guiaModalEmpresa || '',
+      tipo:        window._guiaModalTipo    || '',
+      competencia: document.getElementById('gCompetencia').value,
+      vencimento,
+      valor:       document.getElementById('gValor').value.trim(),
+      codBarras:   document.getElementById('gCodBarras').value.trim(),
+      canais,
+      enviadoPara: document.getElementById('gEnviadoPara').value.trim(),
+      dataEnvio:   document.getElementById('gDataEnvio').value,
+      obs:         document.getElementById('gObs').value.trim(),
+      status:      document.getElementById('gStatus').value,
+      origem:      'checklist',
+      updatedAt:   Date.now()
+    };
+
+    // Tenta registrar na página de Controle de Guias se estiver no mesmo contexto
+    if (typeof window._registrarGuiaDoChecklist === 'function') {
+      window._registrarGuiaDoChecklist(dadosGuia);
+    } else {
+      // Salva direto no Firebase
+      try {
+        const id = 'g_' + Date.now();
+        await set(ref(db, 'guias/' + id), dadosGuia);
+      } catch(e) {
+        const local = JSON.parse(localStorage.getItem('bifGuias') || '{}');
+        local['g_' + Date.now()] = dadosGuia;
+        localStorage.setItem('bifGuias', JSON.stringify(local));
+      }
+    }
+
+    // Confirma o checkbox da subtarefa
+    if (_guiaCbPendente) {
+      _guiaCbPendente.checked = true;
+      _guiaCbPendente.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    document.getElementById('guiaModalOverlay').classList.remove('open');
+    _guiaCbPendente = null;
+    if (typeof avisoChecklist === 'function') avisoChecklist('✓ Guia registrada no Controle de Guias.');
+  };
+
+  window.guiaMascaraValor = function(el) {
+    let v = el.value.replace(/\D/g, '');
+    if (!v) { el.value = ''; return; }
+    el.value = (parseInt(v, 10) / 100).toFixed(2).replace('.', ',');
+  };
+
+  document.getElementById('guiaModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) window.cancelarGuiaModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') window.cancelarGuiaModal();
+  });
 </script>
+
+<!-- ── MODAL ENVIO DE GUIA (bloqueante) ── -->
+<div class="guia-modal-overlay" id="guiaModalOverlay">
+  <div class="guia-modal">
+    <div class="guia-modal-head">
+      <div class="guia-title-stack">
+        <div class="guia-kicker">Registro bloqueante</div>
+        <h3 id="guiaModalTitulo">Registrar envio de guia</h3>
+        <div class="guia-modal-subtitle" id="guiaModalEmpresaNome">Empresa não identificada</div>
+      </div>
+      <span class="guia-modal-badge" id="guiaModalBadge">IMPOSTO</span>
+    </div>
+    <div class="guia-modal-aviso">
+      ⚠ Esta subtarefa só será concluída após o registro do envio. Preencha os dados da guia.
+    </div>
+    <div class="guia-modal-body">
+      <div class="guia-field-row">
+        <div class="guia-field">
+          <label>Competência *</label>
+          <input type="month" id="gCompetencia"/>
+        </div>
+        <div class="guia-field">
+          <label>Vencimento *</label>
+          <input type="date" id="gVencimento"/>
+        </div>
+      </div>
+      <div class="guia-field-row">
+        <div class="guia-field">
+          <label>Valor (R$)</label>
+          <input type="text" id="gValor" placeholder="0,00" oninput="guiaMascaraValor(this)"/>
+        </div>
+        <div class="guia-field">
+          <label>Status</label>
+          <select id="gStatus">
+            <option value="enviada">Enviada</option>
+            <option value="gerada">Gerada (envio posterior)</option>
+            <option value="paga">Já paga</option>
+          </select>
+        </div>
+      </div>
+      <div class="guia-field">
+        <label>Código de barras / Linha digitável</label>
+        <input type="text" id="gCodBarras" placeholder="Opcional"/>
+      </div>
+      <div class="guia-field">
+        <label>Canal de envio</label>
+        <div class="guia-canal-options" id="guiaCanalOptions">
+          <label class="guia-canal-opt">
+            <input type="checkbox" value="whatsapp" onchange="this.closest('.guia-canal-opt').classList.toggle('checked', this.checked)"/>📱 WhatsApp
+          </label>
+          <label class="guia-canal-opt">
+            <input type="checkbox" value="email" onchange="this.closest('.guia-canal-opt').classList.toggle('checked', this.checked)"/>📧 E-mail
+          </label>
+          <label class="guia-canal-opt">
+            <input type="checkbox" value="portal" onchange="this.closest('.guia-canal-opt').classList.toggle('checked', this.checked)"/>🌐 Portal
+          </label>
+          <label class="guia-canal-opt">
+            <input type="checkbox" value="presencial" onchange="this.closest('.guia-canal-opt').classList.toggle('checked', this.checked)"/>🤝 Presencial
+          </label>
+        </div>
+      </div>
+      <div class="guia-field-row">
+        <div class="guia-field">
+          <label>Enviado para</label>
+          <input type="text" id="gEnviadoPara" placeholder="Nome do responsável..."/>
+        </div>
+        <div class="guia-field">
+          <label>Data de envio</label>
+          <input type="date" id="gDataEnvio"/>
+        </div>
+      </div>
+      <div class="guia-field">
+        <label>Observação</label>
+        <input type="text" id="gObs" placeholder="Informações adicionais..."/>
+      </div>
+    </div>
+    <div class="guia-modal-footer">
+      <div class="guia-footer-hint">O registro será salvo no Controle de Guias e a subtarefa será marcada como concluída.</div>
+      <div class="guia-footer-actions">
+        <button class="guia-btn guia-btn-ghost" onclick="window.cancelarGuiaModal()">Cancelar</button>
+        <button class="guia-btn guia-btn-gold" onclick="window.confirmarGuiaModal()">✓ Confirmar envio</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
