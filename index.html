@@ -518,19 +518,20 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
-          <div class="tool-icon">📖</div>
-          <h3>Manual de Empresas</h3>
-          <p>Documentação centralizada por empresa cliente com painel de gestão integrado.</p>
+        <div class="tool-card ready" onclick="openTool('pop')">
+          <div class="tool-icon">📋</div>
+          <h3>Procedimentos Operacionais — POP</h3>
+          <p>Biblioteca inteligente de POPs por área e processo. Criação, revisão, tags e impressão padronizada de procedimentos do escritório.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
         <div class="tool-card locked">
-          <div class="tool-icon">🗂️</div>
-          <h3>Capa de Arquivo Morto</h3>
-          <p>Gerador de capas padronizadas para arquivamento físico de documentos fiscais.</p>
+          <div class="tool-icon">📚</div>
+          <h3>Manuais Externos</h3>
+          <p>Repositório de manuais de sistemas, fornecedores e órgãos reguladores — acesso centralizado às referências externas do escritório.</p>
           <div class="tool-footer">
             <span class="badge-soon">Em breve</span>
           </div>
@@ -979,7 +980,8 @@
       'leitura-org': './leitura-org/leitura-organizacional-bif.html',
       'cultura-clima': './cultura-clima/cultura-clima-bif.html',
       'planos-negocio': './planos/index-planos.html',
-      'controle-guias': './controleguias/controle-guias.html'
+      'controle-guias': './controleguias/controle-guias.html',
+      'pop': './procedimentos/pop.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
