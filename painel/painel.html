@@ -87,18 +87,14 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .search-box input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:12px;pointer-events:none;}
 
-/* STATS */
-.stats-bar{padding:14px 24px;display:flex;gap:12px;flex-wrap:wrap;background:var(--bg-card2);border-bottom:1px solid var(--border);}
-.stat-card{background:var(--bg-card);border-radius:var(--radius-sm);padding:11px 16px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid transparent;flex:1;min-width:120px;}
-.stat-card.total{border-left-color:var(--gold);}
-.stat-card.simples{border-left-color:var(--simples);}
-.stat-card.presumido{border-left-color:var(--presumido);}
-.stat-card.real{border-left-color:var(--real);}
-.stat-card.outros{border-left-color:var(--outros);}
-.stat-card.fechadas{border-left-color:var(--fechada);}
-.stat-icon{font-size:18px;}
-.stat-number{font-size:20px;font-weight:700;line-height:1;font-family:var(--font-title);}
-.stat-label{font-size:10px;color:var(--text-light);margin-top:1px;font-weight:600;font-family:var(--font-mono);}
+/* STATS — estilo KPI (do Controle de Guias) */
+.stats-bar{padding:14px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;background:var(--bg-card2);border-bottom:1px solid var(--border);}
+.stat-card{background:var(--bg-card);border:1px solid rgba(201,168,76,0.28);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;flex:unset;box-shadow:var(--shadow);}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4;}
+.stat-icon{display:none;}
+.stat-label{font-size:0.72rem;font-family:var(--font-mono);color:var(--text-light);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.stat-number{font-family:var(--font-title);font-size:1.9rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.stat-sub{font-size:0.72rem;color:var(--text-light);margin-top:4px;font-family:var(--font-mono);}
 .stat-card.total .stat-number{color:var(--gold-light);}
 .stat-card.simples .stat-number{color:var(--simples);}
 .stat-card.presumido .stat-number{color:var(--presumido);}
@@ -1314,12 +1310,12 @@ select option{background:#1b2e42;color:#e8eaf0;}
 
 <!-- STATS -->
 <div class="stats-bar">
-  <div class="stat-card total"><div class="stat-icon">🏢</div><div><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total</div></div></div>
-  <div class="stat-card simples"><div class="stat-icon">🟢</div><div><div class="stat-number" id="stat-simples">0</div><div class="stat-label">Simples</div></div></div>
-  <div class="stat-card presumido"><div class="stat-icon">🔵</div><div><div class="stat-number" id="stat-presumido">0</div><div class="stat-label">Presumido</div></div></div>
-  <div class="stat-card real"><div class="stat-icon">🟣</div><div><div class="stat-number" id="stat-real">0</div><div class="stat-label">Real</div></div></div>
-  <div class="stat-card outros"><div class="stat-icon">🩷</div><div><div class="stat-number" id="stat-outros">0</div><div class="stat-label">Outros</div></div></div>
-  <div class="stat-card fechadas" style="cursor:pointer;" onclick="filtrarPorSemMovimento()"><div class="stat-icon">📭</div><div><div class="stat-number" id="stat-sem-movimento">0</div><div class="stat-label">Sem Movimento</div></div></div>
+  <div class="stat-card total"><div class="stat-label">Total</div><div class="stat-number" id="stat-total">0</div></div>
+  <div class="stat-card simples"><div class="stat-label">Simples</div><div class="stat-number" id="stat-simples">0</div></div>
+  <div class="stat-card presumido"><div class="stat-label">Presumido</div><div class="stat-number" id="stat-presumido">0</div></div>
+  <div class="stat-card real"><div class="stat-label">Real</div><div class="stat-number" id="stat-real">0</div></div>
+  <div class="stat-card outros"><div class="stat-label">Outros</div><div class="stat-number" id="stat-outros">0</div></div>
+  <div class="stat-card fechadas" style="cursor:pointer;" onclick="filtrarPorSemMovimento()"><div class="stat-label">Sem Movimento</div><div class="stat-number" id="stat-sem-movimento">0</div></div>
 </div>
 
 <!-- MAIN -->
