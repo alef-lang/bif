@@ -528,6 +528,16 @@
           </div>
         </div>
 
+        <div class="tool-card ready" onclick="openTool('documentos')">
+          <div class="tool-icon">🗃️</div>
+          <h3>Documentos</h3>
+          <p>Biblioteca de documentos HTML do escritório. Módulos fixos e personalizados, upload e abertura direta com salvamento automático na nuvem.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
         <div class="tool-card locked">
           <div class="tool-icon">📚</div>
           <h3>Manuais Externos</h3>
@@ -981,7 +991,8 @@
       'cultura-clima': './cultura-clima/cultura-clima-bif.html',
       'planos-negocio': './planos/index-planos.html',
       'controle-guias': './controleguias/controle-guias.html',
-      'pop': './procedimentos/pop.html'
+      'pop': './procedimentos/pop.html',
+      'documentos': './documentos/documentos.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
