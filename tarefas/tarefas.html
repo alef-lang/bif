@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Tarefas — Fiscal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E%E2%97%88%3C/text%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -225,30 +226,77 @@ input[type="file"]{display:none}
   .ov-val{color:#333!important}
   .gp-track{background:#eee!important}.gp-fill{background:#8B7332!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
+
+
+/* UPGRADE VISUAL — alinhado ao design do Painel de Empresas */
+body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168,76,0.07) 0%, transparent 55%),radial-gradient(ellipse at 85% 80%, rgba(201,168,76,0.05) 0%, transparent 50%)}
+.app-header{background:linear-gradient(135deg,#0d1b2a,#1b2e42);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(0,0,0,0.45);border-bottom:1px solid var(--gold-dim);position:sticky;top:0;z-index:200;flex-wrap:wrap;gap:10px}
+.app-header-left{display:flex;align-items:center;gap:12px;min-width:260px}
+.app-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#0d1b2a;flex-shrink:0;font-family:var(--serif)}
+.app-title h1{font-size:16px;font-weight:700;font-family:var(--serif);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:0}
+.app-title p{font-size:11px;color:var(--text-muted);margin-top:1px;font-family:var(--mono)}
+.app-header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.back-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gold-light);text-decoration:none;border:1px solid var(--gold-dim);border-radius:999px;padding:7px 12px;background:rgba(201,168,76,0.1);font-family:var(--mono);transition:all 0.18s}
+.back-pill:hover{background:rgba(201,168,76,0.22);border-color:var(--gold);transform:translateY(-1px)}
+.page{max-width:1180px;padding:20px 24px 32px}
+.card{border:1px solid var(--gold-dim);border-radius:var(--radius);box-shadow:0 4px 18px rgba(0,0,0,0.32);margin-bottom:18px;padding:20px 24px;background:var(--navy-mid)}
+.card+.card{border-top:1px solid var(--gold-dim)}
+.card:last-child{border-radius:var(--radius)}
+.overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:8px}
+.ov-card{background:var(--navy-mid);border:1px solid rgba(201,168,76,0.28);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.25)}
+.ov-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.ov-label{font-size:.72rem;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.ov-val{font-family:var(--serif);font-size:1.8rem;font-weight:700;line-height:1;margin-top:0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.company-filter-select{padding:9px 12px;border:1.5px solid var(--gold-dim);border-radius:20px;font-size:12px;outline:none;background:var(--navy-light);color:var(--white);cursor:pointer;font-family:var(--sans);transition:all .2s;min-width:220px;max-width:320px}
+.company-filter-select:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow)}
+.search-wrap input{background:var(--navy-light);border-width:1.5px}
+.task{background:#162438;border-color:rgba(255,255,255,0.07);border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.18)}
+.task:hover{box-shadow:0 10px 32px rgba(0,0,0,0.38);transform:translateY(-1px);background:#1e3350}
+.company-badge{background:rgba(201,168,76,0.13);color:var(--gold-light);border:1px solid var(--gold-dim)}
+.company-context{margin:0 0 12px;padding:10px 12px;border:1px solid var(--gold-dim);border-radius:10px;background:rgba(201,168,76,0.055);display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:var(--text-muted);font-size:.78rem;font-family:var(--mono)}
+.company-context strong{color:var(--gold-light);font-family:var(--sans);font-size:.82rem}
+.company-context span{color:var(--text-muted)}
+.company-picker{position:relative}
+.company-picker-row{display:flex;gap:8px;align-items:center}
+.company-picker-row input{flex:1}
+.company-clear-btn{width:auto!important;flex-shrink:0;padding:10px 12px!important;border-radius:8px!important;color:var(--text-muted)!important;cursor:pointer}
+.company-dropdown{display:none;position:absolute;z-index:180;top:calc(100% + 6px);left:0;right:0;max-height:238px;overflow:auto;background:rgba(13,27,42,.98);border:1px solid var(--gold-dim);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.48);padding:6px;backdrop-filter:blur(10px)}
+.company-dropdown.open{display:block}
+.company-option{padding:10px 12px;border-radius:9px;cursor:pointer;border:1px solid transparent;display:flex;flex-direction:column;gap:2px;transition:all .15s}
+.company-option:hover,.company-option.active{border-color:var(--gold-dim);background:rgba(201,168,76,.10)}
+.company-option-title{font-size:12px;font-weight:700;color:var(--white);line-height:1.35}
+.company-option-meta{font-size:10px;color:var(--text-muted);font-family:var(--mono);display:flex;gap:7px;flex-wrap:wrap}
+.company-empty{padding:12px;color:var(--text-muted);font-size:11px;font-family:var(--mono);text-align:center}
+.company-selected-hint{margin-top:6px;font-size:11px;color:var(--text-muted);font-family:var(--mono);min-height:16px}
+.company-selected-hint.ok{color:var(--gold-light)}
+.company-selected-hint.warn{color:var(--amber)}
+.modal{max-width:680px}
+@media(max-width:760px){.page{padding:16px}.app-header{padding:14px 16px}.app-header-left{min-width:0}.company-filter-select{width:100%;max-width:none}.company-picker-row{flex-direction:column;align-items:stretch}.company-clear-btn{width:100%!important}.toolbar>.btn{flex:1;justify-content:center}.search-wrap{flex-basis:100%;max-width:none;margin-left:0}}
+.modal-overlay{z-index:1000}.reward-overlay{z-index:1100}.toast{z-index:1200}
+@media print{.app-header,.company-filter-select,.company-dropdown{display:none!important}.page{padding:0}.card{box-shadow:none!important;margin-bottom:0}}
+
 </style>
 </head>
 <body>
-<div style="max-width:920px;margin:0 auto;padding:16px 16px 0;position:relative;z-index:1;">
-  <a href="#" onclick="history.back();return false;" style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);text-decoration:none;border:1px solid var(--gold-dim);border-radius:999px;padding:4px 12px;transition:background 0.15s;font-family:var(--mono);">
-    <span style="color:var(--gold)">◈</span> ← BIF
-  </a>
-</div>
-<div class="page">
-  <div class="header">
-    <div class="header-top">
-      <div>
-        <h1>Tarefas <span>Fiscal</span></h1>
-        <div class="header-sub" id="headerDate"></div>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-sm btn-gold" id="btnSalvar" onclick="manualSave()" style="gap:6px">💾 Salvar</button>
-        <button class="btn btn-sm" onclick="window.print()">&#128424; Imprimir</button>
-        <button class="btn btn-sm" onclick="exportBackup()">&#9660; Backup</button>
-        <button class="btn btn-sm" onclick="document.getElementById('importFile').click()">&#9650; Restaurar</button>
-        <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" />
-      </div>
+<header class="app-header">
+  <div class="app-header-left">
+    <a href="#" onclick="history.back();return false;" class="back-pill"><span style="color:var(--gold)">◈</span> ← BIF</a>
+    <div class="app-logo">✓</div>
+    <div class="app-title">
+      <h1>Painel de Tarefas Fiscal</h1>
+      <p id="headerDate"></p>
     </div>
   </div>
+  <div class="app-header-right">
+    <button class="btn btn-sm btn-gold" id="btnSalvar" onclick="manualSave()" style="gap:6px">💾 Salvar</button>
+    <button class="btn btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn btn-sm" onclick="exportBackup()">▼ Backup</button>
+    <button class="btn btn-sm" onclick="document.getElementById('importFile').click()">▲ Restaurar</button>
+    <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" />
+  </div>
+</header>
+<div class="page">
 
   <!-- TUTORIAL -->
   <div class="card" id="tutorialCard" style="border-top:1px solid rgba(255,255,255,0.07);padding:0">
@@ -325,9 +373,13 @@ input[type="file"]{display:none}
       <button class="btn btn-gold" onclick="openNewTask()">+ Nova tarefa</button>
       <button class="btn btn-sm" onclick="expandAll(true)">Expandir</button>
       <button class="btn btn-sm" onclick="expandAll(false)">Recolher</button>
+      <button class="btn btn-sm" onclick="refreshCompanyList()" title="Buscar novamente as empresas do Painel">↻ Empresas</button>
+      <select id="companyFilterSelect" class="company-filter-select" onchange="setCompanyFilter(this.value)" title="Filtrar tarefas por empresa">
+        <option value="all">Todas as empresas</option>
+      </select>
       <div class="search-wrap" role="search">
         <span class="search-ico">⌕</span>
-        <input type="search" id="taskSearch" placeholder="Pesquisar tarefas, subtarefas, responsável..." oninput="setSearch(this.value)" autocomplete="off" />
+        <input type="search" id="taskSearch" placeholder="Pesquisar tarefas, empresa, subtarefas, responsável..." oninput="setSearch(this.value)" autocomplete="off" />
         <button type="button" id="btnClearSearch" class="search-clear" onclick="clearSearch()" title="Limpar pesquisa">×</button>
       </div>
     </div>
@@ -347,6 +399,18 @@ input[type="file"]{display:none}
     <div class="form-group">
       <label>Nome da tarefa</label>
       <input type="text" id="tmName" placeholder="Ex: Preparar Reinf — GDO" />
+    </div>
+    <div class="form-group">
+      <label>Empresa vinculada</label>
+      <div class="company-picker">
+        <input type="hidden" id="tmCompanyId" />
+        <div class="company-picker-row">
+          <input type="search" id="tmCompanySearch" placeholder="Pesquisar empresa do Painel..." autocomplete="off" onfocus="openCompanyDropdown()" oninput="filterCompanyOptions(this.value)" />
+          <button type="button" class="company-clear-btn" onclick="clearTaskCompany()" title="Remover empresa vinculada">Limpar</button>
+        </div>
+        <div id="tmCompanyDropdown" class="company-dropdown"></div>
+        <div id="tmCompanyHint" class="company-selected-hint">As empresas são buscadas do Painel de Empresas.</div>
+      </div>
     </div>
     <div class="form-group">
       <label>Descrição / contexto</label>
@@ -452,12 +516,14 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db    = getDatabase(fbApp);
 const DB_PATH = 'bif_tarefas_fiscal';
+const PAINEL_PATH = 'painel';
 
 const PRI_COLORS=['','#2ecc8a','#2dd4bf','#f59e0b','#f97316','#e05a5a'];
 const PRI_LABELS=['','Baixa','Moderada','Média','Alta','Urgente'];
 const REWARDS_DEFAULT=['☕ Cafézinho','🚶 Levanta e anda 2 min','🎵 1 música favorita','💧 Copo d\'água','📱 5 min de redes','🍫 Um chocolate','🌬️ Respirar na janela'];
 
-let tasks=[],expanded={},filterPri='all',searchQuery='',newPri=3,editPri=3,points=0;
+let tasks=[],expanded={},filterPri='all',companyFilter='all',searchQuery='',newPri=3,editPri=3,points=0;
+let painelEmpresas=[];
 let autosaveTimer=null, autosaveStatusTimer=null;
 
 function setAutosaveStatus(status,msg){
@@ -497,6 +563,7 @@ async function load(){
     try{ points=parseInt(localStorage.getItem('fiscal_pts')||'0'); }catch(e){ points=0; }
     setAutosaveStatus('saving','Offline — salvo localmente');
   }
+  await loadPainelEmpresas();
   render();
   initTutorial();
 }
@@ -539,6 +606,139 @@ function forceSave(){
 function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3000)}
 function nid(){return Date.now()+Math.floor(Math.random()*1000)}
 
+function parseLocalPainelEmpresas(){
+  try{
+    const raw=localStorage.getItem('gestao_v3')||localStorage.getItem('gestao_empresas')||'';
+    if(!raw)return [];
+    const d=JSON.parse(raw);
+    return Array.isArray(d.empresas)?d.empresas:[];
+  }catch(e){return []}
+}
+function normalizeEmpresas(arr){
+  return (Array.isArray(arr)?arr:[]).filter(e=>e&&e.id&&e.nome).map(e=>({
+    id:String(e.id),nome:e.nome||'',cnpj:e.cnpj||'',regime:e.regime||'outros',atividade:e.atividade||'',colaborador:e.colaborador||'',fechada:!!e.fechada,semMovimento:!!e.semMovimento
+  })).sort((a,b)=>normalizeText(a.nome).localeCompare(normalizeText(b.nome),'pt-BR'));
+}
+async function loadPainelEmpresas(){
+  try{
+    const snap=await get(ref(db, PAINEL_PATH));
+    if(snap.exists()){
+      const d=snap.val();
+      painelEmpresas=normalizeEmpresas(d.empresas||[]);
+      localStorage.setItem('fiscal_painel_empresas_cache',JSON.stringify(painelEmpresas));
+      return painelEmpresas;
+    }
+  }catch(e){}
+  const local=parseLocalPainelEmpresas();
+  if(local.length){painelEmpresas=normalizeEmpresas(local);return painelEmpresas;}
+  try{painelEmpresas=normalizeEmpresas(JSON.parse(localStorage.getItem('fiscal_painel_empresas_cache')||'[]'));}catch(e){painelEmpresas=[];}
+  return painelEmpresas;
+}
+async function refreshCompanyList(){
+  setAutosaveStatus('saving','Atualizando empresas...');
+  await loadPainelEmpresas();
+  renderCompanyFilter();
+  renderCompanyDropdown('');
+  renderTasks();
+  setAutosaveStatus('saved',`${painelEmpresas.length} empresa(s) do Painel`);
+  toast(`${painelEmpresas.length} empresa(s) carregada(s) do Painel`,'success');
+}
+function regimeLabel(r){return ({simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[r]||'Outros')}
+function getCompanyById(id){return painelEmpresas.find(e=>String(e.id)===String(id))||null}
+function getTaskCompany(t){
+  const c=t.companyId?getCompanyById(t.companyId):null;
+  if(c)return c;
+  if(t.companyName||t.companyCnpj||t.companyRegime)return {id:t.companyId||'',nome:t.companyName||'',cnpj:t.companyCnpj||'',regime:t.companyRegime||'outros'};
+  return null;
+}
+function getTaskCompanyName(t){const c=getTaskCompany(t);return c&&c.nome?c.nome:''}
+function companyOptionText(e){return [e.nome,e.cnpj,regimeLabel(e.regime),e.atividade,e.colaborador].filter(Boolean).join(' • ')}
+function renderCompanyFilter(){
+  const sel=document.getElementById('companyFilterSelect');if(!sel)return;
+  const prev=companyFilter||sel.value||'all';
+  const opts=['<option value="all">Todas as empresas</option>','<option value="__none">Sem empresa vinculada</option>'].concat(
+    painelEmpresas.map(e=>`<option value="${esc(e.id)}">${esc(e.nome)}${e.cnpj?' — '+esc(e.cnpj):''}</option>`)
+  );
+  sel.innerHTML=opts.join('');
+  sel.value=[...sel.options].some(o=>o.value===prev)?prev:'all';
+  companyFilter=sel.value;
+}
+function setCompanyFilter(v){companyFilter=v||'all';renderTasks()}
+function renderCompanyDropdown(query=''){
+  const box=document.getElementById('tmCompanyDropdown');
+  if(!box)return;
+  const q=normalizeText(query);
+  const rows=painelEmpresas.filter(e=>!q||normalizeText(companyOptionText(e)).includes(q)).slice(0,80);
+  if(!painelEmpresas.length){
+    box.innerHTML='<div class="company-empty">Nenhuma empresa carregada. Abra/salve o Painel ou clique em ↻ Empresas.</div>';
+    return;
+  }
+  if(!rows.length){box.innerHTML='<div class="company-empty">Nenhuma empresa encontrada para esta busca.</div>';return;}
+  const selected=document.getElementById('tmCompanyId')?.value||'';
+  box.innerHTML=rows.map(e=>`<div class="company-option ${String(e.id)===String(selected)?'active':''}" onclick="selectTaskCompany('${esc(e.id)}')">
+    <div class="company-option-title">${esc(e.nome)}</div>
+    <div class="company-option-meta">
+      ${e.cnpj?`<span>${esc(e.cnpj)}</span>`:''}
+      <span>${esc(regimeLabel(e.regime))}</span>
+      ${e.colaborador?`<span>👤 ${esc(e.colaborador)}</span>`:''}
+      ${e.semMovimento?'<span>sem movimento</span>':''}
+      ${e.fechada?'<span>fechada</span>':''}
+    </div>
+  </div>`).join('');
+}
+function openCompanyDropdown(){
+  renderCompanyDropdown(document.getElementById('tmCompanySearch')?.value||'');
+  const box=document.getElementById('tmCompanyDropdown');if(box)box.classList.add('open');
+}
+function filterCompanyOptions(value){
+  const id=document.getElementById('tmCompanyId');
+  const hint=document.getElementById('tmCompanyHint');
+  if(id)id.value='';
+  if(hint){hint.className='company-selected-hint warn';hint.textContent='Digite para buscar e clique em uma empresa da lista.';}
+  renderCompanyDropdown(value||'');
+  const box=document.getElementById('tmCompanyDropdown');if(box)box.classList.add('open');
+  saveDraftTask();
+}
+function selectTaskCompany(id){
+  const e=getCompanyById(id);if(!e)return;
+  document.getElementById('tmCompanyId').value=e.id;
+  document.getElementById('tmCompanySearch').value=e.nome;
+  const hint=document.getElementById('tmCompanyHint');
+  if(hint){hint.className='company-selected-hint ok';hint.textContent=`Selecionada: ${e.cnpj||'sem CNPJ'} • ${regimeLabel(e.regime)}`;}
+  const box=document.getElementById('tmCompanyDropdown');if(box)box.classList.remove('open');
+  saveDraftTask();
+}
+function clearTaskCompany(){
+  document.getElementById('tmCompanyId').value='';
+  document.getElementById('tmCompanySearch').value='';
+  const hint=document.getElementById('tmCompanyHint');
+  if(hint){hint.className='company-selected-hint';hint.textContent='Sem empresa vinculada. A tarefa continuará só no painel de tarefas.';}
+  renderCompanyDropdown('');
+  saveDraftTask();
+}
+function fillCompanyPicker(companyId, legacyName=''){
+  const input=document.getElementById('tmCompanySearch');
+  const hidden=document.getElementById('tmCompanyId');
+  const hint=document.getElementById('tmCompanyHint');
+  const e=companyId?getCompanyById(companyId):null;
+  if(hidden)hidden.value=e?e.id:(companyId||'');
+  if(input)input.value=e?e.nome:(legacyName||'');
+  if(hint){
+    if(e){hint.className='company-selected-hint ok';hint.textContent=`Selecionada: ${e.cnpj||'sem CNPJ'} • ${regimeLabel(e.regime)}`;}
+    else if(companyId||legacyName){hint.className='company-selected-hint warn';hint.textContent='Empresa antiga/não encontrada no Painel. Escolha novamente para atualizar o vínculo.';}
+    else{hint.className='company-selected-hint';hint.textContent='As empresas são buscadas do Painel de Empresas.';}
+  }
+  renderCompanyDropdown(input?input.value:'');
+}
+function sanitizeTaskCompanyFromModal(){
+  const id=document.getElementById('tmCompanyId').value;
+  const typed=document.getElementById('tmCompanySearch').value.trim();
+  if(typed&&!id){toast('Selecione uma empresa da lista ou limpe o campo de empresa.','error');return null;}
+  const c=id?getCompanyById(id):null;
+  return {companyId:c?c.id:'',companyName:c?c.nome:'',companyCnpj:c?c.cnpj:'',companyRegime:c?c.regime:''};
+}
+
+
 function renderHeader(){
   const d=new Date();
   const days=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -552,6 +752,7 @@ function renderOverview(){
   const pct=total?Math.round((done/total)*100):0;
   const interact=tasks.filter(t=>t.interaction&&!t.done).length;
   const urgent=tasks.filter(t=>t.priority>=4&&!t.done).length;
+  const linkedCompanies=new Set(tasks.filter(t=>t.companyId).map(t=>String(t.companyId))).size;
 
   document.getElementById('overview').innerHTML=`
     <div class="ov-card"><div class="ov-label">Total</div><div class="ov-val" style="color:var(--gold)">${total}</div></div>
@@ -559,7 +760,8 @@ function renderOverview(){
     <div class="ov-card"><div class="ov-label">Urgentes</div><div class="ov-val" style="color:var(--red)">${urgent}</div></div>
     <div class="ov-card"><div class="ov-label">Interação</div><div class="ov-val" style="color:var(--coral)">${interact}</div></div>
     <div class="ov-card"><div class="ov-label">Pontos</div><div class="ov-val" style="color:var(--gold)">⭐ ${points}</div></div>
-    <div class="ov-card"><div class="ov-label">Parqueadas</div><div class="ov-val" style="color:var(--amber)">${tasks.filter(t=>t.parqueado&&!t.done).length}</div></div>`;
+    <div class="ov-card"><div class="ov-label">Parqueadas</div><div class="ov-val" style="color:var(--amber)">${tasks.filter(t=>t.parqueado&&!t.done).length}</div></div>
+    <div class="ov-card"><div class="ov-label">Empresas</div><div class="ov-val" style="color:var(--blue)">${linkedCompanies}</div></div>`;
 
   document.getElementById('gp').innerHTML=`
     <div class="gp-track"><div class="gp-fill" style="width:${pct}%"></div></div>
@@ -600,7 +802,8 @@ function normalizeText(s){
 }
 function taskSearchBlob(t){
   const subs=(t.subtasks||[]).map(s=>s.name).join(' ');
-  return [t.name,stripHtml(t.desc),t.reward,t.assigneeName,t.assigneeEmail,t.deadline,t.parqueLocal,t.parqueMotive,t.parqueRetorno,subs].join(' ');
+  const company=getTaskCompany(t);
+  return [t.name,stripHtml(t.desc),t.reward,t.assigneeName,t.assigneeEmail,t.deadline,t.parqueLocal,t.parqueMotive,t.parqueRetorno,company?.nome,company?.cnpj,company?.regime,subs].join(' ');
 }
 
 function getFiltered(){
@@ -610,6 +813,11 @@ function getFiltered(){
   else if(filterPri==='solo')f=f.filter(t=>!t.interaction&&!t.done);
   else if(filterPri==='done')f=f.filter(t=>t.done);
   else if(filterPri==='parqueado')f=f.filter(t=>t.parqueado&&!t.done);
+
+  if(companyFilter&&companyFilter!=='all') {
+    if(companyFilter==='__none') f=f.filter(t=>!t.companyId&&!t.companyName);
+    else f=f.filter(t=>String(t.companyId||'')===String(companyFilter));
+  }
 
   const q=normalizeText(searchQuery);
   if(q)f=f.filter(t=>normalizeText(taskSearchBlob(t)).includes(q));
@@ -655,6 +863,7 @@ function renderTaskHTML(t){
   const subTotal=t.subtasks?t.subtasks.length:0;
   const pendingSub=subTotal-subDone;
   const canComplete=t.done||subTotal===0||pendingSub===0;
+  const company=getTaskCompany(t);
 
   let priDots='';
   for(let i=1;i<=5;i++){priDots+=`<div class="pri-dot" style="background:${i<=t.priority?c:'rgba(255,255,255,0.06)'}"></div>`}
@@ -666,6 +875,7 @@ function renderTaskHTML(t){
         <div class="task-name">${esc(t.name)}</div>
         <div class="task-badges">
           <span class="badge" style="background:${c}22;color:${c}">${PRI_LABELS[t.priority]}</span>
+          ${company&&company.nome?`<span class="badge company-badge">🏢 ${esc(company.nome)}</span>`:''}
           ${t.interaction?'<span class="badge badge-interaction">Interação</span>':'<span class="badge badge-solo">Solo</span>'}
           ${subTotal?`<span class="badge" style="background:${pendingSub?'rgba(245,158,11,0.15)':'rgba(46,204,138,0.12)'};color:${pendingSub?'var(--amber)':'var(--green)'}">${subDone}/${subTotal} sub</span>`:''}
           ${pendingSub&&!t.done?`<span class="badge" style="background:rgba(245,158,11,0.12);color:var(--amber)">faltam ${pendingSub}</span>`:''}
@@ -678,6 +888,7 @@ function renderTaskHTML(t){
       <div class="task-toggle ${isOpen?'open':''}">&#9662;</div>
     </div>
     <div class="task-body ${isOpen?'open':''}">
+      ${company&&company.nome?`<div class="company-context"><strong>🏢 ${esc(company.nome)}</strong>${company.cnpj?`<span>${esc(company.cnpj)}</span>`:''}<span>${esc(regimeLabel(company.regime))}</span></div>`:''}
       ${t.desc?`<div class="task-desc">${t.desc}</div>`:''}
       ${t.subtasks?t.subtasks.map((s,si)=>`
         <div class="subtask ${s.done?'done':''}">
@@ -820,6 +1031,8 @@ function saveDraftTask(){
     name:document.getElementById('tmName').value,
     desc:document.getElementById('tmDesc').innerHTML,
     reward:document.getElementById('tmReward').value,
+    companyId:document.getElementById('tmCompanyId').value,
+    companySearch:document.getElementById('tmCompanySearch').value,
     assigneeName:document.getElementById('tmAssigneeName').value,
     assigneeEmail:document.getElementById('tmAssigneeEmail').value,
     deadline:document.getElementById('tmDeadline').value,
@@ -843,6 +1056,7 @@ function restoreDraftTask(){
   document.getElementById('tmName').value=draft.name||'';
   document.getElementById('tmDesc').innerHTML=draft.desc||'';
   document.getElementById('tmReward').value=draft.reward||'';
+  fillCompanyPicker(draft.companyId||'', draft.companySearch||'');
   document.getElementById('tmAssigneeName').value=draft.assigneeName||'';
   document.getElementById('tmAssigneeEmail').value=draft.assigneeEmail||'';
   document.getElementById('tmDeadline').value=draft.deadline||'';
@@ -857,7 +1071,7 @@ function restoreDraftTask(){
   toast('Rascunho restaurado pelo autosave','info');
 }
 function bindDraftAutosave(){
-  ['tmName','tmReward','tmAssigneeName','tmAssigneeEmail','tmDeadline'].forEach(id=>{
+  ['tmName','tmReward','tmAssigneeName','tmAssigneeEmail','tmDeadline','tmCompanySearch'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.addEventListener('input',saveDraftTask);
   });
   const desc=document.getElementById('tmDesc');if(desc)desc.addEventListener('input',saveDraftTask);
@@ -896,6 +1110,7 @@ function openNewTask(){
   document.getElementById('tmName').value='';
   document.getElementById('tmDesc').innerHTML='';
   document.getElementById('tmReward').value='';
+  fillCompanyPicker('', '');
   document.getElementById('tmAssigneeName').value='';
   document.getElementById('tmAssigneeEmail').value='';
   document.getElementById('tmDeadline').value='';
@@ -918,6 +1133,7 @@ function openEditTask(id){
   document.getElementById('tmName').value=t.name;
   document.getElementById('tmDesc').innerHTML=t.desc||'';
   document.getElementById('tmReward').value=t.reward||'';
+  fillCompanyPicker(t.companyId||'', t.companyName||'');
   document.getElementById('tmAssigneeName').value=t.assigneeName||'';
   document.getElementById('tmAssigneeEmail').value=t.assigneeEmail||'';
   document.getElementById('tmDeadline').value=t.deadline||'';
@@ -948,13 +1164,15 @@ function saveTask(){
   const parqueRetorno=document.getElementById('tmParqueRetorno').value;
   const editId=document.getElementById('tmId').value;
   if(!name){toast('Nome obrigatório','error');return}
+  const companyData=sanitizeTaskCompanyFromModal();
+  if(!companyData)return;
 
   if(editId){
     const t=tasks.find(x=>x.id===parseInt(editId));
-    if(t){t.name=name;t.desc=desc;t.priority=newPri;t.reward=reward;t.interaction=interaction;t.assigneeName=assigneeName;t.assigneeEmail=assigneeEmail;t.deadline=deadline;t.parqueado=parqueado;t.parqueLocal=parqueLocal;t.parqueMotive=parqueMotive;t.parqueRetorno=parqueRetorno}
+    if(t){t.name=name;t.desc=desc;t.priority=newPri;t.reward=reward;t.interaction=interaction;t.assigneeName=assigneeName;t.assigneeEmail=assigneeEmail;t.deadline=deadline;t.parqueado=parqueado;t.parqueLocal=parqueLocal;t.parqueMotive=parqueMotive;t.parqueRetorno=parqueRetorno;Object.assign(t,companyData)}
     toast('Tarefa atualizada','success');
   }else{
-    const nt={id:nid(),name,desc,priority:newPri,reward,interaction,assigneeName,assigneeEmail,deadline,done:false,subtasks:[],parqueado,parqueLocal,parqueMotive,parqueRetorno};
+    const nt={id:nid(),name,desc,priority:newPri,reward,interaction,assigneeName,assigneeEmail,deadline,done:false,subtasks:[],parqueado,parqueLocal,parqueMotive,parqueRetorno,...companyData};
     tasks.push(nt);expanded[nt.id]=true;
     toast('Tarefa criada!','info');
   }
@@ -996,7 +1214,7 @@ function formatDate(d){
 }
 
 function exportBackup(){
-  const data={version:3,exported:new Date().toISOString(),tasks,points};
+  const data={version:4,exported:new Date().toISOString(),tasks,points};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -1024,9 +1242,10 @@ function importBackup(ev){
 }
 
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-function render(){renderHeader();renderOverview();renderFilters();renderTasks()}
+function render(){renderHeader();renderOverview();renderFilters();renderCompanyFilter();renderTasks()}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)closeModal(this.id)})});
 document.getElementById('rewardOverlay').addEventListener('click',function(e){if(e.target===this)closeReward()});
+document.addEventListener('click',function(e){const picker=document.querySelector('.company-picker');const box=document.getElementById('tmCompanyDropdown');if(box&&picker&&!picker.contains(e.target))box.classList.remove('open');});
 // Rich editor: paste de imagem no tmDesc
 document.getElementById('tmDesc').addEventListener('paste', function(e) {
   const items = e.clipboardData?.items;
@@ -1130,6 +1349,9 @@ window.setSearch=setSearch; window.clearSearch=clearSearch;
 window.completeTask=completeTask; window.toggleSub=toggleSub; window.toggleTask=toggleTask;
 window.toggleTutorial=toggleTutorial; window.desparquear=desparquear;
 window.toggleParqueFields=toggleParqueFields;
+window.refreshCompanyList=refreshCompanyList; window.setCompanyFilter=setCompanyFilter;
+window.openCompanyDropdown=openCompanyDropdown; window.filterCompanyOptions=filterCompanyOptions;
+window.selectTaskCompany=selectTaskCompany; window.clearTaskCompany=clearTaskCompany;
 
 bindDraftAutosave();
 load(); // load já chama render() e initTutorial() internamente
