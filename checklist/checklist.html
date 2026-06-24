@@ -2885,10 +2885,33 @@
       }
     }
 
-    // Confirma o checkbox da subtarefa
+    // Confirma o checkbox da subtarefa sem re-disparar o modal
     if (_guiaCbPendente) {
       _guiaCbPendente.checked = true;
-      _guiaCbPendente.dispatchEvent(new Event('change', { bubbles: true }));
+
+      // Roda o fluxo pós-confirmação manualmente (sem disparar 'change' que re-abriria o modal)
+      const item      = _guiaCbPendente.closest('.empresa-item');
+      const mainCb    = item?.querySelector('.empresa-check');
+      const empresaId = item?.dataset?.painelId;
+
+      if (mainCb) {
+        const concluidaNoEscopo = typeof empresaConcluidaNoEscopo === 'function'
+          ? empresaConcluidaNoEscopo(item, window.escopoAtualChecklist || 'geral')
+          : false;
+        mainCb.checked = concluidaNoEscopo;
+        if (concluidaNoEscopo && typeof avisoChecklist === 'function') {
+          // aviso será exibido abaixo
+        }
+      }
+
+      if (typeof salvarPainelObs === 'function') salvarPainelObs();
+      if (typeof atualizarTotais === 'function') atualizarTotais();
+      if (empresaId && typeof updatePainelApuracao === 'function') {
+        const concluidaGeral = typeof empresaConcluidaNoEscopo === 'function'
+          ? empresaConcluidaNoEscopo(item, 'geral')
+          : false;
+        updatePainelApuracao(empresaId, concluidaGeral);
+      }
     }
 
     document.getElementById('guiaModalOverlay').classList.remove('open');
