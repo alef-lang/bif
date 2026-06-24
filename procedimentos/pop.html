@@ -204,6 +204,18 @@ select option{background:#1b2e42;color:#e8edf2;}
 .ff-sep{width:1px;height:22px;background:var(--gold-dim);margin:0 2px;display:inline-block;}
 .ff-soft{color:var(--muted);font-weight:700;min-width:auto;padding:0 9px;}
 .rich font[size="1"]{font-size:10px;}.rich font[size="2"]{font-size:11px;}.rich font[size="3"]{font-size:12px;}.rich font[size="4"]{font-size:14px;}.rich font[size="5"]{font-size:18px;}.rich font[size="6"]{font-size:22px;}.rich font[size="7"]{font-size:26px;}
+
+
+/* ── MODO FOCO: a POP ocupa a largura inteira da tela ──
+   A biblioteca lateral vira um painel sobreposto: ela não rouba espaço do formulário. */
+.workspace{position:relative;height:calc(100vh - 58px);overflow:hidden;}
+.sidebar{position:fixed;top:62px;left:0;bottom:0;z-index:900;width:var(--sidebar-w);height:calc(100vh - 62px);box-shadow:18px 0 42px rgba(0,0,0,.42);transform:translateX(0);transition:transform .22s ease,opacity .22s ease;}
+.sidebar.collapsed{width:var(--sidebar-w);opacity:1;transform:translateX(calc(-1 * var(--sidebar-w) - 12px));pointer-events:none;}
+.editor-wrap{width:100%;flex:1 1 auto;min-width:0;}
+.editor-body{padding-left:28px;padding-right:28px;}
+.save-bar{padding-left:28px;padding-right:28px;}
+.btn-toggle-sidebar{position:relative;z-index:950;}
+
 @media(max-width:800px){
   .sidebar{position:fixed;top:58px;left:0;bottom:0;z-index:150;border-right:1px solid var(--gold-border);}
   .sidebar.collapsed{transform:translateX(-100%);opacity:1;width:var(--sidebar-w);pointer-events:none;}
@@ -534,7 +546,9 @@ function ensureStateDefaults(){
   if(!Array.isArray(state.defaultActiveIds)) state.defaultActiveIds=DEFAULT_ACTIVE_IDS.slice();
   state.defaultActiveIds=state.defaultActiveIds.filter(id=>state.fieldDefs.some(f=>f.id===id));
   if(!state.print) state.print={font:'Arial',size:'10.5pt'};
-  if(typeof state.sidebarOpen!=='boolean') state.sidebarOpen=true;
+  if(typeof state.sidebarOpen!=='boolean') state.sidebarOpen=false;
+  // A tela abre em modo foco: a biblioteca fica recolhida e a POP ocupa todo o espaço.
+  state.sidebarOpen=false;
   if(!state.sops.length){
     const s=defaultSop(1);
     s.fixed.name='Apuração PIS/COFINS — Lucro Real';
@@ -567,8 +581,17 @@ function toggleSidebar(){
 }
 function applysidebar(){
   const sb=$id('sidebar');
-  if(state.sidebarOpen) sb.classList.remove('collapsed');
-  else sb.classList.add('collapsed');
+  const btn=$id('btnToggleSidebar');
+  if(!sb)return;
+  if(state.sidebarOpen){
+    sb.classList.remove('collapsed');
+    document.body.classList.add('sidebar-open');
+    if(btn){btn.textContent='×';btn.title='Fechar lista de POPs';}
+  } else {
+    sb.classList.add('collapsed');
+    document.body.classList.remove('sidebar-open');
+    if(btn){btn.textContent='☰';btn.title='Abrir lista de POPs';}
+  }
 }
 
 // ── DATA ──
@@ -781,7 +804,9 @@ window.selectSop=async function(id){
   if(!await saveBeforeLeaving('Você está saindo desta POP com alterações não salvas. Quer salvar antes de abrir outra?'))return;
   collectForm();
   state.selectedId=id;
+  state.sidebarOpen=false;
   persist();
+  applysidebar();
   renderSopList();
   renderForm();
   hideFloatingMenu();
@@ -792,7 +817,9 @@ window.createSop=async function(){
   const s=defaultSop(state.sops.length+1);
   state.sops.unshift(s);
   state.selectedId=s.id;
+  state.sidebarOpen=false;
   persist();
+  applysidebar();
   renderSopList();
   renderTagFilters();
   renderForm();
@@ -809,7 +836,9 @@ window.duplicateCurrentSop=async function(){
   c.fixed.name=(c.fixed.name||'POP')+' — cópia';
   state.sops.unshift(c);
   state.selectedId=c.id;
+  state.sidebarOpen=false;
   persist();
+  applysidebar();
   renderSopList();
   renderTagFilters();
   renderForm();
@@ -823,7 +852,9 @@ window.deleteCurrentSop=async function(){
   state.sops=state.sops.filter(x=>x.id!==s.id);
   if(!state.sops.length){const ns=defaultSop(1);state.sops=[ns];}
   state.selectedId=state.sops[0].id;
+  state.sidebarOpen=false;
   persist();
+  applysidebar();
   renderSopList();
   renderTagFilters();
   renderForm();
