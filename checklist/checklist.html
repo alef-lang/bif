@@ -2589,14 +2589,18 @@
       const scopes     = cb.dataset?.scopes || '';
       const ehImposto  = scopes.split(',').some(s => ['impostos','pis_cofins','icms','das','irpj_csll'].includes(s.trim()));
 
-      // Se está marcando (checked) uma subtarefa de IMPOSTO → abre modal bloqueante
-      if (cb.checked && ehImposto) {
+      // Se está marcando (checked) uma subtarefa de IMPOSTO → abre modal bloqueante.
+      // Exceção: quando o próprio modal acabou de confirmar, ele libera 1 passagem
+      // para o fluxo normal salvar a subtarefa sem reabrir o modal.
+      const liberadoPeloModalGuia = cb.dataset?.guiaConfirmada === '1';
+      if (cb.checked && ehImposto && !liberadoPeloModalGuia) {
         cb.checked = false; // reverte temporariamente até confirmar
         window._abrirGuiaModal(cb, item, mainCb, empresaId);
         return;
       }
+      if (liberadoPeloModalGuia) delete cb.dataset.guiaConfirmada;
 
-      // Fluxo normal para outros tipos
+      // Fluxo normal para outros tipos e para imposto já confirmado no modal
       if (mainCb) {
         const concluidaNoEscopo = empresaConcluidaNoEscopo(item, escopoAtualChecklist);
         mainCb.checked = concluidaNoEscopo;
@@ -2608,6 +2612,7 @@
       }
 
       salvarPainelObs();
+      if (typeof autosave === 'function') autosave();
       atualizarTotais();
       if (empresaId) updatePainelApuracao(empresaId, empresaConcluidaNoEscopo(item, 'geral'));
     }));
@@ -2837,6 +2842,9 @@
   window.cancelarGuiaModal = function() {
     document.getElementById('guiaModalOverlay').classList.remove('open');
     _guiaCbPendente = null;
+    _guiaItemPendente = null;
+    window._guiaMainCb = null;
+    window._guiaEmpresaId = null;
   };
 
   window.confirmarGuiaModal = async function() {
@@ -2851,12 +2859,22 @@
     }
     vencimentoEl.classList.remove('is-invalid');
 
+    // Guarda as referências antes de qualquer tentativa de salvar a guia.
+    // Assim, mesmo que o Controle de Guias/Firebase falhe e entre no fallback local,
+    // a subtarefa confirmada não se perde.
+    const cbConfirmado = _guiaCbPendente;
+    const itemConfirmado = cbConfirmado?.closest('.empresa-item') || _guiaItemPendente;
+    const empresaIdConfirmado = itemConfirmado?.dataset?.painelId || window._guiaEmpresaId || '';
+    const subtaskKeyConfirmado = cbConfirmado?.dataset?.subNome || '';
+
     const canais = Array.from(document.querySelectorAll('.guia-canal-opt input:checked'))
       .map(inp => inp.value);
 
     const dadosGuia = {
       empresa:     window._guiaModalEmpresa || '',
+      empresaId:   empresaIdConfirmado,
       tipo:        window._guiaModalTipo    || '',
+      subtaskKey:  subtaskKeyConfirmado,
       competencia: document.getElementById('gCompetencia').value,
       vencimento,
       valor:       document.getElementById('gValor').value.trim(),
@@ -2870,53 +2888,52 @@
       updatedAt:   Date.now()
     };
 
-    // Tenta registrar na página de Controle de Guias se estiver no mesmo contexto
-    if (typeof window._registrarGuiaDoChecklist === 'function') {
-      window._registrarGuiaDoChecklist(dadosGuia);
-    } else {
-      // Salva direto no Firebase
-      try {
+    // Tenta registrar no Controle de Guias/Firebase. Qualquer erro cai no fallback local,
+    // mas não bloqueia a marcação da subtarefa, porque o usuário já informou o envio.
+    try {
+      if (typeof window._registrarGuiaDoChecklist === 'function') {
+        await Promise.resolve(window._registrarGuiaDoChecklist(dadosGuia));
+      } else {
         const id = 'g_' + Date.now();
         await set(ref(db, 'guias/' + id), dadosGuia);
-      } catch(e) {
-        const local = JSON.parse(localStorage.getItem('bifGuias') || '{}');
+      }
+    } catch(e) {
+      try {
+        let local = {};
+        try { local = JSON.parse(localStorage.getItem('bifGuias') || '{}') || {}; }
+        catch(parseErr) { local = {}; }
         local['g_' + Date.now()] = dadosGuia;
         localStorage.setItem('bifGuias', JSON.stringify(local));
+      } catch(localErr) {
+        console.error('Erro ao salvar guia no fallback local:', localErr);
       }
     }
 
-    // Confirma o checkbox da subtarefa sem re-disparar o modal
-    if (_guiaCbPendente) {
-      _guiaCbPendente.checked = true;
-
-      // Roda o fluxo pós-confirmação manualmente (sem disparar 'change' que re-abriria o modal)
-      const item      = _guiaCbPendente.closest('.empresa-item');
-      const mainCb    = item?.querySelector('.empresa-check');
-      const empresaId = item?.dataset?.painelId;
-
-      if (mainCb) {
-        const concluidaNoEscopo = typeof empresaConcluidaNoEscopo === 'function'
-          ? empresaConcluidaNoEscopo(item, window.escopoAtualChecklist || 'geral')
-          : false;
-        mainCb.checked = concluidaNoEscopo;
-        if (concluidaNoEscopo && typeof avisoChecklist === 'function') {
-          // aviso será exibido abaixo
-        }
-      }
-
+    // Marca a subtarefa usando o MESMO fluxo do listener normal, mas com uma liberação
+    // temporária para não reabrir o modal de guia.
+    if (cbConfirmado) {
+      cbConfirmado.dataset.guiaConfirmada = '1';
+      cbConfirmado.checked = true;
+      cbConfirmado.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      // Fallback de segurança: caso o checkbox não exista mais, ao menos atualiza a tela.
       if (typeof salvarPainelObs === 'function') salvarPainelObs();
+      if (typeof autosave === 'function') autosave();
       if (typeof atualizarTotais === 'function') atualizarTotais();
-      if (empresaId && typeof updatePainelApuracao === 'function') {
+      if (empresaIdConfirmado && typeof updatePainelApuracao === 'function' && itemConfirmado) {
         const concluidaGeral = typeof empresaConcluidaNoEscopo === 'function'
-          ? empresaConcluidaNoEscopo(item, 'geral')
+          ? empresaConcluidaNoEscopo(itemConfirmado, 'geral')
           : false;
-        updatePainelApuracao(empresaId, concluidaGeral);
+        updatePainelApuracao(empresaIdConfirmado, concluidaGeral);
       }
     }
 
     document.getElementById('guiaModalOverlay').classList.remove('open');
     _guiaCbPendente = null;
-    if (typeof avisoChecklist === 'function') avisoChecklist('✓ Guia registrada no Controle de Guias.');
+    _guiaItemPendente = null;
+    window._guiaMainCb = null;
+    window._guiaEmpresaId = null;
+    if (typeof avisoChecklist === 'function') avisoChecklist('✓ Guia registrada e subtarefa concluída.');
   };
 
   window.guiaMascaraValor = function(el) {
