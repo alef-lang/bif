@@ -291,23 +291,24 @@ select option{background:#1b2e42;color:#e8edf2;}
         </div>
         <!-- Empresas vinculadas -->
         <div class="section-block" id="empresasVinculadasBlock">
-          <div class="section-title"><h3>🏢 Empresas vinculadas</h3><span id="empresasVinculadasCount">0 selecionadas</span></div>
+          <div class="section-title"><h3>🏢 Empresas desta POP</h3><span id="empresasVinculadasCount">0 selecionadas</span></div>
           <!-- Busca -->
           <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
             <div style="position:relative;flex:1;min-width:0;">
               <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);">🔎</span>
-              <input id="empresaFilterInput" class="input" placeholder="Buscar empresa pelo nome, CNPJ, regime ou responsável..." oninput="renderEmpresasVinculadas()" autocomplete="off"
+              <input id="empresaFilterInput" class="input" placeholder="Buscar e marcar uma ou mais empresas pelo nome, CNPJ, regime ou responsável..." oninput="renderEmpresasVinculadas()" autocomplete="off"
                 style="padding-left:30px;" />
             </div>
             <button type="button" class="btn small" onclick="refreshEmpresasPainel()" title="Recarregar empresas do Painel">↻ Atualizar</button>
           </div>
-          <div id="empresasFonteStatus" style="font:500 10px var(--font-mono);color:var(--muted);margin:-2px 0 10px;line-height:1.4;">Carregando empresas do Painel...</div>
+          <div id="empresasFonteStatus" style="font:500 10px var(--font-mono);color:var(--muted);margin:-2px 0 6px;line-height:1.4;">Carregando empresas do Painel...</div>
+          <div style="font:500 10px var(--font-mono);color:var(--muted);margin:0 0 10px;line-height:1.45;">Marque/desmarque empresas aqui. O vínculo fica salvo somente na POP aberta e pode ter várias empresas.</div>
           <!-- Resultados da busca -->
           <div id="empresasBuscaResultados" style="display:none;flex-direction:column;gap:3px;max-height:220px;overflow-y:auto;border:1px solid var(--gold-border);border-radius:10px;padding:6px;margin-bottom:10px;background:rgba(13,27,42,.5);">
           </div>
           <!-- Selecionadas -->
           <div id="empresasSelecionadasWrap" style="display:none;margin-bottom:4px;">
-            <div style="font:700 9px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Selecionadas</div>
+            <div style="font:700 9px var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Selecionadas nesta POP</div>
             <div id="empresasVinculadasList" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
           </div>
           <div id="empresasEmptyMsg" style="font:500 11px var(--font-mono);color:var(--muted);display:none;">Nenhuma empresa encontrada no Painel de Gestão.</div>
@@ -474,7 +475,7 @@ const DEFAULT_FIELD_DEFS=[
 // Você pode mudar isso em Configurações, sem apagar o catálogo de campos.
 const DEFAULT_ACTIVE_IDS = ['code','name','area','steps'];
 
-let state={fieldDefs:structuredClone(DEFAULT_FIELD_DEFS),defaultActiveIds:DEFAULT_ACTIVE_IDS.slice(),sops:[],selectedId:null,tagFilter:null,print:{font:'Arial',size:'10.5pt'},sidebarOpen:true};
+let state={fieldDefs:structuredClone(DEFAULT_FIELD_DEFS),defaultActiveIds:DEFAULT_ACTIVE_IDS.slice(),sops:[],selectedId:null,tagFilter:null,print:{font:'Arial',size:'10.5pt'},sidebarOpen:true,sopEmpresaLinks:{}};
 let saveTimer=null,cloudSaveTimer=null;
 let hasUnsavedChanges=false;
 let activeRichField=null,savedRichRange=null,richMenuInteracting=false,copiedRichFormat=null;
@@ -569,6 +570,7 @@ function ensureStateDefaults(){
   state.defaultActiveIds=state.defaultActiveIds.filter(id=>state.fieldDefs.some(f=>f.id===id));
   if(!state.print) state.print={font:'Arial',size:'10.5pt'};
   if(typeof state.sidebarOpen!=='boolean') state.sidebarOpen=true;
+  if(!state.sopEmpresaLinks||typeof state.sopEmpresaLinks!=='object'||Array.isArray(state.sopEmpresaLinks)) state.sopEmpresaLinks={};
   if(!state.sops.length){
     const s=defaultSop(1);
     s.fixed.name='Apuração PIS/COFINS — Lucro Real';
@@ -583,9 +585,11 @@ function ensureStateDefaults(){
   if(!state.selectedId||!state.sops.some(s=>s.id===state.selectedId)){
     state.selectedId=state.sops[0]?.id||null;
   }
+  ensureEmpresaLinksStore();
 }
 
 function persist(){
+  ensureEmpresaLinksStore();
   markClean();
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   $id('saveBarInfo').textContent='Salvo localmente às '+now()+' · Ctrl+S';
@@ -623,6 +627,7 @@ function defaultSop(n){
     tags:[],
     fixed:{code:`POP-FISCAL-${String(n).padStart(3,'0')}`,name:'Novo procedimento',area:'Fiscal',status:'Rascunho'},
     dynamic:[],
+    empresasVinculadas:[],
     activeFieldIds:getDefaultActiveIds()
   };
 }
@@ -690,6 +695,7 @@ function renderForm(){
   $id('sopForm').classList.remove('hidden');
   $id('editorTitle').textContent=`${sop.fixed?.code||'Sem código'} — ${sop.fixed?.name||'Sem nome'}`;
   $id('editorSubtitle').textContent=`${sop.fixed?.area||'Área'} · ${sop.fixed?.macro||''} · ${sop.fixed?.status||'Rascunho'}`;
+  ensureEmpresaLinksStore();
   renderSelectedTags();
   loadAndRenderEmpresasVinculadas();
   renderActiveFields();
@@ -810,6 +816,47 @@ function atualizarStatusEmpresasPainel(){
   const el=$id('empresasFonteStatus');
   if(el)el.textContent=_empresasFonteStatus;
 }
+function empresaPainelKey(e){
+  if(!e)return '';
+  return String(e.cnpjDigits||e.id||e.nome||'').trim();
+}
+function dedupeEmpresaIds(ids){
+  return [...new Set((Array.isArray(ids)?ids:[]).map(v=>String(v||'').trim()).filter(Boolean))];
+}
+function ensureEmpresaLinksStore(){
+  if(!state.sopEmpresaLinks||typeof state.sopEmpresaLinks!=='object'||Array.isArray(state.sopEmpresaLinks)) state.sopEmpresaLinks={};
+  const validIds=new Set((state.sops||[]).map(s=>String(s.id)));
+  Object.keys(state.sopEmpresaLinks).forEach(id=>{if(!validIds.has(String(id)))delete state.sopEmpresaLinks[id];});
+  (state.sops||[]).forEach(s=>{
+    if(!s||!s.id)return;
+    const sid=String(s.id);
+    const fromMap=dedupeEmpresaIds(state.sopEmpresaLinks[sid]);
+    const fromSop=dedupeEmpresaIds(s.empresasVinculadas);
+    const list=fromMap.length?fromMap:fromSop;
+    state.sopEmpresaLinks[sid]=list;
+    s.empresasVinculadas=list.slice(); // espelho dentro da própria POP, útil para backup/exportação/impressão futura
+  });
+}
+function getEmpresasVinculadasDaPop(sop=currentSop()){
+  if(!sop||!sop.id)return [];
+  ensureEmpresaLinksStore();
+  return dedupeEmpresaIds(state.sopEmpresaLinks[String(sop.id)]||sop.empresasVinculadas||[]);
+}
+function setEmpresasVinculadasDaPop(sop,ids){
+  if(!sop||!sop.id)return;
+  const list=dedupeEmpresaIds(ids);
+  if(!state.sopEmpresaLinks||typeof state.sopEmpresaLinks!=='object'||Array.isArray(state.sopEmpresaLinks)) state.sopEmpresaLinks={};
+  state.sopEmpresaLinks[String(sop.id)]=list;
+  sop.empresasVinculadas=list.slice();
+}
+function findEmpresaPainelById(id){
+  const key=String(id||'');
+  return (_cachedEmpresas||[]).find(x=>empresaPainelKey(x)===key||String(x.id)===key||String(x.nome)===key||String(x.cnpjDigits)===key);
+}
+function clearEmpresaSearch(){
+  const input=$id('empresaFilterInput');
+  if(input)input.value='';
+}
 async function loadAndRenderEmpresasVinculadas(){
   renderEmpresasVinculadas();
   await carregarEmpresasPainel(false);
@@ -828,23 +875,18 @@ function renderEmpresasVinculadas(){
   const sop=currentSop();
   if(!sop)return;
   const todas=_cachedEmpresas||[];
-  const selected=Array.isArray(sop.empresasVinculadas)?sop.empresasVinculadas:[];
+  const selectedNow=getEmpresasVinculadasDaPop(sop);
+  const selectedSet=new Set(selectedNow.map(String));
   const filter=normBusca($id('empresaFilterInput')?.value||'');
   atualizarStatusEmpresasPainel();
 
   const countEl=$id('empresasVinculadasCount');
-  if(countEl)countEl.textContent=selected.length+' selecionada'+(selected.length!==1?'s':'');
+  if(countEl)countEl.textContent=selectedNow.length+' selecionada'+(selectedNow.length!==1?'s':'');
 
   const emptyEl=$id('empresasEmptyMsg');
   if(emptyEl) emptyEl.style.display=todas.length===0?'':'none';
 
-  // Remove vínculos duplicados, sem apagar vínculos antigos que ainda não existem na lista carregada.
-  if(selected.length!==new Set(selected).size){
-    sop.empresasVinculadas=[...new Set(selected)];
-  }
-  const selectedNow=Array.isArray(sop.empresasVinculadas)?sop.empresasVinculadas:[];
-
-  // ── SELECIONADAS ──
+  // ── SELECIONADAS NESTA POP ──
   const listEl=$id('empresasVinculadasList');
   const wrap=$id('empresasSelecionadasWrap');
   if(listEl){
@@ -854,11 +896,11 @@ function renderEmpresasVinculadas(){
     } else {
       if(wrap) wrap.style.display='';
       listEl.innerHTML=selectedNow.map(id=>{
-        const e=todas.find(x=>String(x.id)===String(id)||String(x.nome)===String(id)||String(x.cnpjDigits)===String(id));
+        const e=findEmpresaPainelById(id);
         const nome=e?e.nome:id;
         const tag=e?regimeShort(e.regime):'';
-        return `<button type="button" class="palette-chip active" onclick="toggleEmpresaVinculada('${escAttr(id)}')" title="Remover: ${escAttr(nome)}">
-          ✓ <span style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;">${esc(nome)}</span>
+        return `<button type="button" class="palette-chip active" onclick="toggleEmpresaVinculada('${escAttr(id)}')" title="Remover desta POP: ${escAttr(nome)}">
+          ✓ <span style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;">${esc(nome)}</span>
           ${tag?`<span class="palette-type-badge">${esc(tag)}</span>`:''}
           <span style="margin-left:2px;opacity:.7;font-size:11px;">×</span>
         </button>`;
@@ -866,32 +908,40 @@ function renderEmpresasVinculadas(){
     }
   }
 
-  // ── RESULTADOS DA BUSCA ──
+  // ── RESULTADOS PARA MARCAR/DESMARCAR ──
   const resEl=$id('empresasBuscaResultados');
   if(!resEl)return;
-  if(!filter){
+  const hits=(filter
+    ? todas.filter(e=>{
+        const hay=[e.nome,e.cnpj,e.cnpjDigits,e.regime,e.colaborador,e.atividade].map(normBusca).join(' ');
+        return hay.includes(filter);
+      })
+    : todas
+  ).slice(0,120);
+
+  // Mostra lista completa quando houver poucas empresas; com muitas, só aparece após buscar para não poluir a tela.
+  const shouldShow=!!filter || todas.length<=35;
+  if(!shouldShow){
     resEl.style.display='none';
     resEl.innerHTML='';
     return;
   }
-  const hits=todas.filter(e=>{
-    const hay=[e.nome,e.cnpj,e.cnpjDigits,e.regime,e.colaborador,e.atividade].map(normBusca).join(' ');
-    return hay.includes(filter);
-  }).slice(0,80);
   resEl.style.display='flex';
   if(!hits.length){
     resEl.innerHTML='<span style="font:500 11px var(--font-mono);color:var(--muted);padding:6px 4px;">Nenhuma empresa encontrada para essa busca.</span>';
     return;
   }
   resEl.innerHTML=hits.map(e=>{
-    const key=e.id||e.cnpjDigits||e.nome;
-    const isOn=selectedNow.map(String).includes(String(key));
+    const key=empresaPainelKey(e);
+    const isOn=selectedSet.has(String(key));
     const regimeTag=regimeShort(e.regime);
     const extra=[e.cnpj,e.colaborador].filter(Boolean).join(' · ');
     return `<button type="button"
       onclick="toggleEmpresaVinculada('${escAttr(key)}')"
-      style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 10px;border-radius:8px;border:1px solid ${isOn?'var(--gold)':'rgba(201,168,76,.14)'};background:${isOn?'rgba(201,168,76,.16)':'rgba(255,255,255,.03)'};color:var(--text);cursor:pointer;transition:.15s;font:600 12px var(--font-body);">
-      <span style="width:16px;flex-shrink:0;color:var(--gold);font-size:13px;">${isOn?'✓':''}</span>
+      aria-pressed="${isOn?'true':'false'}"
+      title="${isOn?'Desmarcar desta POP':'Marcar para esta POP'}"
+      style="display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid ${isOn?'var(--gold)':'rgba(201,168,76,.14)'};background:${isOn?'rgba(201,168,76,.16)':'rgba(255,255,255,.03)'};color:var(--text);cursor:pointer;transition:.15s;font:600 12px var(--font-body);">
+      <span style="width:18px;height:18px;flex-shrink:0;color:${isOn?'#0d1b2a':'var(--gold-light)'};background:${isOn?'linear-gradient(135deg,var(--gold),var(--gold-light))':'rgba(255,255,255,.04)'};border:1px solid ${isOn?'transparent':'var(--gold-border)'};border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;">${isOn?'✓':''}</span>
       <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">
         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(e.nome)}</span>
         ${extra?`<small style="font:500 9px var(--font-mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(extra)}</small>`:''}
@@ -904,14 +954,17 @@ function renderEmpresasVinculadas(){
 function toggleEmpresaVinculada(empresaId){
   const sop=currentSop();
   if(!sop)return;
-  if(!Array.isArray(sop.empresasVinculadas))sop.empresasVinculadas=[];
-  const key=String(empresaId);
-  const idx=sop.empresasVinculadas.map(String).indexOf(key);
-  if(idx>=0) sop.empresasVinculadas.splice(idx,1);
-  else sop.empresasVinculadas.push(key);
+  const key=String(empresaId||'').trim();
+  if(!key)return;
+  const links=getEmpresasVinculadasDaPop(sop).slice();
+  const idx=links.map(String).indexOf(key);
+  if(idx>=0) links.splice(idx,1);
+  else links.push(key);
+  setEmpresasVinculadasDaPop(sop,links);
   renderEmpresasVinculadas();
   scheduleSave();
 }
+
 
 // ── ACTIVE FIELDS (paleta por POP) ──
 function getActiveIds(sop){
@@ -1043,6 +1096,8 @@ window.selectSop=async function(id){
   if(!await saveBeforeLeaving('Você está saindo desta POP com alterações não salvas. Quer salvar antes de abrir outra?'))return;
   collectForm();
   state.selectedId=id;
+  ensureEmpresaLinksStore();
+  clearEmpresaSearch();
   persist();
   renderSopList();
   renderForm();
@@ -1054,6 +1109,8 @@ window.createSop=async function(){
   const s=defaultSop(state.sops.length+1);
   state.sops.unshift(s);
   state.selectedId=s.id;
+  ensureEmpresaLinksStore();
+  clearEmpresaSearch();
   persist();
   renderSopList();
   renderTagFilters();
@@ -1071,6 +1128,8 @@ window.duplicateCurrentSop=async function(){
   c.fixed.name=(c.fixed.name||'POP')+' — cópia';
   state.sops.unshift(c);
   state.selectedId=c.id;
+  setEmpresasVinculadasDaPop(c,Array.isArray(c.empresasVinculadas)?c.empresasVinculadas:[]);
+  clearEmpresaSearch();
   persist();
   renderSopList();
   renderTagFilters();
@@ -1083,8 +1142,11 @@ window.deleteCurrentSop=async function(){
   const ok=await askConfirm({title:'Excluir POP?',message:`Excluir ${s.fixed?.code||''} — ${s.fixed?.name||''}?\n\nEssa ação remove a POP da biblioteca.`,okText:'Excluir',cancelText:'Cancelar',danger:true});
   if(!ok)return;
   state.sops=state.sops.filter(x=>x.id!==s.id);
+  if(state.sopEmpresaLinks)delete state.sopEmpresaLinks[String(s.id)];
   if(!state.sops.length){const ns=defaultSop(1);state.sops=[ns];}
   state.selectedId=state.sops[0].id;
+  ensureEmpresaLinksStore();
+  clearEmpresaSearch();
   persist();
   renderSopList();
   renderTagFilters();
@@ -1093,6 +1155,7 @@ window.deleteCurrentSop=async function(){
 };
 window.saveCurrentSop=function(manual=false){
   collectForm();
+  ensureEmpresaLinksStore();
   persist();
   renderSopList();
   renderTagFilters();
