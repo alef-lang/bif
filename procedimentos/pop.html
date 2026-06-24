@@ -175,6 +175,11 @@ select option{background:#1b2e42;color:#e8edf2;}
 
 /* ══ RICH EDITOR (portado do Painel) ══ */
 .rich img{display:block;max-width:100%;height:auto;border-radius:8px;border:1px solid var(--gold-border);margin:6px 0;cursor:pointer;}
+.rich a.file-link{display:inline-flex;align-items:center;gap:7px;max-width:100%;margin:6px 4px 6px 0;padding:6px 10px;border:1px solid var(--gold-border);border-radius:9px;background:rgba(201,168,76,.10);color:var(--gold-light);font:700 11px var(--font-body);text-decoration:none;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word;}
+.rich a.file-link:hover{background:rgba(201,168,76,.18);border-color:var(--gold);text-decoration:none;}
+.rich a.file-link .file-name{overflow-wrap:anywhere;word-break:break-word;}
+.rich a.file-link .file-size{font:700 9px var(--font-mono);color:var(--muted);white-space:nowrap;}
+
 .rich img.img-selected{outline:2px solid var(--gold);box-shadow:0 0 0 4px rgba(201,168,76,.18);}
 .rich .img-resize-wrap{display:inline-block!important;position:relative!important;max-width:100%!important;line-height:0!important;margin:6px 0!important;min-width:60px!important;overflow:visible!important;vertical-align:top!important;}
 .rich .img-resize-wrap img{margin:0;width:var(--rich-img-width,auto)!important;max-width:100%!important;height:auto!important;display:block!important;}
@@ -214,7 +219,9 @@ select option{background:#1b2e42;color:#e8edf2;}
 .editor-wrap{width:100%;flex:1 1 auto;min-width:0;}
 .editor-body{padding-left:28px;padding-right:28px;}
 .save-bar{padding-left:28px;padding-right:28px;}
-.btn-toggle-sidebar{position:relative;z-index:950;}
+.btn-toggle-sidebar{position:relative;z-index:950;min-width:118px;width:auto;padding:0 12px;font-weight:800;font-family:var(--font-body);}
+body:not(.sidebar-open) .btn-toggle-sidebar{box-shadow:0 0 0 3px rgba(201,168,76,.10);background:rgba(201,168,76,.16);}
+body.sidebar-open::after{content:'';position:fixed;inset:62px 0 0 0;background:rgba(5,12,22,.25);z-index:850;pointer-events:none;}
 
 @media(max-width:800px){
   .sidebar{position:fixed;top:58px;left:0;bottom:0;z-index:150;border-right:1px solid var(--gold-border);}
@@ -272,7 +279,7 @@ select option{background:#1b2e42;color:#e8edf2;}
   <div class="editor-wrap">
     <div class="editor-head">
       <div class="editor-head-left">
-        <button class="btn-toggle-sidebar" onclick="toggleSidebar()" id="btnToggleSidebar" title="Mostrar/ocultar lista de POPs">☰</button>
+        <button class="btn-toggle-sidebar" onclick="toggleSidebar()" id="btnToggleSidebar" title="Abrir/fechar lista de POPs">📚 POPs</button>
         <div class="editor-title">
           <h2 id="editorTitle">Selecione uma POP</h2>
           <p id="editorSubtitle">Crie ou selecione uma POP na lista lateral.</p>
@@ -389,10 +396,13 @@ select option{background:#1b2e42;color:#e8edf2;}
     <button type="button" class="ff-btn" data-cmd="justifyLeft">⇤</button>
     <button type="button" class="ff-btn" data-cmd="justifyCenter">⇆</button>
     <button type="button" class="ff-btn" data-cmd="justifyRight">⇥</button>
-    <button type="button" class="ff-btn" id="ffImageBtn">🖼️</button>
+    <button type="button" class="ff-btn" id="ffImageBtn" title="Inserir imagem no campo">🖼️</button>
+    <button type="button" class="ff-btn" id="ffAttachmentBtn" title="Anexar arquivo como link">📎 anexo</button>
     <button type="button" class="ff-btn ff-soft" data-cmd="removeFormat">Limpar</button>
   </div>
   <input type="file" id="ffImageInput" accept="image/*" style="display:none">
+  <input type="file" id="ffAttachmentInput" multiple style="display:none">
+  <input type="file" id="attachmentInput" multiple style="display:none">
 </div>
 <div class="confirm-overlay" id="confirmDialog">
   <div class="confirm-box">
@@ -457,6 +467,7 @@ let state={fieldDefs:structuredClone(DEFAULT_FIELD_DEFS),defaultActiveIds:DEFAUL
 let saveTimer=null,cloudSaveTimer=null;
 let hasUnsavedChanges=false;
 let activeRichField=null,savedRichRange=null,richMenuInteracting=false,copiedRichFormat=null;
+let pendingAttachmentTarget=null;
 
 const $id=id=>document.getElementById(id);
 const $=(s,r=document)=>r.querySelector(s);
@@ -546,9 +557,9 @@ function ensureStateDefaults(){
   if(!Array.isArray(state.defaultActiveIds)) state.defaultActiveIds=DEFAULT_ACTIVE_IDS.slice();
   state.defaultActiveIds=state.defaultActiveIds.filter(id=>state.fieldDefs.some(f=>f.id===id));
   if(!state.print) state.print={font:'Arial',size:'10.5pt'};
-  if(typeof state.sidebarOpen!=='boolean') state.sidebarOpen=false;
-  // A tela abre em modo foco: a biblioteca fica recolhida e a POP ocupa todo o espaço.
-  state.sidebarOpen=false;
+  if(typeof state.sidebarOpen!=='boolean') state.sidebarOpen=true;
+  // A biblioteca abre visível, mas sobreposta: a POP continua ocupando toda a largura útil.
+  state.sidebarOpen=true;
   if(!state.sops.length){
     const s=defaultSop(1);
     s.fixed.name='Apuração PIS/COFINS — Lucro Real';
@@ -586,11 +597,11 @@ function applysidebar(){
   if(state.sidebarOpen){
     sb.classList.remove('collapsed');
     document.body.classList.add('sidebar-open');
-    if(btn){btn.textContent='×';btn.title='Fechar lista de POPs';}
+    if(btn){btn.textContent='× Fechar POPs';btn.title='Fechar lista de POPs';}
   } else {
     sb.classList.add('collapsed');
     document.body.classList.remove('sidebar-open');
-    if(btn){btn.textContent='☰';btn.title='Abrir lista de POPs';}
+    if(btn){btn.textContent='📚 POPs';btn.title='Abrir lista de POPs e busca';}
   }
 }
 
@@ -711,6 +722,7 @@ function renderActiveFields(){
       <div class="active-field-head">
         <span class="active-field-label">${esc(def.label)}</span>
         <span class="palette-type-badge">${typeBadge(def.type)}</span>
+        ${def.type==='rich'?`<button type="button" class="btn small blue" onclick="openAttachmentPicker('fixed','${def.id}')" title="Anexar arquivo neste campo">📎 Anexo</button>`:''}
         <button class="btn-remove-field" onclick="deactivateField('${def.id}')" title="Remover da POP">×</button>
       </div>
       <div class="active-field-body">${inputHtml}</div>
@@ -782,6 +794,7 @@ function renderDynamicFields(){
     <div class="dynamic-card">
       <div class="dynamic-head">
         <input class="dynamic-title" data-dyn-label="${escAttr(d.id)}" value="${escAttr(d.label||'Campo dinâmico')}">
+        <button type="button" class="btn small blue" onclick="openAttachmentPicker('dynamic','${d.id}')" title="Anexar arquivo neste campo">📎 Anexo</button>
         <button type="button" class="btn small red" onclick="removeDynamicField('${d.id}')">Excluir</button>
       </div>
       <div class="dynamic-body"><div class="rich medium" contenteditable="true" data-dyn-content="${escAttr(d.id)}" data-placeholder="Conteúdo...">${d.content||''}</div></div>
@@ -804,9 +817,7 @@ window.selectSop=async function(id){
   if(!await saveBeforeLeaving('Você está saindo desta POP com alterações não salvas. Quer salvar antes de abrir outra?'))return;
   collectForm();
   state.selectedId=id;
-  state.sidebarOpen=false;
   persist();
-  applysidebar();
   renderSopList();
   renderForm();
   hideFloatingMenu();
@@ -817,9 +828,7 @@ window.createSop=async function(){
   const s=defaultSop(state.sops.length+1);
   state.sops.unshift(s);
   state.selectedId=s.id;
-  state.sidebarOpen=false;
   persist();
-  applysidebar();
   renderSopList();
   renderTagFilters();
   renderForm();
@@ -836,9 +845,7 @@ window.duplicateCurrentSop=async function(){
   c.fixed.name=(c.fixed.name||'POP')+' — cópia';
   state.sops.unshift(c);
   state.selectedId=c.id;
-  state.sidebarOpen=false;
   persist();
-  applysidebar();
   renderSopList();
   renderTagFilters();
   renderForm();
@@ -852,9 +859,7 @@ window.deleteCurrentSop=async function(){
   state.sops=state.sops.filter(x=>x.id!==s.id);
   if(!state.sops.length){const ns=defaultSop(1);state.sops=[ns];}
   state.selectedId=state.sops[0].id;
-  state.sidebarOpen=false;
   persist();
-  applysidebar();
   renderSopList();
   renderTagFilters();
   renderForm();
@@ -998,7 +1003,7 @@ function buildPrintHtml(s){
   });
   const dyn=(s.dynamic||[]).map(d=>printRich(d.label,d.content)).join('');
   const tags=(s.tags||[]).map(t=>`<span class="pill"># ${esc(t)}</span>`).join('')||'<span class="muted">—</span>';
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(s.fixed?.code||'POP')}</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:${printFont()};font-size:${printSize()};line-height:1.35}.p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.p-title{font-size:18pt;font-weight:700;margin:0 0 3px}.p-sub{font-size:9pt;color:#333;margin:0}.stamp{border:1px solid #111;padding:5px 8px;font-size:8.5pt;text-align:right;min-width:145px}.p-section{margin-top:12px;break-inside:avoid}.p-section h2{font-size:11pt;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #111;margin:0 0 6px;padding-bottom:3px}.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;border:1px solid #999;border-bottom:none}.p-field{display:grid;grid-template-columns:37% 63%;min-height:24px;border-bottom:1px solid #999;break-inside:avoid}.p-label{font-size:8pt;font-weight:700;text-transform:uppercase;background:#eee;border-right:1px solid #999;padding:5px 6px}.p-value{padding:5px 6px;overflow-wrap:break-word}.p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word}.p-rich *{max-width:100%;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important}.p-rich img{max-width:100%;height:auto;filter:grayscale(100%)}.p-rich table{width:100%;border-collapse:collapse;margin:6px 0}.p-rich td,.p-rich th{border:1px solid #999;padding:4px 5px;vertical-align:top;overflow-wrap:anywhere}.pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt}.muted{color:#666}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><main><header class="p-header"><div><h1 class="p-title">${esc(s.fixed?.code||'Sem código')} — ${esc(s.fixed?.name||'Sem nome')}</h1><p class="p-sub">${esc(s.fixed?.area||'')} ${s.fixed?.macro?'• '+esc(s.fixed.macro):''}</p></div><div class="stamp"><strong>POP Fiscal</strong><br>Impresso em ${esc(printedAt)}</div></header><section class="p-section"><h2>Tags</h2><div>${tags}</div></section><section class="p-section"><h2>Dados</h2><div class="p-grid">${short||printRow('Campos','—')}</div></section>${rich}${dyn}</main></body></html>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(s.fixed?.code||'POP')}</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:${printFont()};font-size:${printSize()};line-height:1.35}.p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.p-title{font-size:18pt;font-weight:700;margin:0 0 3px}.p-sub{font-size:9pt;color:#333;margin:0}.stamp{border:1px solid #111;padding:5px 8px;font-size:8.5pt;text-align:right;min-width:145px}.p-section{margin-top:12px;break-inside:avoid}.p-section h2{font-size:11pt;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #111;margin:0 0 6px;padding-bottom:3px}.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;border:1px solid #999;border-bottom:none}.p-field{display:grid;grid-template-columns:37% 63%;min-height:24px;border-bottom:1px solid #999;break-inside:avoid}.p-label{font-size:8pt;font-weight:700;text-transform:uppercase;background:#eee;border-right:1px solid #999;padding:5px 6px}.p-value{padding:5px 6px;overflow-wrap:break-word}.p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word}.p-rich *{max-width:100%;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important}.p-rich a.file-link{color:#111!important;text-decoration:underline!important;border:1px solid #999!important;padding:3px 5px!important;border-radius:4px!important;display:inline-flex!important;gap:5px!important}.p-rich a.file-link .file-size{font-size:8pt!important;color:#555!important}.p-rich img{max-width:100%;height:auto;filter:grayscale(100%)}.p-rich table{width:100%;border-collapse:collapse;margin:6px 0}.p-rich td,.p-rich th{border:1px solid #999;padding:4px 5px;vertical-align:top;overflow-wrap:anywhere}.pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt}.muted{color:#666}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><main><header class="p-header"><div><h1 class="p-title">${esc(s.fixed?.code||'Sem código')} — ${esc(s.fixed?.name||'Sem nome')}</h1><p class="p-sub">${esc(s.fixed?.area||'')} ${s.fixed?.macro?'• '+esc(s.fixed.macro):''}</p></div><div class="stamp"><strong>POP Fiscal</strong><br>Impresso em ${esc(printedAt)}</div></header><section class="p-section"><h2>Tags</h2><div>${tags}</div></section><section class="p-section"><h2>Dados</h2><div class="p-grid">${short||printRow('Campos','—')}</div></section>${rich}${dyn}</main></body></html>`;
 }
 window.printCurrentSop=function(){
   collectForm();
@@ -1060,6 +1065,13 @@ function applyFontCmd(key,rawVal){if(!restoreRichSelection())return;const sel=wi
 // Image
 function insertImageAt(src,alt='imagem'){const target=activeRichField||$$('.rich[contenteditable="true"]')[0];if(!target)return;activeRichField=target;target.focus({preventScroll:true});restoreRichSelection();const img=document.createElement('img');img.src=src;img.alt=alt||'imagem';const sel=window.getSelection();if(sel&&sel.rangeCount){const range=sel.getRangeAt(0);if(isRichRangeValid(range,target)){range.deleteContents();range.insertNode(img);range.setStartAfter(img);range.collapse(true);sel.removeAllRanges();sel.addRange(range);savedRichRange=range.cloneRange();}else{target.appendChild(img);}}else{target.appendChild(img);}markActiveInput();}
 function insertImageFiles(files){const target=activeRichField||$$('.rich[contenteditable="true"]')[0];if(!target)return;activeRichField=target;restoreRichSelection();files.forEach(file=>{if(!file.type.startsWith('image/'))return;const reader=new FileReader();reader.onload=ev=>insertImageAt(ev.target.result,file.name);reader.readAsDataURL(file);});}
+function formatFileSize(bytes){const n=Number(bytes)||0;if(n<1024)return n+' B';if(n<1024*1024)return (n/1024).toFixed(1).replace('.',',')+' KB';return (n/1024/1024).toFixed(1).replace('.',',')+' MB';}
+function getRichTarget(kind,id){const fields=$$('.rich[contenteditable="true"]');if(kind==='fixed')return fields.find(el=>el.dataset.fixed===id)||null;if(kind==='dynamic')return fields.find(el=>el.dataset.dynContent===id)||null;return activeRichField||fields[0]||null;}
+function insertNodeInRich(target,node){if(!target||!node)return;activeRichField=target;target.focus({preventScroll:true});restoreRichSelection();const sel=window.getSelection();if(sel&&sel.rangeCount){const range=sel.getRangeAt(0);if(isRichRangeValid(range,target)){range.deleteContents();const marker=document.createTextNode('');const frag=document.createDocumentFragment();frag.appendChild(node);frag.appendChild(document.createTextNode(' '));frag.appendChild(marker);range.insertNode(frag);const nr=document.createRange();nr.setStartAfter(marker);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);savedRichRange=nr.cloneRange();}else{target.appendChild(node);target.appendChild(document.createElement('br'));}}else{target.appendChild(node);target.appendChild(document.createElement('br'));}markActiveInput();}
+async function insertAttachmentFiles(files,target=activeRichField){target=target||$$('.rich[contenteditable="true"]')[0];if(!target||!files?.length)return;activeRichField=target;for(const file of Array.from(files)){if(file.size>5*1024*1024){const ok=await askConfirm({title:'Anexo grande',message:`O arquivo "${file.name}" tem ${formatFileSize(file.size)}. Ele será salvo dentro da POP e pode deixar a sincronização mais pesada. Deseja anexar mesmo assim?`,okText:'Anexar',cancelText:'Pular arquivo'});if(!ok)continue;}await new Promise(resolve=>{const reader=new FileReader();reader.onload=ev=>{const a=document.createElement('a');a.className='file-link';a.href=ev.target.result;a.download=file.name;a.target='_blank';a.rel='noopener';a.contentEditable='false';const name=document.createElement('span');name.className='file-name';name.textContent='📎 '+file.name;const size=document.createElement('span');size.className='file-size';size.textContent=formatFileSize(file.size);a.appendChild(name);a.appendChild(size);insertNodeInRich(target,a);resolve();};reader.onerror=()=>{showToast('Não consegui anexar '+file.name);resolve();};reader.readAsDataURL(file);});}scheduleSave();showToast('Anexo inserido como link.');}
+window.openAttachmentPicker=function(kind,id){const target=getRichTarget(kind,id);if(!target){showToast('Abra um campo de texto rico para anexar.');return;}pendingAttachmentTarget={kind,id};activeRichField=target;target.focus({preventScroll:true});saveRichSelection(true);$id('attachmentInput')?.click();};
+function handleFileLinkClick(ev){const a=ev.target.closest?.('a.file-link');if(!a)return;ev.preventDefault();ev.stopPropagation();const dl=document.createElement('a');dl.href=a.href;dl.download=a.getAttribute('download')||a.textContent.trim()||'anexo';document.body.appendChild(dl);dl.click();dl.remove();}
+
 function unwrapImgTool(wrap,keep=true){if(!wrap||!wrap.classList?.contains('img-resize-wrap'))return;const img=wrap.querySelector('img');if(keep&&img){img.classList.remove('img-selected');wrap.parentNode.insertBefore(img,wrap);}wrap.remove();}
 function unwrapAllImgs(editor){if(!editor)return;editor.querySelectorAll('.img-resize-wrap').forEach(w=>unwrapImgTool(w,true));}
 function deleteSelImg(editor){if(!editor)editor=activeRichField;if(!editor)return;activeRichField=editor;editor.focus({preventScroll:true});const wrap=editor.querySelector('.img-resize-wrap');const img=wrap?.querySelector('img')||editor.querySelector('img.img-selected');const target=wrap||img;if(!target)return;try{const sel=window.getSelection();const range=document.createRange();range.selectNode(target);sel.removeAllRanges();sel.addRange(range);const ok=document.execCommand('delete',false,null);if(!ok&&target.parentNode)target.parentNode.removeChild(target);}catch(e){if(target.parentNode)target.parentNode.removeChild(target);}unwrapAllImgs(editor);markActiveInput();saveRichSelection(true);}
@@ -1072,7 +1084,7 @@ function parseTsv(text){const norm=String(text||'').replace(/\r\n/g,'\n').replac
 function parseHtmlTable(html){if(!html||!/<table[\s>]/i.test(html))return null;const tpl=document.createElement('template');tpl.innerHTML=html;const table=tpl.content.querySelector('table');if(!table)return null;const rows=Array.from(table.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(td=>(td.innerText||td.textContent||'').trim())).filter(r=>r.length);if(!rows.length)return null;const maxC=Math.max(...rows.map(r=>r.length));return rows.map(r=>r.concat(Array(Math.max(0,maxC-r.length)).fill('')));}
 function matrixToTable(matrix){const table=document.createElement('table');table.className='rich-excel-table';const tbody=document.createElement('tbody');matrix.forEach(row=>{const tr=document.createElement('tr');row.forEach(cell=>{const td=document.createElement('td');td.textContent=cell==null?'':String(cell);tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);return table;}
 function handleRichPaste(ev){const items=Array.from(ev.clipboardData?.items||[]);const imgItems=items.filter(i=>i.type.startsWith('image/'));if(imgItems.length&&!(ev.clipboardData?.getData('text/plain')||ev.clipboardData?.getData('text/html'))){ev.preventDefault();activeRichField=ev.currentTarget;saveRichSelection(true);imgItems.forEach(i=>{const f=i.getAsFile();if(f)insertImageFiles([f]);});return;}const text=ev.clipboardData?.getData('text/plain')||'';const html=ev.clipboardData?.getData('text/html')||'';if(text||html){ev.preventDefault();activeRichField=ev.currentTarget;saveRichSelection(true);const matrix=(parseHtmlTable(html)||parseTsv(text));if(matrix){const frag=document.createDocumentFragment();frag.appendChild(matrixToTable(matrix));frag.appendChild(document.createElement('br'));const editor=activeRichField;editor.focus({preventScroll:true});restoreRichSelection();const sel=window.getSelection();if(sel&&sel.rangeCount){const range=sel.getRangeAt(0);if(isRichRangeValid(range,editor)){range.deleteContents();const marker=document.createTextNode('');frag.appendChild(marker);range.insertNode(frag);const nr=document.createRange();nr.setStartAfter(marker);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);savedRichRange=nr.cloneRange();}else editor.appendChild(frag);}else editor.appendChild(frag);normRichLayout(editor);markActiveInput();return;}const plain=text||html.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,' ');insertPlainPaste(ev,plainTextToFrag(plain));}}
-function handleRichDrop(ev){const files=Array.from(ev.dataTransfer?.files||[]);if(files.some(f=>f.type.startsWith('image/'))){ev.preventDefault();activeRichField=ev.currentTarget;saveRichSelection(true);insertImageFiles(files);}}
+function handleRichDrop(ev){const files=Array.from(ev.dataTransfer?.files||[]);if(files.length){ev.preventDefault();activeRichField=ev.currentTarget;saveRichSelection(true);const imgs=files.filter(f=>f.type.startsWith('image/'));const docs=files.filter(f=>!f.type.startsWith('image/'));if(imgs.length)insertImageFiles(imgs);if(docs.length)insertAttachmentFiles(docs,activeRichField);}}
 // Init floating menu
 function initFloatingMenu(){
   const menu=$id('floatingFormatMenu');
@@ -1099,6 +1111,9 @@ function initFloatingMenu(){
   $id('ffFormatPainterBtn')?.addEventListener('click',ev=>{ev.preventDefault();richMenuInteracting=true;handleFormatPainter();setTimeout(()=>{richMenuInteracting=false;},120);});
   $id('ffImageBtn')?.addEventListener('click',ev=>{ev.preventDefault();richMenuInteracting=true;restoreRichSelection();$id('ffImageInput')?.click();});
   $id('ffImageInput')?.addEventListener('change',ev=>{const files=Array.from(ev.target.files||[]);if(files.length)insertImageFiles(files);ev.target.value='';setTimeout(()=>{richMenuInteracting=false;},120);});
+  $id('ffAttachmentBtn')?.addEventListener('click',ev=>{ev.preventDefault();richMenuInteracting=true;restoreRichSelection();$id('ffAttachmentInput')?.click();});
+  $id('ffAttachmentInput')?.addEventListener('change',ev=>{const files=Array.from(ev.target.files||[]);if(files.length)insertAttachmentFiles(files,activeRichField);ev.target.value='';setTimeout(()=>{richMenuInteracting=false;},120);});
+  $id('attachmentInput')?.addEventListener('change',ev=>{const files=Array.from(ev.target.files||[]);const target=pendingAttachmentTarget?getRichTarget(pendingAttachmentTarget.kind,pendingAttachmentTarget.id):activeRichField;if(files.length)insertAttachmentFiles(files,target);pendingAttachmentTarget=null;ev.target.value='';});
   document.addEventListener('selectionchange',()=>{if(richMenuInteracting)return;setTimeout(updateFloatingMenu,0);});
   document.addEventListener('mousedown',ev=>{if(!menu.contains(ev.target)&&!ev.target.closest('.rich'))hideFloatingMenu();});
   window.addEventListener('scroll',hideFloatingMenu,true);
@@ -1117,6 +1132,7 @@ function bindRich(el){
   el.addEventListener('paste',handleRichPaste);
   el.addEventListener('drop',handleRichDrop);
   el.addEventListener('dragover',e=>e.preventDefault());
+  el.addEventListener('click',handleFileLinkClick);
   el.addEventListener('click',handleImgClick);
   el.addEventListener('keydown',handleImgKeydown);
 }
