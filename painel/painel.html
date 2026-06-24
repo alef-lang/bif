@@ -1189,9 +1189,98 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .rich-field .img-resize-btn:hover{background:rgba(201,168,76,0.18) !important;border-color:var(--gold) !important;}
 .rich-field:has(.img-resize-wrap){overflow:visible !important;}
 
+/* ── FILTER PANEL (colapsável) ── */
+.filter-panel{background:var(--bg-card2);border-bottom:1px solid var(--border);}
+.filter-panel-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 24px;cursor:pointer;user-select:none;
+  transition:background 0.18s;
+}
+.filter-panel-toggle:hover{background:rgba(201,168,76,0.05);}
+.filter-panel-body{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+.filter-panel-body.open{max-height:200px;}
+.filter-panel-body .filter-bar{background:transparent;border-bottom:1px solid rgba(201,168,76,0.08);}
+.filter-panel-body .filter-row2{background:transparent;}
+
+/* ── VIEW TOGGLE BUTTONS ── */
+.view-toggle-btn{
+  padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);
+  background:transparent;color:var(--text-light);font-size:11px;font-weight:700;
+  cursor:pointer;transition:all 0.18s;font-family:var(--font-body);
+}
+.view-toggle-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+.view-toggle-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);}
+
+/* ── LIST VIEW ── */
+.list-view-wrap{padding:20px 24px 32px;overflow-x:auto;}
+.empresa-table{
+  width:100%;border-collapse:separate;border-spacing:0;
+  font-size:12px;
+}
+.empresa-table thead tr{
+  background:rgba(201,168,76,0.08);
+}
+.empresa-table th{
+  padding:10px 14px;text-align:left;font-size:10px;font-weight:700;
+  font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--gold);border-bottom:1.5px solid var(--gold-dim);white-space:nowrap;
+  position:sticky;top:0;background:var(--bg-card2);z-index:2;
+}
+.empresa-table th.sortable{cursor:pointer;user-select:none;}
+.empresa-table th.sortable:hover{color:var(--gold-light);}
+.empresa-table th.sort-active{color:var(--gold-light);}
+.sort-arrow{font-size:10px;opacity:0.4;margin-left:4px;}
+.empresa-table th.sort-active .sort-arrow{opacity:1;}
+.empresa-table tbody tr{
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:background 0.15s;cursor:pointer;
+  animation:fadeIn 0.22s ease;
+}
+.empresa-table tbody tr:hover{background:rgba(201,168,76,0.05);}
+.empresa-table tbody tr.fechada-row{opacity:0.6;}
+.empresa-table td{
+  padding:11px 14px;vertical-align:middle;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.tbl-name{font-weight:700;color:var(--text);font-size:12.5px;display:block;margin-bottom:2px;}
+.tbl-cnpj{font-size:10px;color:var(--text-light);font-family:var(--font-mono);}
+.regime-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;
+  font-family:var(--font-mono);white-space:nowrap;border:1px solid;
+}
+.regime-pill.simples{background:var(--simples-light);color:var(--simples);border-color:rgba(0,206,201,0.25);}
+.regime-pill.presumido{background:var(--presumido-light);color:var(--presumido);border-color:rgba(116,185,255,0.25);}
+.regime-pill.real{background:var(--real-light);color:var(--real);border-color:rgba(162,155,254,0.25);}
+.regime-pill.outros{background:var(--outros-light);color:var(--outros);border-color:rgba(253,121,168,0.25);}
+.tbl-atividade{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-light);}
+.tbl-colaborador{font-weight:600;color:var(--text);white-space:nowrap;}
+.tbl-obrig-list{display:flex;flex-wrap:wrap;gap:3px;max-width:220px;}
+.tbl-obrig-tag{
+  font-size:9px;padding:2px 5px;border-radius:4px;font-weight:700;
+  background:rgba(201,168,76,0.1);color:var(--gold-light);border:1px solid var(--gold-dim);
+  font-family:var(--font-mono);
+}
+.tbl-delete-btn{
+  width:26px;height:26px;border-radius:6px;border:none;
+  background:transparent;color:rgba(255,255,255,0.18);cursor:pointer;
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.18s;
+}
+.tbl-delete-btn:hover{background:rgba(255,118,117,0.2);color:#ff7675;}
+
+/* ── KANBAN VIEW ── */
+.kanban-wrap{padding:20px 24px 32px;}
+.main-content-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+@media(max-width:1200px){.main-content-inner{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:650px){.main-content-inner{grid-template-columns:1fr;}}
+
 /* PRINT STYLES */
 @media print{
-  .header,.filter-bar,.filter-row2,.stats-bar,.main-content,.toast{display:none!important;}
+  .header,.filter-panel,.stats-bar,#mainContent,.toast{display:none!important;}
   .modal-overlay{position:static!important;background:none!important;backdrop-filter:none!important;padding:0!important;display:block!important;opacity:1!important;visibility:visible!important;}
   .modal{max-height:none!important;box-shadow:none!important;transform:none!important;border-radius:0!important;}
   .modal-footer{display:none!important;}
@@ -1269,42 +1358,52 @@ select option{background:#1b2e42;color:#e8eaf0;}
   </div>
 </header>
 
-<!-- FILTROS OBRIGAÇÕES -->
-<div class="filter-bar">
-  <span class="filter-label">📋 Obrigação:</span>
-  <div class="filter-tags" id="filterTags"></div>
-  <button class="filter-clear" onclick="clearFilters()">✕ Limpar tudo</button>
-</div>
-
-<!-- FILTROS LINHA 2 -->
-<div class="filter-row2">
-  <span class="filter-label">🔍 Filtros:</span>
-  <select class="select-filter" id="filterRegime" onchange="renderAll()">
-    <option value="">Todos os regimes</option>
-    <option value="simples">Simples Nacional</option>
-    <option value="presumido">Lucro Presumido</option>
-    <option value="real">Lucro Real</option>
-    <option value="outros">Outros</option>
-  </select>
-  <select class="select-filter" id="filterStatus" onchange="renderAll()">
-    <option value="">Todos os status</option>
-    <option value="ativa">Ativas</option>
-    <option value="fechada">Fechadas</option>
-    <option value="sem_movimento">Sem movimento</option>
-    <option value="com_movimento">Com movimento</option>
-  </select>
-  <select class="select-filter" id="filterApuracao" onchange="renderAll()">
-    <option value="">Todas as apurações</option>
-    <option value="nao_apurada">⏳ Não apurada</option>
-    <option value="apurada">✅ Apurada</option>
-    <option value="pendente_info">🔴 Aguardando info</option>
-  </select>
-  <select class="select-filter" id="filterColaborador" onchange="renderAll()">
-    <option value="">Todos os colaboradores</option>
-  </select>
-  <div class="search-box">
-    <span class="search-icon">🔎</span>
-    <input type="text" placeholder="Buscar empresa, CNPJ, atividade..." oninput="doSearch(this.value)" id="searchInput">
+<!-- FILTROS — colapsável -->
+<div class="filter-panel" id="filterPanel">
+  <div class="filter-panel-toggle" onclick="toggleFilterPanel()">
+    <span style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:13px;">🔍</span>
+      <span style="font-size:11px;font-weight:700;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);">Filtros &amp; Obrigações</span>
+      <span id="filterActiveCount" style="display:none;background:var(--gold);color:#0d1b2a;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:800;font-family:var(--font-mono);">0</span>
+    </span>
+    <span id="filterPanelChevron" style="font-size:10px;color:var(--text-light);transition:transform 0.22s;display:inline-block;">▼</span>
+  </div>
+  <div class="filter-panel-body" id="filterPanelBody">
+    <div class="filter-bar" style="border-bottom:1px solid rgba(201,168,76,0.10);">
+      <span class="filter-label">📋 Obrigação:</span>
+      <div class="filter-tags" id="filterTags"></div>
+      <button class="filter-clear" onclick="clearFilters()">✕ Limpar tudo</button>
+    </div>
+    <div class="filter-row2" style="border-bottom:none;">
+      <span class="filter-label">🔎 Filtros:</span>
+      <select class="select-filter" id="filterRegime" onchange="renderAll()">
+        <option value="">Todos os regimes</option>
+        <option value="simples">Simples Nacional</option>
+        <option value="presumido">Lucro Presumido</option>
+        <option value="real">Lucro Real</option>
+        <option value="outros">Outros</option>
+      </select>
+      <select class="select-filter" id="filterStatus" onchange="renderAll()">
+        <option value="">Todos os status</option>
+        <option value="ativa">Ativas</option>
+        <option value="fechada">Fechadas</option>
+        <option value="sem_movimento">Sem movimento</option>
+        <option value="com_movimento">Com movimento</option>
+      </select>
+      <select class="select-filter" id="filterApuracao" onchange="renderAll()">
+        <option value="">Todas as apurações</option>
+        <option value="nao_apurada">⏳ Não apurada</option>
+        <option value="apurada">✅ Apurada</option>
+        <option value="pendente_info">🔴 Aguardando info</option>
+      </select>
+      <select class="select-filter" id="filterColaborador" onchange="renderAll()">
+        <option value="">Todos os colaboradores</option>
+      </select>
+      <div class="search-box">
+        <span class="search-icon">🔎</span>
+        <input type="text" placeholder="Buscar empresa, CNPJ, atividade..." oninput="doSearch(this.value)" id="searchInput">
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1319,38 +1418,80 @@ select option{background:#1b2e42;color:#e8eaf0;}
 </div>
 
 <!-- MAIN -->
-<main class="main-content" id="mainContent">
-  <div class="regime-column" id="col-simples">
-    <div class="column-header simples">
-      <div class="column-title"><h2>🟢 Simples Nacional</h2><p>Microempresas e EPP</p></div>
-      <span class="column-count" id="count-simples">0</span>
-    </div>
-    <div class="column-body" id="list-simples"></div>
-    <button class="btn-add-company" onclick="openAddModal('simples')">+ Adicionar empresa</button>
+<div style="padding:0 24px 8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg-card2);">
+  <div style="display:flex;gap:6px;align-items:center;">
+    <button class="view-toggle-btn active" id="btnViewList" onclick="setView('list')" title="Visualização em lista">☰ Lista</button>
+    <button class="view-toggle-btn" id="btnViewKanban" onclick="setView('kanban')" title="Visualização em colunas">⊞ Colunas</button>
   </div>
-  <div class="regime-column" id="col-presumido">
-    <div class="column-header presumido">
-      <div class="column-title"><h2>🔵 Lucro Presumido</h2><p>Tributação simplificada</p></div>
-      <span class="column-count" id="count-presumido">0</span>
-    </div>
-    <div class="column-body" id="list-presumido"></div>
-    <button class="btn-add-company" onclick="openAddModal('presumido')">+ Adicionar empresa</button>
+  <div style="display:flex;gap:6px;align-items:center;font-size:11px;font-family:var(--font-mono);color:var(--text-light);">
+    Ordenar por:
+    <select class="select-filter" id="listSortBy" onchange="renderAll()" style="border-radius:8px;font-size:11px;padding:5px 9px;">
+      <option value="nome">Nome</option>
+      <option value="regime">Regime</option>
+      <option value="colaborador">Colaborador</option>
+      <option value="atividade">Atividade</option>
+      <option value="status">Status</option>
+    </select>
+    <button id="listSortDir" onclick="toggleSortDir()" title="Inverter ordem" style="width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-light);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;">↑</button>
   </div>
-  <div class="regime-column" id="col-real">
-    <div class="column-header real">
-      <div class="column-title"><h2>🟣 Lucro Real</h2><p>Tributação pelo lucro efetivo</p></div>
-      <span class="column-count" id="count-real">0</span>
-    </div>
-    <div class="column-body" id="list-real"></div>
-    <button class="btn-add-company" onclick="openAddModal('real')">+ Adicionar empresa</button>
+</div>
+
+<main id="mainContent">
+  <!-- LIST VIEW -->
+  <div id="viewList" class="list-view-wrap">
+    <table class="empresa-table">
+      <thead>
+        <tr>
+          <th onclick="sortByCol('nome')" class="sortable" data-col="nome">Empresa <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('regime')" class="sortable" data-col="regime">Regime <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('atividade')" class="sortable" data-col="atividade">Atividade <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('colaborador')" class="sortable" data-col="colaborador">Colaborador <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('status')" class="sortable" data-col="status">Status <span class="sort-arrow">↕</span></th>
+          <th>Obrigações</th>
+          <th style="width:40px;"></th>
+        </tr>
+      </thead>
+      <tbody id="listTableBody"></tbody>
+    </table>
+    <div id="listEmptyState" class="empty-state" style="display:none;padding:40px 0;"><div class="empty-icon">📭</div><p>Nenhuma empresa encontrada</p></div>
   </div>
-  <div class="regime-column" id="col-outros">
-    <div class="column-header outros">
-      <div class="column-title"><h2>🩷 Outros</h2><p>MEI, entidades, etc.</p></div>
-      <span class="column-count" id="count-outros">0</span>
+
+  <!-- KANBAN VIEW (hidden by default) -->
+  <div id="viewKanban" style="display:none;" class="kanban-wrap">
+    <div class="main-content-inner">
+      <div class="regime-column" id="col-simples">
+        <div class="column-header simples">
+          <div class="column-title"><h2>🟢 Simples Nacional</h2><p>Microempresas e EPP</p></div>
+          <span class="column-count" id="count-simples">0</span>
+        </div>
+        <div class="column-body" id="list-simples"></div>
+        <button class="btn-add-company" onclick="openAddModal('simples')">+ Adicionar empresa</button>
+      </div>
+      <div class="regime-column" id="col-presumido">
+        <div class="column-header presumido">
+          <div class="column-title"><h2>🔵 Lucro Presumido</h2><p>Tributação simplificada</p></div>
+          <span class="column-count" id="count-presumido">0</span>
+        </div>
+        <div class="column-body" id="list-presumido"></div>
+        <button class="btn-add-company" onclick="openAddModal('presumido')">+ Adicionar empresa</button>
+      </div>
+      <div class="regime-column" id="col-real">
+        <div class="column-header real">
+          <div class="column-title"><h2>🟣 Lucro Real</h2><p>Tributação pelo lucro efetivo</p></div>
+          <span class="column-count" id="count-real">0</span>
+        </div>
+        <div class="column-body" id="list-real"></div>
+        <button class="btn-add-company" onclick="openAddModal('real')">+ Adicionar empresa</button>
+      </div>
+      <div class="regime-column" id="col-outros">
+        <div class="column-header outros">
+          <div class="column-title"><h2>🩷 Outros</h2><p>MEI, entidades, etc.</p></div>
+          <span class="column-count" id="count-outros">0</span>
+        </div>
+        <div class="column-body" id="list-outros"></div>
+        <button class="btn-add-company" onclick="openAddModal('outros')">+ Adicionar empresa</button>
+      </div>
     </div>
-    <div class="column-body" id="list-outros"></div>
-    <button class="btn-add-company" onclick="openAddModal('outros')">+ Adicionar empresa</button>
   </div>
 </main>
 
@@ -2071,8 +2212,106 @@ function passesFilters(e){
 
 function getFilteredEmpresas(){ return S.empresas.filter(passesFilters); }
 
+// ── VIEW STATE ──
+let currentView = 'list';
+let listSortAsc = true;
+
+function setView(view){
+  currentView = view;
+  $('viewList').style.display  = view === 'list'   ? '' : 'none';
+  $('viewKanban').style.display = view === 'kanban' ? '' : 'none';
+  $('btnViewList').classList.toggle('active',   view === 'list');
+  $('btnViewKanban').classList.toggle('active', view === 'kanban');
+  renderAll();
+}
+
+function toggleSortDir(){
+  listSortAsc = !listSortAsc;
+  $('listSortDir').textContent = listSortAsc ? '↑' : '↓';
+  renderAll();
+}
+
+function sortByCol(col){
+  const sel = $('listSortBy');
+  if(sel){
+    if(sel.value === col){ listSortAsc = !listSortAsc; $('listSortDir').textContent = listSortAsc ? '↑' : '↓'; }
+    else { sel.value = col; listSortAsc = true; $('listSortDir').textContent = '↑'; }
+  }
+  // update header arrows
+  document.querySelectorAll('.empresa-table th.sortable').forEach(th => {
+    const active = th.dataset.col === col;
+    th.classList.toggle('sort-active', active);
+    th.querySelector('.sort-arrow').textContent = active ? (listSortAsc ? '↑' : '↓') : '↕';
+  });
+  renderAll();
+}
+
+function getSortedEmpresas(arr){
+  const col = $('listSortBy')?.value || 'nome';
+  return [...arr].sort((a, b) => {
+    let va = '', vb = '';
+    if(col === 'nome')        { va = norm(a.nome||'');        vb = norm(b.nome||''); }
+    else if(col === 'regime')      { va = norm(regimeLabel(a.regime)); vb = norm(regimeLabel(b.regime)); }
+    else if(col === 'colaborador') { va = norm(a.colaborador||'');    vb = norm(b.colaborador||''); }
+    else if(col === 'atividade')   { va = norm(a.atividade||'');      vb = norm(b.atividade||''); }
+    else if(col === 'status')      { va = empresaStatus(a);           vb = empresaStatus(b); }
+    const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+    return listSortAsc ? cmp : -cmp;
+  });
+}
+
+function renderListView(filtered){
+  const tbody = $('listTableBody');
+  const empty = $('listEmptyState');
+  if(!tbody) return;
+  const sorted = getSortedEmpresas(filtered);
+  if(!sorted.length){
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = sorted.map(e => {
+    const st = empresaStatus(e);
+    const badgeCls = e.fechada ? 'badge-fechada' : e.semMovimento ? 'badge-sem-movimento' : 'badge-ativa';
+    const badgeTxt = e.fechada ? 'FECHADA' : e.semMovimento ? 'SEM MOV.' : 'ABERTA';
+    const obrigTags = (e.obrigacoes||[]).slice(0,4).map(o=>`<span class="tbl-obrig-tag">${esc(o.nome)}</span>`).join('');
+    const more = (e.obrigacoes||[]).length > 4 ? `<span class="tbl-obrig-tag">+${(e.obrigacoes||[]).length-4}</span>` : '';
+    return `<tr class="${e.fechada?'fechada-row':''}" onclick="openEmpresa('${esc(e.id)}')">
+      <td>
+        <span class="tbl-name">${esc(e.nome)}</span>
+        <span class="tbl-cnpj">${esc(e.cnpj || '—')}</span>
+      </td>
+      <td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>
+      <td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>
+      <td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>
+      <td><span class="card-status-badge ${badgeCls}">${badgeTxt}</span></td>
+      <td><div class="tbl-obrig-list">${obrigTags}${more}</div></td>
+      <td><button class="tbl-delete-btn" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── FILTER PANEL TOGGLE ──
+let filterPanelOpen = false;
+function toggleFilterPanel(){
+  filterPanelOpen = !filterPanelOpen;
+  const body = $('filterPanelBody');
+  const chevron = $('filterPanelChevron');
+  body.classList.toggle('open', filterPanelOpen);
+  if(chevron) chevron.style.transform = filterPanelOpen ? 'rotate(180deg)' : '';
+}
+
+function updateFilterBadge(){
+  const count = [$('filterRegime'),$('filterStatus'),$('filterApuracao'),$('filterColaborador'),$('filterAtividade')]
+    .filter(el => el && el.value).length + S.activeFilters.length + S.activeStatusObrig.length + (S.searchTerm ? 1 : 0);
+  const badge = $('filterActiveCount');
+  if(badge){ badge.style.display = count ? '' : 'none'; badge.textContent = count; }
+}
+
 function renderAll(){
   ensureActivityFilter();
+  updateFilterBadge();
   // Atualiza seletor de colaboradores
   const fcol = $('filterColaborador');
   if(fcol){
@@ -2081,7 +2320,12 @@ function renderAll(){
     fcol.innerHTML = '<option value="">Todos os colaboradores</option>' +
       cols.map(c=>`<option value="${esc(c)}" ${current===c?'selected':''}>${esc(c)}</option>`).join('');
   }
-  ['simples','presumido','real','outros'].forEach(renderColumn);
+  const filtered = getFilteredEmpresas();
+  if(currentView === 'list'){
+    renderListView(filtered);
+  } else {
+    ['simples','presumido','real','outros'].forEach(renderColumn);
+  }
   updateStats();
   saveState();
 }
