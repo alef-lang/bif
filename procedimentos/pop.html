@@ -38,7 +38,7 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 /* ── SIDEBAR ── */
 .sidebar{width:var(--sidebar-w);flex-shrink:0;display:flex;flex-direction:column;background:var(--card);border-right:1px solid var(--gold-border);overflow:hidden;transition:width .22s ease,opacity .22s ease;}
 .sidebar.collapsed{width:0;opacity:0;pointer-events:none;}
-.sidebar-inner{width:var(--sidebar-w);flex:1;display:flex;flex-direction:column;overflow:hidden;padding:12px;}
+.sidebar-inner{width:var(--sidebar-w);flex:1;display:flex;flex-direction:column;overflow:hidden;padding:12px;min-height:0;}
 .lib-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid var(--gold-border);padding-bottom:10px;margin-bottom:10px;}
 .lib-head h2{font:700 14px var(--font-title);color:var(--gold-light);}
 .lib-head small{display:block;font:500 10px var(--font-mono);color:var(--muted);margin-top:2px;}
@@ -52,7 +52,7 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .tag-chip{border:1px solid var(--gold-border);background:rgba(201,168,76,.08);color:var(--gold-light);border-radius:999px;padding:3px 8px;font:600 10px var(--font-body);cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
 .tag-chip:hover{border-color:var(--gold);background:rgba(201,168,76,.16);}
 .tag-chip.active{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;border-color:transparent;}
-.sop-list{overflow:auto;display:flex;flex-direction:column;gap:6px;flex:1;}
+.sop-list{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;}
 .sop-item{border:1.5px solid rgba(201,168,76,.16);background:var(--card2);border-radius:12px;padding:9px 10px;cursor:pointer;transition:.18s;position:relative;}
 .sop-item:hover{background:#1e3350;border-color:var(--gold-border);transform:translateY(-1px);}
 .sop-item.active{background:rgba(201,168,76,.16);border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold);}
@@ -65,14 +65,14 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .editor-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 20px 12px;border-bottom:1px solid var(--gold-border);background:linear-gradient(135deg,rgba(201,168,76,.07),rgba(255,255,255,.01));flex-shrink:0;}
 .editor-head-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
-.btn-toggle-sidebar{width:34px;height:34px;border-radius:9px;border:1px solid var(--gold-border);background:rgba(201,168,76,.08);color:var(--gold-light);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.18s;}
+.btn-toggle-sidebar{height:34px;border-radius:9px;border:1px solid var(--gold-border);background:rgba(201,168,76,.08);color:var(--gold-light);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;padding:0 12px;flex-shrink:0;transition:.18s;white-space:nowrap;}
 .btn-toggle-sidebar:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
 .editor-title h2{font:700 16px var(--font-title);color:var(--gold-light);line-height:1.25;overflow-wrap:anywhere;}
 .editor-title p{font:500 10px var(--font-mono);color:var(--muted);margin-top:3px;}
 .editor-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
 .editor-body{flex:1;overflow-y:auto;padding:16px 20px 0;}
 /* sticky save bar at bottom */
-.save-bar{flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 20px;border-top:1px solid var(--gold-border);background:var(--card);position:sticky;bottom:0;}
+.save-bar{flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 20px;border-top:1px solid var(--gold-border);background:var(--card);}
 .save-bar-info{flex:1;font:500 10px var(--font-mono);color:var(--muted);}
 
 /* ── BUTTONS ── */
@@ -211,26 +211,14 @@ select option{background:#1b2e42;color:#e8edf2;}
 .rich font[size="1"]{font-size:10px;}.rich font[size="2"]{font-size:11px;}.rich font[size="3"]{font-size:12px;}.rich font[size="4"]{font-size:14px;}.rich font[size="5"]{font-size:18px;}.rich font[size="6"]{font-size:22px;}.rich font[size="7"]{font-size:26px;}
 
 
-/* ── MODO FOCO: a POP ocupa a largura inteira da tela ──
-   A biblioteca lateral vira um painel sobreposto: ela não rouba espaço do formulário. */
-.workspace{position:relative;height:calc(100vh - 58px);overflow:hidden;}
-.sidebar{position:fixed;top:62px;left:0;bottom:0;z-index:900;width:var(--sidebar-w);height:calc(100vh - 62px);box-shadow:18px 0 42px rgba(0,0,0,.42);transform:translateX(0);transition:transform .22s ease,opacity .22s ease;}
-.sidebar.collapsed{width:var(--sidebar-w);opacity:1;transform:translateX(calc(-1 * var(--sidebar-w) - 12px));pointer-events:none;}
-.editor-wrap{width:100%;flex:1 1 auto;min-width:0;}
-.editor-body{padding-left:28px;padding-right:28px;}
-.save-bar{padding-left:28px;padding-right:28px;}
-.btn-toggle-sidebar{position:relative;z-index:950;min-width:118px;width:auto;padding:0 12px;font-weight:800;font-family:var(--font-body);}
-body:not(.sidebar-open) .btn-toggle-sidebar{box-shadow:0 0 0 3px rgba(201,168,76,.10);background:rgba(201,168,76,.16);}
-body.sidebar-open::after{content:'';position:fixed;inset:62px 0 0 0;background:rgba(5,12,22,.25);z-index:850;pointer-events:none;}
-
+/* ── MOBILE: sidebar overlay ── */
 @media(max-width:800px){
-  .sidebar{position:fixed;top:58px;left:0;bottom:0;z-index:150;border-right:1px solid var(--gold-border);}
-  .sidebar.collapsed{transform:translateX(-100%);opacity:1;width:var(--sidebar-w);pointer-events:none;}
-  .workspace{display:block;height:auto;overflow:visible;}
-  .editor-wrap{height:calc(100vh - 58px);display:flex;flex-direction:column;overflow:hidden;}
+  .sidebar{position:fixed;top:58px;left:0;bottom:0;z-index:900;width:var(--sidebar-w)!important;opacity:1!important;transform:translateX(0);box-shadow:18px 0 42px rgba(0,0,0,.5);}
+  .sidebar.collapsed{transform:translateX(calc(-1 * var(--sidebar-w) - 12px))!important;pointer-events:none!important;opacity:1!important;width:var(--sidebar-w)!important;}
   .floating-format-menu{left:8px!important;right:8px!important;top:auto!important;bottom:64px!important;width:auto!important;}
   .ff-hex{width:78px;}.ff-label{display:none;}
   .field,.field.wide,.field.third{grid-column:1/-1;}
+  body.sidebar-open::after{content:'';position:fixed;inset:58px 0 0 0;background:rgba(5,12,22,.45);z-index:850;pointer-events:auto;}
 }
 @media print{
   .header,.sidebar,.editor-head,.save-bar,.btn,.toast,.modal-overlay,.floating-format-menu{display:none!important;}
@@ -300,6 +288,13 @@ body.sidebar-open::after{content:'';position:fixed;inset:62px 0 0 0;background:r
           <div class="section-title"><h3>Tags e identificação</h3><span>Ctrl+S salva</span></div>
           <div class="tag-editor"><input id="tagInput" class="input" placeholder="Adicionar tag..." onkeydown="if(event.key==='Enter'){event.preventDefault();addTagToCurrent();}"><button type="button" class="btn small gold" onclick="addTagToCurrent()">+ Tag</button></div>
           <div class="selected-tags" id="selectedTags"></div>
+        </div>
+        <!-- Empresas vinculadas -->
+        <div class="section-block" id="empresasVinculadasBlock">
+          <div class="section-title"><h3>🏢 Empresas vinculadas</h3><span id="empresasVinculadasCount">0 selecionadas</span></div>
+          <div style="font:500 11px var(--font-mono);color:var(--muted);margin-bottom:8px;line-height:1.5;">Selecione as empresas que utilizam esta POP. Elas aparecerão na ficha de cada empresa no Painel de Gestão.</div>
+          <div id="empresasVinculadasList" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;"></div>
+          <div style="margin-top:8px;"><input id="empresaFilterInput" class="input" placeholder="Filtrar empresas..." oninput="renderEmpresasVinculadas()" style="max-width:320px;"></div>
         </div>
         <!-- Campos fixos ativados -->
         <div class="section-block" id="activeFieldsSection">
@@ -558,8 +553,6 @@ function ensureStateDefaults(){
   state.defaultActiveIds=state.defaultActiveIds.filter(id=>state.fieldDefs.some(f=>f.id===id));
   if(!state.print) state.print={font:'Arial',size:'10.5pt'};
   if(typeof state.sidebarOpen!=='boolean') state.sidebarOpen=true;
-  // A biblioteca abre visível, mas sobreposta: a POP continua ocupando toda a largura útil.
-  state.sidebarOpen=true;
   if(!state.sops.length){
     const s=defaultSop(1);
     s.fixed.name='Apuração PIS/COFINS — Lucro Real';
@@ -682,9 +675,57 @@ function renderForm(){
   $id('editorTitle').textContent=`${sop.fixed?.code||'Sem código'} — ${sop.fixed?.name||'Sem nome'}`;
   $id('editorSubtitle').textContent=`${sop.fixed?.area||'Área'} · ${sop.fixed?.macro||''} · ${sop.fixed?.status||'Rascunho'}`;
   renderSelectedTags();
+  loadAndRenderEmpresasVinculadas();
   renderActiveFields();
   renderDynamicFields();
   bindForm();
+}
+
+// ── EMPRESAS VINCULADAS ──
+let _cachedEmpresas=null;
+async function loadAndRenderEmpresasVinculadas(){
+  if(!_cachedEmpresas){
+    try{
+      if(!window._fbReady) await new Promise(r=>window.addEventListener('fbReady',r,{once:true}));
+      const snap=await window._fbGet('painel_empresas');
+      _cachedEmpresas=snap.exists()?Object.values(snap.val()).filter(e=>e&&e.nome).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')):[];
+    }catch(e){_cachedEmpresas=[];}
+  }
+  renderEmpresasVinculadas();
+}
+function renderEmpresasVinculadas(){
+  const sop=currentSop();
+  if(!sop)return;
+  const empresas=_cachedEmpresas||[];
+  const selected=Array.isArray(sop.empresasVinculadas)?sop.empresasVinculadas:[];
+  const filter=($id('empresaFilterInput')?.value||'').toLowerCase().trim();
+  const filtered=filter?empresas.filter(e=>e.nome.toLowerCase().includes(filter)):empresas;
+  const count=selected.length;
+  const countEl=$id('empresasVinculadasCount');
+  if(countEl)countEl.textContent=count+' selecionada'+(count!==1?'s':'');
+  const listEl=$id('empresasVinculadasList');
+  if(!listEl)return;
+  if(!empresas.length){
+    listEl.innerHTML='<span style="font:500 11px var(--font-mono);color:var(--muted)">Nenhuma empresa encontrada no Painel de Gestão.</span>';
+    return;
+  }
+  listEl.innerHTML=filtered.map(e=>{
+    const isOn=selected.includes(e.id||e.nome);
+    return `<button type="button" class="palette-chip${isOn?' active':''}" onclick="toggleEmpresaVinculada('${escAttr(e.id||e.nome)}')" title="${escAttr(e.nome)}">
+      ${isOn?'✓ ':''}<span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;">${esc(e.nome)}</span>
+      <span class="palette-type-badge">${esc((e.regime||'').replace('simples','SN').replace('presumido','LP').replace('real','LR').replace('outros','Outros')||'?')}</span>
+    </button>`;
+  }).join('');
+}
+function toggleEmpresaVinculada(empresaId){
+  const sop=currentSop();
+  if(!sop)return;
+  if(!Array.isArray(sop.empresasVinculadas))sop.empresasVinculadas=[];
+  const idx=sop.empresasVinculadas.indexOf(empresaId);
+  if(idx>=0) sop.empresasVinculadas.splice(idx,1);
+  else sop.empresasVinculadas.push(empresaId);
+  renderEmpresasVinculadas();
+  scheduleSave();
 }
 
 // ── ACTIVE FIELDS (paleta por POP) ──
