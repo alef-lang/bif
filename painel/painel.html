@@ -2032,6 +2032,18 @@ async function init(){
     if (snapshot.exists()) {
       const d = snapshot.val();
       S = {...S, ...d};
+      // Se Firebase retornou mas empresas está vazio, tenta recuperar do localStorage
+      if (!Array.isArray(S.empresas) || S.empresas.length === 0) {
+        try {
+          const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
+          if (saved) {
+            const local = JSON.parse(saved);
+            if (Array.isArray(local.empresas) && local.empresas.length > 0) {
+              S.empresas = local.empresas;
+            }
+          }
+        } catch(e3) {}
+      }
       setCloudStatus('ok', 'Nuvem sincronizada');
     } else {
       const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
@@ -5285,11 +5297,16 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   window._fbSet = (path, data) => set(ref(db, path), data);
 
   // Dispara init após Firebase pronto
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => init());
-  } else {
-    init();
+  function waitAndInit() {
+    window._fbGet = (path) => get(ref(db, path));
+    window._fbSet = (path, data) => set(ref(db, path), data);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => init());
+    } else {
+      init();
+    }
   }
+  waitAndInit();
 </script>
 
 <script>
