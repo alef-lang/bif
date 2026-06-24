@@ -1335,15 +1335,6 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .rich-field font[size="7"]{font-size:26px;}
 @media(max-width:700px){.rte-float-v2{left:8px!important;right:8px!important;top:auto!important;bottom:12px!important;width:auto!important}.ff-hex{width:78px}.rte-float-v2 .ff-label{font-size:9px}}
 
-/* ── RESIZABLE + DRAGGABLE COLUMNS ── */
-.empresa-table th{position:relative;user-select:none;}
-.col-resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;z-index:3;background:transparent;border-right:2px solid transparent;transition:border-color .15s;}
-.col-resizer:hover,.col-resizer.active{border-right-color:var(--gold);}
-th.col-draggable{cursor:grab;}
-th.col-draggable:active{cursor:grabbing;}
-th.col-drag-over{background:rgba(201,168,76,0.18)!important;outline:2px dashed var(--gold);outline-offset:-2px;}
-th.col-dragging{opacity:0.45;}
-
 </style>
 </head>
 <body>
@@ -1448,16 +1439,16 @@ th.col-dragging{opacity:0.45;}
 <main id="mainContent">
   <!-- LIST VIEW -->
   <div id="viewList" class="list-view-wrap">
-    <table class="empresa-table" id="empresaTable">
+    <table class="empresa-table">
       <thead>
-        <tr id="empresaTableHead">
-          <th onclick="sortByCol('nome')" class="sortable col-draggable" data-col="nome" data-key="nome" draggable="true">Empresa <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
-          <th onclick="sortByCol('regime')" class="sortable col-draggable" data-col="regime" data-key="regime" draggable="true">Regime <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
-          <th onclick="sortByCol('atividade')" class="sortable col-draggable" data-col="atividade" data-key="atividade" draggable="true">Atividade <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
-          <th onclick="sortByCol('colaborador')" class="sortable col-draggable" data-col="colaborador" data-key="colaborador" draggable="true">Colaborador <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
-          <th onclick="sortByCol('status')" class="sortable col-draggable" data-col="status" data-key="status" draggable="true">Status <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
-          <th data-key="obrigacoes" class="col-draggable" draggable="true">Obrigações<div class="col-resizer"></div></th>
-          <th style="width:40px;" data-key="acoes"></th>
+        <tr>
+          <th onclick="sortByCol('nome')" class="sortable" data-col="nome">Empresa <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('regime')" class="sortable" data-col="regime">Regime <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('atividade')" class="sortable" data-col="atividade">Atividade <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('colaborador')" class="sortable" data-col="colaborador">Colaborador <span class="sort-arrow">↕</span></th>
+          <th onclick="sortByCol('status')" class="sortable" data-col="status">Status <span class="sort-arrow">↕</span></th>
+          <th>Obrigações</th>
+          <th style="width:40px;"></th>
         </tr>
       </thead>
       <tbody id="listTableBody"></tbody>
@@ -2032,18 +2023,6 @@ async function init(){
     if (snapshot.exists()) {
       const d = snapshot.val();
       S = {...S, ...d};
-      // Se Firebase retornou mas empresas está vazio, tenta recuperar do localStorage
-      if (!Array.isArray(S.empresas) || S.empresas.length === 0) {
-        try {
-          const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
-          if (saved) {
-            const local = JSON.parse(saved);
-            if (Array.isArray(local.empresas) && local.empresas.length > 0) {
-              S.empresas = local.empresas;
-            }
-          }
-        } catch(e3) {}
-      }
       setCloudStatus('ok', 'Nuvem sincronizada');
     } else {
       const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
@@ -2292,25 +2271,24 @@ function renderListView(filtered){
     return;
   }
   empty.style.display = 'none';
-  // Get current column order from header
-  const thead = document.getElementById('empresaTableHead');
-  const colOrder = thead ? Array.from(thead.querySelectorAll('th')).map(th=>th.dataset.key||'') : ['nome','regime','atividade','colaborador','status','obrigacoes','acoes'];
   tbody.innerHTML = sorted.map(e => {
     const st = empresaStatus(e);
     const badgeCls = e.fechada ? 'badge-fechada' : e.semMovimento ? 'badge-sem-movimento' : 'badge-ativa';
     const badgeTxt = e.fechada ? 'FECHADA' : e.semMovimento ? 'SEM MOV.' : 'ABERTA';
     const obrigTags = (e.obrigacoes||[]).slice(0,4).map(o=>`<span class="tbl-obrig-tag">${esc(o.nome)}</span>`).join('');
     const more = (e.obrigacoes||[]).length > 4 ? `<span class="tbl-obrig-tag">+${(e.obrigacoes||[]).length-4}</span>` : '';
-    const cells = {
-      nome: `<td><span class="tbl-name">${esc(e.nome)}</span><span class="tbl-cnpj">${esc(e.cnpj||'—')}</span></td>`,
-      regime: `<td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>`,
-      atividade: `<td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>`,
-      colaborador: `<td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>`,
-      status: `<td><span class="card-status-badge ${badgeCls}">${badgeTxt}</span></td>`,
-      obrigacoes: `<td><div class="tbl-obrig-list">${obrigTags}${more}</div></td>`,
-      acoes: `<td><button class="tbl-delete-btn" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir">×</button></td>`
-    };
-    return `<tr class="${e.fechada?'fechada-row':''}" onclick="openEmpresa('${esc(e.id)}')">${colOrder.map(k=>cells[k]||'').join('')}</tr>`;
+    return `<tr class="${e.fechada?'fechada-row':''}" onclick="openEmpresa('${esc(e.id)}')">
+      <td>
+        <span class="tbl-name">${esc(e.nome)}</span>
+        <span class="tbl-cnpj">${esc(e.cnpj || '—')}</span>
+      </td>
+      <td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>
+      <td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>
+      <td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>
+      <td><span class="card-status-badge ${badgeCls}">${badgeTxt}</span></td>
+      <td><div class="tbl-obrig-list">${obrigTags}${more}</div></td>
+      <td><button class="tbl-delete-btn" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir">×</button></td>
+    </tr>`;
   }).join('');
 }
 
@@ -3734,7 +3712,6 @@ function openEmpresa(id){
   $('btnSaveEmpresa').style.display = 'none';
   setRichFieldsEditable(false);
   setCompanyFormSnapshot();
-  loadPopsVinculadas(id);
 }
 
 function enableEditMode(){
@@ -3746,47 +3723,6 @@ function enableEditMode(){
   $('btnSaveEmpresa').style.display = '';
   setRichFieldsEditable(true);
   setupCompanyDirtyTracking();
-}
-
-// ── POPs VINCULADAS (carregadas do Firebase pop_hub) ──
-let _cachedPopHub = null;
-async function loadPopsVinculadas(empresaId){
-  const el = document.getElementById('popsVinculadasContent');
-  if(!el) return;
-  try{
-    if(!_cachedPopHub){
-      const snap = await window._fbGet('pop_hub');
-      _cachedPopHub = snap.exists() ? snap.val() : null;
-    }
-    const sops = (_cachedPopHub && Array.isArray(_cachedPopHub.sops)) ? _cachedPopHub.sops : [];
-    const empresa = S.empresas.find(x=>x.id===empresaId);
-    const empresaKey = empresaId; // usamos o id como chave
-    // Achar também pelo nome como fallback (legacy)
-    const vinculadas = sops.filter(s => {
-      const arr = Array.isArray(s.empresasVinculadas) ? s.empresasVinculadas : [];
-      return arr.includes(empresaKey) || (empresa && arr.includes(empresa.nome));
-    });
-    if(!vinculadas.length){
-      el.innerHTML = '<span style="font:500 11px var(--font-mono);color:var(--text-light);">Nenhuma POP vinculada a esta empresa.</span>';
-      return;
-    }
-    el.innerHTML = vinculadas.map(s => {
-      const code = (s.fixed&&s.fixed.code) ? s.fixed.code : '';
-      const name = (s.fixed&&s.fixed.name) ? s.fixed.name : 'Sem nome';
-      const area = (s.fixed&&s.fixed.area) ? s.fixed.area : '';
-      const status = (s.fixed&&s.fixed.status) ? s.fixed.status : '';
-      const statusColor = {Aprovada:'#4caf82',Rascunho:'#7a92a8','Em revisão':'#fdcb6e',Obsoleta:'#ff7675'}[status]||'var(--text-light)';
-      return `<div style="display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:10px;padding:7px 12px;background:rgba(201,168,76,0.06);max-width:100%;">
-        <span style="font:700 10px var(--font-mono);color:var(--gold-light);">${esc(code)}</span>
-        <span style="font:600 12px var(--font-body);color:var(--text);">${esc(name)}</span>
-        ${area?`<span style="font:700 9px var(--font-mono);color:var(--text-light);">${esc(area)}</span>`:''}
-        ${status?`<span style="font:700 9px var(--font-mono);color:${statusColor};border:1px solid ${statusColor}33;border-radius:20px;padding:1px 6px;">${esc(status)}</span>`:''}
-      </div>`;
-    }).join('');
-  } catch(err){
-    const el2 = document.getElementById('popsVinculadasContent');
-    if(el2) el2.innerHTML = '<span style="font:500 11px var(--font-mono);color:var(--text-light);">Não foi possível carregar as POPs.</span>';
-  }
 }
 
 function empresaFormHtml(e){
@@ -3947,14 +3883,6 @@ function empresaFormHtml(e){
     <div class="custom-field-add">
       <input id="newCustomFieldLabel" placeholder="Nome do novo campo. Ex: Particularidades do cliente">
       <button class="btn-add-obrig" type="button" onclick="addCustomFieldToModal()">Adicionar campo</button>
-    </div>
-  </div>
-
-  <div class="form-section" id="popsVinculadasSection">
-    <div class="form-section-title">📋 POPs vinculadas</div>
-    <p style="font-size:11px;color:var(--text-light);margin-bottom:10px;font-family:var(--font-mono);">Procedimentos operacionais que se aplicam a esta empresa, conforme configurado no Hub POP Fiscal.</p>
-    <div id="popsVinculadasContent" style="display:flex;flex-wrap:wrap;gap:6px;">
-      <span style="font:500 11px var(--font-mono);color:var(--text-light);">Carregando POPs...</span>
     </div>
   </div>`;
 }
@@ -5297,185 +5225,11 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   window._fbSet = (path, data) => set(ref(db, path), data);
 
   // Dispara init após Firebase pronto
-  function waitAndInit() {
-    window._fbGet = (path) => get(ref(db, path));
-    window._fbSet = (path, data) => set(ref(db, path), data);
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => init());
-    } else {
-      init();
-    }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => init());
+  } else {
+    init();
   }
-  waitAndInit();
-</script>
-
-<script>
-// ── COLUNAS REDIMENSIONÁVEIS E REORDENÁVEIS ──
-(function(){
-  // Persistence keys
-  const COL_ORDER_KEY = 'painel_col_order';
-  const COL_WIDTHS_KEY = 'painel_col_widths';
-
-  // Default column order (by data-key)
-  const DEFAULT_ORDER = ['nome','regime','atividade','colaborador','status','obrigacoes','acoes'];
-
-  function getOrder(){ try{ return JSON.parse(localStorage.getItem(COL_ORDER_KEY))||DEFAULT_ORDER; }catch(e){ return DEFAULT_ORDER; } }
-  function saveOrder(o){ localStorage.setItem(COL_ORDER_KEY, JSON.stringify(o)); }
-  function getWidths(){ try{ return JSON.parse(localStorage.getItem(COL_WIDTHS_KEY))||{}; }catch(e){ return {}; } }
-  function saveWidths(w){ localStorage.setItem(COL_WIDTHS_KEY, JSON.stringify(w)); }
-
-  function applyColumnOrder(){
-    const thead = document.getElementById('empresaTableHead');
-    if(!thead) return;
-    const order = getOrder();
-    const ths = Array.from(thead.querySelectorAll('th'));
-    // Sort ths by order
-    const sorted = order.map(k => ths.find(th => (th.dataset.key||'') === k)).filter(Boolean);
-    // Append missing
-    ths.filter(th => !sorted.includes(th)).forEach(th => sorted.push(th));
-    sorted.forEach(th => thead.appendChild(th));
-    // Also reorder tbody cells
-    reorderTbodyCols();
-  }
-
-  function getColIndex(key){
-    const thead = document.getElementById('empresaTableHead');
-    if(!thead) return -1;
-    const ths = Array.from(thead.querySelectorAll('th'));
-    return ths.findIndex(th => th.dataset.key === key);
-  }
-
-  function reorderTbodyCols(){
-    const thead = document.getElementById('empresaTableHead');
-    const tbody = document.getElementById('listTableBody');
-    if(!thead || !tbody) return;
-    const order = Array.from(thead.querySelectorAll('th')).map(th => th.dataset.key);
-    // We'll use CSS column-order via nth-child indirectly; just re-render is cleaner — but we don't want to re-render.
-    // Instead, visually we rely on column order in the thead; the tbody rows are generated matching that order already (via renderListView).
-    // After drag, we need to re-render to match the new column order.
-    if(typeof window.renderAll === 'function') window.renderAll();
-  }
-
-  function applyWidths(){
-    const thead = document.getElementById('empresaTableHead');
-    if(!thead) return;
-    const widths = getWidths();
-    thead.querySelectorAll('th[data-key]').forEach(th => {
-      const w = widths[th.dataset.key];
-      if(w) th.style.width = w + 'px';
-    });
-  }
-
-  // ── RESIZE ──
-  function initResizers(){
-    const thead = document.getElementById('empresaTableHead');
-    if(!thead) return;
-    thead.querySelectorAll('.col-resizer').forEach(resizer => {
-      resizer.addEventListener('mousedown', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        const th = resizer.closest('th');
-        const startX = e.clientX;
-        const startW = th.offsetWidth;
-        resizer.classList.add('active');
-
-        function onMove(ev){
-          const newW = Math.max(60, startW + (ev.clientX - startX));
-          th.style.width = newW + 'px';
-        }
-        function onUp(){
-          resizer.classList.remove('active');
-          const widths = getWidths();
-          widths[th.dataset.key||th.textContent.trim()] = th.offsetWidth;
-          saveWidths(widths);
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-        }
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      });
-    });
-  }
-
-  // ── DRAG TO REORDER ──
-  let dragSrcTh = null;
-
-  function initDraggable(){
-    const thead = document.getElementById('empresaTableHead');
-    if(!thead || thead.dataset.dragReady === '1') return;
-    thead.dataset.dragReady = '1';
-
-    thead.addEventListener('dragstart', ev => {
-      const th = ev.target.closest('th.col-draggable');
-      if(!th) return;
-      dragSrcTh = th;
-      th.classList.add('col-dragging');
-      ev.dataTransfer.effectAllowed = 'move';
-      ev.dataTransfer.setData('text/plain', th.dataset.key||'');
-    });
-
-    thead.addEventListener('dragend', ev => {
-      const th = ev.target.closest('th');
-      if(th) th.classList.remove('col-dragging');
-      thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
-    });
-
-    thead.addEventListener('dragover', ev => {
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = 'move';
-      const th = ev.target.closest('th.col-draggable');
-      thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
-      if(th && th !== dragSrcTh) th.classList.add('col-drag-over');
-    });
-
-    thead.addEventListener('drop', ev => {
-      ev.preventDefault();
-      const th = ev.target.closest('th.col-draggable');
-      if(!th || th === dragSrcTh || !dragSrcTh) return;
-      thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
-      // Insert dragSrcTh before or after th based on mouse position
-      const rect = th.getBoundingClientRect();
-      const mid = rect.left + rect.width / 2;
-      if(ev.clientX < mid){
-        thead.insertBefore(dragSrcTh, th);
-      } else {
-        thead.insertBefore(dragSrcTh, th.nextSibling);
-      }
-      // Save new order
-      const newOrder = Array.from(thead.querySelectorAll('th')).map(t=>t.dataset.key).filter(Boolean);
-      saveOrder(newOrder);
-      dragSrcTh = null;
-      reorderTbodyCols();
-    });
-  }
-
-  // ── INIT ──
-  function setup(){
-    applyColumnOrder();
-    applyWidths();
-    initResizers();
-    initDraggable();
-  }
-
-  // Run after DOM ready and after renderListView (which may re-create ths)
-  document.addEventListener('DOMContentLoaded', setup);
-  // Re-run after renderAll since it touches the list
-  const origRenderAll = window.renderAll;
-  // We'll hook after the fact
-  setTimeout(function patch(){
-    if(typeof window.renderAll === 'function'){
-      const orig = window.renderAll;
-      window.renderAll = function(){
-        orig.apply(this, arguments);
-        applyWidths();
-        initResizers();
-        initDraggable();
-      };
-    } else {
-      setTimeout(patch, 100);
-    }
-  }, 0);
-})();
 </script>
 </body>
 </html>
