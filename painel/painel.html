@@ -2001,8 +2001,7 @@ async function buscarCnpjEdit() {
 
 // ════════════════════════════════════════════
 // ════════════════════════════════════════════
-const PAINEL_PATH = 'painel';
-let saveTimer = null;
+let saveConfigTimer = null;
 
 function setCloudStatus(state, msg) {
   const el = document.getElementById('cloudStatus');
@@ -2013,78 +2012,137 @@ function setCloudStatus(state, msg) {
   el.style.color = colors[state] || '#8899aa';
 }
 
+function normalizeEmpresa(e) {
+  return {
+    ...e,
+    regime: e.regime || 'outros',
+    fechada: !!e.fechada,
+    semMovimento: !!e.semMovimento,
+    obrigacoes: Array.isArray(e.obrigacoes) ? e.obrigacoes : [],
+    importacoes: Array.isArray(e.importacoes) ? e.importacoes : [],
+    impostos: Array.isArray(e.impostos) ? e.impostos : [],
+    camposPersonalizados: Array.isArray(e.camposPersonalizados) ? e.camposPersonalizados : [],
+    camposEstaticosData: e.camposEstaticosData && typeof e.camposEstaticosData === 'object' ? e.camposEstaticosData : {},
+    parametros: e.parametros || '',
+    regras: e.regras || '',
+    observacoes: e.observacoes || '',
+    followup: e.followup || '',
+    comunicacaoGuias: e.comunicacaoGuias || '',
+    acessosSistemas: e.acessosSistemas || '',
+    apoioEscrituracao: e.apoioEscrituracao || '',
+    ocorrencias: e.ocorrencias || ''
+  };
+}
+
 // ════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════
 async function init(){
   setCloudStatus('loading', 'Conectando...');
+
+  // 1. Carrega config global (sem empresas)
   try {
-    const snapshot = await window._fbGet(PAINEL_PATH);
-    if (snapshot.exists()) {
-      const d = snapshot.val();
-      S = {...S, ...d};
-      setCloudStatus('ok', 'Nuvem sincronizada');
-    } else {
-      const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
-      if (saved) { const d = JSON.parse(saved); S = {...S, ...d}; }
-      else { S.empresas = exemploEmpresas; }
-      setCloudStatus('ok', 'Nuvem conectada');
+    const cfgSnap = await window._fbGetConfig();
+    if (cfgSnap.exists()) {
+      const cfg = cfgSnap.val();
+      S = { ...S, ...cfg };
     }
   } catch(e) {
-    setCloudStatus('error', 'Erro de conexão');
+    // config offline — tenta localStorage
     try {
-      const saved = localStorage.getItem('gestao_v3') || localStorage.getItem('gestao_empresas');
-      if (saved) { const d = JSON.parse(saved); S = {...S, ...d}; }
-      else { S.empresas = exemploEmpresas; }
-    } catch(e2) { S.empresas = exemploEmpresas; }
+      const saved = localStorage.getItem('gestao_v3');
+      if (saved) { const d = JSON.parse(saved); S = { ...S, ...d }; delete S.empresas; }
+    } catch(e2) {}
   }
+
+  // Normaliza campos de config
   S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
   S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
   S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
   S.relatorioLogo = typeof S.relatorioLogo === 'string' ? S.relatorioLogo : '';
   S.printFont = S.printFont || 'Arial';
   S.printFontSize = S.printFontSize || '10.5pt';
-  S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length ? S.filterObrigacoes : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
-  S.empresas = (S.empresas || []).map(e => ({
-    ...e,
-    regime:e.regime || 'outros',
-    fechada:!!e.fechada,
-    semMovimento:!!e.semMovimento,
-    obrigacoes:Array.isArray(e.obrigacoes)?e.obrigacoes:[],
-    importacoes:Array.isArray(e.importacoes)?e.importacoes:[],
-    impostos:Array.isArray(e.impostos)?e.impostos:[],
-    camposPersonalizados:Array.isArray(e.camposPersonalizados)?e.camposPersonalizados:[],
-    camposEstaticosData: e.camposEstaticosData && typeof e.camposEstaticosData === 'object' ? e.camposEstaticosData : {},
-    parametros:e.parametros || '',
-    regras:e.regras || '',
-    observacoes:e.observacoes || '',
-    followup:e.followup || '',
-    comunicacaoGuias:e.comunicacaoGuias || '',
-    acessosSistemas:e.acessosSistemas || '',
-    apoioEscrituracao:e.apoioEscrituracao || '',
-    ocorrencias:e.ocorrencias || ''
-  }));
-  saveState();
+  S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length
+    ? S.filterObrigacoes
+    : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
+
   updateHeaderName();
   renderFilterTags();
   renderCfgObrigList();
   renderCfgCamposEstaticosList();
-  renderAll();
+
+  // 2. Listener em tempo real para empresas (igual ao sistema de vida)
+  window._fbOnEmpresas(snapshot => {
+    const lista = [];
+    if (snapshot.exists()) {
+      snapshot.forEach(child => {
+        lista.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() }));
+      });
+    }
+    S.empresas = lista;
+    localStorage.setItem('gestao_v3', JSON.stringify(S));
+    setCloudStatus('ok', 'Nuvem sincronizada');
+    renderAll();
+  }, err => {
+    setCloudStatus('error', 'Erro ao sincronizar empresas');
+    console.error('Firebase onValue error:', err);
+    // Fallback localStorage
+    try {
+      const saved = localStorage.getItem('gestao_v3');
+      if (saved) {
+        const d = JSON.parse(saved);
+        S.empresas = (d.empresas || []).map(normalizeEmpresa);
+      }
+    } catch(e2) {}
+    renderAll();
+  });
 }
 
+// Salva config global (sem empresas) no Firebase
 function saveState(){
+  // Cache local completo
   localStorage.setItem('gestao_v3', JSON.stringify(S));
+
+  // Salva config no Firebase (debounced) — sem tocar em empresas
   setCloudStatus('loading', 'Salvando...');
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
+  clearTimeout(saveConfigTimer);
+  saveConfigTimer = setTimeout(async () => {
     try {
-      await window._fbSet(PAINEL_PATH, S);
+      const { empresas, ...config } = S;
+      await window._fbUpdateConfig(config);
       setCloudStatus('ok', 'Nuvem sincronizada');
     } catch(e) {
-      setCloudStatus('error', 'Erro ao salvar');
-      console.error('Firebase save error:', e);
+      setCloudStatus('error', 'Erro ao salvar configurações');
+      console.error('Firebase config save error:', e);
     }
   }, 1500);
+}
+
+// Salva uma empresa individual no Firebase
+async function saveEmpresa(empresa) {
+  const { _fbKey, ...data } = empresa;
+  try {
+    if (_fbKey) {
+      await window._fbUpdateEmpresa(_fbKey, data);
+    } else {
+      // empresa nova sem chave Firebase ainda — não deve ocorrer, mas protege
+      const result = await window._fbPushEmpresa(data);
+      empresa._fbKey = result.key;
+    }
+  } catch(e) {
+    setCloudStatus('error', 'Erro ao salvar empresa');
+    console.error('Firebase empresa save error:', e);
+  }
+}
+
+// Remove uma empresa individual do Firebase
+async function removeEmpresa(fbKey) {
+  try {
+    await window._fbRemoveEmpresa(fbKey);
+  } catch(e) {
+    setCloudStatus('error', 'Erro ao excluir empresa');
+    console.error('Firebase empresa remove error:', e);
+  }
 }
 
 function $(id){ return document.getElementById(id); }
@@ -2327,7 +2385,6 @@ function renderAll(){
     ['simples','presumido','real','outros'].forEach(renderColumn);
   }
   updateStats();
-  saveState();
 }
 
 function renderColumn(regime){
@@ -2586,6 +2643,13 @@ async function iniciarImportacao(){
       };
 
       S.empresas.push(e);
+      // Salva no Firebase individualmente
+      try {
+        const result = await window._fbPushEmpresa(e);
+        e._fbKey = result.key;
+      } catch(fbErr) {
+        console.error('Erro ao salvar empresa no Firebase:', fbErr);
+      }
       ok++;
       logItem.style.color = '#2ecc8a';
       logItem.textContent = `✅ ${cnpjFmt} — ${d.razao_social||'importado'} (${d.descricao_situacao_cadastral||'—'})`;
@@ -2600,8 +2664,7 @@ async function iniciarImportacao(){
     if(i < cnpjs.length - 1) await new Promise(r => setTimeout(r, 1100));
   }
 
-  // Salva tudo de uma vez
-  saveState();
+  // Empresas já salvas individualmente no Firebase durante o loop
   renderAll();
 
   bar.style.width = '100%';
@@ -2610,7 +2673,7 @@ async function iniciarImportacao(){
   toast(`${ok} empresa(s) importada(s) com sucesso.`, 'success');
 }
 
-function addCompany(){
+async function addCompany(){
   const nome = $('addNome').value.trim();
   if(!nome){ toast('Informe a razão social da empresa.', 'error'); return; }
   const e = {
@@ -2628,15 +2691,17 @@ function addCompany(){
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
     obrigacoes: [], importacoes: [], impostos: [], camposEstaticosData: {}, camposPersonalizados: []
   };
-  S.empresas.push(e);
   try {
-    saveState();
+    setCloudStatus('loading', 'Salvando...');
+    const result = await window._fbPushEmpresa(e);
+    e._fbKey = result.key;
+    // onValue atualizará S.empresas automaticamente
     closeModal('modalAdd');
-    renderAll();
     toast('Empresa adicionada e salva com sucesso.', 'success');
-    openEmpresa(e.id);
+    // Abre ficha após um breve delay para onValue processar
+    setTimeout(() => openEmpresa(e.id), 400);
   } catch(err) {
-    toast('Empresa adicionada, mas houve erro ao salvar. Verifique o armazenamento.', 'error');
+    toast('Erro ao salvar empresa no Firebase.', 'error');
     console.error('Erro ao salvar empresa:', err);
   }
 }
@@ -4101,12 +4166,13 @@ function removeImpostoFromModal(i){
 }
 function isEmpresaComMovimento(e){ return !!e && !e.fechada && !e.semMovimento; }
 
-function saveCompany(options={}){
+async function saveCompany(options={}){
   const e = S.empresas.find(x=>x.id===currentEditId);
   if(!e){ toast('Empresa não encontrada.','error'); return false; }
   const data = collectCompanyFormData();
   if(!data.nome){ toast('A razão social não pode estar vazia.','error'); return false; }
   Object.assign(e, data);
+  await saveEmpresa(e);
   saveState();
   $('modalEmpresaTitle').textContent = e.nome;
   $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
@@ -4123,24 +4189,28 @@ function askDelete(id){
   $('confirmEmpresaNome').textContent = e ? e.nome : 'esta empresa';
   openModal('modalConfirm');
 }
-function confirmDelete(){
+async function confirmDelete(){
   if(!pendingDeleteId) return;
-  S.empresas = S.empresas.filter(e=>e.id!==pendingDeleteId);
+  const e = S.empresas.find(x=>x.id===pendingDeleteId);
   closeModal('modalConfirm');
   closeModal('modalEmpresa', true);
   pendingDeleteId = null;
-  saveState(); renderAll(); toast('Empresa excluída.', 'success');
+  if(e?._fbKey) await removeEmpresa(e._fbKey);
+  // onValue removerá de S.empresas automaticamente
+  toast('Empresa excluída.', 'success');
 }
 function pinPress(n){ currentPin += n; if(currentPin.length>4) currentPin=currentPin.slice(0,4); updatePinDots(); if(currentPin.length===4) checkPin(); }
 function pinClear(){ currentPin=''; $('pinError').textContent=''; updatePinDots(); }
 function pinBackspace(){ currentPin=currentPin.slice(0,-1); updatePinDots(); }
 function updatePinDots(){ document.querySelectorAll('#pinDots .pin-dot').forEach((d,i)=>d.classList.toggle('filled', i<currentPin.length)); }
-function checkPin(){
+async function checkPin(){
   if(currentPin === S.senha){
-    S.empresas = S.empresas.filter(e=>e.id!==pendingDeleteId);
+    const e = S.empresas.find(x=>x.id===pendingDeleteId);
     closeModal('modalSenha'); closeModal('modalEmpresa', true);
+    const fbKey = e?._fbKey;
     pendingDeleteId=null; currentPin='';
-    saveState(); renderAll(); toast('Empresa excluída.', 'success');
+    if(fbKey) await removeEmpresa(fbKey);
+    toast('Empresa excluída.', 'success');
   }else{
     $('pinError').textContent = 'PIN incorreto.';
     currentPin=''; updatePinDots();
@@ -5206,7 +5276,7 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, get, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
@@ -5221,6 +5291,17 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
 
+  // Operações por item individual (empresas)
+  window._fbPushEmpresa   = (data)     => push(ref(db, 'painel/empresas'), data);
+  window._fbUpdateEmpresa = (id, data) => update(ref(db, `painel/empresas/${id}`), data);
+  window._fbRemoveEmpresa = (id)       => remove(ref(db, `painel/empresas/${id}`));
+  window._fbOnEmpresas    = (cb, errCb) => onValue(ref(db, 'painel/empresas'), cb, errCb);
+
+  // Config global (sem empresas)
+  window._fbGetConfig    = ()     => get(ref(db, 'painel/config'));
+  window._fbUpdateConfig = (data) => update(ref(db, 'painel/config'), data);
+
+  // Legado — mantido para compatibilidade durante transição
   window._fbGet = (path) => get(ref(db, path));
   window._fbSet = (path, data) => set(ref(db, path), data);
 
