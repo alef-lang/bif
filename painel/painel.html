@@ -346,6 +346,10 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .portal-record-rich{margin-top:7px;font-size:12px;line-height:1.55;color:var(--text);max-height:260px;overflow:auto;border:1px solid rgba(201,168,76,0.12);border-radius:8px;padding:8px;background:rgba(0,0,0,0.12);}
 .portal-record-rich img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--gold-dim);}
 .portal-record-rich .attachment-link{display:inline-flex;align-items:center;gap:6px;margin:4px 3px 4px 0;padding:5px 9px;border-radius:9px;border:1px solid var(--gold-dim);background:rgba(201,168,76,0.10);color:var(--gold-light);font-family:var(--font-mono);font-size:0.76rem;text-decoration:none;overflow-wrap:anywhere;}
+.task-record-status{font-size:9px;font-family:var(--font-mono);border:1px solid var(--gold-dim);border-radius:999px;padding:2px 7px;color:var(--gold-light);background:rgba(201,168,76,0.09);}
+.task-record-status.done{border-color:rgba(0,206,201,0.35);color:var(--simples);background:rgba(0,206,201,0.12);}
+.task-record-status.park{border-color:rgba(253,203,110,0.35);color:#fdcb6e;background:rgba(253,203,110,0.12);}
+.task-record-status.overdue{border-color:rgba(255,118,117,0.35);color:#ff7675;background:rgba(255,118,117,0.12);}
 
 
 /* FLOATING RICH TEXT MENU */
@@ -1936,6 +1940,7 @@ let modalCamposPersonalizados = [];
 let empresaFormInitialSnapshot = '';
 let empresaDirtyNoticeTimer = null;
 let portalRegistros = [];
+let tarefasRegistros = [];
 
 // ════════════════════════════════════════════
 // DADOS DE EXEMPLO
@@ -2174,6 +2179,7 @@ async function init(){
     aplicarRegimesDaPlanilha();
     renderAll();
     renderPortalRecordsForCurrentEmpresa();
+    renderTarefasForCurrentEmpresa();
   }, err => {
     setCloudStatus('error', 'Erro ao sincronizar empresas');
     console.error('Firebase onValue error:', err);
@@ -2187,6 +2193,7 @@ async function init(){
     } catch(e2) {}
     renderAll();
     renderPortalRecordsForCurrentEmpresa();
+    renderTarefasForCurrentEmpresa();
   });
 
   if (typeof window._fbOnPortalRegistros === 'function') {
@@ -2201,6 +2208,21 @@ async function init(){
       portalRegistros = lista;
       renderPortalRecordsForCurrentEmpresa();
     }, err => console.warn('Erro ao sincronizar registros do portal:', err));
+  }
+
+  if (typeof window._fbOnTarefasFiscal === 'function') {
+    window._fbOnTarefasFiscal(snapshot => {
+      const lista = [];
+      if (snapshot.exists()) {
+        const d = snapshot.val() || {};
+        const rawTasks = Array.isArray(d.tasks) ? d.tasks : (d.tasks && typeof d.tasks === 'object' ? Object.values(d.tasks) : []);
+        rawTasks.forEach(t => {
+          if (t && typeof t === 'object') lista.push(normalizeTarefaFiscal(t));
+        });
+      }
+      tarefasRegistros = lista;
+      renderTarefasForCurrentEmpresa();
+    }, err => console.warn('Erro ao sincronizar tarefas fiscais:', err));
   }
 }
 
@@ -4278,6 +4300,99 @@ function renderPortalRecordsForCurrentEmpresa(){
   box.innerHTML = renderPortalRegistrosHtml(empresa);
 }
 
+function normalizeTarefaFiscal(t){
+  return {
+    ...t,
+    id: t.id || t._fbKey || '',
+    name: t.name || t.nome || 'Tarefa sem título',
+    desc: t.desc || t.descricao || '',
+    priority: Number(t.priority || 3),
+    tdahLane: t.tdahLane || '',
+    done: !!t.done,
+    deadline: t.deadline || '',
+    parqueado: !!t.parqueado,
+    empresasVinculadas: Array.isArray(t.empresasVinculadas) ? t.empresasVinculadas : (Array.isArray(t.empresaIds) ? t.empresaIds : []),
+    empresaRefs: Array.isArray(t.empresaRefs) ? t.empresaRefs : []
+  };
+}
+function tarefaRefMatchesEmpresa(refInfo, empresa){
+  if(!refInfo || !empresa) return false;
+  const raw = typeof refInfo === 'string' ? {id: refInfo, nome: refInfo, cnpjRaw: rawCnpjValue(refInfo)} : refInfo;
+  const empId = safe(empresa.id);
+  const empFb = safe(empresa._fbKey);
+  const empCnpj = rawCnpjValue(empresa.cnpj);
+  const empNome = norm(empresa.nome);
+  const refId = safe(raw.id || raw.painelId || raw.companyId);
+  const refFb = safe(raw.fbKey || raw._fbKey);
+  const refCnpj = raw.cnpjRaw || raw.cnpjDigits || rawCnpjValue(raw.cnpj || raw.companyCnpj);
+  const refNome = norm(raw.nome || raw.companyName);
+  return (!!refId && (refId === empId || refId === empFb || (!!empCnpj && refId === empCnpj))) ||
+         (!!refFb && refFb === empFb) ||
+         (!!refCnpj && !!empCnpj && refCnpj === empCnpj) ||
+         (!!refNome && !!empNome && refNome === empNome);
+}
+function tarefaMatchesEmpresa(t, empresa){
+  if(!t || !empresa) return false;
+  const refs = [];
+  if(Array.isArray(t.empresasVinculadas)) refs.push(...t.empresasVinculadas);
+  if(Array.isArray(t.empresaIds)) refs.push(...t.empresaIds);
+  if(Array.isArray(t.empresaRefs)) refs.push(...t.empresaRefs);
+  if(t.companyId) refs.push({id:t.companyId,nome:t.companyName,cnpj:t.companyCnpj,regime:t.companyRegime});
+  if(t.companyCnpj) refs.push({cnpj:t.companyCnpj,nome:t.companyName});
+  if(t.companyName) refs.push({nome:t.companyName,cnpj:t.companyCnpj});
+  return refs.some(ref => tarefaRefMatchesEmpresa(ref, empresa));
+}
+function getTarefasForEmpresa(empresa){
+  return (tarefasRegistros || [])
+    .filter(t => tarefaMatchesEmpresa(t, empresa))
+    .sort((a,b) => {
+      const da = safe(a.deadline || '9999-99-99');
+      const db = safe(b.deadline || '9999-99-99');
+      if((a.done||false)!==(b.done||false)) return a.done ? 1 : -1;
+      return da.localeCompare(db) || (Number(b.priority||3)-Number(a.priority||3));
+    });
+}
+function tarefaStatusTag(t){
+  const today = new Date().toISOString().slice(0,10);
+  if(t.done) return '<span class="task-record-status done">Concluída</span>';
+  if(t.parqueado) return '<span class="task-record-status park">Parqueada</span>';
+  if(t.deadline && t.deadline < today) return '<span class="task-record-status overdue">Atrasada</span>';
+  return '<span class="task-record-status">Pendente</span>';
+}
+function tarefaResumo(t){
+  const texto = stripHtmlToText(t.desc || '');
+  return texto ? (texto.length > 180 ? texto.slice(0,180) + '…' : texto) : 'Sem descrição detalhada.';
+}
+function renderTarefasHtml(empresa){
+  const regs = getTarefasForEmpresa(empresa);
+  if(!regs.length){
+    return '<div class="empty-state" style="padding:16px 10px;"><p>Nenhuma tarefa relacionada a esta empresa ainda.</p></div>';
+  }
+  return `<div class="portal-record-list">${regs.map(t => {
+    const pr = Number(t.priority || 3);
+    const lane = t.tdahLane ? `<span class="portal-record-tag">${esc(t.tdahLane)}</span>` : '';
+    const prazo = t.deadline ? `<span class="portal-record-tag">⏰ ${esc(t.deadline.split('-').reverse().join('/'))}</span>` : '';
+    const responsavel = t.assigneeName ? `<span class="portal-record-tag">👤 ${esc(t.assigneeName)}</span>` : '';
+    const anexos = Array.isArray(t.attachments) && t.attachments.length ? `<span class="portal-record-tag">📎 ${t.attachments.length} anexo(s)</span>` : '';
+    return `<div class="portal-record-card">
+      <div class="portal-record-head">
+        <div class="portal-record-title">${esc(t.name || 'Tarefa sem título')}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">${tarefaStatusTag(t)}<span class="task-record-status">P${esc(pr)}</span></div>
+      </div>
+      <div class="portal-record-meta">ID ${esc(t.id || 'sem ID')} ${t.taskType ? '· ' + esc(t.taskType) : ''}</div>
+      <div class="portal-record-preview">${esc(tarefaResumo(t))}</div>
+      ${(lane || prazo || responsavel || anexos) ? `<div class="portal-record-tags">${lane}${prazo}${responsavel}${anexos}</div>` : ''}
+    </div>`;
+  }).join('')}</div>`;
+}
+function renderTarefasForCurrentEmpresa(){
+  const box = $('tarefasForEmpresa');
+  if(!box || !currentEditId) return;
+  const empresa = S.empresas.find(x => x.id === currentEditId);
+  if(!empresa) return;
+  box.innerHTML = renderTarefasHtml(empresa);
+}
+
 
 function openEmpresa(id){
   const e = S.empresas.find(x=>x.id===id);
@@ -4361,6 +4476,12 @@ function empresaFormHtml(e){
     <div class="form-section-title">📚 Registros do Portal</div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Registros relacionados no Portal / Base de Conhecimento aparecem aqui automaticamente. A relação é feita pelo próprio registro do portal, sem alterar os dados cadastrais da empresa.</p>
     <div id="portalRecordsForEmpresa">${renderPortalRegistrosHtml(e)}</div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">✅ Tarefas vinculadas</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Tarefas relacionadas no painel de Tarefas aparecem aqui automaticamente. A relação é feita pela própria tarefa, sem alterar os dados cadastrais da empresa.</p>
+    <div id="tarefasForEmpresa">${renderTarefasHtml(e)}</div>
   </div>
 
   <div class="form-section">
@@ -5835,6 +5956,7 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   window._fbRemoveEmpresa = (id)       => remove(ref(db, `painel/empresas/${id}`));
   window._fbOnEmpresas    = (cb, errCb) => onValue(ref(db, 'painel/empresas'), cb, errCb);
   window._fbOnPortalRegistros = (cb, errCb) => onValue(ref(db, 'pop_hub/registros'), cb, errCb);
+  window._fbOnTarefasFiscal = (cb, errCb) => onValue(ref(db, 'bif_tarefas_fiscal'), cb, errCb);
 
   // Config global (sem empresas)
   window._fbGetConfig    = ()     => get(ref(db, 'painel/config'));
