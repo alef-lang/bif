@@ -153,6 +153,7 @@ body.focus-mode{padding-top:14px}body.focus-mode .backline,body.focus-mode .head
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 (function(){
 'use strict';
@@ -169,9 +170,15 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
+const auth = getAuth(fbApp);
 
 const STORAGE_KEY = 'bif_anotacoes_tdah_v1';
-const DB_PATH = 'bif_anotacoes';
+const PAGE_KEY = 'bif_anotacoes';
+let DB_PATH = null;
+let BACKUP_BASE_PATH = null;
+let TRASH_BASE_PATH = null;
+let currentUser = null;
+let lastCloudBackupAt = 0;
 const DEFAULT_TAGS = ['ideia','lembrete','fiscal','cliente','dúvida','pendente','depois','reunião','risco'];
 let state = { notes: [], selectedId: null, activeTag: 'all', search: '', updatedAt: null };
 let saveTimer = null;
@@ -224,6 +231,85 @@ function readLocalState(){
   }
 }
 
+
+function setUserPaths(user){
+  currentUser = user || null;
+  if(!currentUser){
+    DB_PATH = null;
+    BACKUP_BASE_PATH = null;
+    TRASH_BASE_PATH = null;
+    return;
+  }
+  DB_PATH = `users/${currentUser.uid}/sistema_vida/${PAGE_KEY}`;
+  BACKUP_BASE_PATH = `users/${currentUser.uid}/backups`;
+  TRASH_BASE_PATH = `users/${currentUser.uid}/lixeira`;
+}
+
+function canUseCloud(){
+  return !!(currentUser && DB_PATH && BACKUP_BASE_PATH && TRASH_BASE_PATH);
+}
+
+function hasSafeNotesPayload(payload){
+  return !!(payload && Array.isArray(payload.notes) && payload.notes.length > 0 && payload.updatedAt && payload.version);
+}
+
+function pushLocalTrash(item){
+  try{
+    const key = 'bif_lixeira_local_v1';
+    const raw = localStorage.getItem(key);
+    const list = raw ? JSON.parse(raw) : [];
+    list.push(item);
+    localStorage.setItem(key, JSON.stringify(list.slice(-200)));
+  }catch(e){ console.warn('Falha ao registrar lixeira local.', e); }
+}
+
+async function createCloudBackup(reason='auto'){
+  if(!canUseCloud()) return;
+  try{
+    const snap = await get(ref(db, DB_PATH));
+    if(!snap.exists()) return;
+    const current = snap.val();
+    if(!current || !Array.isArray(current.notes) || !current.notes.length) return;
+    const backupId = `${Date.now()}_${uid()}`;
+    await set(ref(db, `${BACKUP_BASE_PATH}/${backupId}`), {
+      createdAt: nowISO(),
+      source: PAGE_KEY,
+      reason,
+      data: current
+    });
+    lastCloudBackupAt = Date.now();
+  }catch(e){
+    console.warn('Backup automático não foi criado.', e);
+  }
+}
+
+async function safeCloudSet(payload, reason='autosave'){
+  if(!canUseCloud()) throw new Error('Usuário não autenticado. Salvamento na nuvem bloqueado pelas regras.');
+  if(!hasSafeNotesPayload(payload)) throw new Error('Payload inseguro: salvamento bloqueado para evitar perda de dados.');
+
+  // Para não lotar o banco, cria backup antes de sobrescrever somente a cada 15 minutos.
+  // A exclusão e a restauração também criam registro próprio na lixeira/backup.
+  if(Date.now() - lastCloudBackupAt > 15 * 60 * 1000){
+    await createCloudBackup(reason);
+  }
+
+  await set(ref(db, DB_PATH), payload);
+}
+
+async function moveNoteToTrash(note){
+  if(!note) return;
+  const trashItem = {
+    deletedAt: nowISO(),
+    source: PAGE_KEY,
+    data: note
+  };
+  pushLocalTrash(trashItem);
+  if(canUseCloud()){
+    const itemId = `${Date.now()}_${note.id || uid()}`;
+    await set(ref(db, `${TRASH_BASE_PATH}/${itemId}`), trashItem);
+  }
+}
+
 function applyLoadedData(data){
   if(!data) return;
   state.notes = Array.isArray(data.notes) ? data.notes : [];
@@ -262,8 +348,17 @@ function currentPayload(){
 }
 
 async function load(){
-  setStatus('saving','Conectando à nuvem...');
   const localData = readLocalState();
+
+  if(!canUseCloud()){
+    if(localData) applyLoadedData(localData);
+    normalizeLoadedState();
+    render();
+    setStatus('error','Sem login — somente local');
+    return;
+  }
+
+  setStatus('saving','Conectando à nuvem segura...');
 
   try{
     const snap = await get(ref(db, DB_PATH));
@@ -272,6 +367,7 @@ async function load(){
       normalizeLoadedState();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(currentPayload()));
       render();
+      await createCloudBackup('abertura_pagina');
       setStatus('saved','Nuvem sincronizada ☁️');
       return;
     }
@@ -281,29 +377,29 @@ async function load(){
       normalizeLoadedState();
       render();
       await saveNowToCloudAndLocal();
-      setStatus('saved','Migrado para a nuvem ☁️');
+      setStatus('saved','Migrado para a nuvem segura ☁️');
       return;
     }
   }catch(e){
-    console.warn('Firebase indisponível. Usando localStorage.', e);
+    console.warn('Firebase indisponível ou permissão negada. Usando localStorage.', e);
     if(localData) applyLoadedData(localData);
     normalizeLoadedState();
     render();
-    setStatus('saving','Offline — salvo localmente');
+    setStatus('saving','Salvo localmente — confira login/regras');
     return;
   }
 
   normalizeLoadedState();
   render();
   await saveNowToCloudAndLocal();
-  setStatus('saved','Pronto na nuvem ☁️');
+  setStatus('saved','Pronto na nuvem segura ☁️');
 }
 
 async function saveNowToCloudAndLocal(){
   state.updatedAt = nowISO();
   const payload = currentPayload();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  await set(ref(db, DB_PATH), payload);
+  await safeCloudSet(payload, 'salvar_agora');
 }
 
 function persist(immediate=false){
@@ -319,8 +415,8 @@ function persist(immediate=false){
       els.lastSaved.textContent = note ? 'Editado em '+fmtDate(note.updatedAt) : 'Salvo automaticamente';
 
       try{
-        await set(ref(db, DB_PATH), payload);
-        setStatus('saved','Salvo na nuvem ☁️');
+        await safeCloudSet(payload, 'autosave');
+        setStatus('saved','Salvo na nuvem segura ☁️');
       }catch(cloudErr){
         console.warn('Falha ao salvar na nuvem. Mantido no localStorage.', cloudErr);
         setStatus('saving','Salvo localmente — sem nuvem');
@@ -364,14 +460,20 @@ function duplicateNote(){
   state.selectedId = copy.id;
   render(); persist(); toast('Nota duplicada','ok');
 }
-function deleteNote(){
+async function deleteNote(){
   const n = getNote(); if(!n) return;
   const name = n.title || plainPreview(n.body,40) || 'nota sem título';
-  if(!confirm('Excluir "'+name+'"?')) return;
+  if(!confirm('Excluir "'+name+'"?\n\nEla será enviada para a lixeira antes de sair da lista.')) return;
+  try{
+    await moveNoteToTrash({...n});
+  }catch(e){
+    console.warn('Não consegui gravar na lixeira da nuvem; mantive cópia local.', e);
+    toast('Excluído com cópia local de segurança','error');
+  }
   state.notes = state.notes.filter(x => x.id !== n.id);
   if(!state.notes.length) state.notes.push(createNoteObject('', '', []));
   state.selectedId = state.notes[0].id;
-  render(); persist(true); toast('Nota excluída');
+  render(); persist(true); toast('Nota enviada para a lixeira','ok');
 }
 function togglePin(){
   const n = getNote(); if(!n) return;
@@ -533,7 +635,7 @@ function exportBackup(){
 function importBackup(file){
   if(!file) return;
   const reader = new FileReader();
-  reader.onload = (e)=>{
+  reader.onload = async (e)=>{
     try{
       const data = JSON.parse(e.target.result);
       const incoming = Array.isArray(data.notes) ? data.notes : (Array.isArray(data) ? data : null);
@@ -544,6 +646,7 @@ function importBackup(file){
         tags: Array.isArray(n.tags) ? [...new Set(n.tags.map(cleanTag).filter(Boolean))] : [],
         pinned: !!n.pinned, createdAt: n.createdAt || nowISO(), updatedAt: n.updatedAt || nowISO()
       }));
+      await createCloudBackup('antes_restaurar_backup');
       if(replace){ state.notes = cleaned; }
       else{
         const ids = new Set(state.notes.map(n=>n.id));
@@ -612,7 +715,20 @@ function bindEvents(){
 }
 
 bindEvents();
-load();
+setStatus('saving','Aguardando login...');
+onAuthStateChanged(auth, async (user)=>{
+  setUserPaths(user);
+  if(user){
+    await load();
+  }else{
+    const localData = readLocalState();
+    if(localData) applyLoadedData(localData);
+    normalizeLoadedState();
+    render();
+    setStatus('error','Sem login — somente local');
+    toast('Faça login no portal para salvar na nuvem.','error');
+  }
+});
 })();
 </script>
 </body>
