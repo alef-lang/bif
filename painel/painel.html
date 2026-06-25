@@ -1353,6 +1353,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
     <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
     <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
+    <button class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
     <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
     <a href="#" onclick="history.back();return false;" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:8px;padding:7px 14px;background:rgba(201,168,76,0.08);transition:background 0.2s;font-family:var(--font-body);">◈ BIF</a>
   </div>
@@ -2118,6 +2119,53 @@ function saveState(){
   }, 1500);
 }
 
+// ════════════════════════════════════════════
+// BACKUP JSON
+// ════════════════════════════════════════════
+let _backupPendente = false;
+
+function marcarAlteracaoPendente() {
+  _backupPendente = true;
+  const btn = document.getElementById('btnBackupJSON');
+  if (btn) { btn.style.boxShadow = '0 0 0 2px #e05a5a'; btn.title = '⚠️ Alterações não exportadas — clique para fazer backup'; }
+}
+
+function marcarBackupFeito() {
+  _backupPendente = false;
+  const btn = document.getElementById('btnBackupJSON');
+  if (btn) { btn.style.boxShadow = ''; btn.title = 'Exportar backup JSON de todas as empresas'; }
+}
+
+function exportarBackupJSON() {
+  if (!S.empresas || S.empresas.length === 0) {
+    toast('Nenhuma empresa para exportar.', 'error');
+    return;
+  }
+  const dados = {
+    exportadoEm: new Date().toISOString(),
+    nomeEscritorio: S.nomeEscritorio || '',
+    totalEmpresas: S.empresas.length,
+    empresas: S.empresas.map(({ _fbKey, ...rest }) => rest)
+  };
+  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const data = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+  a.href = url;
+  a.download = `backup-painel-${data}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  marcarBackupFeito();
+  toast(`Backup exportado — ${dados.totalEmpresas} empresa(s).`, 'success');
+}
+
+window.addEventListener('beforeunload', e => {
+  if (_backupPendente) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 // Salva uma empresa individual no Firebase
 async function saveEmpresa(empresa) {
   const { _fbKey, ...data } = empresa;
@@ -2125,10 +2173,10 @@ async function saveEmpresa(empresa) {
     if (_fbKey) {
       await window._fbUpdateEmpresa(_fbKey, data);
     } else {
-      // empresa nova sem chave Firebase ainda — não deve ocorrer, mas protege
       const result = await window._fbPushEmpresa(data);
       empresa._fbKey = result.key;
     }
+    marcarAlteracaoPendente();
   } catch(e) {
     setCloudStatus('error', 'Erro ao salvar empresa');
     console.error('Firebase empresa save error:', e);
@@ -2139,6 +2187,7 @@ async function saveEmpresa(empresa) {
 async function removeEmpresa(fbKey) {
   try {
     await window._fbRemoveEmpresa(fbKey);
+    marcarAlteracaoPendente();
   } catch(e) {
     setCloudStatus('error', 'Erro ao excluir empresa');
     console.error('Firebase empresa remove error:', e);
@@ -2695,6 +2744,7 @@ async function addCompany(){
     setCloudStatus('loading', 'Salvando...');
     const result = await window._fbPushEmpresa(e);
     e._fbKey = result.key;
+    marcarAlteracaoPendente();
     // onValue atualizará S.empresas automaticamente
     closeModal('modalAdd');
     toast('Empresa adicionada e salva com sucesso.', 'success');
