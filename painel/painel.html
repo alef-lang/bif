@@ -1218,8 +1218,8 @@ select option{background:#1b2e42;color:#e8eaf0;}
 /* ── LIST VIEW ── */
 .list-view-wrap{padding:20px 24px 32px;overflow-x:auto;}
 .empresa-table{
-  width:100%;border-collapse:separate;border-spacing:0;
-  font-size:12px;
+  width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;
+  font-size:12px;table-layout:fixed;
 }
 .empresa-table thead tr{
   background:rgba(201,168,76,0.08);
@@ -1241,6 +1241,16 @@ th.col-drag-over{background:rgba(201,168,76,0.18)!important;outline:2px dashed v
 th.col-dragging{opacity:0.45;}
 .col-resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;background:transparent;z-index:1;}
 .col-resizer:hover,.col-resizer.active{background:var(--gold-dim);}
+.empresa-table th[data-key="nome"]{width:250px;}
+.empresa-table th[data-key="cnpj"]{width:145px;}
+.empresa-table th[data-key="regime"]{width:135px;}
+.empresa-table th[data-key="atividade"]{width:230px;}
+.empresa-table th[data-key="colaborador"]{width:135px;}
+.empresa-table th[data-key="status"]{width:105px;}
+.empresa-table th[data-key="obrigacoes"]{width:230px;}
+.empresa-table th[data-key="acoes"]{width:48px;}
+.col-help{font-size:10px;color:var(--text-light);font-family:var(--font-mono);}
+
 .empresa-table tbody tr{
   border-bottom:1px solid rgba(255,255,255,0.04);
   transition:background 0.15s;cursor:pointer;
@@ -1250,9 +1260,11 @@ th.col-dragging{opacity:0.45;}
 .empresa-table tbody tr.fechada-row{opacity:0.6;}
 .empresa-table td{
   padding:11px 14px;vertical-align:middle;border-bottom:1px solid rgba(255,255,255,0.04);
+  overflow:hidden;text-overflow:ellipsis;
 }
 .tbl-name{font-weight:700;color:var(--text);font-size:12.5px;display:block;margin-bottom:2px;}
 .tbl-cnpj{font-size:10px;color:var(--text-light);font-family:var(--font-mono);}
+.tbl-cnpj-only{font-size:11px;color:var(--text-light);font-family:var(--font-mono);white-space:nowrap;}
 .regime-pill{
   display:inline-flex;align-items:center;gap:5px;
   padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;
@@ -1358,6 +1370,7 @@ th.col-dragging{opacity:0.45;}
     <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
     <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
     <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
+    <button class="btn-header" onclick="sincronizarBasePlanilha()" title="Inclui somente as empresas da planilha que ainda não existem pelo CNPJ">🧩 Incluir faltantes</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
     <button class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
     <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
@@ -1408,7 +1421,7 @@ th.col-dragging{opacity:0.45;}
       </select>
       <div class="search-box">
         <span class="search-icon">🔎</span>
-        <input type="text" placeholder="Buscar empresa, CNPJ, atividade..." oninput="doSearch(this.value)" id="searchInput">
+        <input type="text" placeholder="Buscar empresa, CNPJ, colaborador, atividade..." oninput="doSearch(this.value)" id="searchInput">
       </div>
     </div>
   </div>
@@ -1434,6 +1447,7 @@ th.col-dragging{opacity:0.45;}
     Ordenar por:
     <select class="select-filter" id="listSortBy" onchange="renderAll()" style="border-radius:8px;font-size:11px;padding:5px 9px;">
       <option value="nome">Nome</option>
+      <option value="cnpj">CNPJ</option>
       <option value="regime">Regime</option>
       <option value="colaborador">Colaborador</option>
       <option value="atividade">Atividade</option>
@@ -1450,6 +1464,7 @@ th.col-dragging{opacity:0.45;}
       <thead id="empresaTableHead">
         <tr>
           <th onclick="sortByCol('nome')" class="sortable col-draggable" data-col="nome" data-key="nome" draggable="true">Empresa <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th onclick="sortByCol('cnpj')" class="sortable col-draggable" data-col="cnpj" data-key="cnpj" draggable="true">CNPJ <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('regime')" class="sortable col-draggable" data-col="regime" data-key="regime" draggable="true">Regime <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('atividade')" class="sortable col-draggable" data-col="atividade" data-key="atividade" draggable="true">Atividade <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('colaborador')" class="sortable col-draggable" data-col="colaborador" data-key="colaborador" draggable="true">Colaborador <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
@@ -1580,7 +1595,7 @@ th.col-dragging{opacity:0.45;}
     <div class="modal-header">
       <div class="modal-header-info">
         <h2>⬆️ Importar Empresas</h2>
-        <p>Cole os CNPJs ou envie um arquivo Excel com CNPJ na coluna A e Colaborador Responsável na coluna B</p>
+        <p>Cole os CNPJs ou envie um Excel com Nome na coluna A, CNPJ na coluna B e Colaborador Responsável na coluna C</p>
       </div>
       <button class="btn-close-modal" onclick="closeModal('modalImport')">✕</button>
     </div>
@@ -1606,7 +1621,7 @@ th.col-dragging{opacity:0.45;}
           </button>
         </div>
         <div style="font-size:11px;color:var(--text-light);margin-top:4px;font-family:var(--font-mono);">
-          Excel: coluna A = CNPJ, coluna B = Colaborador Responsável (opcional). Cabeçalho na linha 1 é detectado automaticamente.
+          Excel: coluna A = Nome da empresa, coluna B = CNPJ, coluna C = Colaborador Responsável. Também aceita o modelo antigo: CNPJ na coluna A e colaborador na B.
         </div>
       </div>
 
@@ -1888,6 +1903,12 @@ let S = {
   empresas: []
 };
 
+// Base importável gerada a partir da planilha enviada.
+// Não é importada automaticamente para evitar qualquer risco de duplicar dados no Firebase.
+// Use o botão "🧩 Incluir faltantes" para adicionar apenas CNPJs que ainda não existem.
+const BASE_EMPRESAS_PASTA1 = [{"nome":"2D TATUI EMPREENDIMENTOS","cnpj":"43459798000147","colaborador":"RAFA"},{"nome":"4D EMPREENDIMENTOS IMOBIL.","cnpj":"43460131000164","colaborador":"RAFA"},{"nome":"A CAMPONESA","cnpj":"45560411000170","colaborador":"ERICK"},{"nome":"A. PRUDENTE 1 - SANTO ANTONIO","cnpj":"50004981000113","colaborador":"BIA"},{"nome":"A. PRUDENTE 2 - SITIO CASTELO","cnpj":"50004981000202","colaborador":"BIA"},{"nome":"A. PRUDENTE 3 - SITIO GUARAPO","cnpj":"50004981000385","colaborador":"BIA"},{"nome":"A. PRUDENTE 4 - RANCHO ALEGRE","cnpj":"50004981000466","colaborador":"BIA"},{"nome":"A. PRUDENTE 5 - SITIO ALICE","cnpj":"50004981000547","colaborador":"BIA"},{"nome":"A. PRUDENTE 6 - NOSSA SRª AP","cnpj":"50004981000628","colaborador":"BIA"},{"nome":"A. PRUDENTE 7 - SITIO ALELUIA","cnpj":"50004981000709","colaborador":"BIA"},{"nome":"ACEP EMPREENDIMENTOS IMOB LTDA","cnpj":"65731707000113","colaborador":"ALEF"},{"nome":"AFIUSA ENGENHARIA LTDA","cnpj":"48705306000170","colaborador":"RAFA"},{"nome":"AGROP.NOVA PORANGABA","cnpj":"04953458000116","colaborador":"RAFA"},{"nome":"ALEUS - A S SATO COSMETICOS (AWDS)","cnpj":"42677718000167","colaborador":"ERICK"},{"nome":"ALEUS - OTICA BOITUVA PRESENTES","cnpj":"53012332000152","colaborador":"ERICK"},{"nome":"ALEUS - OTICA DEZ LTDA","cnpj":"05585736000192","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ CERQUILHO","cnpj":"19831530000100","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ LARANJAL PAULISTA","cnpj":"27794780000145","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ TATUI","cnpj":"07038293000145","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ TIETE","cnpj":"24058399000120","colaborador":"ERICK"},{"nome":"AMADEI ODONTOLOGIA LTDA","cnpj":"12352441000131","colaborador":"PEDRO"},{"nome":"ANA REGINA F. SARDINHA - CLINICA PSICOLOGICA","cnpj":"34719275000100","colaborador":"PEDRO"},{"nome":"ARBOR CONSULTING","cnpj":"08794362000103","colaborador":"BIA"},{"nome":"ASSESSORIA CONTABIL POLIS","cnpj":"50822683000130","colaborador":"BIA"},{"nome":"AUTO POSTO BOM JESUS DE QUADRA LTDA","cnpj":"01692636000104","colaborador":"BIA"},{"nome":"B P DA SILVA LTDA","cnpj":"58501753000160","colaborador":"RAFA"},{"nome":"BELLAS - AME TECNOLOGIA","cnpj":"37257162000110","colaborador":"BIA"},{"nome":"BELLAS - BELLAS ARTES FILIAL","cnpj":"35190898000273","colaborador":"BIA"},{"nome":"BELLAS - BELLAS ARTES INCORPORADORA","cnpj":"35190898000192","colaborador":"BIA"},{"nome":"BELLAS - EVA ADMINISTRAÇÃO","cnpj":"37042466000160","colaborador":"BIA"},{"nome":"BELLAS - MAIS - MARQUES ASSI","cnpj":"37232554000124","colaborador":"BIA"},{"nome":"BELLAS - MARIANO E MARQUES ADV","cnpj":"33751394000179","colaborador":"BIA"},{"nome":"BELLAS - MARIANO HOLDING","cnpj":"40224459000193","colaborador":"BIA"},{"nome":"BETO - EUROSHOPPING","cnpj":"54641733000134","colaborador":"BIA"},{"nome":"BETO - ILHAS CANARIAS EMPR. IMOB LTDA","cnpj":"60732668000155","colaborador":"BIA"},{"nome":"BETO - IMOBILIARIA ARIDANE","cnpj":"09531686000111","colaborador":"BIA"},{"nome":"BETO - IMOVEX PARTICIPACOES LTDA.","cnpj":"10724851000130","colaborador":"BIA"},{"nome":"BETO - INVESTER PARTICIPACOES E NEGOCIOS LTDA.","cnpj":"18981516000120","colaborador":"BIA"},{"nome":"C A M CASARINE","cnpj":"24511266000167","colaborador":"PEDRO"},{"nome":"C S VALDRIGHI","cnpj":"33585663000174","colaborador":"RAFA"},{"nome":"CAMPOS CAMARGO E RODRIGUES","cnpj":"10912009000122","colaborador":"ERICK"},{"nome":"CASA DE CARNES POPULAR","cnpj":"53908182000160","colaborador":"ERICK"},{"nome":"CASTANHEIRA TRANSPORTES","cnpj":"08303145000173","colaborador":"RAFA"},{"nome":"CEDRO EMPREENDIMENTOS","cnpj":"29974190000120","colaborador":"BIA"},{"nome":"CENTRO INTEGRADO AGAPE LTDA","cnpj":"59952260000100","colaborador":"PEDRO"},{"nome":"CES EMPREENDIMENTOS IMOB LTDA","cnpj":"65713833000145","colaborador":"ERICK"},{"nome":"CLINICA FISIOTRAT LTDA - ME","cnpj":"50826130000156","colaborador":"PEDRO"},{"nome":"CLINICA GVB LTDA","cnpj":"46815329000101","colaborador":"PEDRO"},{"nome":"CLINICA MEDICA LOTFI DE TATUI","cnpj":"07416824000196","colaborador":"PEDRO"},{"nome":"CLINICA MULLER LTDA","cnpj":"59778801000125","colaborador":"PEDRO"},{"nome":"CLINICA VITHY LTDA","cnpj":"53422621000120","colaborador":"PEDRO"},{"nome":"COMERCIAL PEIXOTO","cnpj":"72185002000103","colaborador":"ERICK"},{"nome":"COMPOSE MODA - 1","cnpj":"23227737000147","colaborador":"RAFA"},{"nome":"COMPOSE MODA - 2","cnpj":"23227737000228","colaborador":"RAFA"},{"nome":"COSTA POLES & POLIS EMPREEND.","cnpj":"28509763000181","colaborador":"BIA"},{"nome":"CROWD CLUSTER EMPREENDIMENTOS","cnpj":"27860696000182","colaborador":"BIA"},{"nome":"CUNHA SOUZA E CUNHA","cnpj":"43736588000159","colaborador":"RAFA"},{"nome":"D T ARAHATA LTDA","cnpj":"57367207000116","colaborador":"ERICK"},{"nome":"D.P.M.M. DESENVOLVIMENTO GERENCIAL","cnpj":"14017915000114","colaborador":"PEDRO"},{"nome":"DANIEL MARTINS SIQUEIRA","cnpj":"03872871000193","colaborador":"ALEF"},{"nome":"DANIEL STAPE","cnpj":"08938349000180","colaborador":"BIA"},{"nome":"DANILO RICARDO SIMON MANIS","cnpj":"57974173000128","colaborador":"RAFA"},{"nome":"DBL PICCHI LTDA","cnpj":"55327372000119","colaborador":"BIA"},{"nome":"DPF EMPRE. E PARTIC. EIRELI","cnpj":"37350182000130","colaborador":"ALEF"},{"nome":"E. BELTRAMI - ME","cnpj":"27305498000157","colaborador":"PEDRO"},{"nome":"EPM PROCTO LTDA","cnpj":"50587499000153","colaborador":"PEDRO"},{"nome":"ESSENZA MODAS COMERCIAL LTDA","cnpj":"63454702000165","colaborador":"RAFA"},{"nome":"FBF EMPREENDIMENTOS IMOB","cnpj":"22484605000138","colaborador":"ALEF"},{"nome":"FOM ASSESSORIA LTDA","cnpj":"57207428000127","colaborador":"ALEF"},{"nome":"FOM LEILOES LTDA","cnpj":"61853316000110","colaborador":"ALEF"},{"nome":"FORTEC S/A PARTICIPAÇOES","cnpj":"50615301000289","colaborador":"PEDRO"},{"nome":"FREFER OCCHIALINI AGROPECUARIA LTDA","cnpj":"66776097000137","colaborador":"ALEF"},{"nome":"FW ESPECIALIDADES MEDICAS","cnpj":"34352524000163","colaborador":"PEDRO"},{"nome":"GARCIA & SANTANA LTDA","cnpj":"66840789000105","colaborador":""},{"nome":"G- BEACH CLUB - PA VIEIRA EVENTOS LTDA","cnpj":"63160879000159","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - J P P COMERCIO","cnpj":"39232374000178","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS CIANE","cnpj":"45197762000168","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS ESPLANADA","cnpj":"47417591000160","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS INDAIATUBA","cnpj":"51535377000186","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS ITAPETININGA","cnpj":"44852562000139","colaborador":"ERICK"},{"nome":"G- HERING - CMA","cnpj":"19722510000109","colaborador":"ERICK"},{"nome":"G- HERING - DEIFER","cnpj":"19722515000123","colaborador":"ERICK"},{"nome":"G- HERING - M V (ITAPE)","cnpj":"18558461000140","colaborador":"ERICK"},{"nome":"G- HERING - RA COMERCIAL","cnpj":"19834885000152","colaborador":"ERICK"},{"nome":"G- HERING - RENATO (ITU)","cnpj":"08974972000199","colaborador":"ERICK"},{"nome":"G- MIRIAM KIDS - J AUGUSTO","cnpj":"03015074000190","colaborador":"ERICK"},{"nome":"G- MIRIAM LINGERIE - MIRIAM DE CASSIA","cnpj":"44800951000110","colaborador":"ERICK"},{"nome":"G- MIRIAM STORE - PV COMERCIO","cnpj":"15270057000188","colaborador":"ERICK"},{"nome":"G- MULTIMARCAS - P A VIEIRA","cnpj":"18958963000168","colaborador":"ERICK"},{"nome":"G- MULTIMARCAS - RAV - CASA JOAO","cnpj":"13772849000125","colaborador":"ERICK"},{"nome":"G- SMART TATUI ACADEMIA","cnpj":"54559416000173","colaborador":"ERICK"},{"nome":"G.A. SOARES","cnpj":"27761359000138","colaborador":"PEDRO"},{"nome":"BAIXADA 05/05 - G.G. SERVIÇOS ADMINISTRATIVOS LTDA","cnpj":"50884671000130","colaborador":"PEDRO"},{"nome":"GIRASOLE","cnpj":"45741735000104","colaborador":"PEDRO"},{"nome":"GM RAUSHER SOLUÇÕES AGROPECUARIAS","cnpj":"55605667000100","colaborador":"PEDRO"},{"nome":"Grandino - CASTELLABATE","cnpj":"19174834000141","colaborador":"ALEF"},{"nome":"Grandino - GDO PRE MOLDADOS","cnpj":"43640489000179","colaborador":"ALEF"},{"nome":"Grandino - GRANDINO PRE MOLDADOS","cnpj":"65413486000135","colaborador":"ALEF"},{"nome":"Grandino - GRANDINO PRE MOLDADOS - FILIAL 2","cnpj":"65413486000216","colaborador":"ALEF"},{"nome":"H M P M CENTRO DE IDIOMAS","cnpj":"59196283000131","colaborador":"PEDRO"},{"nome":"HELENA MARIA PUJOL MONTEIRO","cnpj":"05624890000126","colaborador":"PEDRO"},{"nome":"HM PERNASETTI LTDA","cnpj":"49818516000137","colaborador":"RAFA"},{"nome":"HM TATUI LTDA","cnpj":"54036552000189","colaborador":"RAFA"},{"nome":"HOTEL DEL FIOL","cnpj":"00229295000172","colaborador":"ALEF"},{"nome":"IND LOG MATRIZ","cnpj":"46775267000151","colaborador":"RAFA"},{"nome":"J. SÁ CONSULTORIA","cnpj":"57255731000103","colaborador":"PEDRO"},{"nome":"J. SÁ HOLDING","cnpj":"56174480000161","colaborador":"ALEF"},{"nome":"J. SÁ PUBLICIDADE","cnpj":"56174534000199","colaborador":"PEDRO"},{"nome":"JOSE MENEGATTI","cnpj":"04903120000150","colaborador":"RAFA"},{"nome":"JUVENAL 430 LTDA","cnpj":"65054506000129","colaborador":"ALEF"},{"nome":"KALMAR CONSULTORIA EMPRESARIAL","cnpj":"30533223000185","colaborador":"RAFA"},{"nome":"LABORATORIO CAMPOS","cnpj":"46898219000150","colaborador":"PEDRO"},{"nome":"LAVANIRA DE C LOPES","cnpj":"39012802000157","colaborador":"ERICK"},{"nome":"LAVANIRA DE C LOPES - FILIAL","cnpj":"39012802000238","colaborador":"ERICK"},{"nome":"BAIXADA 05/05 - LAVANIRA PRESENTES LTDA","cnpj":"04221989000114","colaborador":"ERICK"},{"nome":"LELO - CASAS SJ- 1 TATUÍ","cnpj":"41585745000147","colaborador":"RAFA"},{"nome":"LELO - CASAS SJ- 2 BOITUVA","cnpj":"41585745000228","colaborador":"RAFA"},{"nome":"LELO - CASAS SJ- 3 CERQUILHO","cnpj":"41585745000309","colaborador":"RAFA"},{"nome":"LELO - CSJ EMPREENDIMENTOS LTDA","cnpj":"42313869000136","colaborador":"RAFA"},{"nome":"LELO - CSJ SHOP LTDA","cnpj":"46942995000100","colaborador":"RAFA"},{"nome":"LELO - DSE INVESTIMENTOS S/A","cnpj":"21584596000194","colaborador":"RAFA"},{"nome":"LELO - LAZINSOARES","cnpj":"49669104000182","colaborador":"RAFA"},{"nome":"LELO - SÃO JOSE DE TATUI SERVIÇOS ADM","cnpj":"45459531000185","colaborador":"RAFA"},{"nome":"LELO - TRANSPORTADORA SÃO CRISTOVAO","cnpj":"44174736000151","colaborador":"RAFA"},{"nome":"Lidiane - A. POLASTRI LTDA","cnpj":"25013370000194","colaborador":"PEDRO"},{"nome":"Lidiane - A. R.T. DE BARROS  EIRELI","cnpj":"18378460000113","colaborador":"RAFA"},{"nome":"Lidiane - C CAMARGO E POLASTRI","cnpj":"18011915000168","colaborador":"ALEF"},{"nome":"Lidiane - DUARTE METAIS","cnpj":"42059706000179","colaborador":"ALEF"},{"nome":"Lidiane - F XAVIER","cnpj":"45393671000106","colaborador":"PEDRO"},{"nome":"Lidiane - L.C.D DE CAMARGO EIRELI - ME","cnpj":"22764148000135","colaborador":"RAFA"},{"nome":"Lidiane - M. EDSON ALEXANDRE","cnpj":"22659357000119","colaborador":"RAFA"},{"nome":"Lidiane - M.J.P COMERCIO E IMPORT","cnpj":"41659354000120","colaborador":"PEDRO"},{"nome":"Lidiane - PEDRO DE CAMPOS","cnpj":"16800228000104","colaborador":"RAFA"},{"nome":"Lidiane - POLASTRI VIAGENS & TURISMO","cnpj":"48389935000138","colaborador":"PEDRO"},{"nome":"Lidiane - S XAVIER","cnpj":"45676024000101","colaborador":"PEDRO"},{"nome":"LILOU STORE ACESSORIOS","cnpj":"26263720000133","colaborador":"RAFA"},{"nome":"LVM CONSULTORIA LTDA","cnpj":"58027084000137","colaborador":"RAFA"},{"nome":"M L L MATIAS LTDA","cnpj":"11682472000198","colaborador":"PEDRO"},{"nome":"M.S. ROMAGNOLO EMPREEND.","cnpj":"11490868000133","colaborador":"ALEF"},{"nome":"MAEDA E MAEDA","cnpj":"71563621000121","colaborador":"PEDRO"},{"nome":"MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA","cnpj":"63789312000146","colaborador":"ALEF"},{"nome":"MARQUES OLIVEIRA IMOVEIS","cnpj":"22151361000171","colaborador":"PEDRO"},{"nome":"MFJ CAMPOS","cnpj":"64277948000171","colaborador":"ALEF"},{"nome":"MINERAÇÃO GURINI","cnpj":"57601521000111","colaborador":"PEDRO"},{"nome":"MLS EMPREENDIMENTOS IMOB.","cnpj":"66085090000179","colaborador":"ERICK"},{"nome":"MM OFICIUM","cnpj":"65710150000134","colaborador":"ERICK"},{"nome":"MONTEIRO IRRI. COM. ONLINE","cnpj":"57619597000174","colaborador":"RAFA"},{"nome":"MONTEIRO IRRIGAÇÃO","cnpj":"05280411000100","colaborador":"RAFA"},{"nome":"MONTEIRO SOLUÇÕES","cnpj":"27885395000103","colaborador":"RAFA"},{"nome":"MUNIR - L.L IMPORTS","cnpj":"07726461000195","colaborador":"BIA"},{"nome":"MUNIR - MEGAMIX","cnpj":"21484338000136","colaborador":"BIA"},{"nome":"MUNIR - MUHAMED EMPREEND. IMOB.","cnpj":"02896931000145","colaborador":"BIA"},{"nome":"MUNIR - NOVA TATUI EMPREENDIMENTOS","cnpj":"09186299000195","colaborador":"BIA"},{"nome":"MUNIR - NOVO IMPERIO EMPREEND.","cnpj":"21459767000153","colaborador":"BIA"},{"nome":"MUNIR - S M J EMPREEND IMOB","cnpj":"36334271000120","colaborador":"BIA"},{"nome":"NELSON - CONSORCIO GZ ENERGIA RENOVAVEL","cnpj":"54173945000134","colaborador":"BIA"},{"nome":"NELSON - GZ ENERGIA LTDA","cnpj":"53838177000128","colaborador":"BIA"},{"nome":"NELSON - NOVA QUADRA","cnpj":"45196536000162","colaborador":"ALEF"},{"nome":"NELSON - NZ ENERGIA LTDA","cnpj":"53838582000146","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 1 - Tatuí","cnpj":"06353644000140","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 2 - SP","cnpj":"06353644000220","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 3 - PR","cnpj":"06353644000301","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 4 - RJ","cnpj":"06353644000492","colaborador":"BIA"},{"nome":"NGC SERVIÇOS ADM","cnpj":"48862302000103","colaborador":"PEDRO"},{"nome":"NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA","cnpj":"58138259000183","colaborador":"ALEF"},{"nome":"NOVA VIDA TATUI CORRE DE SEG","cnpj":"01031341000197","colaborador":"RAFA"},{"nome":"NSC NOVESETE COMUNICAÇÃO LTDA","cnpj":"03009199000107","colaborador":"ALEF"},{"nome":"OBOTICARIO BR 001 - 6894","cnpj":"03780076000175","colaborador":"BIA"},{"nome":"OBOTICARIO BR 002 - 7185","cnpj":"03780076000256","colaborador":"BIA"},{"nome":"OBOTICARIO DIFA - 13858","cnpj":"15077072000104","colaborador":"BIA"},{"nome":"OBOTICARIO MR 001 - 6200 - XI","cnpj":"02841329000100","colaborador":"BIA"},{"nome":"OBOTICARIO MR 002 - 12676 - Coop","cnpj":"02841329000291","colaborador":"BIA"},{"nome":"OBOTICARIO MR 003 - 17314 - Picida","cnpj":"02841329000372","colaborador":"BIA"},{"nome":"OBOTICARIO MR 004 - 20518 - São Roque","cnpj":"02841329000453","colaborador":"BIA"},{"nome":"OBOTICARIO MR 005","cnpj":"02841329000534","colaborador":"BIA"},{"nome":"OBOTICARIO MR 006","cnpj":"02841329000615","colaborador":"BIA"},{"nome":"OBOTICARIO MR 007","cnpj":"02841329000704","colaborador":"BIA"},{"nome":"OCCHIALINI EMPREEND. IMOBI LTDA","cnpj":"35783871000103","colaborador":"ALEF"},{"nome":"OCCHIALINI FREIRE HOLDING LTDA","cnpj":"64736056000191","colaborador":"ALEF"},{"nome":"ODONTOLOGIA MANCINI LTDA","cnpj":"60553004000129","colaborador":"RAFA"},{"nome":"P. de A. MONTEIRO","cnpj":"23777813000198","colaborador":"RAFA"},{"nome":"PAULO VANIN & FILHOS","cnpj":"68462621000120","colaborador":"ERICK"},{"nome":"PEREIRA - 2T REPRESENTAÇÃO - 1","cnpj":"40961016000185","colaborador":"BIA"},{"nome":"PEREIRA - 2T REPRESENTAÇÃO - 2","cnpj":"40961016000266","colaborador":"BIA"},{"nome":"PEREIRA - FAMA - FILIAL","cnpj":"40961016000266","colaborador":"BIA"},{"nome":"PEREIRA - FAMA COMERCIO LTDA","cnpj":"57143310000182","colaborador":"BIA"},{"nome":"PEREIRA - P & P REPRESENTAÇÕES - 1","cnpj":"38440431000141","colaborador":"BIA"},{"nome":"PEREIRA - P & P REPRESENTAÇÕES - 2","cnpj":"38440431000222","colaborador":"BIA"},{"nome":"PEREIRA - P & P REPRESENTAÇÕES - 3","cnpj":"38440431000303","colaborador":"BIA"},{"nome":"PEREZ & GODINO EMPREEND. IMOB","cnpj":"62781166000140","colaborador":"BIA"},{"nome":"PLT EMBALAGENS","cnpj":"04104990000169","colaborador":"RAFA"},{"nome":"POLES & POLIS EMPREENDIMENTOS","cnpj":"18940489000147","colaborador":"RAFA"},{"nome":"POLIS SERVIÇOS","cnpj":"44377684000110","colaborador":"RAFA"},{"nome":"R de C. COQUE DA CRUZ","cnpj":"34410840000144","colaborador":"PEDRO"},{"nome":"R. J. SAMPAIO DE ALMEIDA LTDA","cnpj":"66652630000159","colaborador":"ALEF"},{"nome":"RRZ ENGENHARIA LTDA","cnpj":"66164895000108","colaborador":"PEDRO"},{"nome":"R S MANSO SOC. UNIPESSOAL ADVOC.","cnpj":"42648712000161","colaborador":"PEDRO"},{"nome":"RAKKI JAPANESE","cnpj":"18875003000134","colaborador":"ERICK"},{"nome":"RAM SOLUÇÕES LTDA","cnpj":"60841696000100","colaborador":"RAFA"},{"nome":"REGINATO & REGINATO LTDA","cnpj":"14586029000101","colaborador":"ERICK"},{"nome":"RIBEIRO BRANCO EMPREENDIMENTOS","cnpj":"49507538000186","colaborador":"ALEF"},{"nome":"ROSSI SERVIÇOS MEDICOS","cnpj":"06066244000153","colaborador":"PEDRO"},{"nome":"SOARES  & FAVORITO","cnpj":"14676263000120","colaborador":"PEDRO"},{"nome":"SONESTA COMERCIAL AGRICOLA","cnpj":"10773254000104","colaborador":"ERICK"},{"nome":"SR DRAGAO","cnpj":"44341934000162","colaborador":"ERICK"},{"nome":"T MEDEIROS LTDA","cnpj":"21021822000129","colaborador":"RAFA"},{"nome":"T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA","cnpj":"54581448000175","colaborador":"ALEF"},{"nome":"TATIANA LOPES TREINAMENTOS","cnpj":"65202077000190","colaborador":"ALEF"},{"nome":"TATUILAB ANATOMIA","cnpj":"05093755000100","colaborador":"PEDRO"},{"nome":"TECHNOWORK SERVIÇOS TECNICOS","cnpj":"07023603000158","colaborador":"RAFA"},{"nome":"TL EMPREENDIMENTOS","cnpj":"51074518000100","colaborador":"ALEF"},{"nome":"TRANSPORTADORA TATUI","cnpj":"45503836000147","colaborador":"RAFA"},{"nome":"TRANSPORTADORA TATUI FILIAL","cnpj":"45503836000228","colaborador":"RAFA"},{"nome":"TRANSTATUI EXPRESS","cnpj":"23353270000181","colaborador":"RAFA"},{"nome":"TUTORIAR","cnpj":"22262314000103","colaborador":"RAFA"},{"nome":"TW TESTES DE VEICULOS","cnpj":"17327179000199","colaborador":"RAFA"},{"nome":"V.L.R. MADUREIRA","cnpj":"09533300000100","colaborador":"ERICK"},{"nome":"VIEIRA & O. VIEIRA LTDA ME","cnpj":"23361688000130","colaborador":"RAFA"},{"nome":"W. LANDA SAUDE LTDA - ITAPETININGA","cnpj":"30527810000161","colaborador":"PEDRO"},{"nome":"WB","cnpj":"50780808000107","colaborador":"ALEF"},{"nome":"WT - ABPS PINHEIROS COMERCIO DE TENIS E ARTIGOS ESPORTIVOS LTDA","cnpj":"60115527000193","colaborador":"PEDRO"},{"nome":"WT - ABPS VILA MARIANA COMERCIO DE TENIS E ARTIGOS ESPORTIVOS LTDA","cnpj":"60115431000125","colaborador":"PEDRO"},{"nome":"WT - ALEXTI COMERCIO DE TENIS","cnpj":"60704787000102","colaborador":"PEDRO"},{"nome":"WT - TYPA - FILIAL 2","cnpj":"23982359000298","colaborador":"PEDRO"},{"nome":"WT - TYPA - MATRIZ","cnpj":"23982359000107","colaborador":"PEDRO"},{"nome":"WT - YASBET COMERCIO DE TENIS E ARTIGOS ESPORTIVOS LTDA","cnpj":"60439096000110","colaborador":"PEDRO"},{"nome":"YOUNIC SOLUÇÕES LTDA","cnpj":"55631266000124","colaborador":"RAFA"}];
+
+
 let currentEditId = null;
 let pendingDeleteId = null;
 let currentPin = '';
@@ -1928,6 +1949,16 @@ function maskCnpj(input) {
   v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
   v = v.replace(/(\d{4})(\d)/, '$1-$2');
   input.value = v;
+}
+
+function formatCnpjValue(value){
+  const raw = String(value || '').replace(/\D/g, '').slice(0, 14);
+  if(raw.length !== 14) return String(value || '');
+  return raw.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+}
+
+function rawCnpjValue(value){
+  return String(value || '').replace(/\D/g, '');
 }
 
 async function buscarCnpj() {
@@ -2367,6 +2398,7 @@ function getSortedEmpresas(arr){
   return [...arr].sort((a, b) => {
     let va = '', vb = '';
     if(col === 'nome')        { va = norm(a.nome||'');        vb = norm(b.nome||''); }
+    else if(col === 'cnpj')        { va = rawCnpjValue(a.cnpj||'');     vb = rawCnpjValue(b.cnpj||''); }
     else if(col === 'regime')      { va = norm(regimeLabel(a.regime)); vb = norm(regimeLabel(b.regime)); }
     else if(col === 'colaborador') { va = norm(a.colaborador||'');    vb = norm(b.colaborador||''); }
     else if(col === 'atividade')   { va = norm(a.atividade||'');      vb = norm(b.atividade||''); }
@@ -2388,14 +2420,15 @@ function renderListView(filtered){
   }
   empty.style.display = 'none';
   const thead = document.getElementById('empresaTableHead');
-  const colOrder = thead ? Array.from(thead.querySelectorAll('th')).map(th=>th.dataset.key||'') : ['nome','regime','atividade','colaborador','status','obrigacoes','acoes'];
+  const colOrder = thead ? Array.from(thead.querySelectorAll('th')).map(th=>th.dataset.key||'') : ['nome','cnpj','regime','atividade','colaborador','status','obrigacoes','acoes'];
   tbody.innerHTML = sorted.map(e => {
     const badgeCls = e.fechada ? 'badge-fechada' : e.semMovimento ? 'badge-sem-movimento' : 'badge-ativa';
     const badgeTxt = e.fechada ? 'FECHADA' : e.semMovimento ? 'SEM MOV.' : 'ABERTA';
     const obrigTags = (e.obrigacoes||[]).slice(0,4).map(o=>`<span class="tbl-obrig-tag">${esc(o.nome)}</span>`).join('');
     const more = (e.obrigacoes||[]).length > 4 ? `<span class="tbl-obrig-tag">+${(e.obrigacoes||[]).length-4}</span>` : '';
     const cells = {
-      nome: `<td><span class="tbl-name">${esc(e.nome)}</span><span class="tbl-cnpj">${esc(e.cnpj||'—')}</span></td>`,
+      nome: `<td><span class="tbl-name">${esc(e.nome)}</span></td>`,
+      cnpj: `<td><span class="tbl-cnpj-only" title="${esc(e.cnpj||'')}">${esc(e.cnpj||'—')}</span></td>`,
       regime: `<td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>`,
       atividade: `<td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>`,
       colaborador: `<td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>`,
@@ -2540,6 +2573,125 @@ function openAddModal(regime){
   setTimeout(()=>$('addNome').focus(),100);
 }
 
+
+function criarEmpresaBasica(nome, cnpj, colaborador, observacaoExtra=''){
+  const cnpjFmt = formatCnpjValue(cnpj);
+  return {
+    id: genId(),
+    nome: String(nome || cnpjFmt).trim(),
+    cnpj: cnpjFmt,
+    regime: 'outros',
+    atividade: '',
+    colaborador: String(colaborador || '').trim(),
+    fechada: false,
+    semMovimento: false,
+    statusApuracao: 'nao_apurada',
+    inscricaoEstadual:'', inscricaoMunicipal:'', endereco:'', cep:'', cidade:'', uf:'',
+    responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
+    observacoes: observacaoExtra || '',
+    parametros:'', regras:'',
+    followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
+    obrigacoes: [], importacoes: [], impostos: [], camposEstaticosData: {}, camposPersonalizados: []
+  };
+}
+
+function getBasePlanilhaUnica(){
+  const vistos = new Set();
+  const unicas = [];
+  const duplicadas = [];
+  (BASE_EMPRESAS_PASTA1 || []).forEach(item => {
+    const cnpj = rawCnpjValue(item.cnpj);
+    if(cnpj.length !== 14) return;
+    if(vistos.has(cnpj)){
+      duplicadas.push(item);
+      return;
+    }
+    vistos.add(cnpj);
+    unicas.push({
+      nome: String(item.nome || '').trim(),
+      cnpj,
+      colaborador: String(item.colaborador || '').trim()
+    });
+  });
+  return { unicas, duplicadas };
+}
+
+async function sincronizarBasePlanilha(){
+  if(!Array.isArray(BASE_EMPRESAS_PASTA1) || !BASE_EMPRESAS_PASTA1.length){
+    toast('Base da planilha não encontrada neste arquivo.', 'error');
+    return;
+  }
+
+  const { unicas, duplicadas } = getBasePlanilhaUnica();
+  const existentes = new Set((S.empresas || []).map(e => rawCnpjValue(e.cnpj)));
+  const faltantes = unicas.filter(item => !existentes.has(item.cnpj));
+
+  if(!faltantes.length){
+    toast(`Nenhuma empresa faltando. ${unicas.length} CNPJ(s) da planilha já estão no painel.`, 'success');
+    return;
+  }
+
+  const msgDuplicadas = duplicadas.length ? `\n\nObs.: ${duplicadas.length} linha(s) duplicada(s) por CNPJ na planilha serão ignoradas para evitar duplicidade.` : '';
+  const okConfirm = confirm(`Adicionar ${faltantes.length} empresa(s) faltante(s) ao Firebase?\n\nSerão preenchidos apenas: Nome da empresa, CNPJ e Colaborador Responsável.${msgDuplicadas}`);
+  if(!okConfirm) return;
+
+  openImportModal();
+  document.getElementById('importProgress').style.display = 'block';
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importBtnIniciar').style.display = 'none';
+  document.getElementById('importBtnAtualizar').disabled = true;
+  document.getElementById('importBtnCancelar').textContent = 'Fechar';
+
+  const log  = document.getElementById('importLog');
+  const bar  = document.getElementById('importProgressBar');
+  const lbl  = document.getElementById('importProgressLabel');
+  log.innerHTML = '';
+
+  let ok = 0, erro = 0;
+  setCloudStatus('loading', 'Incluindo faltantes...');
+
+  for(let i = 0; i < faltantes.length; i++){
+    const item = faltantes[i];
+    lbl.textContent = `Incluindo ${i+1} de ${faltantes.length}...`;
+    bar.style.width = Math.round(((i+1)/faltantes.length)*100)+'%';
+
+    const logItem = document.createElement('div');
+    logItem.style.color = 'var(--gold)';
+    logItem.textContent = `⏳ ${formatCnpjValue(item.cnpj)} — ${item.nome}`;
+    log.appendChild(logItem);
+    log.scrollTop = log.scrollHeight;
+
+    try {
+      const empresa = criarEmpresaBasica(
+        item.nome,
+        item.cnpj,
+        item.colaborador,
+        `Incluída pela base da planilha em ${new Date().toLocaleDateString('pt-BR')}. Conferir dados cadastrais depois.`
+      );
+      S.empresas.push(empresa);
+      const result = await window._fbPushEmpresa(empresa);
+      empresa._fbKey = result.key;
+      ok++;
+      logItem.style.color = '#2ecc8a';
+      logItem.textContent = `✅ ${formatCnpjValue(item.cnpj)} — ${item.nome}${item.colaborador ? ' · 👤 '+item.colaborador : ''}`;
+    } catch(e){
+      erro++;
+      logItem.style.color = '#e05a5a';
+      logItem.textContent = `⚠️ ${formatCnpjValue(item.cnpj)} — erro ao salvar`;
+      console.error(e);
+    }
+  }
+
+  marcarAlteracaoPendente();
+  renderAll();
+  bar.style.width = '100%';
+  lbl.textContent = `✅ Inclusão concluída — ${ok} adicionada(s)${erro>0?', '+erro+' com erro':''}${duplicadas.length?', '+duplicadas.length+' duplicada(s) ignorada(s)':''}`;
+  document.getElementById('importBtnAtualizar').disabled = false;
+  setCloudStatus('ok', 'Nuvem sincronizada');
+  toast(`${ok} empresa(s) faltante(s) incluída(s).`, 'success');
+}
+
+
 // ════════════════════════════════════════════
 // IMPORTAÇÃO DE EMPRESAS VIA CNPJ
 // ════════════════════════════════════════════
@@ -2596,17 +2748,35 @@ function lerExcel(file){
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:false});
 
-    // Detecta se linha 1 é cabeçalho (não tem 14 dígitos na col A)
-    const primeiraColA = String(rows[0]?.[0]||'').replace(/\D/g,'');
-    const temCabecalho = primeiraColA.length !== 14;
-    const dados = temCabecalho ? rows.slice(1) : rows;
+    // Aceita:
+    // 1) Modelo novo: A = Nome, B = CNPJ, C = Colaborador
+    // 2) Modelo antigo: A = CNPJ, B = Colaborador
+    const dados = rows.filter(r => r && r.some(c => String(c||'').trim() !== ''));
+    const primeiraComCnpj = dados.findIndex(r => r.some(c => rawCnpjValue(c).length === 14));
+    const linhas = primeiraComCnpj >= 0 ? dados.slice(primeiraComCnpj) : [];
 
-    // Monta mapa CNPJ → colaborador
     const mapa = {};
-    dados.forEach(r => {
-      const cnpj = String(r[0]||'').replace(/\D/g,'').trim();
-      const colab = String(r[1]||'').trim();
-      if(cnpj.length === 14) mapa[cnpj] = colab;
+    linhas.forEach(r => {
+      const idxCnpj = r.findIndex(c => rawCnpjValue(c).length === 14);
+      if(idxCnpj < 0) return;
+      const cnpj = rawCnpjValue(r[idxCnpj]);
+      let nome = '';
+      let colab = '';
+
+      if(idxCnpj === 1){
+        nome = String(r[0] || '').trim();
+        colab = String(r[2] || '').trim();
+      } else if(idxCnpj === 0){
+        nome = '';
+        colab = String(r[1] || '').trim();
+      } else {
+        nome = String(r[0] || '').trim();
+        colab = String(r[idxCnpj + 1] || '').trim();
+      }
+
+      if(cnpj.length === 14){
+        mapa[cnpj] = { nome, colaborador: colab };
+      }
     });
 
     mostrarPreview(mapa);
@@ -2619,27 +2789,44 @@ function mostrarPreview(mapaOuCnpjs){
   const label   = document.getElementById('importPreviewLabel');
   const list    = document.getElementById('importPreviewList');
 
-  // Normaliza: aceita array de strings ou mapa {cnpj: colaborador}
+  // Normaliza: aceita array de CNPJs, mapa {cnpj: colaborador} ou mapa {cnpj:{nome,colaborador}}
   let mapa = {};
   if(Array.isArray(mapaOuCnpjs)){
-    mapaOuCnpjs.forEach(c => { mapa[c] = ''; });
+    mapaOuCnpjs.forEach(c => { mapa[c] = { nome:'', colaborador:'' }; });
   } else {
-    mapa = mapaOuCnpjs;
+    Object.entries(mapaOuCnpjs || {}).forEach(([cnpj, val]) => {
+      if(val && typeof val === 'object'){
+        mapa[cnpj] = { nome: String(val.nome || '').trim(), colaborador: String(val.colaborador || '').trim() };
+      } else {
+        mapa[cnpj] = { nome:'', colaborador: String(val || '').trim() };
+      }
+    });
   }
 
   const cnpjs = Object.keys(mapa);
   if(!cnpjs.length){ toast('Nenhum CNPJ válido encontrado.','error'); return; }
 
-  const existentes = new Set((S.empresas||[]).map(e=>(e.cnpj||'').replace(/\D/g,'')));
-  const novos = cnpjs.filter(c => !existentes.has(c));
-  const duplicados = cnpjs.length - novos.length;
+  const existentes = new Set((S.empresas||[]).map(e=>rawCnpjValue(e.cnpj)));
+  const vistos = new Set();
+  const novos = [];
+  let duplicadosNaImportacao = 0;
 
-  label.textContent = `${novos.length} CNPJ(s) prontos para importar${duplicados>0?' · '+duplicados+' já existem (serão ignorados)':''}`;
+  cnpjs.forEach(c => {
+    if(vistos.has(c)){ duplicadosNaImportacao++; return; }
+    vistos.add(c);
+    if(!existentes.has(c)) novos.push(c);
+  });
+
+  const jaExistem = cnpjs.length - novos.length - duplicadosNaImportacao;
+  label.textContent = `${novos.length} empresa(s) prontas para importar${jaExistem>0?' · '+jaExistem+' já existem':''}${duplicadosNaImportacao>0?' · '+duplicadosNaImportacao+' duplicada(s) na planilha':''}`;
+
   list.innerHTML = novos.map(c => {
-    const fmt = c.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
-    const colab = mapa[c] ? `<span style="color:var(--gold);margin-left:8px;">👤 ${mapa[c]}</span>` : '';
-    return `<div>${fmt}${colab}</div>`;
-  }).join('') || '<div style="color:var(--text-light);">Nenhum CNPJ novo.</div>';
+    const fmt = formatCnpjValue(c);
+    const info = mapa[c] || {};
+    const nome = info.nome ? `<strong style="color:var(--text);">${esc(info.nome)}</strong> · ` : '';
+    const colab = info.colaborador ? `<span style="color:var(--gold);margin-left:8px;">👤 ${esc(info.colaborador)}</span>` : '';
+    return `<div>${nome}${fmt}${colab}</div>`;
+  }).join('') || '<div style="color:var(--text-light);">Nenhuma empresa nova.</div>';
 
   preview.style.display = 'block';
   preview._mapa = mapa;  // guarda mapa completo para uso na importação
@@ -2648,16 +2835,16 @@ function mostrarPreview(mapaOuCnpjs){
 
 async function iniciarImportacao(){
   let cnpjs = [];
-  let mapaColab = {};
+  let mapaImport = {};
   const preview = document.getElementById('importPreview');
 
   if(preview.style.display !== 'none' && preview._cnpjs){
     cnpjs = preview._cnpjs;
-    mapaColab = preview._mapa || {};
+    mapaImport = preview._mapa || {};
   } else {
     const texto = document.getElementById('importCnpjText').value;
     const todos = extrairCnpjs(texto);
-    const existentes = new Set((S.empresas||[]).map(e=>(e.cnpj||'').replace(/\D/g,'')));
+    const existentes = new Set((S.empresas||[]).map(e=>rawCnpjValue(e.cnpj)));
     cnpjs = todos.filter(c => !existentes.has(c));
     if(todos.length !== cnpjs.length)
       toast(`${todos.length - cnpjs.length} CNPJ(s) ignorado(s) por já existirem.`,'error');
@@ -2681,49 +2868,63 @@ async function iniciarImportacao(){
 
   for(let i = 0; i < cnpjs.length; i++){
     const cnpjRaw = cnpjs[i];
-    const cnpjFmt = cnpjRaw.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
+    const cnpjFmt = formatCnpjValue(cnpjRaw);
+    const dadosPlanilha = mapaImport[cnpjRaw] || {};
+    const nomePlanilha = typeof dadosPlanilha === 'object' ? String(dadosPlanilha.nome || '').trim() : '';
+    const colaboradorPlanilha = typeof dadosPlanilha === 'object'
+      ? String(dadosPlanilha.colaborador || '').trim()
+      : String(dadosPlanilha || '').trim();
+
     lbl.textContent = `Processando ${i+1} de ${cnpjs.length}...`;
     bar.style.width  = Math.round(((i+1)/cnpjs.length)*100)+'%';
 
     const logItem = document.createElement('div');
     logItem.style.color = 'var(--gold)';
-    logItem.textContent = `⏳ ${cnpjFmt} — consultando...`;
+    logItem.textContent = nomePlanilha
+      ? `⏳ ${nomePlanilha} — salvando cadastro básico...`
+      : `⏳ ${cnpjFmt} — consultando...`;
     log.appendChild(logItem);
     log.scrollTop = log.scrollHeight;
 
     try {
-      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjRaw}`);
-      if(!res.ok) throw new Error('não encontrado');
-      const d = await res.json();
+      let e;
 
-      const colaborador = mapaColab[cnpjRaw] || '';
+      // Se a planilha trouxe nome, cadastra sem consulta externa, conforme conferência manual posterior.
+      if(nomePlanilha){
+        e = criarEmpresaBasica(nomePlanilha, cnpjFmt, colaboradorPlanilha, 'Importado por Excel sem consulta automática. Conferir e completar dados depois.');
+      } else {
+        const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjRaw}`);
+        if(!res.ok) throw new Error('não encontrado');
+        const d = await res.json();
 
-      const e = {
-        id: genId(),
-        nome:       d.razao_social || cnpjFmt,
-        cnpj:       cnpjFmt,
-        regime:     d.opcao_pelo_simples ? 'simples' : '',
-        atividade:  d.cnae_fiscal_descricao
-                      ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' ('+d.cnae_fiscal+')' : ''}`
-                      : '',
-        colaborador,
-        fechada:    (d.descricao_situacao_cadastral||'').toUpperCase() !== 'ATIVA',
-        statusApuracao: 'nao_apurada',
-        endereco:   [d.logradouro, d.numero, d.complemento, d.bairro].filter(Boolean).join(', '),
-        cep:        d.cep || '',
-        cidade:     d.municipio || '',
-        uf:         d.uf || '',
-        responsavel:'',
-        email:      d.email || '',
-        telefone:   d.ddd_telefone_1 ? `(${d.ddd_telefone_1}) ${d.telefone_1||''}` : '',
-        dataAbertura: d.data_inicio_atividade || '',
-        capitalSocial: d.capital_social ? String(d.capital_social) : '',
-        inscricaoEstadual:'', inscricaoMunicipal:'',
-        observacoes: `Importado automaticamente em ${new Date().toLocaleDateString('pt-BR')}. Situação RF: ${d.descricao_situacao_cadastral||'—'}.`,
-        parametros:'', regras:'',
-        followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-        obrigacoes:[], importacoes:[], impostos:[], camposEstaticosData:{}, camposPersonalizados:[]
-      };
+        e = {
+          id: genId(),
+          nome:       d.razao_social || cnpjFmt,
+          cnpj:       cnpjFmt,
+          regime:     d.opcao_pelo_simples ? 'simples' : '',
+          atividade:  d.cnae_fiscal_descricao
+                        ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' ('+d.cnae_fiscal+')' : ''}`
+                        : '',
+          colaborador: colaboradorPlanilha,
+          fechada:    (d.descricao_situacao_cadastral||'').toUpperCase() !== 'ATIVA',
+          semMovimento:false,
+          statusApuracao: 'nao_apurada',
+          endereco:   [d.logradouro, d.numero, d.complemento, d.bairro].filter(Boolean).join(', '),
+          cep:        d.cep || '',
+          cidade:     d.municipio || '',
+          uf:         d.uf || '',
+          responsavel:'',
+          email:      d.email || '',
+          telefone:   d.ddd_telefone_1 ? `(${d.ddd_telefone_1}) ${d.telefone_1||''}` : '',
+          dataAbertura: d.data_inicio_atividade || '',
+          capitalSocial: d.capital_social ? String(d.capital_social) : '',
+          inscricaoEstadual:'', inscricaoMunicipal:'',
+          observacoes: `Importado automaticamente em ${new Date().toLocaleDateString('pt-BR')}. Situação RF: ${d.descricao_situacao_cadastral||'—'}.`,
+          parametros:'', regras:'',
+          followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
+          obrigacoes:[], importacoes:[], impostos:[], camposEstaticosData:{}, camposPersonalizados:[]
+        };
+      }
 
       S.empresas.push(e);
       try {
@@ -2735,15 +2936,15 @@ async function iniciarImportacao(){
       }
       ok++;
       logItem.style.color = '#2ecc8a';
-      logItem.textContent = `✅ ${cnpjFmt} — ${d.razao_social||'importado'}${colaborador ? ' · 👤 '+colaborador : ''} (${d.descricao_situacao_cadastral||'—'})`;
+      logItem.textContent = `✅ ${cnpjFmt} — ${e.nome}${e.colaborador ? ' · 👤 '+e.colaborador : ''}`;
 
     } catch(err){
       erro++;
       logItem.style.color = '#e05a5a';
-      logItem.textContent = `⚠️ ${cnpjFmt} — não encontrado na Receita Federal`;
+      logItem.textContent = `⚠️ ${cnpjFmt} — não foi possível importar`;
     }
 
-    if(i < cnpjs.length - 1) await new Promise(r => setTimeout(r, 1100));
+    if(!nomePlanilha && i < cnpjs.length - 1) await new Promise(r => setTimeout(r, 1100));
   }
 
   renderAll();
@@ -5480,7 +5681,7 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
 (function(){
   const COL_ORDER_KEY = 'painel_col_order';
   const COL_WIDTHS_KEY = 'painel_col_widths';
-  const DEFAULT_ORDER = ['nome','regime','atividade','colaborador','status','obrigacoes','acoes'];
+  const DEFAULT_ORDER = ['nome','cnpj','regime','atividade','colaborador','status','obrigacoes','acoes'];
 
   function getOrder(){ try{ return JSON.parse(localStorage.getItem(COL_ORDER_KEY))||DEFAULT_ORDER; }catch(e){ return DEFAULT_ORDER; } }
   function saveOrder(o){ localStorage.setItem(COL_ORDER_KEY, JSON.stringify(o)); }
@@ -5490,11 +5691,12 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   function applyColumnOrder(){
     const thead = document.getElementById('empresaTableHead');
     if(!thead) return;
+    const row = thead.querySelector('tr') || thead;
     const order = getOrder();
-    const ths = Array.from(thead.querySelectorAll('th'));
+    const ths = Array.from(row.querySelectorAll('th'));
     const sorted = order.map(k => ths.find(th => (th.dataset.key||'') === k)).filter(Boolean);
     ths.filter(th => !sorted.includes(th)).forEach(th => sorted.push(th));
-    sorted.forEach(th => thead.appendChild(th));
+    sorted.forEach(th => row.appendChild(th));
     reorderTbodyCols();
   }
 
@@ -5517,6 +5719,8 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
     const thead = document.getElementById('empresaTableHead');
     if(!thead) return;
     thead.querySelectorAll('.col-resizer').forEach(resizer => {
+      if(resizer.dataset.resizeReady === '1') return;
+      resizer.dataset.resizeReady = '1';
       resizer.addEventListener('mousedown', function(e){
         e.preventDefault();
         e.stopPropagation();
@@ -5580,12 +5784,13 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
       thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
       const rect = th.getBoundingClientRect();
       const mid = rect.left + rect.width / 2;
+      const row = th.parentElement || thead.querySelector('tr') || thead;
       if(ev.clientX < mid){
-        thead.insertBefore(dragSrcTh, th);
+        row.insertBefore(dragSrcTh, th);
       } else {
-        thead.insertBefore(dragSrcTh, th.nextSibling);
+        row.insertBefore(dragSrcTh, th.nextSibling);
       }
-      const newOrder = Array.from(thead.querySelectorAll('th')).map(t=>t.dataset.key).filter(Boolean);
+      const newOrder = Array.from(row.querySelectorAll('th')).map(t=>t.dataset.key).filter(Boolean);
       saveOrder(newOrder);
       dragSrcTh = null;
       reorderTbodyCols();
