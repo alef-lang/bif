@@ -1235,6 +1235,12 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .empresa-table th.sort-active{color:var(--gold-light);}
 .sort-arrow{font-size:10px;opacity:0.4;margin-left:4px;}
 .empresa-table th.sort-active .sort-arrow{opacity:1;}
+th.col-draggable{cursor:grab;position:relative;}
+th.col-draggable:active{cursor:grabbing;}
+th.col-drag-over{background:rgba(201,168,76,0.18)!important;outline:2px dashed var(--gold);outline-offset:-2px;}
+th.col-dragging{opacity:0.45;}
+.col-resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;background:transparent;z-index:1;}
+.col-resizer:hover,.col-resizer.active{background:var(--gold-dim);}
 .empresa-table tbody tr{
   border-bottom:1px solid rgba(255,255,255,0.04);
   transition:background 0.15s;cursor:pointer;
@@ -1441,15 +1447,15 @@ select option{background:#1b2e42;color:#e8eaf0;}
   <!-- LIST VIEW -->
   <div id="viewList" class="list-view-wrap">
     <table class="empresa-table">
-      <thead>
+      <thead id="empresaTableHead">
         <tr>
-          <th onclick="sortByCol('nome')" class="sortable" data-col="nome">Empresa <span class="sort-arrow">↕</span></th>
-          <th onclick="sortByCol('regime')" class="sortable" data-col="regime">Regime <span class="sort-arrow">↕</span></th>
-          <th onclick="sortByCol('atividade')" class="sortable" data-col="atividade">Atividade <span class="sort-arrow">↕</span></th>
-          <th onclick="sortByCol('colaborador')" class="sortable" data-col="colaborador">Colaborador <span class="sort-arrow">↕</span></th>
-          <th onclick="sortByCol('status')" class="sortable" data-col="status">Status <span class="sort-arrow">↕</span></th>
-          <th>Obrigações</th>
-          <th style="width:40px;"></th>
+          <th onclick="sortByCol('nome')" class="sortable col-draggable" data-col="nome" data-key="nome" draggable="true">Empresa <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th onclick="sortByCol('regime')" class="sortable col-draggable" data-col="regime" data-key="regime" draggable="true">Regime <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th onclick="sortByCol('atividade')" class="sortable col-draggable" data-col="atividade" data-key="atividade" draggable="true">Atividade <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th onclick="sortByCol('colaborador')" class="sortable col-draggable" data-col="colaborador" data-key="colaborador" draggable="true">Colaborador <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th onclick="sortByCol('status')" class="sortable col-draggable" data-col="status" data-key="status" draggable="true">Status <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th class="col-draggable" data-key="obrigacoes" draggable="true">Obrigações<div class="col-resizer"></div></th>
+          <th data-key="acoes" style="width:40px;"></th>
         </tr>
       </thead>
       <tbody id="listTableBody"></tbody>
@@ -2381,24 +2387,23 @@ function renderListView(filtered){
     return;
   }
   empty.style.display = 'none';
+  const thead = document.getElementById('empresaTableHead');
+  const colOrder = thead ? Array.from(thead.querySelectorAll('th')).map(th=>th.dataset.key||'') : ['nome','regime','atividade','colaborador','status','obrigacoes','acoes'];
   tbody.innerHTML = sorted.map(e => {
-    const st = empresaStatus(e);
     const badgeCls = e.fechada ? 'badge-fechada' : e.semMovimento ? 'badge-sem-movimento' : 'badge-ativa';
     const badgeTxt = e.fechada ? 'FECHADA' : e.semMovimento ? 'SEM MOV.' : 'ABERTA';
     const obrigTags = (e.obrigacoes||[]).slice(0,4).map(o=>`<span class="tbl-obrig-tag">${esc(o.nome)}</span>`).join('');
     const more = (e.obrigacoes||[]).length > 4 ? `<span class="tbl-obrig-tag">+${(e.obrigacoes||[]).length-4}</span>` : '';
-    return `<tr class="${e.fechada?'fechada-row':''}" onclick="openEmpresa('${esc(e.id)}')">
-      <td>
-        <span class="tbl-name">${esc(e.nome)}</span>
-        <span class="tbl-cnpj">${esc(e.cnpj || '—')}</span>
-      </td>
-      <td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>
-      <td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>
-      <td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>
-      <td><span class="card-status-badge ${badgeCls}">${badgeTxt}</span></td>
-      <td><div class="tbl-obrig-list">${obrigTags}${more}</div></td>
-      <td><button class="tbl-delete-btn" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir">×</button></td>
-    </tr>`;
+    const cells = {
+      nome: `<td><span class="tbl-name">${esc(e.nome)}</span><span class="tbl-cnpj">${esc(e.cnpj||'—')}</span></td>`,
+      regime: `<td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>`,
+      atividade: `<td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>`,
+      colaborador: `<td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>`,
+      status: `<td><span class="card-status-badge ${badgeCls}">${badgeTxt}</span></td>`,
+      obrigacoes: `<td><div class="tbl-obrig-list">${obrigTags}${more}</div></td>`,
+      acoes: `<td><button class="tbl-delete-btn" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir">×</button></td>`
+    };
+    return `<tr class="${e.fechada?'fechada-row':''}" onclick="openEmpresa('${esc(e.id)}')">${colOrder.map(k=>cells[k]||'').join('')}</tr>`;
   }).join('');
 }
 
@@ -5468,6 +5473,147 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   } else {
     init();
   }
+</script>
+
+<script>
+// ── COLUNAS REDIMENSIONÁVEIS E REORDENÁVEIS ──
+(function(){
+  const COL_ORDER_KEY = 'painel_col_order';
+  const COL_WIDTHS_KEY = 'painel_col_widths';
+  const DEFAULT_ORDER = ['nome','regime','atividade','colaborador','status','obrigacoes','acoes'];
+
+  function getOrder(){ try{ return JSON.parse(localStorage.getItem(COL_ORDER_KEY))||DEFAULT_ORDER; }catch(e){ return DEFAULT_ORDER; } }
+  function saveOrder(o){ localStorage.setItem(COL_ORDER_KEY, JSON.stringify(o)); }
+  function getWidths(){ try{ return JSON.parse(localStorage.getItem(COL_WIDTHS_KEY))||{}; }catch(e){ return {}; } }
+  function saveWidths(w){ localStorage.setItem(COL_WIDTHS_KEY, JSON.stringify(w)); }
+
+  function applyColumnOrder(){
+    const thead = document.getElementById('empresaTableHead');
+    if(!thead) return;
+    const order = getOrder();
+    const ths = Array.from(thead.querySelectorAll('th'));
+    const sorted = order.map(k => ths.find(th => (th.dataset.key||'') === k)).filter(Boolean);
+    ths.filter(th => !sorted.includes(th)).forEach(th => sorted.push(th));
+    sorted.forEach(th => thead.appendChild(th));
+    reorderTbodyCols();
+  }
+
+  function reorderTbodyCols(){
+    if(typeof window.renderAll === 'function') window.renderAll();
+  }
+
+  function applyWidths(){
+    const thead = document.getElementById('empresaTableHead');
+    if(!thead) return;
+    const widths = getWidths();
+    thead.querySelectorAll('th[data-key]').forEach(th => {
+      const w = widths[th.dataset.key];
+      if(w) th.style.width = w + 'px';
+    });
+  }
+
+  // ── RESIZE ──
+  function initResizers(){
+    const thead = document.getElementById('empresaTableHead');
+    if(!thead) return;
+    thead.querySelectorAll('.col-resizer').forEach(resizer => {
+      resizer.addEventListener('mousedown', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const th = resizer.closest('th');
+        const startX = e.clientX;
+        const startW = th.offsetWidth;
+        resizer.classList.add('active');
+        function onMove(ev){
+          const newW = Math.max(60, startW + (ev.clientX - startX));
+          th.style.width = newW + 'px';
+        }
+        function onUp(){
+          resizer.classList.remove('active');
+          const widths = getWidths();
+          widths[th.dataset.key||th.textContent.trim()] = th.offsetWidth;
+          saveWidths(widths);
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  }
+
+  // ── DRAG TO REORDER ──
+  let dragSrcTh = null;
+
+  function initDraggable(){
+    const thead = document.getElementById('empresaTableHead');
+    if(!thead || thead.dataset.dragReady === '1') return;
+    thead.dataset.dragReady = '1';
+
+    thead.addEventListener('dragstart', ev => {
+      const th = ev.target.closest('th.col-draggable');
+      if(!th) return;
+      dragSrcTh = th;
+      th.classList.add('col-dragging');
+      ev.dataTransfer.effectAllowed = 'move';
+      ev.dataTransfer.setData('text/plain', th.dataset.key||'');
+    });
+
+    thead.addEventListener('dragend', ev => {
+      const th = ev.target.closest('th');
+      if(th) th.classList.remove('col-dragging');
+      thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
+    });
+
+    thead.addEventListener('dragover', ev => {
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'move';
+      const th = ev.target.closest('th.col-draggable');
+      thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
+      if(th && th !== dragSrcTh) th.classList.add('col-drag-over');
+    });
+
+    thead.addEventListener('drop', ev => {
+      ev.preventDefault();
+      const th = ev.target.closest('th.col-draggable');
+      if(!th || th === dragSrcTh || !dragSrcTh) return;
+      thead.querySelectorAll('.col-drag-over').forEach(el=>el.classList.remove('col-drag-over'));
+      const rect = th.getBoundingClientRect();
+      const mid = rect.left + rect.width / 2;
+      if(ev.clientX < mid){
+        thead.insertBefore(dragSrcTh, th);
+      } else {
+        thead.insertBefore(dragSrcTh, th.nextSibling);
+      }
+      const newOrder = Array.from(thead.querySelectorAll('th')).map(t=>t.dataset.key).filter(Boolean);
+      saveOrder(newOrder);
+      dragSrcTh = null;
+      reorderTbodyCols();
+    });
+  }
+
+  function setup(){
+    applyColumnOrder();
+    applyWidths();
+    initResizers();
+    initDraggable();
+  }
+
+  document.addEventListener('DOMContentLoaded', setup);
+  setTimeout(function patch(){
+    if(typeof window.renderAll === 'function'){
+      const orig = window.renderAll;
+      window.renderAll = function(){
+        orig.apply(this, arguments);
+        applyWidths();
+        initResizers();
+        initDraggable();
+      };
+    } else {
+      setTimeout(patch, 100);
+    }
+  }, 0);
+})();
 </script>
 </body>
 </html>
