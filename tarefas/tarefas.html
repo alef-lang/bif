@@ -1035,6 +1035,7 @@ function renderOverview(){
   const waiting=tasks.filter(t=>t.clientWaiting&&!t.done).length;
   const blocking=tasks.filter(t=>t.blocking&&!t.done).length;
   const lowEnergy=tasks.filter(t=>(t.energy||'')==='baixa'&&!t.done).length;
+  const parqueadas=tasks.filter(t=>(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done).length;
   const agora=tasks.filter(t=>getTaskLane(t)==='agora'&&!t.done).length;
   const proximo=tasks.filter(t=>getTaskLane(t)==='proximo'&&!t.done).length;
 
@@ -1043,6 +1044,7 @@ function renderOverview(){
     <div class="ov-card"><div class="ov-label">Cliente esperando</div><div class="ov-val" style="color:var(--coral)">${waiting}</div></div>
     <div class="ov-card"><div class="ov-label">Bloqueia equipe/sistema</div><div class="ov-val" style="color:var(--gold)">${blocking}</div></div>
     <div class="ov-card"><div class="ov-label">Baixa energia</div><div class="ov-val" style="color:var(--blue)">${lowEnergy}</div></div>
+    <div class="ov-card"><div class="ov-label">Parqueadas</div><div class="ov-val" style="color:var(--amber)">${parqueadas}</div></div>
     <div class="ov-card"><div class="ov-label">Agora</div><div class="ov-val" style="color:${agora>1?'var(--amber)':'var(--green)'}">${agora}/1</div></div>
     <div class="ov-card"><div class="ov-label">Próximo</div><div class="ov-val" style="color:${proximo>3?'var(--amber)':'var(--gold)'}">${proximo}/3</div></div>
     <div class="ov-card"><div class="ov-label">Pontos</div><div class="ov-val" style="color:var(--gold)">⭐ ${points}</div></div>`;
@@ -1055,7 +1057,8 @@ function renderOverview(){
 function renderFilters(){
   const chips=[
     ['all','Todas'],['today','Hoje vence'],['clientWaiting','Cliente esperando'],['blocking','Bloqueia'],['lowEnergy','Baixa energia'],
-    ['inbox','Entrada'],['agora','Agora'],['proximo','Próximo'],['semana','Esta semana'],['estacionamento','Estacionamento'],['done','Concluídas']
+    ['inbox','Entrada'],['agora','Agora'],['proximo','Próximo'],['semana','Esta semana'],['estacionamento','Estacionamento'],
+    ['parqueado','Parqueadas'],['naoParqueado','Não parqueadas'],['done','Concluídas']
   ];
   document.getElementById('filterRow').innerHTML=chips.map(([id,label])=>`<button class="fchip ${filterPri===id?'active':''}" onclick="setFilter('${id}')">${label}</button>`).join('');
 }
@@ -1115,6 +1118,7 @@ function getFiltered(){
   else if(filterPri==='interaction')f=f.filter(t=>t.interaction&&!t.done);
   else if(filterPri==='solo')f=f.filter(t=>!t.interaction&&!t.done);
   else if(filterPri==='parqueado')f=f.filter(t=>(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done);
+  else if(filterPri==='naoParqueado')f=f.filter(t=>!(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done);
 
   if(companyFilter&&companyFilter!=='all') {
     if(companyFilter==='__none') f=f.filter(t=>!t.companyId&&!t.companyName);
