@@ -1574,7 +1574,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
     <div class="modal-header">
       <div class="modal-header-info">
         <h2>⬆️ Importar Empresas</h2>
-        <p>Cole os CNPJs ou envie um arquivo CSV/Excel com CNPJs na coluna A</p>
+        <p>Cole os CNPJs ou envie um arquivo Excel com CNPJ na coluna A e Colaborador Responsável na coluna B</p>
       </div>
       <button class="btn-close-modal" onclick="closeModal('modalImport')">✕</button>
     </div>
@@ -1600,7 +1600,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
           </button>
         </div>
         <div style="font-size:11px;color:var(--text-light);margin-top:4px;font-family:var(--font-mono);">
-          Para Excel: CNPJs na coluna A (sem cabeçalho, ou com cabeçalho — detectamos automaticamente).
+          Excel: coluna A = CNPJ, coluna B = Colaborador Responsável (opcional). Cabeçalho na linha 1 é detectado automaticamente.
         </div>
       </div>
 
@@ -1620,9 +1620,12 @@ select option{background:#1b2e42;color:#e8eaf0;}
       </div>
 
     </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('modalImport')" id="importBtnCancelar">Cancelar</button>
-      <button class="btn-primary" onclick="iniciarImportacao()" id="importBtnIniciar">🚀 Importar</button>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn-secondary" onclick="atualizarCnpjsEmLote()" id="importBtnAtualizar" title="Busca dados da Receita Federal para empresas cadastradas sem nome ou atividade">🔍 Atualizar cadastros</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="closeModal('modalImport')" id="importBtnCancelar">Cancelar</button>
+        <button class="btn-primary" onclick="iniciarImportacao()" id="importBtnIniciar">🚀 Importar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2587,41 +2590,65 @@ function lerExcel(file){
     const wb = XLSX.read(e.target.result, {type:'array'});
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:false});
-    // Coluna A — índice 0
-    const texto = rows.map(r => String(r[0]||'')).join('\n');
-    const cnpjs = extrairCnpjs(texto);
-    mostrarPreview(cnpjs);
+
+    // Detecta se linha 1 é cabeçalho (não tem 14 dígitos na col A)
+    const primeiraColA = String(rows[0]?.[0]||'').replace(/\D/g,'');
+    const temCabecalho = primeiraColA.length !== 14;
+    const dados = temCabecalho ? rows.slice(1) : rows;
+
+    // Monta mapa CNPJ → colaborador
+    const mapa = {};
+    dados.forEach(r => {
+      const cnpj = String(r[0]||'').replace(/\D/g,'').trim();
+      const colab = String(r[1]||'').trim();
+      if(cnpj.length === 14) mapa[cnpj] = colab;
+    });
+
+    mostrarPreview(mapa);
   };
   reader.readAsArrayBuffer(file);
 }
 
-function mostrarPreview(cnpjs){
+function mostrarPreview(mapaOuCnpjs){
   const preview = document.getElementById('importPreview');
   const label   = document.getElementById('importPreviewLabel');
   const list    = document.getElementById('importPreviewList');
-  if(!cnpjs.length){
-    toast('Nenhum CNPJ válido encontrado no arquivo.','error');
-    return;
+
+  // Normaliza: aceita array de strings ou mapa {cnpj: colaborador}
+  let mapa = {};
+  if(Array.isArray(mapaOuCnpjs)){
+    mapaOuCnpjs.forEach(c => { mapa[c] = ''; });
+  } else {
+    mapa = mapaOuCnpjs;
   }
-  // Filtra os que já existem
+
+  const cnpjs = Object.keys(mapa);
+  if(!cnpjs.length){ toast('Nenhum CNPJ válido encontrado.','error'); return; }
+
   const existentes = new Set((S.empresas||[]).map(e=>(e.cnpj||'').replace(/\D/g,'')));
-  const novos   = cnpjs.filter(c => !existentes.has(c));
+  const novos = cnpjs.filter(c => !existentes.has(c));
   const duplicados = cnpjs.length - novos.length;
 
   label.textContent = `${novos.length} CNPJ(s) prontos para importar${duplicados>0?' · '+duplicados+' já existem (serão ignorados)':''}`;
-  list.innerHTML = novos.map(c =>
-    `<div>${c.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5')}</div>`
-  ).join('') || '<div style="color:var(--text-light);">Nenhum CNPJ novo.</div>';
+  list.innerHTML = novos.map(c => {
+    const fmt = c.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
+    const colab = mapa[c] ? `<span style="color:var(--gold);margin-left:8px;">👤 ${mapa[c]}</span>` : '';
+    return `<div>${fmt}${colab}</div>`;
+  }).join('') || '<div style="color:var(--text-light);">Nenhum CNPJ novo.</div>';
+
   preview.style.display = 'block';
-  preview._cnpjs = novos; // guarda para uso na importação
+  preview._mapa = mapa;  // guarda mapa completo para uso na importação
+  preview._cnpjs = novos;
 }
 
 async function iniciarImportacao(){
-  // Coleta CNPJs — do preview (arquivo) ou da textarea
   let cnpjs = [];
+  let mapaColab = {};
   const preview = document.getElementById('importPreview');
+
   if(preview.style.display !== 'none' && preview._cnpjs){
     cnpjs = preview._cnpjs;
+    mapaColab = preview._mapa || {};
   } else {
     const texto = document.getElementById('importCnpjText').value;
     const todos = extrairCnpjs(texto);
@@ -2633,12 +2660,12 @@ async function iniciarImportacao(){
 
   if(!cnpjs.length){ toast('Nenhum CNPJ novo para importar.','error'); return; }
 
-  // UI: modo progresso
   document.getElementById('importProgress').style.display = 'block';
   document.getElementById('importPreview').style.display = 'none';
   document.getElementById('importBtnIniciar').disabled = true;
   document.getElementById('importBtnIniciar').textContent = '⏳ Importando...';
   document.getElementById('importBtnCancelar').textContent = 'Fechar';
+  document.getElementById('importBtnAtualizar').disabled = true;
 
   const log  = document.getElementById('importLog');
   const bar  = document.getElementById('importProgressBar');
@@ -2664,6 +2691,8 @@ async function iniciarImportacao(){
       if(!res.ok) throw new Error('não encontrado');
       const d = await res.json();
 
+      const colaborador = mapaColab[cnpjRaw] || '';
+
       const e = {
         id: genId(),
         nome:       d.razao_social || cnpjFmt,
@@ -2672,7 +2701,7 @@ async function iniciarImportacao(){
         atividade:  d.cnae_fiscal_descricao
                       ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' ('+d.cnae_fiscal+')' : ''}`
                       : '',
-        colaborador:'',
+        colaborador,
         fechada:    (d.descricao_situacao_cadastral||'').toUpperCase() !== 'ATIVA',
         statusApuracao: 'nao_apurada',
         endereco:   [d.logradouro, d.numero, d.complemento, d.bairro].filter(Boolean).join(', '),
@@ -2692,16 +2721,16 @@ async function iniciarImportacao(){
       };
 
       S.empresas.push(e);
-      // Salva no Firebase individualmente
       try {
         const result = await window._fbPushEmpresa(e);
         e._fbKey = result.key;
+        marcarAlteracaoPendente();
       } catch(fbErr) {
         console.error('Erro ao salvar empresa no Firebase:', fbErr);
       }
       ok++;
       logItem.style.color = '#2ecc8a';
-      logItem.textContent = `✅ ${cnpjFmt} — ${d.razao_social||'importado'} (${d.descricao_situacao_cadastral||'—'})`;
+      logItem.textContent = `✅ ${cnpjFmt} — ${d.razao_social||'importado'}${colaborador ? ' · 👤 '+colaborador : ''} (${d.descricao_situacao_cadastral||'—'})`;
 
     } catch(err){
       erro++;
@@ -2709,17 +2738,95 @@ async function iniciarImportacao(){
       logItem.textContent = `⚠️ ${cnpjFmt} — não encontrado na Receita Federal`;
     }
 
-    // Delay entre requisições para não throttle a API (1s)
     if(i < cnpjs.length - 1) await new Promise(r => setTimeout(r, 1100));
   }
 
-  // Empresas já salvas individualmente no Firebase durante o loop
   renderAll();
-
   bar.style.width = '100%';
   lbl.textContent = `✅ Importação concluída — ${ok} adicionada(s)${erro>0?', '+erro+' com erro':''}`;
   document.getElementById('importBtnIniciar').style.display = 'none';
+  document.getElementById('importBtnAtualizar').disabled = false;
   toast(`${ok} empresa(s) importada(s) com sucesso.`, 'success');
+}
+
+// ════════════════════════════════════════════
+// ATUALIZAR CADASTROS EM LOTE (busca CNPJ da Receita)
+// ════════════════════════════════════════════
+async function atualizarCnpjsEmLote(){
+  // Empresas sem nome real ou sem atividade — candidatas a atualização
+  const candidatas = (S.empresas||[]).filter(e =>
+    e.cnpj && (!e.atividade || !e.cidade || e.nome === e.cnpj)
+  );
+
+  if(!candidatas.length){
+    toast('Todos os cadastros já têm dados completos.', 'success');
+    return;
+  }
+
+  document.getElementById('importProgress').style.display = 'block';
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importBtnIniciar').disabled = true;
+  document.getElementById('importBtnAtualizar').disabled = true;
+  document.getElementById('importBtnCancelar').textContent = 'Fechar';
+
+  const log = document.getElementById('importLog');
+  const bar = document.getElementById('importProgressBar');
+  const lbl = document.getElementById('importProgressLabel');
+  log.innerHTML = '';
+  lbl.textContent = `Atualizando ${candidatas.length} cadastro(s)...`;
+
+  let ok = 0, erro = 0;
+
+  for(let i = 0; i < candidatas.length; i++){
+    const e = candidatas[i];
+    const cnpjRaw = (e.cnpj||'').replace(/\D/g,'');
+    const cnpjFmt = e.cnpj;
+    bar.style.width = Math.round(((i+1)/candidatas.length)*100)+'%';
+
+    const logItem = document.createElement('div');
+    logItem.style.color = 'var(--gold)';
+    logItem.textContent = `⏳ ${cnpjFmt} — consultando...`;
+    log.appendChild(logItem);
+    log.scrollTop = log.scrollHeight;
+
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjRaw}`);
+      if(!res.ok) throw new Error('não encontrado');
+      const d = await res.json();
+
+      // Atualiza só campos que estão vazios — não sobrescreve dados manuais
+      if(!e.atividade && d.cnae_fiscal_descricao)
+        e.atividade = `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' ('+d.cnae_fiscal+')' : ''}`;
+      if(!e.cidade && d.municipio) e.cidade = d.municipio;
+      if(!e.uf && d.uf) e.uf = d.uf;
+      if(!e.cep && d.cep) e.cep = d.cep;
+      if(!e.email && d.email) e.email = d.email;
+      if(!e.telefone && d.ddd_telefone_1) e.telefone = `(${d.ddd_telefone_1}) ${d.telefone_1||''}`;
+      if(!e.dataAbertura && d.data_inicio_atividade) e.dataAbertura = d.data_inicio_atividade;
+      if((!e.nome || e.nome === cnpjFmt) && d.razao_social) e.nome = d.razao_social;
+      if(!e.regime && d.opcao_pelo_simples) e.regime = 'simples';
+
+      await saveEmpresa(e);
+      ok++;
+      logItem.style.color = '#2ecc8a';
+      logItem.textContent = `✅ ${cnpjFmt} — ${e.nome} atualizado`;
+
+    } catch(err){
+      erro++;
+      logItem.style.color = '#e05a5a';
+      logItem.textContent = `⚠️ ${cnpjFmt} — não encontrado na Receita Federal`;
+    }
+
+    if(i < candidatas.length - 1) await new Promise(r => setTimeout(r, 1100));
+  }
+
+  renderAll();
+  bar.style.width = '100%';
+  lbl.textContent = `✅ Atualização concluída — ${ok} cadastro(s) atualizado(s)${erro>0?', '+erro+' com erro':''}`;
+  document.getElementById('importBtnIniciar').style.display = '';
+  document.getElementById('importBtnIniciar').disabled = false;
+  document.getElementById('importBtnAtualizar').disabled = false;
+  toast(`${ok} cadastro(s) atualizado(s).`, 'success');
 }
 
 async function addCompany(){
