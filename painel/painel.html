@@ -2076,6 +2076,36 @@ function normalizeEmpresa(e) {
 }
 
 // ════════════════════════════════════════════
+// MIGRAÇÃO DE REGIMES (planilha junho/2026)
+// ════════════════════════════════════════════
+const REGIME_MAP_PLANILHA = {"43459798000147":"presumido","43460131000164":"presumido","45560411000170":"simples","50004981000113":"presumido","50004981000202":"presumido","50004981000385":"presumido","50004981000466":"presumido","50004981000547":"presumido","50004981000628":"presumido","50004981000709":"presumido","65731707000113":"presumido","48705306000170":"presumido","04953458000116":"simples","42677718000167":"simples","53012332000152":"simples","05585736000192":"simples","19831530000100":"simples","27794780000145":"simples","07038293000145":"simples","24058399000120":"simples","12352441000131":"simples","34719275000100":"simples","08794362000103":"presumido","50822683000130":"simples","01692636000104":"presumido","58501753000160":"simples","37257162000110":"presumido","35190898000192":"presumido","37042466000160":"presumido","37232554000124":"presumido","33751394000179":"simples","40224459000193":"presumido","54641733000134":"presumido","60732668000155":"presumido","09531686000111":"presumido","10724851000130":"presumido","18981516000120":"presumido","24511266000167":"presumido","33585663000174":"presumido","10912009000122":"simples","53908182000160":"presumido","08303145000173":"simples","29974190000120":"presumido","59952260000100":"simples","65713833000145":"presumido","50826130000156":"presumido","46815329000101":"simples","07416824000196":"presumido","59778801000125":"simples","53422621000120":"simples","72185002000103":"simples","23227737000147":"presumido","23227737000228":"presumido","28509763000181":"presumido","27860696000182":"presumido","43736588000159":"presumido","57367207000116":"simples","14017915000114":"simples","03872871000193":"presumido","08938349000180":"presumido","57974173000128":"simples","55327372000119":"presumido","37350182000130":"presumido","27305498000157":"simples","50587499000153":"presumido","63454702000165":"simples","22484605000138":"presumido","57207428000127":"simples","61853316000110":"presumido","50615301000289":"presumido","66776097000137":"presumido","34352524000163":"presumido","66840789000105":"presumido","63160879000159":"simples","39232374000178":"simples","45197762000168":"simples","47417591000160":"simples","51535377000186":"simples","44852562000139":"simples","19722515000123":"simples","18558461000140":"simples","19834885000152":"simples","08974972000199":"simples","03015074000190":"simples","44800951000110":"simples","15270057000188":"simples","18958963000168":"simples","13772849000125":"simples","54559416000173":"simples","27761359000138":"presumido","50884671000130":"simples","45741735000104":"simples","55605667000100":"simples","19174834000141":"presumido","43640489000179":"presumido","65413486000135":"simples","65413486000216":"simples","59196283000131":"simples","05624890000126":"presumido","49818516000137":"simples","54036552000189":"simples","00229295000172":"real","46775267000151":"simples","57255731000103":"presumido","56174480000161":"presumido","56174534000199":"simples","04903120000150":"simples","65054506000129":"simples","30533223000185":"presumido","46898219000150":"real","39012802000157":"simples","39012802000238":"simples","04221989000114":"simples","41585745000147":"presumido","41585745000228":"presumido","41585745000309":"presumido","42313869000136":"presumido","46942995000100":"presumido","21584596000194":"presumido","49669104000182":"presumido","45459531000185":"simples","44174736000151":"simples","25013370000194":"simples","18378460000113":"presumido","18011915000168":"presumido","42059706000179":"simples","45393671000106":"simples","22764148000135":"presumido","22659357000119":"presumido","41659354000120":"real","16800228000104":"presumido","48389935000138":"simples","45676024000101":"simples","26263720000133":"simples","58027084000137":"presumido","11682472000198":"presumido","11490868000133":"presumido","71563621000121":"simples","63789312000146":"presumido","22151361000171":"simples","64277948000171":"presumido","57601521000111":"simples","66085090000179":"presumido","65710150000134":"simples","57619597000174":"simples","05280411000100":"simples","27885395000103":"presumido","07726461000195":"presumido","21484338000136":"presumido","02896931000145":"presumido","09186299000195":"presumido","21459767000153":"presumido","36334271000120":"presumido","54173945000134":"presumido","53838177000128":"presumido","45196536000162":"presumido","53838582000146":"presumido","06353644000140":"real","06353644000220":"real","06353644000301":"real","06353644000492":"real","48862302000103":"simples","58138259000183":"presumido","01031341000197":"simples","03009199000107":"presumido","03780076000175":"presumido","03780076000256":"presumido","15077072000104":"presumido","02841329000100":"presumido","02841329000291":"presumido","02841329000372":"presumido","02841329000453":"presumido","02841329000534":"presumido","02841329000615":"presumido","02841329000704":"presumido","35783871000103":"presumido","64736056000191":"presumido","60553004000129":"simples","23777813000198":"simples","68462621000120":"simples","40961016000185":"presumido","40961016000266":"simples","57143310000182":"simples","38440431000141":"presumido","38440431000222":"presumido","38440431000303":"presumido","62781166000140":"presumido","04104990000169":"simples","18940489000147":"presumido","44377684000110":"simples","34410840000144":"presumido","66652630000159":"presumido","66164895000108":"simples","42648712000161":"presumido","18875003000134":"simples","60841696000100":"simples","14586029000101":"simples","49507538000186":"presumido","06066244000153":"presumido","14676263000120":"presumido","10773254000104":"simples","44341934000162":"simples","21021822000129":"simples","54581448000175":"real","65202077000190":"simples","05093755000100":"presumido","07023603000158":"presumido","51074518000100":"presumido","45503836000147":"simples","45503836000228":"simples","23353270000181":"simples","22262314000103":"presumido","17327179000199":"presumido","09533300000100":"simples","23361688000130":"simples","30527810000161":"presumido","50780808000107":"presumido","60115527000193":"simples","60115431000125":"simples","60704787000102":"simples","23982359000298":"simples","23982359000107":"simples","60439096000110":"simples","55631266000124":"presumido"};
+
+let _regimeMigrationDone = false;
+function aplicarRegimesDaPlanilha() {
+  if (_regimeMigrationDone) return;
+  _regimeMigrationDone = true;
+
+  let atualizadas = 0;
+  S.empresas.forEach(emp => {
+    const cnpjRaw = (emp.cnpj || '').replace(/\D/g, '').padStart(14, '0');
+    const novoRegime = REGIME_MAP_PLANILHA[cnpjRaw];
+    if (novoRegime && emp.regime !== novoRegime) {
+      emp.regime = novoRegime;
+      if (emp._fbKey) {
+        window._fbUpdateEmpresa(emp._fbKey, { regime: novoRegime }).catch(console.error);
+      }
+      atualizadas++;
+    }
+  });
+
+  if (atualizadas > 0) {
+    localStorage.setItem('gestao_v3', JSON.stringify(S));
+    console.log(`[Migração regimes] ${atualizadas} empresa(s) atualizadas.`);
+    toast(`Regimes atualizados: ${atualizadas} empresa(s) sincronizadas da planilha.`, 'success');
+  }
+}
+
+// ════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════
 async function init(){
@@ -2123,6 +2153,7 @@ async function init(){
     S.empresas = lista;
     localStorage.setItem('gestao_v3', JSON.stringify(S));
     setCloudStatus('ok', 'Nuvem sincronizada');
+    aplicarRegimesDaPlanilha();
     renderAll();
   }, err => {
     setCloudStatus('error', 'Erro ao sincronizar empresas');
@@ -2209,6 +2240,14 @@ window.addEventListener('beforeunload', e => {
 // Salva uma empresa individual no Firebase
 async function saveEmpresa(empresa) {
   const { _fbKey, ...data } = empresa;
+
+  // Trava: nunca salvar empresa sem id e nome mínimos
+  if (!data.id || !data.nome || !String(data.nome).trim()) {
+    console.error('saveEmpresa bloqueado: empresa sem id ou nome', data);
+    setCloudStatus('error', 'Erro: empresa sem dados mínimos não foi salva');
+    return;
+  }
+
   try {
     if (_fbKey) {
       await window._fbUpdateEmpresa(_fbKey, data);
