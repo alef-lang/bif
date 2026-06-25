@@ -331,6 +331,23 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .rich-field img{max-width:100%;border-radius:6px;margin:4px 0;}
 
 
+/* REGISTROS DO PORTAL NA FICHA */
+.portal-record-list{display:flex;flex-direction:column;gap:8px;}
+.portal-record-card{border:1px solid var(--gold-dim);border-radius:var(--radius-sm);background:rgba(201,168,76,0.045);padding:10px 12px;}
+.portal-record-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:5px;}
+.portal-record-title{font-size:12px;font-weight:800;color:var(--text);font-family:var(--font-title);line-height:1.35;}
+.portal-record-date{font-size:10px;color:var(--gold-light);font-family:var(--font-mono);border:1px solid var(--gold-dim);border-radius:999px;padding:2px 8px;background:rgba(201,168,76,0.08);}
+.portal-record-meta{font-size:10px;color:var(--text-light);font-family:var(--font-mono);margin-bottom:6px;line-height:1.45;}
+.portal-record-preview{font-size:12px;color:var(--text);line-height:1.5;overflow-wrap:anywhere;}
+.portal-record-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.portal-record-tag{font-size:9px;font-family:var(--font-mono);border:1px solid var(--gold-dim);border-radius:999px;padding:2px 7px;color:var(--gold-light);background:rgba(201,168,76,0.09);}
+.portal-record-card details{margin-top:7px;border-top:1px solid rgba(201,168,76,0.12);padding-top:7px;}
+.portal-record-card summary{cursor:pointer;color:var(--gold-light);font-size:11px;font-weight:700;font-family:var(--font-body);}
+.portal-record-rich{margin-top:7px;font-size:12px;line-height:1.55;color:var(--text);max-height:260px;overflow:auto;border:1px solid rgba(201,168,76,0.12);border-radius:8px;padding:8px;background:rgba(0,0,0,0.12);}
+.portal-record-rich img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--gold-dim);}
+.portal-record-rich .attachment-link{display:inline-flex;align-items:center;gap:6px;margin:4px 3px 4px 0;padding:5px 9px;border-radius:9px;border:1px solid var(--gold-dim);background:rgba(201,168,76,0.10);color:var(--gold-light);font-family:var(--font-mono);font-size:0.76rem;text-decoration:none;overflow-wrap:anywhere;}
+
+
 /* FLOATING RICH TEXT MENU */
 .floating-format-menu{
   position:fixed;
@@ -1918,6 +1935,7 @@ let modalImpostos = [];
 let modalCamposPersonalizados = [];
 let empresaFormInitialSnapshot = '';
 let empresaDirtyNoticeTimer = null;
+let portalRegistros = [];
 
 // ════════════════════════════════════════════
 // DADOS DE EXEMPLO
@@ -2155,6 +2173,7 @@ async function init(){
     setCloudStatus('ok', 'Nuvem sincronizada');
     aplicarRegimesDaPlanilha();
     renderAll();
+    renderPortalRecordsForCurrentEmpresa();
   }, err => {
     setCloudStatus('error', 'Erro ao sincronizar empresas');
     console.error('Firebase onValue error:', err);
@@ -2167,7 +2186,22 @@ async function init(){
       }
     } catch(e2) {}
     renderAll();
+    renderPortalRecordsForCurrentEmpresa();
   });
+
+  if (typeof window._fbOnPortalRegistros === 'function') {
+    window._fbOnPortalRegistros(snapshot => {
+      const lista = [];
+      if (snapshot.exists()) {
+        snapshot.forEach(child => {
+          const r = child.val() || {};
+          if (!r.deleted) lista.push(normalizePortalRegistro({ _fbKey: child.key, ...r }));
+        });
+      }
+      portalRegistros = lista;
+      renderPortalRecordsForCurrentEmpresa();
+    }, err => console.warn('Erro ao sincronizar registros do portal:', err));
+  }
 }
 
 // Salva config global (sem empresas) no Firebase
@@ -4150,6 +4184,101 @@ function setRichFieldsEditable(canEdit){
 }
 
 
+function normalizePortalRegistro(r){
+  return {
+    ...r,
+    id: r.id || r._fbKey || '',
+    data: r.data || '',
+    assunto: r.assunto || 'Registro sem assunto',
+    origem: r.origem || '',
+    cats: Array.isArray(r.cats) ? r.cats : [],
+    empresas: Array.isArray(r.empresas) ? r.empresas : [],
+    conteudo: r.conteudo || '',
+    ferramentas: r.ferramentas || '',
+    statusRetencao: r.statusRetencao || '',
+    observacoes: r.observacoes || '',
+    detalheExtra: r.detalheExtra || ''
+  };
+}
+
+function portalRefMatchesEmpresa(refInfo, empresa){
+  if(!refInfo || !empresa) return false;
+  const raw = typeof refInfo === 'string' ? {id: refInfo, nome: refInfo, cnpjRaw: rawCnpjValue(refInfo)} : refInfo;
+  const empId = safe(empresa.id);
+  const empFb = safe(empresa._fbKey);
+  const empCnpj = rawCnpjValue(empresa.cnpj);
+  const empNome = norm(empresa.nome);
+  const refId = safe(raw.id);
+  const refFb = safe(raw.fbKey);
+  const refCnpj = raw.cnpjRaw || rawCnpjValue(raw.cnpj);
+  const refNome = norm(raw.nome);
+  return (!!refId && (refId === empId || refId === empFb)) ||
+         (!!refFb && refFb === empFb) ||
+         (!!refCnpj && !!empCnpj && refCnpj === empCnpj) ||
+         (!!refNome && !!empNome && refNome === empNome);
+}
+
+function getPortalRecordsForEmpresa(empresa){
+  return (portalRegistros || [])
+    .filter(r => (r.empresas || []).some(ref => portalRefMatchesEmpresa(ref, empresa)))
+    .sort((a,b) => safe(b.data).localeCompare(safe(a.data)) || safe(b.updatedAt).localeCompare(safe(a.updatedAt)));
+}
+
+function stripHtmlToText(html){
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+function portalRegistroResumo(r){
+  const texto = [r.conteudo, r.ferramentas, r.statusRetencao, r.observacoes, r.detalheExtra]
+    .map(stripHtmlToText).filter(Boolean).join(' • ');
+  return texto ? (texto.length > 220 ? texto.slice(0, 220) + '…' : texto) : 'Sem conteúdo detalhado preenchido.';
+}
+
+function portalRegistroRichHtml(r){
+  const blocos = [
+    ['Conteúdo ministrado', r.conteudo],
+    ['Ferramentas / Sistemas', r.ferramentas],
+    ['Status de retenção', r.statusRetencao],
+    ['Observações / Próximos passos', r.observacoes],
+    ['Detalhamento adicional', r.detalheExtra]
+  ].filter(([_, html]) => !!stripHtmlToText(html));
+  if(!blocos.length) return '<div style="color:var(--text-light);font-family:var(--font-mono);font-size:11px;">Nenhum detalhamento adicional.</div>';
+  return blocos.map(([titulo, html]) => `<div style="margin-bottom:10px;"><strong style="color:var(--gold-light);font-family:var(--font-mono);font-size:10px;text-transform:uppercase;">${esc(titulo)}</strong><div>${html || ''}</div></div>`).join('');
+}
+
+function renderPortalRegistrosHtml(empresa){
+  const regs = getPortalRecordsForEmpresa(empresa);
+  if(!regs.length){
+    return '<div class="empty-state" style="padding:16px 10px;"><p>Nenhum registro do portal relacionado a esta empresa ainda.</p></div>';
+  }
+  return `<div class="portal-record-list">${regs.map(r => {
+    const tags = (r.cats || []).slice(0, 6).map(c => `<span class="portal-record-tag">${esc(c)}</span>`).join('');
+    const anexosCount = [r.conteudo, r.ferramentas, r.statusRetencao, r.observacoes, r.detalheExtra].join(' ').split('attachment-link').length - 1;
+    const anexosTag = anexosCount > 0 ? `<span class="portal-record-tag">📎 ${anexosCount} anexo(s)</span>` : '';
+    return `<div class="portal-record-card">
+      <div class="portal-record-head">
+        <div class="portal-record-title">${esc(r.assunto || 'Registro sem assunto')}</div>
+        <div class="portal-record-date">${esc(r.data || 'sem data')}</div>
+      </div>
+      <div class="portal-record-meta">${esc(r.origem || 'Sem origem')} ${r.id ? '· ID ' + esc(r.id) : ''}</div>
+      <div class="portal-record-preview">${esc(portalRegistroResumo(r))}</div>
+      ${(tags || anexosTag) ? `<div class="portal-record-tags">${tags}${anexosTag}</div>` : ''}
+      <details><summary>Ver campos do registro</summary><div class="portal-record-rich">${portalRegistroRichHtml(r)}</div></details>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderPortalRecordsForCurrentEmpresa(){
+  const box = $('portalRecordsForEmpresa');
+  if(!box || !currentEditId) return;
+  const empresa = S.empresas.find(x => x.id === currentEditId);
+  if(!empresa) return;
+  box.innerHTML = renderPortalRegistrosHtml(empresa);
+}
+
+
 function openEmpresa(id){
   const e = S.empresas.find(x=>x.id===id);
   if(!e) return;
@@ -4227,6 +4356,13 @@ function empresaFormHtml(e){
       <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_semMovimento" ${e.semMovimento?'checked':''}><label for="f_semMovimento">Empresa sem movimento</label></div></div>
     </div>
   </div>
+
+  <div class="form-section">
+    <div class="form-section-title">📚 Registros do Portal</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Registros relacionados no Portal / Base de Conhecimento aparecem aqui automaticamente. A relação é feita pelo próprio registro do portal, sem alterar os dados cadastrais da empresa.</p>
+    <div id="portalRecordsForEmpresa">${renderPortalRegistrosHtml(e)}</div>
+  </div>
+
   <div class="form-section">
     <div class="form-section-title">📍 Contato e Localização</div>
     <div class="form-grid">
@@ -5698,6 +5834,7 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   window._fbUpdateEmpresa = (id, data) => update(ref(db, `painel/empresas/${id}`), data);
   window._fbRemoveEmpresa = (id)       => remove(ref(db, `painel/empresas/${id}`));
   window._fbOnEmpresas    = (cb, errCb) => onValue(ref(db, 'painel/empresas'), cb, errCb);
+  window._fbOnPortalRegistros = (cb, errCb) => onValue(ref(db, 'pop_hub/registros'), cb, errCb);
 
   // Config global (sem empresas)
   window._fbGetConfig    = ()     => get(ref(db, 'painel/config'));
