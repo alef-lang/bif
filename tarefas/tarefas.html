@@ -370,6 +370,38 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 @media(max-height:760px),(max-width:860px){.task-details-modal{max-height:calc(100vh - 24px);overflow-y:auto}.task-details-grid{grid-template-columns:1fr!important}}
 @media print{.priority-board{display:block;overflow:visible}.priority-lane{height:auto;min-height:0;margin-bottom:12px;break-inside:avoid;width:auto;min-width:0;max-width:none}.lane-body{overflow:visible;max-height:none}.lane-empty,.move-select{display:none!important}}
 
+
+/* ÁRVORE DE TRABALHO — Macroação > Ação > Microação */
+.work-scale-box{border:1px solid var(--gold-dim);border-radius:14px;background:rgba(201,168,76,.045);padding:12px 13px;margin:12px 0 14px}
+.work-scale-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.work-scale-help{font-size:.72rem;line-height:1.5;color:var(--text-muted);margin-top:8px}
+.work-scale-help strong{color:var(--white)}
+.work-parent-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.work-parent-row.hidden,.work-parent-field.hidden{display:none!important}
+.work-tree{border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.025);padding:10px;margin-top:8px}
+.work-tree-title{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.work-tree-empty{font-size:.74rem;color:var(--text-dim);padding:8px 0}
+.work-tree-line{position:relative;margin:6px 0;padding:7px 9px 7px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.055);font-size:.75rem;color:rgba(255,255,255,.84);cursor:pointer;transition:all .15s}
+.work-tree-line:hover{border-color:var(--gold-dim);background:rgba(201,168,76,.07);color:var(--white)}
+.work-tree-line.micro{margin-left:18px;color:var(--text-muted)}
+.work-tree-line.action{margin-left:8px}
+.work-tree-line::before{content:'';position:absolute;left:-8px;top:50%;width:8px;height:1px;background:rgba(201,168,76,.35)}
+.work-tree-line.macro::before{display:none}
+.work-path{font-size:.74rem;line-height:1.55;color:var(--text-muted);display:flex;flex-direction:column;gap:5px}
+.work-path a{color:var(--gold-light);text-decoration:none;cursor:pointer}
+.work-path a:hover{text-decoration:underline}
+.level-badge{border:1px solid rgba(255,255,255,.09)}
+.level-macro{background:rgba(201,168,76,.13)!important;color:var(--gold-light)!important}
+.level-acao{background:rgba(74,158,255,.12)!important;color:var(--blue)!important}
+.level-micro{background:rgba(46,204,138,.12)!important;color:var(--green)!important}
+.level-unset{background:rgba(255,255,255,.06)!important;color:var(--text-muted)!important}
+.task-mini-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.task-mini-pill{font-family:var(--mono);font-size:.52rem;line-height:1;padding:3px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.07);color:var(--text-muted);background:rgba(255,255,255,.03);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-mini-pill.level-macro{border-color:rgba(201,168,76,.28)}
+.task-mini-pill.level-acao{border-color:rgba(74,158,255,.25)}
+.task-mini-pill.level-micro{border-color:rgba(46,204,138,.25)}
+@media(max-width:600px){.work-parent-row{grid-template-columns:1fr}.work-tree-line.micro{margin-left:10px}.work-tree-line.action{margin-left:4px}}
+
 </style>
 </head>
 <body>
@@ -559,6 +591,38 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
         </select>
       </div>
     </div>
+    <div class="work-scale-box">
+      <div class="work-scale-title">🌳 Escala da tarefa</div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label>Nível</label>
+          <select id="tmWorkLevel" onchange="handleWorkLevelChange();saveDraftTask()">
+            <option value="unset">Não definido ainda</option>
+            <option value="macro">Macroação — objetivo maior</option>
+            <option value="acao">Ação — bloco de trabalho</option>
+            <option value="micro">Microação — passo rastreável</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>Leitura rápida</label>
+          <input type="text" id="tmWorkScaleHint" value="Classifique depois, sem travar a captura." readonly />
+        </div>
+      </div>
+      <div class="work-parent-row hidden" id="tmParentRow">
+        <div class="form-group work-parent-field hidden" id="tmParentMacroGroup" style="margin-bottom:0">
+          <label>Pertence a qual macroação?</label>
+          <select id="tmParentMacroId" onchange="handleParentMacroChange();saveDraftTask()"></select>
+        </div>
+        <div class="form-group work-parent-field hidden" id="tmParentActionGroup" style="margin-bottom:0">
+          <label>Pertence a qual ação?</label>
+          <select id="tmParentActionId" onchange="handleParentActionChange();saveDraftTask()"></select>
+        </div>
+      </div>
+      <div class="work-scale-help" id="tmWorkScaleHelp">
+        <strong>Macroação</strong> junta ações. <strong>Ação</strong> junta microações. <strong>Microação</strong> continua sendo tarefa, mas aparece dentro da árvore.
+      </div>
+    </div>
+
     <div class="form-row">
       <div class="form-group">
         <label>Risco</label>
@@ -738,6 +802,12 @@ const LANES={
 };
 const RISK_LABELS={baixo:'Baixo',medio:'Médio',alto:'Alto'};
 const ENERGY_LABELS={baixa:'Baixa',media:'Média',alta:'Alta'};
+const WORK_LEVELS={
+  unset:{label:'Não definido',short:'Sem escala',badge:'INDEFINIDA',cls:'level-unset'},
+  macro:{label:'Macroação',short:'Macro',badge:'MACRO',cls:'level-macro'},
+  acao:{label:'Ação',short:'Ação',badge:'AÇÃO',cls:'level-acao'},
+  micro:{label:'Microação',short:'Micro',badge:'MICRO',cls:'level-micro'}
+};
 
 function todayISO(){return new Date().toISOString().slice(0,10)}
 function isTodayDeadline(t){return !!t.deadline&&t.deadline===todayISO()&&!t.done}
@@ -759,6 +829,132 @@ function laneCount(lane, exceptId=null){return tasks.filter(t=>String(t.id)!==St
 function laneSelectOptions(selected){
   return LANE_ORDER.map(l=>`<option value="${l}" ${l===selected?'selected':''}>${LANES[l].short}</option>`).join('');
 }
+
+function normalizeWorkLevel(level){return WORK_LEVELS[level]?level:'unset'}
+function workLevelLabel(level){return WORK_LEVELS[normalizeWorkLevel(level)].label}
+function workLevelShort(level){return WORK_LEVELS[normalizeWorkLevel(level)].short}
+function workLevelBadge(t){
+  const level=normalizeWorkLevel(t?.workLevel||t?.taskLevel||'unset');
+  return `<span class="badge level-badge ${WORK_LEVELS[level].cls}">${WORK_LEVELS[level].badge}</span>`;
+}
+function getTaskById(id){return tasks.find(x=>String(x.id)===String(id))||null}
+function getParentMacro(t){return getTaskById(t?.parentMacroId)}
+function getParentAction(t){return getTaskById(t?.parentActionId)}
+function getMacroTasks(exceptId=null){return tasks.filter(t=>String(t.id)!==String(exceptId)&&normalizeWorkLevel(t.workLevel||t.taskLevel)==='macro')}
+function getActionTasks(parentMacroId='',exceptId=null){
+  return tasks.filter(t=>String(t.id)!==String(exceptId)&&normalizeWorkLevel(t.workLevel||t.taskLevel)==='acao'&&(!parentMacroId||String(t.parentMacroId||'')===String(parentMacroId)));
+}
+function workPathText(t){
+  const parts=[];
+  const macro=getParentMacro(t);const action=getParentAction(t);
+  if(macro)parts.push('Macro: '+macro.name);
+  if(action)parts.push('Ação: '+action.name);
+  return parts.join(' > ');
+}
+function getWorkChildren(parentId,level){
+  if(level==='macro')return tasks.filter(t=>String(t.parentMacroId||'')===String(parentId)&&String(t.id)!==String(parentId));
+  if(level==='acao')return tasks.filter(t=>String(t.parentActionId||'')===String(parentId)&&String(t.id)!==String(parentId));
+  return [];
+}
+function openTaskFromTree(id){closeTaskDetails();setTimeout(()=>openTaskDetails(Number(id)),0)}
+function parentSelectOptions(items,selected,placeholder){
+  const opts=[`<option value="">${placeholder}</option>`];
+  items.forEach(t=>opts.push(`<option value="${esc(t.id)}" ${String(t.id)===String(selected)?'selected':''}>${esc(t.name||'Sem título')}</option>`));
+  return opts.join('');
+}
+function refreshParentSelectors({level=null,macroId=null,actionId=null,editId=null}={}){
+  const levelEl=document.getElementById('tmWorkLevel');
+  const macroEl=document.getElementById('tmParentMacroId');
+  const actionEl=document.getElementById('tmParentActionId');
+  if(!levelEl||!macroEl||!actionEl)return;
+  const currentLevel=normalizeWorkLevel(level||levelEl.value||'unset');
+  const currentEditId=editId||document.getElementById('tmId')?.value||null;
+  const macroValue=macroId!==null&&macroId!==undefined?macroId:macroEl.value;
+  macroEl.innerHTML=parentSelectOptions(getMacroTasks(currentEditId),macroValue,'Selecionar macroação...');
+  const chosenMacro=macroEl.value||macroValue||'';
+  const actionValue=actionId!==null&&actionId!==undefined?actionId:actionEl.value;
+  actionEl.innerHTML=parentSelectOptions(getActionTasks(chosenMacro,currentEditId),actionValue,'Selecionar ação...');
+  if(currentLevel==='micro' && actionValue && ![...actionEl.options].some(o=>String(o.value)===String(actionValue))){
+    const a=getTaskById(actionValue);
+    if(a){ actionEl.insertAdjacentHTML('beforeend',`<option value="${esc(a.id)}" selected>${esc(a.name||'Sem título')}</option>`); }
+  }
+}
+function handleParentMacroChange(){
+  const actionEl=document.getElementById('tmParentActionId');
+  if(actionEl)actionEl.value='';
+  refreshParentSelectors();
+  updateWorkScaleUI();
+}
+function handleParentActionChange(){
+  const actionId=document.getElementById('tmParentActionId')?.value||'';
+  const macroEl=document.getElementById('tmParentMacroId');
+  const action=getTaskById(actionId);
+  if(action&&action.parentMacroId&&macroEl&&!macroEl.value){
+    macroEl.value=action.parentMacroId;
+    refreshParentSelectors({actionId});
+  }
+  updateWorkScaleUI();
+}
+function updateWorkScaleUI(){
+  const level=normalizeWorkLevel(document.getElementById('tmWorkLevel')?.value||'unset');
+  const row=document.getElementById('tmParentRow');
+  const macroGroup=document.getElementById('tmParentMacroGroup');
+  const actionGroup=document.getElementById('tmParentActionGroup');
+  const hint=document.getElementById('tmWorkScaleHint');
+  const help=document.getElementById('tmWorkScaleHelp');
+  if(row)row.classList.toggle('hidden',level==='unset'||level==='macro');
+  if(macroGroup)macroGroup.classList.toggle('hidden',!(level==='acao'||level==='micro'));
+  if(actionGroup)actionGroup.classList.toggle('hidden',level!=='micro');
+  if(hint){
+    hint.value={
+      unset:'Pode capturar agora e classificar depois.',
+      macro:'Objetivo maior: agrupa ações e microações.',
+      acao:'Bloco de trabalho: pode pertencer a uma macro.',
+      micro:'Passo rastreável: pode pertencer a uma ação.'
+    }[level];
+  }
+  if(help){
+    help.innerHTML={
+      unset:'Use <strong>Não definido</strong> quando você ainda está capturando a demanda e não quer travar o raciocínio.',
+      macro:'A <strong>Macroação</strong> é o objetivo maior. Ela mostra uma árvore com ações e microações vinculadas.',
+      acao:'A <strong>Ação</strong> é um bloco de trabalho. Se fizer parte de uma macro, selecione a macro para aparecer na árvore.',
+      micro:'A <strong>Microação</strong> é pequena, mas continua rastreável: pode ter prazo, empresa, responsável, anexo e parqueamento.'
+    }[level];
+  }
+}
+function handleWorkLevelChange(){
+  refreshParentSelectors();
+  updateWorkScaleUI();
+}
+function renderWorkTree(t){
+  const level=normalizeWorkLevel(t.workLevel||t.taskLevel);
+  const macro=getParentMacro(t); const action=getParentAction(t);
+  if(level==='macro'){
+    const actions=getActionTasks(t.id,t.id);
+    const looseMicros=tasks.filter(x=>normalizeWorkLevel(x.workLevel||x.taskLevel)==='micro'&&String(x.parentMacroId||'')===String(t.id)&&!x.parentActionId&&String(x.id)!==String(t.id));
+    const lines=[];
+    actions.forEach(a=>{
+      lines.push(`<div class="work-tree-line action" onclick="openTaskFromTree(${a.id})">◆ ${esc(a.name||'Sem título')}</div>`);
+      tasks.filter(m=>normalizeWorkLevel(m.workLevel||m.taskLevel)==='micro'&&String(m.parentActionId||'')===String(a.id)).forEach(m=>{
+        lines.push(`<div class="work-tree-line micro" onclick="openTaskFromTree(${m.id})">↳ ${esc(m.name||'Sem título')}</div>`);
+      });
+    });
+    looseMicros.forEach(m=>lines.push(`<div class="work-tree-line micro" onclick="openTaskFromTree(${m.id})">↳ ${esc(m.name||'Sem título')}</div>`));
+    return `<div class="work-tree"><div class="work-tree-title">Árvore desta macroação</div>${lines.length?lines.join(''):'<div class="work-tree-empty">Nenhuma ação ou microação vinculada ainda.</div>'}</div>`;
+  }
+  if(level==='acao'){
+    const micros=tasks.filter(m=>normalizeWorkLevel(m.workLevel||m.taskLevel)==='micro'&&String(m.parentActionId||'')===String(t.id));
+    return `<div class="work-tree"><div class="work-tree-title">Vínculo / microações</div><div class="work-path">${macro?`<div>Macroação: <a onclick="openTaskFromTree(${macro.id})">${esc(macro.name)}</a></div>`:'<div>Macroação: não vinculada</div>'}</div>${micros.length?micros.map(m=>`<div class="work-tree-line micro" onclick="openTaskFromTree(${m.id})">↳ ${esc(m.name||'Sem título')}</div>`).join(''):'<div class="work-tree-empty">Nenhuma microação vinculada ainda.</div>'}</div>`;
+  }
+  if(level==='micro'){
+    return `<div class="work-tree"><div class="work-tree-title">Caminho desta microação</div><div class="work-path">
+      ${macro?`<div>Macroação: <a onclick="openTaskFromTree(${macro.id})">${esc(macro.name)}</a></div>`:'<div>Macroação: não vinculada</div>'}
+      ${action?`<div>Ação: <a onclick="openTaskFromTree(${action.id})">${esc(action.name)}</a></div>`:'<div>Ação: não vinculada</div>'}
+    </div></div>`;
+  }
+  return `<div class="work-tree"><div class="work-tree-title">Escala da tarefa</div><div class="work-tree-empty">Ainda não classificada como macroação, ação ou microação.</div></div>`;
+}
+
 function priorityByDecisionFields({risk='medio',clientWaiting=false,blocking=false,deadline=''}){
   if(risk==='alto'||clientWaiting||blocking||deadline&&deadline<=todayISO())return 5;
   if(risk==='medio')return 3;
@@ -859,7 +1055,7 @@ async function doSave(){
   unsavedChanges = false;
   // Salva na nuvem
   try {
-    await update(ref(db, DB_PATH), { tasks, expanded, points, schemaVersion: 5, updatedAt: new Date().toISOString() });
+    await update(ref(db, DB_PATH), { tasks, expanded, points, schemaVersion: 6, updatedAt: new Date().toISOString() });
   } catch(e){
     setAutosaveStatus('saving','Salvo localmente — sem conexão');
     return;
@@ -1036,6 +1232,9 @@ function renderOverview(){
   const blocking=tasks.filter(t=>t.blocking&&!t.done).length;
   const lowEnergy=tasks.filter(t=>(t.energy||'')==='baixa'&&!t.done).length;
   const parqueadas=tasks.filter(t=>(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done).length;
+  const macroCount=tasks.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='macro'&&!t.done).length;
+  const actionCount=tasks.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='acao'&&!t.done).length;
+  const microCount=tasks.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='micro'&&!t.done).length;
   const agora=tasks.filter(t=>getTaskLane(t)==='agora'&&!t.done).length;
   const proximo=tasks.filter(t=>getTaskLane(t)==='proximo'&&!t.done).length;
 
@@ -1045,6 +1244,7 @@ function renderOverview(){
     <div class="ov-card"><div class="ov-label">Bloqueia equipe/sistema</div><div class="ov-val" style="color:var(--gold)">${blocking}</div></div>
     <div class="ov-card"><div class="ov-label">Baixa energia</div><div class="ov-val" style="color:var(--blue)">${lowEnergy}</div></div>
     <div class="ov-card"><div class="ov-label">Parqueadas</div><div class="ov-val" style="color:var(--amber)">${parqueadas}</div></div>
+    <div class="ov-card"><div class="ov-label">Macro / Ação / Micro</div><div class="ov-val" style="color:var(--gold-light);font-size:1.25rem">${macroCount}/${actionCount}/${microCount}</div></div>
     <div class="ov-card"><div class="ov-label">Agora</div><div class="ov-val" style="color:${agora>1?'var(--amber)':'var(--green)'}">${agora}/1</div></div>
     <div class="ov-card"><div class="ov-label">Próximo</div><div class="ov-val" style="color:${proximo>3?'var(--amber)':'var(--gold)'}">${proximo}/3</div></div>
     <div class="ov-card"><div class="ov-label">Pontos</div><div class="ov-val" style="color:var(--gold)">⭐ ${points}</div></div>`;
@@ -1058,7 +1258,7 @@ function renderFilters(){
   const chips=[
     ['all','Todas'],['today','Hoje vence'],['clientWaiting','Cliente esperando'],['blocking','Bloqueia'],['lowEnergy','Baixa energia'],
     ['inbox','Entrada'],['agora','Agora'],['proximo','Próximo'],['semana','Esta semana'],['estacionamento','Estacionamento'],
-    ['parqueado','Parqueadas'],['naoParqueado','Não parqueadas'],['done','Concluídas']
+    ['parqueado','Parqueadas'],['naoParqueado','Não parqueadas'],['macro','Macroações'],['acao','Ações'],['micro','Microações'],['unsetLevel','Sem escala'],['done','Concluídas']
   ];
   document.getElementById('filterRow').innerHTML=chips.map(([id,label])=>`<button class="fchip ${filterPri===id?'active':''}" onclick="setFilter('${id}')">${label}</button>`).join('');
 }
@@ -1092,6 +1292,7 @@ function taskSearchBlob(t){
     t.name,stripHtml(t.desc),t.reward,t.assigneeName,t.assigneeEmail,t.deadline,
     t.parqueLocal,t.parqueMotive,t.parqueRetorno,company?.nome,company?.cnpj,company?.regime,subs,
     t.taskType,t.risk,t.energy,t.nextAction,t.doneCriteria,laneLabel(getTaskLane(t)),
+    workLevelLabel(t.workLevel||t.taskLevel),workPathText(t),
     t.clientWaiting?'cliente esperando':'',t.blocking?'bloqueia equipe sistema':''
   ].join(' ');
 }
@@ -1119,6 +1320,10 @@ function getFiltered(){
   else if(filterPri==='solo')f=f.filter(t=>!t.interaction&&!t.done);
   else if(filterPri==='parqueado')f=f.filter(t=>(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done);
   else if(filterPri==='naoParqueado')f=f.filter(t=>!(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done);
+  else if(filterPri==='macro')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='macro');
+  else if(filterPri==='acao')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='acao');
+  else if(filterPri==='micro')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='micro');
+  else if(filterPri==='unsetLevel')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='unset');
 
   if(companyFilter&&companyFilter!=='all') {
     if(companyFilter==='__none') f=f.filter(t=>!t.companyId&&!t.companyName);
@@ -1176,6 +1381,10 @@ function renderTaskHTML(t){
         onclick="event.stopPropagation();completeTask(${t.id})">${t.done?'&#9745;':'&#9744;'}</div>
       <div class="task-mini-main">
         <div class="task-mini-title">${title}</div>
+        <div class="task-mini-meta">
+          <span class="task-mini-pill ${WORK_LEVELS[normalizeWorkLevel(t.workLevel||t.taskLevel)].cls}">${WORK_LEVELS[normalizeWorkLevel(t.workLevel||t.taskLevel)].short}</span>
+          ${workPathText(t)?`<span class="task-mini-pill">${esc(workPathText(t))}</span>`:''}
+        </div>
       </div>
       <div class="task-mini-open">↗</div>
     </div>
@@ -1211,6 +1420,7 @@ function renderTaskDetailsHTML(t){
           <div class="task-badges" style="margin-top:7px">
             <span class="badge" style="background:${c}22;color:${c}">${PRI_LABELS[t.priority]}</span>
             <span class="badge quick-flag">${esc(LANES[lane]?.short||lane)}</span>
+            ${workLevelBadge(t)}
             ${company&&company.nome?`<span class="badge company-badge">🏢 ${esc(company.nome)}</span>`:''}
             ${t.taskType?`<span class="badge" style="background:rgba(167,139,250,0.12);color:var(--purple)">${esc(t.taskType)}</span>`:''}
             ${t.risk?`<span class="badge" style="background:${t.risk==='alto'?'rgba(224,90,90,0.12)':'rgba(201,168,76,0.10)'};color:${t.risk==='alto'?'var(--red)':'var(--gold)'}">Risco ${esc(RISK_LABELS[t.risk]||t.risk)}</span>`:''}
@@ -1231,6 +1441,7 @@ function renderTaskDetailsHTML(t){
 
     <div class="task-details-grid">
       <div class="task-details-main">
+        ${renderWorkTree(t)}
         ${(t.nextAction||t.doneCriteria)?`<div class="task-details-section"><div class="task-details-section-title">Execução</div><div class="adhd-fields">
           ${t.nextAction?`<div class="adhd-field"><div class="adhd-field-label">Próxima ação</div><div class="adhd-field-value">${esc(t.nextAction)}</div></div>`:''}
           ${t.doneCriteria?`<div class="adhd-field"><div class="adhd-field-label">Critério de concluído</div><div class="adhd-field-value">${esc(t.doneCriteria)}</div></div>`:''}
@@ -1529,6 +1740,9 @@ function saveDraftTask(){
     clientWaiting:document.getElementById('tmClientWaiting').classList.contains('on'),
     blocking:document.getElementById('tmBlocking').classList.contains('on'),
     lane:document.getElementById('tmLane').value,
+    workLevel:document.getElementById('tmWorkLevel')?.value||'unset',
+    parentMacroId:document.getElementById('tmParentMacroId')?.value||'',
+    parentActionId:document.getElementById('tmParentActionId')?.value||'',
     assigneeName:document.getElementById('tmAssigneeName').value,
     assigneeEmail:document.getElementById('tmAssigneeEmail').value,
     deadline:document.getElementById('tmDeadline').value,
@@ -1560,6 +1774,9 @@ function restoreDraftTask(){
   document.getElementById('tmNextAction').value=draft.nextAction||'';
   document.getElementById('tmDoneCriteria').value=draft.doneCriteria||'';
   document.getElementById('tmLane').value=normalizeLane(draft.lane||'inbox');
+  document.getElementById('tmWorkLevel').value=normalizeWorkLevel(draft.workLevel||'unset');
+  refreshParentSelectors({level:draft.workLevel||'unset',macroId:draft.parentMacroId||'',actionId:draft.parentActionId||''});
+  updateWorkScaleUI();
   draft.clientWaiting?document.getElementById('tmClientWaiting').classList.add('on'):document.getElementById('tmClientWaiting').classList.remove('on');
   draft.blocking?document.getElementById('tmBlocking').classList.add('on'):document.getElementById('tmBlocking').classList.remove('on');
   document.getElementById('tmAssigneeName').value=draft.assigneeName||'';
@@ -1582,7 +1799,7 @@ function bindDraftAutosave(){
   ['tmName','tmReward','tmAssigneeName','tmAssigneeEmail','tmDeadline','tmCompanySearch','tmNextAction','tmDoneCriteria'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.addEventListener('input',saveDraftTask);
   });
-  ['tmTaskType','tmRisk','tmEnergy','tmLane'].forEach(id=>{
+  ['tmTaskType','tmRisk','tmEnergy','tmLane','tmWorkLevel','tmParentMacroId','tmParentActionId'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.addEventListener('change',saveDraftTask);
   });
   const desc=document.getElementById('tmDesc');if(desc)desc.addEventListener('input',saveDraftTask);
@@ -1630,6 +1847,9 @@ function openNewTask(){
   document.getElementById('tmNextAction').value='';
   document.getElementById('tmDoneCriteria').value='';
   document.getElementById('tmLane').value='inbox';
+  document.getElementById('tmWorkLevel').value='unset';
+  refreshParentSelectors({level:'unset',macroId:'',actionId:'',editId:null});
+  updateWorkScaleUI();
   document.getElementById('tmClientWaiting').classList.remove('on');
   document.getElementById('tmBlocking').classList.remove('on');
   document.getElementById('tmAssigneeName').value='';
@@ -1663,6 +1883,9 @@ function openEditTask(id){
   document.getElementById('tmNextAction').value=t.nextAction||'';
   document.getElementById('tmDoneCriteria').value=t.doneCriteria||'';
   document.getElementById('tmLane').value=getTaskLane(t);
+  document.getElementById('tmWorkLevel').value=normalizeWorkLevel(t.workLevel||t.taskLevel||'unset');
+  refreshParentSelectors({level:t.workLevel||t.taskLevel||'unset',macroId:t.parentMacroId||'',actionId:t.parentActionId||'',editId:t.id});
+  updateWorkScaleUI();
   t.clientWaiting?document.getElementById('tmClientWaiting').classList.add('on'):document.getElementById('tmClientWaiting').classList.remove('on');
   t.blocking?document.getElementById('tmBlocking').classList.add('on'):document.getElementById('tmBlocking').classList.remove('on');
   document.getElementById('tmAssigneeName').value=t.assigneeName||'';
@@ -1701,6 +1924,9 @@ function saveTask(){
   const deadline=document.getElementById('tmDeadline').value;
   let lane=normalizeLane(document.getElementById('tmLane').value||'inbox');
   const taskType=document.getElementById('tmTaskType').value||'Fiscal';
+  const workLevel=normalizeWorkLevel(document.getElementById('tmWorkLevel')?.value||'unset');
+  let parentMacroId=document.getElementById('tmParentMacroId')?.value||'';
+  let parentActionId=document.getElementById('tmParentActionId')?.value||'';
   const risk=document.getElementById('tmRisk').value||'medio';
   const energy=document.getElementById('tmEnergy').value||'media';
   const nextAction=document.getElementById('tmNextAction').value.trim();
@@ -1716,6 +1942,16 @@ function saveTask(){
   if(!name){toast('Nome obrigatório','error');return}
   const companyData=sanitizeTaskCompanyFromModal();
   if(!companyData)return;
+  if(workLevel==='macro'){parentMacroId='';parentActionId='';}
+  if(workLevel==='acao'){parentActionId='';}
+  if(parentActionId){
+    const parentAction=getTaskById(parentActionId);
+    if(parentAction&&parentAction.parentMacroId&&!parentMacroId)parentMacroId=parentAction.parentMacroId;
+  }
+  if(parentMacroId&&String(parentMacroId)===String(editId)){toast('A tarefa não pode pertencer a ela mesma.','error');return;}
+  if(parentActionId&&String(parentActionId)===String(editId)){toast('A tarefa não pode pertencer a ela mesma.','error');return;}
+  if(workLevel==='acao'&&parentMacroId&&normalizeWorkLevel(getTaskById(parentMacroId)?.workLevel)!=='macro'){toast('Escolha uma macroação válida.','error');return;}
+  if(workLevel==='micro'&&parentActionId&&normalizeWorkLevel(getTaskById(parentActionId)?.workLevel)!=='acao'){toast('Escolha uma ação válida.','error');return;}
   if(parqueado&&lane!=='done')lane='estacionamento';
   if(lane==='estacionamento')parqueado=true;
   if(!checkLaneLimit(lane,editId||null))return;
@@ -1725,14 +1961,14 @@ function saveTask(){
     if(t){
       const oldPriority=t.priority||3;
       t.name=name;t.desc=desc;t.priority=newPri;t.reward=reward;t.interaction=interaction;t.assigneeName=assigneeName;t.assigneeEmail=assigneeEmail;t.deadline=deadline;t.attachments=attachments;
-      t.taskType=taskType;t.risk=risk;t.energy=energy;t.nextAction=nextAction;t.doneCriteria=doneCriteria;t.clientWaiting=clientWaiting;t.blocking=blocking;
+      t.taskType=taskType;t.workLevel=workLevel;t.taskLevel=workLevel;t.parentMacroId=parentMacroId;t.parentActionId=parentActionId;t.risk=risk;t.energy=energy;t.nextAction=nextAction;t.doneCriteria=doneCriteria;t.clientWaiting=clientWaiting;t.blocking=blocking;
       t.parqueado=parqueado;t.parqueLocal=parqueLocal;t.parqueMotive=parqueMotive;t.parqueRetorno=parqueRetorno;Object.assign(t,companyData);
       const result=syncTaskLaneSideEffects(t,lane,{adjustPoints:true,oldPriority});
       if(!result.ok){toast(result.msg,'error');return;}
     }
     toast('Tarefa atualizada','success');
   }else{
-    const nt={id:nid(),name,desc,priority:newPri,reward,interaction,assigneeName,assigneeEmail,deadline,attachments,taskType,risk,energy,nextAction,doneCriteria,clientWaiting,blocking,tdahLane:lane,done:false,subtasks:[],parqueado,parqueLocal,parqueMotive,parqueRetorno,...companyData};
+    const nt={id:nid(),name,desc,priority:newPri,reward,interaction,assigneeName,assigneeEmail,deadline,attachments,taskType,workLevel,taskLevel:workLevel,parentMacroId,parentActionId,risk,energy,nextAction,doneCriteria,clientWaiting,blocking,tdahLane:lane,done:false,subtasks:[],parqueado,parqueLocal,parqueMotive,parqueRetorno,...companyData};
     const result=syncTaskLaneSideEffects(nt,lane,{adjustPoints:false});
     if(!result.ok){toast(result.msg,'error');return;}
     tasks.push(nt);expanded[nt.id]=true;
@@ -1939,6 +2175,7 @@ window.handleTaskAttachmentInput=handleTaskAttachmentInput; window.removeTaskAtt
 window.allowDrop=allowDrop; window.enterLane=enterLane; window.leaveLane=leaveLane; window.dropOnLane=dropOnLane;
 window.openTaskDetails=openTaskDetails; window.closeTaskDetails=closeTaskDetails; window.refreshTaskDetailsModal=refreshTaskDetailsModal;
 window.togglePriorityHelp=togglePriorityHelp;
+window.handleWorkLevelChange=handleWorkLevelChange; window.handleParentMacroChange=handleParentMacroChange; window.handleParentActionChange=handleParentActionChange; window.openTaskFromTree=openTaskFromTree;
 
 bindDraftAutosave();
 load(); // load já chama render() e initTutorial() internamente
