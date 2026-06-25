@@ -271,6 +271,29 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 .company-selected-hint{margin-top:6px;font-size:11px;color:var(--text-muted);font-family:var(--mono);min-height:16px}
 .company-selected-hint.ok{color:var(--gold-light)}
 .company-selected-hint.warn{color:var(--amber)}
+.company-link-box{border:1px solid rgba(201,168,76,.20);background:rgba(13,27,42,.32);border-radius:12px;padding:10px}
+.company-link-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.company-link-head span{font:700 10px var(--mono);color:var(--gold-light);text-transform:uppercase;letter-spacing:.06em}
+.company-helper{font:500 10px var(--mono);color:var(--text-muted);margin:0 0 9px;line-height:1.45}
+.company-result-list{display:none;flex-direction:column;gap:3px;max-height:220px;overflow-y:auto;border:1px solid rgba(201,168,76,.30);border-radius:10px;padding:6px;margin-bottom:10px;background:rgba(13,27,42,.50)}
+.company-result-list.open{display:flex}
+.company-result-btn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid rgba(201,168,76,.14);background:rgba(255,255,255,.03);color:var(--white);cursor:pointer;transition:.15s;font:600 12px var(--sans)}
+.company-result-btn:hover{border-color:var(--gold-dim);background:rgba(201,168,76,.10)}
+.company-result-btn.on{border-color:var(--gold);background:rgba(201,168,76,.16)}
+.company-result-check{width:18px;height:18px;flex-shrink:0;color:var(--gold-light);background:rgba(255,255,255,.04);border:1px solid var(--gold-dim);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900}
+.company-result-btn.on .company-result-check{color:var(--navy);background:linear-gradient(135deg,var(--gold),var(--gold-light));border-color:transparent}
+.company-result-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.company-result-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.company-result-meta{font:500 9px var(--mono);color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.company-selected-wrap{margin-bottom:4px}
+.company-selected-title{font:700 9px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px}
+.company-selected-list{display:flex;flex-wrap:wrap;gap:5px}
+.company-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--gold-dim);background:rgba(201,168,76,.12);color:var(--gold-light);border-radius:999px;padding:4px 9px;font:700 10px var(--sans);cursor:pointer;max-width:100%}
+.company-chip:hover{border-color:var(--gold);background:rgba(201,168,76,.20)}
+.company-chip-name{max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.company-chip-x{opacity:.75;font-size:12px}
+.company-mini-more{background:rgba(201,168,76,.13);color:var(--gold-light);border:1px solid var(--gold-dim)}
+
 .modal{max-width:680px}
 @media(max-width:760px){.page{padding:16px}.app-header{padding:14px 16px}.app-header-left{min-width:0}.company-filter-select{width:100%;max-width:none}.company-picker-row{flex-direction:column;align-items:stretch}.company-clear-btn{width:100%!important}.toolbar>.btn{flex:1;justify-content:center}.search-wrap{flex-basis:100%;max-width:none;margin-left:0}}
 .modal-overlay{z-index:1000}.reward-overlay{z-index:1100}.toast{z-index:1200}
@@ -557,15 +580,25 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
       <input type="text" id="tmName" placeholder="Ex: Preparar Reinf — GDO" />
     </div>
     <div class="form-group">
-      <label>Empresa vinculada</label>
-      <div class="company-picker">
-        <input type="hidden" id="tmCompanyId" />
-        <div class="company-picker-row">
-          <input type="search" id="tmCompanySearch" placeholder="Pesquisar empresa do Painel..." autocomplete="off" onfocus="openCompanyDropdown()" oninput="filterCompanyOptions(this.value)" />
-          <button type="button" class="company-clear-btn" onclick="clearTaskCompany()" title="Remover empresa vinculada">Limpar</button>
+      <label>Empresas vinculadas</label>
+      <div class="company-link-box" id="empresasVinculadasBlock">
+        <input type="hidden" id="tmCompanyIds" value="[]" />
+        <div class="company-link-head">
+          <span id="empresasVinculadasCount">0 selecionadas</span>
+          <button type="button" class="btn btn-sm" onclick="refreshCompanyList()" title="Recarregar empresas do Painel">↻ Atualizar</button>
         </div>
-        <div id="tmCompanyDropdown" class="company-dropdown"></div>
-        <div id="tmCompanyHint" class="company-selected-hint">As empresas são buscadas do Painel de Empresas.</div>
+        <div class="company-picker-row">
+          <input type="search" id="empresaFilterInput" placeholder="Buscar e marcar uma ou mais empresas pelo nome, CNPJ, regime ou responsável..." autocomplete="off" onfocus="renderTaskEmpresasVinculadas()" oninput="renderTaskEmpresasVinculadas();saveDraftTask()" />
+          <button type="button" class="company-clear-btn" onclick="clearTaskCompany()" title="Remover todas as empresas vinculadas">Limpar</button>
+        </div>
+        <div id="empresasFonteStatus" class="company-selected-hint">Carregando empresas do Painel...</div>
+        <div class="company-helper">Marque/desmarque empresas aqui. O vínculo fica salvo somente na tarefa aberta e pode ter várias empresas.</div>
+        <div id="empresasBuscaResultados" class="company-result-list"></div>
+        <div id="empresasSelecionadasWrap" class="company-selected-wrap" style="display:none">
+          <div class="company-selected-title">Selecionadas nesta tarefa</div>
+          <div id="empresasVinculadasList" class="company-selected-list"></div>
+        </div>
+        <div id="empresasEmptyMsg" class="company-empty" style="display:none">Nenhuma empresa encontrada no Painel de Gestão.</div>
       </div>
     </div>
     <div class="form-row">
@@ -1101,137 +1134,330 @@ function forceSave(){
 function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3000)}
 function nid(){return Date.now()+Math.floor(Math.random()*1000)}
 
-function parseLocalPainelEmpresas(){
-  try{
-    const raw=localStorage.getItem('gestao_v3')||localStorage.getItem('gestao_empresas')||'';
-    if(!raw)return [];
-    const d=JSON.parse(raw);
-    return Array.isArray(d.empresas)?d.empresas:[];
-  }catch(e){return []}
+const PAINEL_EMPRESAS_LOCAL_KEYS=['gestao_v3','gestao_empresas','painel','painel_gestao_empresas','fiscal_painel_empresas_cache'];
+let empresasFonteStatus='Carregando empresas do Painel...';
+
+function onlyDigits(v){return String(v??'').replace(/\D+/g,'');}
+function extractEmpresasFromObject(d){
+  const arr=[];
+  const push=(v)=>{
+    if(!v)return;
+    if(Array.isArray(v))arr.push(...v);
+    else if(v&&typeof v==='object')arr.push(...Object.values(v));
+  };
+  if(!d)return arr;
+  if(Array.isArray(d))push(d);
+  push(d.empresas);
+  push(d.S?.empresas);
+  push(d.state?.empresas);
+  push(d.painel?.empresas);
+  return arr;
 }
-function normalizeEmpresas(arr){
-  return (Array.isArray(arr)?arr:[]).filter(e=>e&&e.id&&e.nome).map(e=>({
-    id:String(e.id),nome:e.nome||'',cnpj:e.cnpj||'',regime:e.regime||'outros',atividade:e.atividade||'',colaborador:e.colaborador||'',fechada:!!e.fechada,semMovimento:!!e.semMovimento
-  })).sort((a,b)=>normalizeText(a.nome).localeCompare(normalizeText(b.nome),'pt-BR'));
+function normalizeEmpresaPainel(e,idx=0){
+  if(!e||typeof e!=='object')return null;
+  const nome=String(e.nome||e.razaoSocial||e.razao_social||e.razao||e.name||e.fantasia||e.nomeFantasia||'').trim();
+  if(!nome)return null;
+  const cnpj=e.cnpj||e.CNPJ||e.cnpjFormatado||'';
+  const cnpjDigits=onlyDigits(cnpj);
+  const id=String(e.id||e._id||e.codigo||e.cod||cnpjDigits||nome||`empresa_${idx}`).trim();
+  return {
+    ...e,
+    id,
+    nome,
+    cnpj:String(cnpj||''),
+    cnpjDigits,
+    regime:e.regime||e.regimeTributario||e.tipoRegime||'outros',
+    atividade:e.atividade||e.atividadeEconomica||e.cnae||'',
+    colaborador:e.colaborador||e.responsavel||e.responsavelFiscal||'',
+    fechada:!!e.fechada,
+    semMovimento:!!e.semMovimento
+  };
+}
+function mergeEmpresasPainel(listas){
+  const map=new Map();
+  listas.flat().forEach((raw,idx)=>{
+    const e=normalizeEmpresaPainel(raw,idx);
+    if(!e)return;
+    const key=e.cnpjDigits?`cnpj:${e.cnpjDigits}`:`id:${e.id||normalizeText(e.nome)}`;
+    const old=map.get(key)||{};
+    map.set(key,{...old,...e});
+  });
+  return [...map.values()].sort((a,b)=>normalizeText(a.nome).localeCompare(normalizeText(b.nome),'pt-BR'));
+}
+function parseLocalPainelEmpresas(){
+  const listas=[];
+  try{
+    PAINEL_EMPRESAS_LOCAL_KEYS.forEach(key=>{
+      const raw=localStorage.getItem(key);
+      if(!raw)return;
+      try{listas.push(extractEmpresasFromObject(JSON.parse(raw)));}catch(e){}
+    });
+  }catch(e){}
+  return mergeEmpresasPainel(listas);
 }
 async function loadPainelEmpresas(){
+  const listas=[];let fontes=[];
   try{
     const snap=await get(ref(db, PAINEL_PATH));
     if(snap.exists()){
-      const d=snap.val();
-      painelEmpresas=normalizeEmpresas(d.empresas||[]);
-      localStorage.setItem('fiscal_painel_empresas_cache',JSON.stringify(painelEmpresas));
-      return painelEmpresas;
+      const arr=extractEmpresasFromObject(snap.val());
+      if(arr.length){listas.push(arr);fontes.push('nuvem');}
     }
-  }catch(e){}
+  }catch(e){console.warn('Não foi possível ler empresas do Painel:',e);}
   const local=parseLocalPainelEmpresas();
-  if(local.length){painelEmpresas=normalizeEmpresas(local);return painelEmpresas;}
-  try{painelEmpresas=normalizeEmpresas(JSON.parse(localStorage.getItem('fiscal_painel_empresas_cache')||'[]'));}catch(e){painelEmpresas=[];}
+  if(local.length){listas.push(local);fontes.push('salvo local/cache');}
+  painelEmpresas=mergeEmpresasPainel(listas);
+  try{localStorage.setItem('fiscal_painel_empresas_cache',JSON.stringify(painelEmpresas));}catch(e){}
+  empresasFonteStatus=painelEmpresas.length
+    ? `${painelEmpresas.length} empresa${painelEmpresas.length!==1?'s':''} carregada${painelEmpresas.length!==1?'s':''} do Painel (${fontes.join(' + ')||'fonte detectada'}).`
+    : 'Nenhuma empresa encontrada. Abra/salve o Painel e clique em ↻ Atualizar.';
+  updateEmpresasFonteStatus();
   return painelEmpresas;
 }
 async function refreshCompanyList(){
   setAutosaveStatus('saving','Atualizando empresas...');
   await loadPainelEmpresas();
   renderCompanyFilter();
-  renderCompanyDropdown('');
+  renderTaskEmpresasVinculadas();
   renderTasks();
   setAutosaveStatus('saved',`${painelEmpresas.length} empresa(s) do Painel`);
   toast(`${painelEmpresas.length} empresa(s) carregada(s) do Painel`,'success');
 }
-function regimeLabel(r){return ({simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[r]||'Outros')}
-function getCompanyById(id){return painelEmpresas.find(e=>String(e.id)===String(id))||null}
-function getTaskCompany(t){
-  const c=t.companyId?getCompanyById(t.companyId):null;
-  if(c)return c;
-  if(t.companyName||t.companyCnpj||t.companyRegime)return {id:t.companyId||'',nome:t.companyName||'',cnpj:t.companyCnpj||'',regime:t.companyRegime||'outros'};
-  return null;
+function updateEmpresasFonteStatus(){
+  const el=document.getElementById('empresasFonteStatus');
+  if(el)el.textContent=empresasFonteStatus;
 }
-function getTaskCompanyName(t){const c=getTaskCompany(t);return c&&c.nome?c.nome:''}
-function companyOptionText(e){return [e.nome,e.cnpj,regimeLabel(e.regime),e.atividade,e.colaborador].filter(Boolean).join(' • ')}
+function regimeLabel(r){
+  const s=normalizeText(r);
+  if(s.includes('simples'))return 'Simples Nacional';
+  if(s.includes('presumido'))return 'Lucro Presumido';
+  if(s.includes('real'))return 'Lucro Real';
+  return r&&r!=='outros'?String(r):'Outros';
+}
+function regimeShort(r){
+  const s=normalizeText(r);
+  if(s.includes('simples'))return 'SN';
+  if(s.includes('presumido'))return 'LP';
+  if(s.includes('real'))return 'LR';
+  return r&&r!=='outros'?String(r):'Outros';
+}
+function empresaPainelKey(e){
+  if(!e)return '';
+  return String(e.cnpjDigits||onlyDigits(e.cnpj)||e.id||e.nome||'').trim();
+}
+function dedupeEmpresaIds(ids){
+  return [...new Set((Array.isArray(ids)?ids:[]).map(v=>String(v||'').trim()).filter(Boolean))];
+}
+function findEmpresaPainelByKey(key){
+  const raw=String(key||'').trim();
+  if(!raw)return null;
+  const digits=onlyDigits(raw);
+  const normKey=normalizeText(raw);
+  return (painelEmpresas||[]).find(e=>{
+    const eKey=empresaPainelKey(e);
+    return String(eKey)===raw ||
+      String(e.id||'')===raw ||
+      (!!digits && (String(e.cnpjDigits||'')===digits || onlyDigits(e.cnpj)===digits)) ||
+      (!!normKey && normalizeText(e.nome)===normKey);
+  })||null;
+}
+function getCompanyById(id){return findEmpresaPainelByKey(id)}
+function getTaskEmpresaIds(t){
+  if(!t)return [];
+  const ids=[];
+  if(Array.isArray(t.empresasVinculadas))ids.push(...t.empresasVinculadas);
+  if(Array.isArray(t.empresaIds))ids.push(...t.empresaIds);
+  if(t.companyId)ids.push(t.companyId);
+  if(t.companyCnpj)ids.push(onlyDigits(t.companyCnpj));
+  return dedupeEmpresaIds(ids);
+}
+function getTaskEmpresaRefs(t){
+  return (Array.isArray(t?.empresaRefs)?t.empresaRefs:[]).filter(Boolean);
+}
+function getTaskCompanies(t){
+  const ids=getTaskEmpresaIds(t);
+  const refs=getTaskEmpresaRefs(t);
+  const result=[];
+  ids.forEach(id=>{
+    const found=findEmpresaPainelByKey(id);
+    if(found){result.push(found);return;}
+    const ref=refs.find(r=>String(r.id||'')===String(id)||String(r.painelId||'')===String(id)||String(r.cnpjDigits||'')===String(onlyDigits(id)));
+    if(ref)result.push({id:ref.id||id,nome:ref.nome||id,cnpj:ref.cnpj||'',cnpjDigits:ref.cnpjDigits||onlyDigits(ref.cnpj),regime:ref.regime||'outros',colaborador:ref.colaborador||''});
+    else result.push({id,nome:String(id),cnpj:'',regime:'outros'});
+  });
+  if(!result.length&&(t.companyName||t.companyCnpj||t.companyRegime)){
+    result.push({id:t.companyId||'',nome:t.companyName||'',cnpj:t.companyCnpj||'',cnpjDigits:onlyDigits(t.companyCnpj),regime:t.companyRegime||'outros'});
+  }
+  const seen=new Set();
+  return result.filter(e=>{
+    const k=empresaPainelKey(e)||normalizeText(e.nome);
+    if(!k||seen.has(k))return false;
+    seen.add(k);return true;
+  });
+}
+function getTaskCompany(t){return getTaskCompanies(t)[0]||null}
+function getTaskCompanyName(t){return getTaskCompanies(t).map(c=>c.nome).filter(Boolean).join(', ')}
+function companyOptionText(e){return [e.nome,e.cnpj,e.cnpjDigits,regimeLabel(e.regime),e.atividade,e.colaborador].filter(Boolean).join(' • ')}
+
 function renderCompanyFilter(){
   const sel=document.getElementById('companyFilterSelect');if(!sel)return;
   const prev=companyFilter||sel.value||'all';
   const opts=['<option value="all">Todas as empresas</option>','<option value="__none">Sem empresa vinculada</option>'].concat(
-    painelEmpresas.map(e=>`<option value="${esc(e.id)}">${esc(e.nome)}${e.cnpj?' — '+esc(e.cnpj):''}</option>`)
+    painelEmpresas.map(e=>`<option value="${esc(empresaPainelKey(e))}">${esc(e.nome)}${e.cnpj?' — '+esc(e.cnpj):''}</option>`)
   );
   sel.innerHTML=opts.join('');
   sel.value=[...sel.options].some(o=>o.value===prev)?prev:'all';
   companyFilter=sel.value;
 }
 function setCompanyFilter(v){companyFilter=v||'all';renderTasks()}
-function renderCompanyDropdown(query=''){
-  const box=document.getElementById('tmCompanyDropdown');
-  if(!box)return;
-  const q=normalizeText(query);
-  const rows=painelEmpresas.filter(e=>!q||normalizeText(companyOptionText(e)).includes(q)).slice(0,80);
-  if(!painelEmpresas.length){
-    box.innerHTML='<div class="company-empty">Nenhuma empresa carregada. Abra/salve o Painel ou clique em ↻ Empresas.</div>';
+
+function getModalEmpresaIds(){
+  const hidden=document.getElementById('tmCompanyIds');
+  if(!hidden)return [];
+  try{return dedupeEmpresaIds(JSON.parse(hidden.value||'[]'));}catch(e){return [];}
+}
+function setModalEmpresaIds(ids){
+  const hidden=document.getElementById('tmCompanyIds');
+  if(hidden)hidden.value=JSON.stringify(dedupeEmpresaIds(ids));
+}
+function clearEmpresaSearch(){
+  const input=document.getElementById('empresaFilterInput');
+  if(input)input.value='';
+}
+function renderTaskEmpresasVinculadas(){
+  updateEmpresasFonteStatus();
+  const todas=painelEmpresas||[];
+  const selectedNow=getModalEmpresaIds();
+  const selectedSet=new Set(selectedNow.map(String));
+  const filter=normalizeText(document.getElementById('empresaFilterInput')?.value||'');
+
+  const countEl=document.getElementById('empresasVinculadasCount');
+  if(countEl)countEl.textContent=selectedNow.length+' selecionada'+(selectedNow.length!==1?'s':'');
+
+  const emptyEl=document.getElementById('empresasEmptyMsg');
+  if(emptyEl)emptyEl.style.display=todas.length===0?'':'none';
+
+  const listEl=document.getElementById('empresasVinculadasList');
+  const wrap=document.getElementById('empresasSelecionadasWrap');
+  if(listEl){
+    if(selectedNow.length===0){
+      if(wrap)wrap.style.display='none';
+      listEl.innerHTML='';
+    }else{
+      if(wrap)wrap.style.display='';
+      listEl.innerHTML=selectedNow.map(id=>{
+        const e=findEmpresaPainelByKey(id);
+        const nome=e?e.nome:id;
+        const tag=e?regimeShort(e.regime):'';
+        return `<button type="button" class="company-chip" onclick="toggleTaskEmpresaVinculada('${esc(String(id))}')" title="Remover desta tarefa: ${esc(nome)}">
+          ✓ <span class="company-chip-name">${esc(nome)}</span>
+          ${tag?`<span class="badge company-mini-more">${esc(tag)}</span>`:''}
+          <span class="company-chip-x">×</span>
+        </button>`;
+      }).join('');
+    }
+  }
+
+  const resEl=document.getElementById('empresasBuscaResultados');
+  if(!resEl)return;
+  const hits=(filter
+    ? todas.filter(e=>normalizeText(companyOptionText(e)).includes(filter))
+    : todas
+  ).slice(0,120);
+
+  const shouldShow=!!filter || todas.length<=35;
+  if(!shouldShow){
+    resEl.classList.remove('open');
+    resEl.innerHTML='';
     return;
   }
-  if(!rows.length){box.innerHTML='<div class="company-empty">Nenhuma empresa encontrada para esta busca.</div>';return;}
-  const selected=document.getElementById('tmCompanyId')?.value||'';
-  box.innerHTML=rows.map(e=>`<div class="company-option ${String(e.id)===String(selected)?'active':''}" onclick="selectTaskCompany('${esc(e.id)}')">
-    <div class="company-option-title">${esc(e.nome)}</div>
-    <div class="company-option-meta">
-      ${e.cnpj?`<span>${esc(e.cnpj)}</span>`:''}
-      <span>${esc(regimeLabel(e.regime))}</span>
-      ${e.colaborador?`<span>👤 ${esc(e.colaborador)}</span>`:''}
-      ${e.semMovimento?'<span>sem movimento</span>':''}
-      ${e.fechada?'<span>fechada</span>':''}
-    </div>
-  </div>`).join('');
+  resEl.classList.add('open');
+  if(!todas.length){
+    resEl.innerHTML='<div class="company-empty">Nenhuma empresa carregada. Abra/salve o Painel ou clique em ↻ Atualizar.</div>';
+    return;
+  }
+  if(!hits.length){
+    resEl.innerHTML='<div class="company-empty">Nenhuma empresa encontrada para esta busca.</div>';
+    return;
+  }
+  resEl.innerHTML=hits.map(e=>{
+    const key=empresaPainelKey(e);
+    const isOn=selectedSet.has(String(key));
+    const extra=[e.cnpj,e.colaborador].filter(Boolean).join(' · ');
+    const tag=regimeShort(e.regime);
+    return `<button type="button" class="company-result-btn ${isOn?'on':''}" onclick="toggleTaskEmpresaVinculada('${esc(String(key))}')" aria-pressed="${isOn?'true':'false'}" title="${isOn?'Desmarcar desta tarefa':'Marcar para esta tarefa'}">
+      <span class="company-result-check">${isOn?'✓':''}</span>
+      <span class="company-result-main">
+        <span class="company-result-name">${esc(e.nome)}</span>
+        ${extra?`<span class="company-result-meta">${esc(extra)}</span>`:''}
+      </span>
+      ${tag?`<span class="badge company-mini-more">${esc(tag)}</span>`:''}
+    </button>`;
+  }).join('');
 }
-function openCompanyDropdown(){
-  renderCompanyDropdown(document.getElementById('tmCompanySearch')?.value||'');
-  const box=document.getElementById('tmCompanyDropdown');if(box)box.classList.add('open');
-}
-function filterCompanyOptions(value){
-  const id=document.getElementById('tmCompanyId');
-  const hint=document.getElementById('tmCompanyHint');
-  if(id)id.value='';
-  if(hint){hint.className='company-selected-hint warn';hint.textContent='Digite para buscar e clique em uma empresa da lista.';}
-  renderCompanyDropdown(value||'');
-  const box=document.getElementById('tmCompanyDropdown');if(box)box.classList.add('open');
-  saveDraftTask();
-}
-function selectTaskCompany(id){
-  const e=getCompanyById(id);if(!e)return;
-  document.getElementById('tmCompanyId').value=e.id;
-  document.getElementById('tmCompanySearch').value=e.nome;
-  const hint=document.getElementById('tmCompanyHint');
-  if(hint){hint.className='company-selected-hint ok';hint.textContent=`Selecionada: ${e.cnpj||'sem CNPJ'} • ${regimeLabel(e.regime)}`;}
-  const box=document.getElementById('tmCompanyDropdown');if(box)box.classList.remove('open');
+function toggleTaskEmpresaVinculada(empresaId){
+  const key=String(empresaId||'').trim();
+  if(!key)return;
+  const links=getModalEmpresaIds().slice();
+  const idx=links.map(String).indexOf(key);
+  if(idx>=0)links.splice(idx,1);
+  else links.push(key);
+  setModalEmpresaIds(links);
+  renderTaskEmpresasVinculadas();
   saveDraftTask();
 }
 function clearTaskCompany(){
-  document.getElementById('tmCompanyId').value='';
-  document.getElementById('tmCompanySearch').value='';
-  const hint=document.getElementById('tmCompanyHint');
-  if(hint){hint.className='company-selected-hint';hint.textContent='Sem empresa vinculada. A tarefa continuará só no painel de tarefas.';}
-  renderCompanyDropdown('');
+  setModalEmpresaIds([]);
+  clearEmpresaSearch();
+  renderTaskEmpresasVinculadas();
   saveDraftTask();
 }
-function fillCompanyPicker(companyId, legacyName=''){
-  const input=document.getElementById('tmCompanySearch');
-  const hidden=document.getElementById('tmCompanyId');
-  const hint=document.getElementById('tmCompanyHint');
-  const e=companyId?getCompanyById(companyId):null;
-  if(hidden)hidden.value=e?e.id:(companyId||'');
-  if(input)input.value=e?e.nome:(legacyName||'');
-  if(hint){
-    if(e){hint.className='company-selected-hint ok';hint.textContent=`Selecionada: ${e.cnpj||'sem CNPJ'} • ${regimeLabel(e.regime)}`;}
-    else if(companyId||legacyName){hint.className='company-selected-hint warn';hint.textContent='Empresa antiga/não encontrada no Painel. Escolha novamente para atualizar o vínculo.';}
-    else{hint.className='company-selected-hint';hint.textContent='As empresas são buscadas do Painel de Empresas.';}
-  }
-  renderCompanyDropdown(input?input.value:'');
+function fillCompanyPicker(idsOrCompanyId, legacyName=''){
+  const ids=Array.isArray(idsOrCompanyId)?idsOrCompanyId:(idsOrCompanyId?[idsOrCompanyId]:[]);
+  setModalEmpresaIds(ids);
+  clearEmpresaSearch();
+  renderTaskEmpresasVinculadas();
 }
 function sanitizeTaskCompanyFromModal(){
-  const id=document.getElementById('tmCompanyId').value;
-  const typed=document.getElementById('tmCompanySearch').value.trim();
-  if(typed&&!id){toast('Selecione uma empresa da lista ou limpe o campo de empresa.','error');return null;}
-  const c=id?getCompanyById(id):null;
-  return {companyId:c?c.id:'',companyName:c?c.nome:'',companyCnpj:c?c.cnpj:'',companyRegime:c?c.regime:''};
+  const ids=getModalEmpresaIds();
+  const refs=ids.map(id=>{
+    const e=findEmpresaPainelByKey(id);
+    if(e){
+      return {id:empresaPainelKey(e),painelId:e.id||'',nome:e.nome||'',cnpj:e.cnpj||'',cnpjDigits:e.cnpjDigits||onlyDigits(e.cnpj),regime:e.regime||'outros',colaborador:e.colaborador||''};
+    }
+    return {id:String(id),painelId:'',nome:String(id),cnpj:'',cnpjDigits:onlyDigits(id),regime:'outros',colaborador:''};
+  });
+  const first=refs[0]||null;
+  return {
+    empresasVinculadas:ids,
+    empresaIds:ids,
+    empresaRefs:refs,
+    companyId:first?first.id:'',
+    companyName:first?first.nome:'',
+    companyCnpj:first?first.cnpj:'',
+    companyRegime:first?first.regime:''
+  };
 }
+function renderTaskCompanyBadges(t){
+  const companies=getTaskCompanies(t);
+  if(!companies.length)return '';
+  const visible=companies.slice(0,3).map(c=>`<span class="badge company-badge">🏢 ${esc(c.nome||'Empresa')}</span>`).join('');
+  const more=companies.length>3?`<span class="badge company-badge">+${companies.length-3} empresa(s)</span>`:'';
+  return visible+more;
+}
+function renderTaskCompaniesContext(t){
+  const companies=getTaskCompanies(t);
+  if(!companies.length)return '';
+  return `<div class="company-context" style="align-items:flex-start;flex-direction:column;">
+    ${companies.map(c=>`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><strong>🏢 ${esc(c.nome||'Empresa')}</strong>${c.cnpj?`<span>${esc(c.cnpj)}</span>`:''}<span>${esc(regimeLabel(c.regime))}</span></div>`).join('')}
+  </div>`;
+}
+
+/* Compatibilidade com o seletor antigo de empresa única */
+function openCompanyDropdown(){renderTaskEmpresasVinculadas();}
+function filterCompanyOptions(){renderTaskEmpresasVinculadas();saveDraftTask();}
+function selectTaskCompany(id){toggleTaskEmpresaVinculada(id);}
+
 
 
 function renderHeader(){
@@ -1305,10 +1531,11 @@ function normalizeText(s){
 }
 function taskSearchBlob(t){
   const subs=(t.subtasks||[]).map(s=>s.name).join(' ');
-  const company=getTaskCompany(t);
+  const companies=getTaskCompanies(t);
+  const companyText=companies.map(c=>[c.nome,c.cnpj,c.regime,c.colaborador].filter(Boolean).join(' ')).join(' ');
   return [
     t.name,stripHtml(t.desc),t.reward,t.assigneeName,t.assigneeEmail,t.deadline,
-    t.parqueLocal,t.parqueMotive,t.parqueRetorno,company?.nome,company?.cnpj,company?.regime,subs,
+    t.parqueLocal,t.parqueMotive,t.parqueRetorno,companyText,subs,
     t.taskType,t.risk,t.energy,t.nextAction,t.doneCriteria,laneLabel(getTaskLane(t)),
     workLevelLabel(t.workLevel||t.taskLevel),workPathText(t),
     t.clientWaiting?'cliente esperando':'',t.blocking?'bloqueia equipe sistema':''
@@ -1344,8 +1571,8 @@ function getFiltered(){
   else if(filterPri==='unsetLevel')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='unset');
 
   if(companyFilter&&companyFilter!=='all') {
-    if(companyFilter==='__none') f=f.filter(t=>!t.companyId&&!t.companyName);
-    else f=f.filter(t=>String(t.companyId||'')===String(companyFilter));
+    if(companyFilter==='__none') f=f.filter(t=>!getTaskEmpresaIds(t).length&&!t.companyName);
+    else f=f.filter(t=>getTaskEmpresaIds(t).map(String).includes(String(companyFilter)));
   }
 
   const q=normalizeText(searchQuery);
@@ -1402,6 +1629,7 @@ function renderTaskHTML(t){
         <div class="task-mini-meta">
           <span class="task-mini-pill ${WORK_LEVELS[normalizeWorkLevel(t.workLevel||t.taskLevel)].cls}">${WORK_LEVELS[normalizeWorkLevel(t.workLevel||t.taskLevel)].short}</span>
           ${workPathText(t)?`<span class="task-mini-pill">${esc(workPathText(t))}</span>`:''}
+          ${getTaskCompanies(t).length?`<span class="task-mini-pill">🏢 ${esc(getTaskCompanyName(t))}</span>`:''}
           ${t.parqueado&&!t.done?`<span class="task-mini-pill task-mini-park">⏸ Parqueada</span>`:''}
         </div>
       </div>
@@ -1440,7 +1668,7 @@ function renderTaskDetailsHTML(t){
             <span class="badge" style="background:${c}22;color:${c}">${PRI_LABELS[t.priority]}</span>
             <span class="badge quick-flag">${esc(LANES[lane]?.short||lane)}</span>
             ${workLevelBadge(t)}
-            ${company&&company.nome?`<span class="badge company-badge">🏢 ${esc(company.nome)}</span>`:''}
+            ${renderTaskCompanyBadges(t)}
             ${t.taskType?`<span class="badge" style="background:rgba(167,139,250,0.12);color:var(--purple)">${esc(t.taskType)}</span>`:''}
             ${t.risk?`<span class="badge" style="background:${t.risk==='alto'?'rgba(224,90,90,0.12)':'rgba(201,168,76,0.10)'};color:${t.risk==='alto'?'var(--red)':'var(--gold)'}">Risco ${esc(RISK_LABELS[t.risk]||t.risk)}</span>`:''}
             ${t.energy?`<span class="badge" style="background:rgba(74,158,255,0.12);color:var(--blue)">Energia ${esc(ENERGY_LABELS[t.energy]||t.energy)}</span>`:''}
@@ -1485,7 +1713,7 @@ function renderTaskDetailsHTML(t){
       </div>
 
       <aside class="task-details-side">
-        ${company&&company.nome?`<div class="company-context"><strong>🏢 ${esc(company.nome)}</strong>${company.cnpj?`<span>${esc(company.cnpj)}</span>`:''}<span>${esc(regimeLabel(company.regime))}</span></div>`:''}
+        ${renderTaskCompaniesContext(t)}
         ${renderAttachmentsSection(t)}
         ${t.reward?`<div class="task-details-section"><div class="task-details-section-title">Recompensa</div><div style="font-size:0.76rem;color:var(--gold)">🎁 ${esc(t.reward)}</div></div>`:''}
         ${t.parqueado?`<div class="park-info">
@@ -1749,8 +1977,8 @@ function saveDraftTask(){
     name:document.getElementById('tmName').value,
     desc:document.getElementById('tmDesc').innerHTML,
     reward:document.getElementById('tmReward').value,
-    companyId:document.getElementById('tmCompanyId').value,
-    companySearch:document.getElementById('tmCompanySearch').value,
+    companyIds:getModalEmpresaIds(),
+    companySearch:document.getElementById('empresaFilterInput')?.value||'',
     taskType:document.getElementById('tmTaskType').value,
     risk:document.getElementById('tmRisk').value,
     energy:document.getElementById('tmEnergy').value,
@@ -1786,7 +2014,7 @@ function restoreDraftTask(){
   document.getElementById('tmName').value=draft.name||'';
   document.getElementById('tmDesc').innerHTML=draft.desc||'';
   document.getElementById('tmReward').value=draft.reward||'';
-  fillCompanyPicker(draft.companyId||'', draft.companySearch||'');
+  fillCompanyPicker(draft.companyIds||draft.empresasVinculadas||draft.companyId||[], draft.companySearch||'');
   document.getElementById('tmTaskType').value=draft.taskType||'Fiscal';
   document.getElementById('tmRisk').value=draft.risk||'medio';
   document.getElementById('tmEnergy').value=draft.energy||'media';
@@ -1815,7 +2043,7 @@ function restoreDraftTask(){
 }
 
 function bindDraftAutosave(){
-  ['tmName','tmReward','tmAssigneeName','tmAssigneeEmail','tmDeadline','tmCompanySearch','tmNextAction','tmDoneCriteria'].forEach(id=>{
+  ['tmName','tmReward','tmAssigneeName','tmAssigneeEmail','tmDeadline','empresaFilterInput','tmNextAction','tmDoneCriteria'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.addEventListener('input',saveDraftTask);
   });
   ['tmTaskType','tmRisk','tmEnergy','tmLane','tmWorkLevel','tmParentMacroId','tmParentActionId'].forEach(id=>{
@@ -1895,7 +2123,7 @@ function openEditTask(id){
   document.getElementById('tmName').value=t.name;
   document.getElementById('tmDesc').innerHTML=t.desc||'';
   document.getElementById('tmReward').value=t.reward||'';
-  fillCompanyPicker(t.companyId||'', t.companyName||'');
+  fillCompanyPicker(getTaskEmpresaIds(t), t.companyName||'');
   document.getElementById('tmTaskType').value=t.taskType||'Fiscal';
   document.getElementById('tmRisk').value=t.risk||'medio';
   document.getElementById('tmEnergy').value=t.energy||'media';
@@ -2061,7 +2289,7 @@ function esc(s){const d=document.createElement('div');d.textContent=s;return d.i
 function render(){renderHeader();renderOverview();renderFilters();renderCompanyFilter();renderTasks();refreshTaskDetailsModal()}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)closeModal(this.id)})});
 document.getElementById('rewardOverlay').addEventListener('click',function(e){if(e.target===this)closeReward()});
-document.addEventListener('click',function(e){const picker=document.querySelector('.company-picker');const box=document.getElementById('tmCompanyDropdown');if(box&&picker&&!picker.contains(e.target))box.classList.remove('open');});
+document.addEventListener('click',function(e){/* seletor de empresas em lista fixa; mantido sem fechamento automático */});
 // Rich editor: paste de imagem no tmDesc
 document.getElementById('tmDesc').addEventListener('paste', function(e) {
   const items = e.clipboardData?.items;
@@ -2187,6 +2415,7 @@ window.completeTask=completeTask; window.toggleSub=toggleSub; window.toggleTask=
 window.toggleTutorial=toggleTutorial; window.desparquear=desparquear;
 window.toggleParqueFields=toggleParqueFields; window.handleLaneSelectInModal=handleLaneSelectInModal;
 window.refreshCompanyList=refreshCompanyList; window.setCompanyFilter=setCompanyFilter;
+window.renderTaskEmpresasVinculadas=renderTaskEmpresasVinculadas; window.toggleTaskEmpresaVinculada=toggleTaskEmpresaVinculada;
 window.openCompanyDropdown=openCompanyDropdown; window.filterCompanyOptions=filterCompanyOptions;
 window.selectTaskCompany=selectTaskCompany; window.clearTaskCompany=clearTaskCompany;
 window.moveTaskToLane=moveTaskToLane; window.handleDragStart=handleDragStart; window.handleDragEnd=handleDragEnd;
