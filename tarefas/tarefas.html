@@ -277,7 +277,7 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 @media print{.app-header,.company-filter-select,.company-dropdown{display:none!important}.page{padding:0}.card{box-shadow:none!important;margin-bottom:0}}
 
 
-/* SISTEMA DE PRIORIZAÇÃO TDAH — 3 filas + estacionamento */
+/* SISTEMA DE PRIORIZAÇÃO TDAH — filas visuais + parqueamento separado */
 .prioritization-guide{position:relative;overflow:hidden}
 .prioritization-guide::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.08),transparent 55%);pointer-events:none}
 .rule-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;position:relative;z-index:1}
@@ -285,7 +285,7 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 .rule-kicker{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .rule-title{font-family:var(--serif);font-size:.9rem;color:var(--white);margin-bottom:5px}
 .rule-text{font-size:.74rem;line-height:1.45;color:var(--text-muted)}
-.priority-board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:start;overflow:visible;padding-bottom:0}
+.priority-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start;overflow:visible;padding-bottom:0}
 .priority-lane{width:100%;min-width:0;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:9px;transition:all .18s;height:clamp(320px,64vh,620px);position:relative;align-self:start;display:flex;flex-direction:column}
 .priority-lane.drop-hover{border-color:var(--gold);background:rgba(201,168,76,.08);box-shadow:0 0 0 3px rgba(201,168,76,.08)}
 .lane-header{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:8px;padding:8px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05)}
@@ -307,7 +307,7 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 .move-select{max-width:190px;padding:6px 28px 6px 10px;border-radius:999px;border:1px solid var(--gold-dim);background:rgba(255,255,255,.05);color:var(--white);font-size:.68rem;font-family:var(--mono);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 .move-select option{background:var(--navy-mid);color:var(--white)}
 .adhd-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:10px 0}.adhd-field{border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025);padding:9px 10px}.adhd-field-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}.adhd-field-value{font-size:.78rem;line-height:1.45;color:rgba(255,255,255,.82);word-break:break-word}.quick-flag{background:rgba(201,168,76,.12);color:var(--gold-light);border:1px solid var(--gold-dim)}
-.lane-inbox .lane-title{color:var(--purple)}.lane-agora .lane-title{color:var(--red)}.lane-proximo .lane-title{color:var(--gold-light)}.lane-semana .lane-title{color:var(--blue)}.lane-estacionamento .lane-title{color:var(--text-muted)}.lane-done .lane-title{color:var(--green)}
+.lane-inbox .lane-title{color:var(--purple)}.lane-agora .lane-title{color:var(--red)}.lane-proximo .lane-title{color:var(--gold-light)}.lane-semana .lane-title{color:var(--blue)}.lane-done .lane-title{color:var(--green)}
 .task-header{align-items:flex-start}
 .task-name{line-height:1.3}
 .task-badges{row-gap:6px}
@@ -400,6 +400,7 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 .task-mini-pill.level-macro{border-color:rgba(201,168,76,.28)}
 .task-mini-pill.level-acao{border-color:rgba(74,158,255,.25)}
 .task-mini-pill.level-micro{border-color:rgba(46,204,138,.25)}
+.task-mini-pill.task-mini-park{border-color:rgba(245,158,11,.34);color:var(--amber);background:rgba(245,158,11,.08)}
 @media(max-width:600px){.work-parent-row{grid-template-columns:1fr}.work-tree-line.micro{margin-left:10px}.work-tree-line.action{margin-left:4px}}
 
 </style>
@@ -496,7 +497,7 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
       <div class="rule-card"><div class="rule-kicker">Captura</div><div class="rule-title">Caixa de Entrada</div><div class="rule-text">Primeiro registra sem decidir. Depois classifica pelo risco, prazo e desbloqueio.</div></div>
       <div class="rule-card"><div class="rule-kicker">Foco</div><div class="rule-title">Agora = 1 tarefa</div><div class="rule-text">O dia começa por uma execução visível, não pela lista inteira.</div></div>
       <div class="rule-card"><div class="rule-kicker">Sequência</div><div class="rule-title">Próximo = até 3</div><div class="rule-text">Só entram as tarefas que vêm logo depois ou desbloqueiam alguém.</div></div>
-      <div class="rule-card"><div class="rule-kicker">Proteção</div><div class="rule-title">Estacionamento</div><div class="rule-text">Ideias, melhorias e distrações ficam guardadas sem sequestrar o dia.</div></div>
+      <div class="rule-card"><div class="rule-kicker">Proteção</div><div class="rule-title">Parqueamento</div><div class="rule-text">Parqueada é uma classificação separada: a tarefa continua na fila dela, mas marcada como adiada conscientemente.</div></div>
     </div>
   </div>
 
@@ -510,10 +511,10 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
         <div class="rule-card"><div class="rule-kicker">1</div><div class="rule-title">Comece pela Caixa de Entrada</div><div class="rule-text">Jogue a tarefa ali sem pensar demais. A ideia é capturar rápido para não perder o foco do que já está em andamento.</div></div>
         <div class="rule-card"><div class="rule-kicker">2</div><div class="rule-title">Escolha o que vai para Agora</div><div class="rule-text">A coluna Agora aceita só uma tarefa ativa. Isso reduz sobrecarga visual e ajuda a deixar claro qual é o foco do momento.</div></div>
         <div class="rule-card"><div class="rule-kicker">3</div><div class="rule-title">Use Próximo como fila curta</div><div class="rule-text">No máximo três tarefas. Entram aqui as próximas do fluxo, as mais urgentes ou as que destravam alguém.</div></div>
-        <div class="rule-card"><div class="rule-kicker">4</div><div class="rule-title">Planeje sem lotar</div><div class="rule-text">Esta semana guarda o que é importante, mas não precisa ser feito agora. Estacionamento segura ideias, melhorias e pendências não urgentes.</div></div>
+        <div class="rule-card"><div class="rule-kicker">4</div><div class="rule-title">Separe fila de parqueamento</div><div class="rule-text">Mover para Agora, Próximo ou Semana define prioridade visual. Marcar como Parqueada é outra camada: motivo, local e retorno.</div></div>
       </div>
       <div class="priority-help-note">
-        <strong style="color:var(--white)">Dica prática:</strong> você pode mover as tarefas arrastando entre as colunas ou usando o campo <strong style="color:var(--gold-light)">“Mover”</strong> dentro de cada card. Na dúvida, priorize nesta ordem: <strong style="color:var(--white)">prazo/risco</strong>, depois <strong style="color:var(--white)">o que desbloqueia outra pessoa ou etapa</strong>, e por fim <strong style="color:var(--white)">a menor próxima ação</strong>.
+        <strong style="color:var(--white)">Dica prática:</strong> você pode mover as tarefas arrastando entre as colunas ou usando o campo <strong style="color:var(--gold-light)">“Mover”</strong> dentro de cada card. Isso muda só a fila visual. O <strong style="color:var(--amber)">Parqueamento</strong> fica separado, no formulário da tarefa, para registrar motivo, local e janela de retorno.
       </div>
     </div>
   </div>
@@ -575,7 +576,6 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
           <option value="agora">Agora — 1 tarefa</option>
           <option value="proximo">Próximo — até 3 tarefas</option>
           <option value="semana">Esta semana — planejado</option>
-          <option value="estacionamento">Estacionamento — guardar sem executar agora</option>
           <option value="done">Concluído</option>
         </select>
       </div>
@@ -719,11 +719,11 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
       <input type="date" id="tmDeadline" />
     </div>
     <div style="border-top:1px solid var(--gold-dim);margin:14px 0 14px;"></div>
-    <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">⏸ Parqueamento (opcional)</div>
+    <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">⏸ Parqueamento — classificação separada (opcional)</div>
     <div class="form-group">
       <div class="toggle-row">
         <button class="toggle" id="tmParqueado" onclick="this.classList.toggle('on');toggleParqueFields()"></button>
-        <span class="toggle-label">Tarefa parqueada (adiada conscientemente)</span>
+        <span class="toggle-label">Marcar como parqueada sem mover de fila</span>
       </div>
     </div>
     <div id="parqueFields" style="display:none">
@@ -791,13 +791,12 @@ const PRI_COLORS=['','#2ecc8a','#2dd4bf','#f59e0b','#f97316','#e05a5a'];
 const PRI_LABELS=['','Baixa','Moderada','Média','Alta','Urgente'];
 const REWARDS_DEFAULT=['☕ Cafézinho','🚶 Levanta e anda 2 min','🎵 1 música favorita','💧 Copo d\'água','📱 5 min de redes','🍫 Um chocolate','🌬️ Respirar na janela'];
 
-const LANE_ORDER=['inbox','agora','proximo','semana','estacionamento','done'];
+const LANE_ORDER=['inbox','agora','proximo','semana','done'];
 const LANES={
   inbox:{label:'Caixa de Entrada',short:'Entrada',icon:'◇',subtitle:'Capturar sem decidir',limit:0,filter:'inbox'},
   agora:{label:'Agora',short:'Agora',icon:'●',subtitle:'Só 1 tarefa ativa',limit:1,filter:'agora'},
   proximo:{label:'Próximo',short:'Próximo',icon:'◆',subtitle:'No máximo 3 tarefas',limit:3,filter:'proximo'},
   semana:{label:'Esta semana',short:'Semana',icon:'▣',subtitle:'Importante, mas planejado',limit:0,filter:'semana'},
-  estacionamento:{label:'Estacionamento',short:'Estacionado',icon:'▤',subtitle:'Guardar sem sequestrar o dia',limit:0,filter:'estacionamento'},
   done:{label:'Concluído',short:'Concluído',icon:'✓',subtitle:'Finalizado e recompensado',limit:0,filter:'done'}
 };
 const RISK_LABELS={baixo:'Baixo',medio:'Médio',alto:'Alto'};
@@ -813,20 +812,24 @@ function todayISO(){return new Date().toISOString().slice(0,10)}
 function isTodayDeadline(t){return !!t.deadline&&t.deadline===todayISO()&&!t.done}
 function isOverdue(t){return !!t.deadline&&t.deadline<todayISO()&&!t.done}
 function laneLabel(lane){return (LANES[lane]||LANES.inbox).label}
-function normalizeLane(lane){return LANES[lane]?lane:'inbox'}
+function normalizeLane(lane){
+  if(lane==='estacionamento')return 'semana'; // compatibilidade: antigo estacionamento vira fila Semana
+  return LANES[lane]?lane:'inbox';
+}
 function inferLane(t){
   if(!t)return 'inbox';
   if(t.done)return 'done';
-  if(t.tdahLane&&LANES[t.tdahLane])return t.tdahLane;
-  if(t.parqueado)return 'estacionamento';
+  if(t.tdahLane)return normalizeLane(t.tdahLane);
+  if(t.parqueado)return 'semana';
   const p=Number(t.priority||3);
   if(p>=4)return 'proximo';
   if(p===3)return 'semana';
-  return 'estacionamento';
+  return 'semana';
 }
 function getTaskLane(t){return normalizeLane(inferLane(t))}
 function laneCount(lane, exceptId=null){return tasks.filter(t=>String(t.id)!==String(exceptId)&&getTaskLane(t)===lane&&!t.done).length}
 function laneSelectOptions(selected){
+  selected=normalizeLane(selected);
   return LANE_ORDER.map(l=>`<option value="${l}" ${l===selected?'selected':''}>${LANES[l].short}</option>`).join('');
 }
 
@@ -974,8 +977,7 @@ function syncTaskLaneSideEffects(t,lane,{adjustPoints=false,show=false,oldPriori
   }else{
     if(wasDone&&adjustPoints)points=Math.max(0,points-(oldPriority||t.priority||3)*10);
     t.done=false;t.tdahLane=lane;t.completedAt='';
-    if(lane==='estacionamento')t.parqueado=true;
-    else t.parqueado=false;
+    // Parqueamento é uma classificação separada: mover de fila não marca nem desmarca parqueamento.
   }
   return {ok:true};
 }
@@ -1007,6 +1009,19 @@ function asTaskArray(raw){
   if(Array.isArray(raw))return raw;
   if(raw&&typeof raw==='object')return Object.values(raw);
   return [];
+}
+function migrateParkingClassification(){
+  tasks=asTaskArray(tasks).map(t=>{
+    if(!t||typeof t!=='object')return t;
+    if(t.done){t.tdahLane='done';return t;}
+    if(t.tdahLane==='estacionamento'){
+      t.parqueado=true;
+      t.tdahLane='semana';
+    }else{
+      t.tdahLane=normalizeLane(t.tdahLane||inferLane(t));
+    }
+    return t;
+  });
 }
 
 
@@ -1040,6 +1055,8 @@ async function load(){
     try{ points=parseInt(localStorage.getItem('fiscal_pts')||'0'); }catch(e){ points=0; }
     setAutosaveStatus('saving','Offline — salvo localmente');
   }
+  migrateParkingClassification();
+  localStorage.setItem('fiscal_tasks', JSON.stringify(tasks));
   await loadPainelEmpresas();
   render();
   initTutorial();
@@ -1047,6 +1064,7 @@ async function load(){
 
 // ── FIREBASE: salvar ──
 async function doSave(){
+  migrateParkingClassification();
   // Salva local sempre (fallback)
   localStorage.setItem('fiscal_tasks',   JSON.stringify(tasks));
   localStorage.setItem('fiscal_exp',     JSON.stringify(expanded));
@@ -1231,7 +1249,7 @@ function renderOverview(){
   const waiting=tasks.filter(t=>t.clientWaiting&&!t.done).length;
   const blocking=tasks.filter(t=>t.blocking&&!t.done).length;
   const lowEnergy=tasks.filter(t=>(t.energy||'')==='baixa'&&!t.done).length;
-  const parqueadas=tasks.filter(t=>(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done).length;
+  const parqueadas=tasks.filter(t=>t.parqueado&&!t.done).length;
   const macroCount=tasks.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='macro'&&!t.done).length;
   const actionCount=tasks.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='acao'&&!t.done).length;
   const microCount=tasks.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='micro'&&!t.done).length;
@@ -1257,7 +1275,7 @@ function renderOverview(){
 function renderFilters(){
   const chips=[
     ['all','Todas'],['today','Hoje vence'],['clientWaiting','Cliente esperando'],['blocking','Bloqueia'],['lowEnergy','Baixa energia'],
-    ['inbox','Entrada'],['agora','Agora'],['proximo','Próximo'],['semana','Esta semana'],['estacionamento','Estacionamento'],
+    ['inbox','Entrada'],['agora','Agora'],['proximo','Próximo'],['semana','Esta semana'],
     ['parqueado','Parqueadas'],['naoParqueado','Não parqueadas'],['macro','Macroações'],['acao','Ações'],['micro','Microações'],['unsetLevel','Sem escala'],['done','Concluídas']
   ];
   document.getElementById('filterRow').innerHTML=chips.map(([id,label])=>`<button class="fchip ${filterPri===id?'active':''}" onclick="setFilter('${id}')">${label}</button>`).join('');
@@ -1318,8 +1336,8 @@ function getFiltered(){
   else if(filterPri==='urgent')f=f.filter(t=>((t.priority||3)>=4||t.risk==='alto')&&!t.done);
   else if(filterPri==='interaction')f=f.filter(t=>t.interaction&&!t.done);
   else if(filterPri==='solo')f=f.filter(t=>!t.interaction&&!t.done);
-  else if(filterPri==='parqueado')f=f.filter(t=>(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done);
-  else if(filterPri==='naoParqueado')f=f.filter(t=>!(t.parqueado||getTaskLane(t)==='estacionamento')&&!t.done);
+  else if(filterPri==='parqueado')f=f.filter(t=>t.parqueado&&!t.done);
+  else if(filterPri==='naoParqueado')f=f.filter(t=>!t.parqueado&&!t.done);
   else if(filterPri==='macro')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='macro');
   else if(filterPri==='acao')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='acao');
   else if(filterPri==='micro')f=f.filter(t=>normalizeWorkLevel(t.workLevel||t.taskLevel)==='micro');
@@ -1384,6 +1402,7 @@ function renderTaskHTML(t){
         <div class="task-mini-meta">
           <span class="task-mini-pill ${WORK_LEVELS[normalizeWorkLevel(t.workLevel||t.taskLevel)].cls}">${WORK_LEVELS[normalizeWorkLevel(t.workLevel||t.taskLevel)].short}</span>
           ${workPathText(t)?`<span class="task-mini-pill">${esc(workPathText(t))}</span>`:''}
+          ${t.parqueado&&!t.done?`<span class="task-mini-pill task-mini-park">⏸ Parqueada</span>`:''}
         </div>
       </div>
       <div class="task-mini-open">↗</div>
@@ -1470,11 +1489,11 @@ function renderTaskDetailsHTML(t){
         ${renderAttachmentsSection(t)}
         ${t.reward?`<div class="task-details-section"><div class="task-details-section-title">Recompensa</div><div style="font-size:0.76rem;color:var(--gold)">🎁 ${esc(t.reward)}</div></div>`:''}
         ${t.parqueado?`<div class="park-info">
-          <div class="park-info-label">⏸ Tarefa no Estacionamento</div>
+          <div class="park-info-label">⏸ Classificação: Parqueada</div>
           ${t.parqueLocal?`<div class="park-info-row">📍 Onde: <span>${esc(t.parqueLocal)}</span></div>`:''}
           ${t.parqueMotive?`<div class="park-info-row">✅ Motivo: <span>${esc(t.parqueMotive)}</span></div>`:''}
           ${t.parqueRetorno?`<div class="park-info-row">🔁 Retorno: <span>${formatDate(t.parqueRetorno)}</span></div>`:''}
-          <button class="btn btn-sm" style="margin-top:8px;border-color:rgba(245,158,11,0.3);color:var(--amber)" onclick="desparquear(${t.id});setTimeout(refreshTaskDetailsModal,0)">Mover para Próximo</button>
+          <button class="btn btn-sm" style="margin-top:8px;border-color:rgba(245,158,11,0.3);color:var(--amber)" onclick="desparquear(${t.id});setTimeout(refreshTaskDetailsModal,0)">Desmarcar parqueamento</button>
         </div>`:''}
         <div class="task-details-actions">
           <select class="move-select" onchange="moveTaskToLane(${t.id},this.value);setTimeout(refreshTaskDetailsModal,0)" title="Mover entre prioridades">${laneSelectOptions(lane)}</select>
@@ -1907,11 +1926,9 @@ function openEditTask(id){
 }
 
 function handleLaneSelectInModal(){
-  const lane=document.getElementById('tmLane').value;
-  const togP=document.getElementById('tmParqueado');
-  if(lane==='estacionamento')togP.classList.add('on');
-  if(lane!=='estacionamento')togP.classList.remove('on');
-  document.getElementById('parqueFields').style.display=togP.classList.contains('on')?'block':'none';
+  const laneEl=document.getElementById('tmLane');
+  if(laneEl)laneEl.value=normalizeLane(laneEl.value);
+  // A escolha da fila visual não altera o parqueamento.
 }
 
 function saveTask(){
@@ -1952,8 +1969,8 @@ function saveTask(){
   if(parentActionId&&String(parentActionId)===String(editId)){toast('A tarefa não pode pertencer a ela mesma.','error');return;}
   if(workLevel==='acao'&&parentMacroId&&normalizeWorkLevel(getTaskById(parentMacroId)?.workLevel)!=='macro'){toast('Escolha uma macroação válida.','error');return;}
   if(workLevel==='micro'&&parentActionId&&normalizeWorkLevel(getTaskById(parentActionId)?.workLevel)!=='acao'){toast('Escolha uma ação válida.','error');return;}
-  if(parqueado&&lane!=='done')lane='estacionamento';
-  if(lane==='estacionamento')parqueado=true;
+  lane=normalizeLane(lane);
+  if(lane==='done')parqueado=false;
   if(!checkLaneLimit(lane,editId||null))return;
 
   if(editId){
@@ -2033,6 +2050,7 @@ function importBackup(ev){
         const ids=new Set(tasks.map(t=>t.id));
         data.tasks.forEach(t=>{if(!ids.has(t.id))tasks.push(t)});
       }
+      migrateParkingClassification();
       save();render();toast(`Restaurado — ${tasks.length} tarefas`,'success');
     }catch(err){toast('Arquivo inválido','error')}
   };
@@ -2128,15 +2146,16 @@ function togglePriorityHelp(){
 function toggleParqueFields(){
   const on=document.getElementById('tmParqueado').classList.contains('on');
   document.getElementById('parqueFields').style.display=on?'block':'none';
-  const lane=document.getElementById('tmLane');
-  if(lane&&on)lane.value='estacionamento';
+  saveDraftTask();
 }
 
 function desparquear(id){
   const t=tasks.find(x=>x.id===id);if(!t)return;
   t.parqueado=false;
-  t.tdahLane='proximo';
-  save();render();toast('Tarefa movida para Próximo','success');
+  t.parqueLocal='';
+  t.parqueMotive='';
+  t.parqueRetorno='';
+  save();render();toast('Parqueamento removido sem alterar a fila','success');
 }
 
 // Autosave periódico a cada 30s
