@@ -2041,15 +2041,15 @@
       if (!el) {
         el = document.createElement('span');
         el.id = 'cloudSaveStatus';
-        el.style.cssText = 'font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);margin-left:10px;transition:opacity 0.4s;display:inline-block;';
+        el.style.cssText = 'font-size:0.72rem;font-family:var(--mono);color:var(--text-muted);margin-left:10px;transition:opacity 0.4s;';
         const titulo = document.querySelector('h1');
         if (titulo) titulo.insertAdjacentElement('afterend', el);
       }
-      el.textContent = ok ? '☁ salvo na nuvem' : '⚠ erro ao salvar';
+      el.textContent = ok ? '☁ salvo' : '⚠ erro ao salvar';
       el.style.color = ok ? 'var(--green)' : 'var(--red)';
       el.style.opacity = '1';
       clearTimeout(window._saveStatusTimer);
-      window._saveStatusTimer = setTimeout(() => { el.style.opacity = '0.4'; el.textContent = ok ? '☁ sincronizado' : '⚠ erro'; }, 3000);
+      window._saveStatusTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
     }
 
     // Aplica dados (de localStorage ou de backup)
@@ -2282,19 +2282,8 @@
       aplicarMascaraCompetencia();
       bindCheckboxListeners();
 
-      // Tenta carregar da nuvem; se falhar, localStorage é o fallback
-      loadLocal(); // carrega imediatamente o que tem local
-      if (typeof window._loadChecklistCloud === 'function') {
-        window._loadChecklistCloud().then(() => {
-          // Após carregar da nuvem, restaura colaborador selecionado se ainda não carregou
-          const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-          const sel = document.getElementById('colaboradorSelect');
-          if (sel && saved.colaboradorSelecionado && sel.value === '__manual__') {
-            const opt = sel.querySelector(`option[value="${saved.colaboradorSelecionado}"]`);
-            if (opt) { sel.value = saved.colaboradorSelecionado; window.carregarDoPanel(); }
-          }
-        });
-      }
+      // Carrega localStorage imediatamente; Firebase carrega via onAuthStateChanged
+      loadLocal();
 
       atualizarTotais();
 
@@ -2310,6 +2299,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
@@ -2321,13 +2311,13 @@
     appId: "1:1049839891406:web:c5874166bdbee74139f19f"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
+  const app  = initializeApp(firebaseConfig);
+  const db   = getDatabase(app);
+  const auth = getAuth(app);
   const painelStatus = document.getElementById('painelStatus');
 
   // ── SAVE / LOAD NA NUVEM (campos gerais do checklist) ────────────────────
-  const CHECKLIST_META_PATH    = 'checklist/meta';
-  const CHECKLIST_OBSPAINEL_PATH = 'checklist/painelObs';
+  const CHECKLIST_META_PATH = 'checklist/meta';
 
   window._saveChecklistCloud = async function() {
     try {
@@ -2335,17 +2325,9 @@
         competencia:  document.getElementById('competenciaField')?.value  || '',
         responsavel:  document.getElementById('responsavelField')?.value  || '',
         conclusao:    document.getElementById('conclusaoField')?.value    || '',
-        colaboradorSelecionado: document.getElementById('colaboradorSelect')?.value || '__manual__',
         updatedAt:    Date.now()
       };
       await set(ref(db, CHECKLIST_META_PATH), data);
-
-      // Salva painelObs na nuvem também
-      const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-      if (saved.painelObs && Object.keys(saved.painelObs).length > 0) {
-        await set(ref(db, CHECKLIST_OBSPAINEL_PATH), saved.painelObs);
-      }
-
       if (typeof mostrarSaveStatus === 'function') mostrarSaveStatus(true);
     } catch(e) {
       console.error('Erro ao salvar checklist na nuvem:', e);
@@ -2355,29 +2337,15 @@
 
   window._loadChecklistCloud = async function() {
     try {
-      const [snapMeta, snapObs] = await Promise.all([
-        get(ref(db, CHECKLIST_META_PATH)),
-        get(ref(db, CHECKLIST_OBSPAINEL_PATH))
-      ]);
-
-      const local = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
-
-      if (snapMeta.exists()) {
-        const data = snapMeta.val();
+      const snap = await get(ref(db, CHECKLIST_META_PATH));
+      if (snap.exists()) {
+        const data = snap.val();
         if (typeof aplicarCamposGerais === 'function') aplicarCamposGerais(data);
-        Object.assign(local, {
-          competencia: data.competencia,
-          responsavel: data.responsavel,
-          conclusao: data.conclusao,
-          colaboradorSelecionado: data.colaboradorSelecionado || local.colaboradorSelecionado
-        });
+        // Espelha no localStorage para fallback offline
+        const local = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+        Object.assign(local, { competencia: data.competencia, responsavel: data.responsavel, conclusao: data.conclusao });
+        localStorage.setItem('checklistFiscal', JSON.stringify(local));
       }
-
-      if (snapObs.exists()) {
-        local.painelObs = snapObs.val();
-      }
-
-      localStorage.setItem('checklistFiscal', JSON.stringify(local));
     } catch(e) {
       console.warn('Nuvem indisponível, usando localStorage:', e);
       if (typeof loadLocal === 'function') loadLocal();
@@ -2389,12 +2357,7 @@
     try {
       const snap = await get(ref(db, 'painel/empresas'));
       if (!snap.exists()) { painelStatus.textContent = '—'; return; }
-
-      // Suporta tanto objeto (push keys) quanto array (formato legado)
-      const raw = snap.val();
-      const lista = Array.isArray(raw) ? raw : Object.values(raw);
-      const empresas = lista.filter(e => e && !e.fechada && e.colaborador);
-
+      const empresas = Object.values(snap.val()).filter(e => !e.fechada && e.colaborador);
       const colaboradores = [...new Set(empresas.map(e => e.colaborador))].sort();
       const sel = document.getElementById('colaboradorSelect');
       sel.innerHTML = '<option value="__manual__">📋 Manual</option>';
@@ -2412,9 +2375,7 @@
       if (sel.querySelector(`option[value="${colSaved}"]`)) sel.value = colSaved;
       window.carregarDoPanel();
     } catch(e) {
-      console.error('Erro ao carregar colaboradores do Painel:', e);
       painelStatus.textContent = '⚠️';
-      avisoChecklist('Não foi possível conectar ao Painel. Verifique a conexão.');
     }
   }
 
@@ -2474,9 +2435,7 @@
     try {
       const snap = await get(ref(db, 'painel/empresas'));
       if (snap.exists()) {
-        const raw = snap.val();
-        const lista = Array.isArray(raw) ? raw : Object.values(raw);
-        window._painelEmpresas = lista.filter(e => e && !e.fechada && e.colaborador);
+        window._painelEmpresas = Object.values(snap.val()).filter(e => !e.fechada && e.colaborador);
       }
     } catch(err) {
       console.warn('Usando cache do Painel:', err);
@@ -2700,18 +2659,6 @@
     });
     saved.painelObs = painelObs;
     localStorage.setItem('checklistFiscal', JSON.stringify(saved));
-
-    // Persiste painelObs na nuvem (debounce 2s)
-    clearTimeout(window._painelObsCloudTimer);
-    window._painelObsCloudTimer = setTimeout(async () => {
-      try {
-        await set(ref(db, CHECKLIST_OBSPAINEL_PATH), painelObs);
-        if (typeof mostrarSaveStatus === 'function') mostrarSaveStatus(true);
-      } catch(e) {
-        console.error('Erro ao salvar painelObs na nuvem:', e);
-        if (typeof mostrarSaveStatus === 'function') mostrarSaveStatus(false);
-      }
-    }, 2000);
   };
 
   // ── CHECKLIST MANUAL ──────────────────────
@@ -2843,8 +2790,45 @@
     }
   };
 
-  carregarColaboradores();
-  carregarManual();
+  // ── AVISO SEM LOGIN ──────────────────────────────────────────────────────
+  function mostrarAvisoSemLogin() {
+    const painelStatus = document.getElementById('painelStatus');
+    if (painelStatus) painelStatus.textContent = '🔒';
+    let aviso = document.getElementById('avisoSemLogin');
+    if (!aviso) {
+      aviso = document.createElement('div');
+      aviso.id = 'avisoSemLogin';
+      aviso.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:#1b2e42;border:1px solid rgba(201,168,76,0.35);border-radius:14px;padding:14px 20px;color:#e8c97a;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:10px;';
+      aviso.innerHTML = '🔒 Faça login no <a href="../portal/portal.html" style="color:#c9a84c;text-decoration:underline;">Portal BIF</a> para sincronizar com o Painel.';
+      document.body.appendChild(aviso);
+    }
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const avisoEl = document.getElementById('avisoSemLogin');
+      if (avisoEl) avisoEl.remove();
+
+      carregarColaboradores();
+      carregarManual();
+
+      if (typeof window._loadChecklistCloud === 'function') {
+        window._loadChecklistCloud().then(() => {
+          const saved = JSON.parse(localStorage.getItem('checklistFiscal') || '{}');
+          const sel = document.getElementById('colaboradorSelect');
+          if (sel && saved.colaboradorSelecionado && sel.value === '__manual__') {
+            const opt = sel.querySelector(`option[value="${saved.colaboradorSelecionado}"]`);
+            if (opt) { sel.value = saved.colaboradorSelecionado; window.carregarDoPanel(); }
+          }
+        });
+      }
+    } else {
+      mostrarAvisoSemLogin();
+      // Fallback: carrega só o manual e campos gerais do localStorage
+      if (typeof loadLocal === 'function') loadLocal();
+      carregarManual();
+    }
+  });
 
   // ── MODAL DE ENVIO DE GUIA (bloqueante) ────────────────────────────────────
   let _guiaCbPendente   = null;
