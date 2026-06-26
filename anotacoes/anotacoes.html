@@ -55,7 +55,7 @@ input[type=file]{display:none}
 .notes-list{display:flex;flex-direction:column;gap:6px;overflow:auto;padding-right:6px;min-height:250px;max-height:520px}
 .note-card{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
 .note-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);opacity:.45}.note-card:hover{background:rgba(255,255,255,.07);border-color:var(--gold-dim);transform:translateY(-1px)}.note-card.active{background:rgba(201,168,76,.1);border-color:var(--gold)}.note-card.pinned::before{background:var(--amber);opacity:.9}
-.card-title{font-weight:700;font-size:.8rem;color:#ffffff;line-height:1.38;margin-right:14px;word-break:break-word;overflow-wrap:anywhere;white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.35)}.card-preview{font-size:.74rem;color:#a8bdd4;line-height:1.48;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere}.note-card.active .card-title{color:var(--gold-light)}.note-card.active .card-preview{-webkit-line-clamp:3}.card-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:8px}.mini-tag{font-size:.58rem;font-family:var(--mono);letter-spacing:.02em;color:var(--gold-light);border:1px solid var(--gold-dim);background:rgba(201,168,76,.07);border-radius:999px;padding:2px 6px;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pin-dot{position:absolute;top:10px;right:10px;color:var(--amber);font-size:.8rem}.date-mini{font-size:.62rem;color:var(--dim);font-family:var(--mono)}
+.card-title{font-weight:800;font-size:.84rem;color:#ffffff;line-height:1.35;margin-right:18px;word-break:break-word;overflow-wrap:anywhere;white-space:normal;text-shadow:0 1px 3px rgba(0,0,0,.4)}.card-preview{font-size:.74rem;color:#a8bdd4;line-height:1.48;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere}.note-card.active .card-title{color:var(--gold-light)}.note-card.active .card-preview{-webkit-line-clamp:3}.card-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:8px}.mini-tag{font-size:.58rem;font-family:var(--mono);letter-spacing:.02em;color:var(--gold-light);border:1px solid var(--gold-dim);background:rgba(201,168,76,.07);border-radius:999px;padding:2px 6px;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pin-dot{position:absolute;top:10px;right:10px;color:var(--amber);font-size:.8rem}.date-mini{font-size:.62rem;color:var(--dim);font-family:var(--mono)}
 .empty-list{text-align:center;color:var(--dim);font-size:.82rem;line-height:1.55;padding:30px 10px;border:1px dashed rgba(255,255,255,.08);border-radius:14px}
 .editor-wrap{padding:24px;display:flex;flex-direction:column;gap:16px;background:linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.025))}
 .focus-strip{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);border-radius:14px;padding:10px 12px;color:var(--muted);font-size:.78rem;line-height:1.45}.focus-strip strong{color:var(--gold-light)}.strip-actions{display:flex;gap:6px;flex-wrap:wrap}.pill{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:.68rem;font-family:var(--mono)}
@@ -68,6 +68,92 @@ input[type=file]{display:none}
 body.focus-mode{padding-top:14px}body.focus-mode .backline,body.focus-mode .header,body.focus-mode .sidebar,body.focus-mode .focus-strip{display:none!important}body.focus-mode .shell{border-color:transparent;background:transparent;box-shadow:none}body.focus-mode .workspace{display:block;min-height:0}body.focus-mode .editor-wrap{padding:8px;background:transparent}body.focus-mode .paper{max-width:840px;min-height:calc(100vh - 50px)}body.focus-mode .paper-inner{padding:42px 54px}body.focus-mode .paper-actions .hide-in-focus{display:none}
 @media(max-width:860px){body{padding:14px 10px 36px}.header{padding:20px;align-items:stretch;flex-direction:column}.actions{justify-content:flex-start}.workspace{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid rgba(255,255,255,.06)}.notes-list{max-height:250px}.editor-wrap{padding:14px}.paper-inner{padding:28px 22px 34px}.paper{min-height:540px}.note-title-input{font-size:1.25rem}.statusbar{left:12px;right:12px;bottom:10px;justify-content:center}.toast{width:calc(100% - 24px);text-align:center}}
 @media print{body{background:#fff!important;color:#111!important;padding:0!important}body::before,body::after,.backline,.header,.sidebar,.focus-strip,.statusbar,.toast,.paper-actions,.suggestions{display:none!important}.shell{border:0!important;box-shadow:none!important;background:#fff!important}.workspace{display:block;min-height:0}.editor-wrap{padding:0!important;background:#fff!important}.paper{box-shadow:none!important;border-radius:0!important;max-width:none!important;min-height:auto!important;background:#fff!important;color:#111!important}.paper::before{display:none}.paper-inner{padding:18mm!important}.note-title-input{color:#111!important;border-bottom:1px solid #ddd}.tag-chip{border-color:#ddd!important;background:#f6f6f6!important;color:#444!important}.tag-chip button,.tag-input{display:none!important}.editor{min-height:auto;color:#111!important}.paper-foot{color:#555!important}}
+
+
+/* =========================================================
+   Ajuste de visualização da lista de anotações
+   - Evita títulos cortados
+   - Dá respiro aos cards
+   - Mantém o layout original, sem alterar o Firebase
+   ========================================================= */
+.notes-list{
+  gap:8px;
+  padding-right:8px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(201,168,76,.55) rgba(255,255,255,.05);
+}
+.notes-list::-webkit-scrollbar{width:7px}
+.notes-list::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px}
+.notes-list::-webkit-scrollbar-thumb{background:rgba(201,168,76,.55);border-radius:999px}
+.note-card{
+  min-height:58px;
+  padding:12px 14px 11px 16px;
+  border-radius:14px;
+  overflow:visible;
+  background:rgba(255,255,255,.055);
+  border-color:rgba(255,255,255,.11);
+}
+.note-card::before{
+  width:4px;
+  opacity:.62;
+}
+.note-card:hover{
+  background:rgba(255,255,255,.075);
+}
+.note-card.active{
+  background:rgba(201,168,76,.13);
+  border-color:rgba(201,168,76,.82);
+  box-shadow:0 0 0 1px rgba(201,168,76,.12), 0 10px 22px rgba(0,0,0,.12);
+}
+.card-title{
+  font-family:var(--sans);
+  font-size:.82rem;
+  font-weight:700;
+  line-height:1.42;
+  letter-spacing:-.01em;
+  color:#f6f9ff;
+  text-shadow:none;
+  margin-right:22px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  word-break:normal;
+  overflow-wrap:anywhere;
+}
+.card-preview{
+  margin-top:4px;
+  font-size:.70rem;
+  line-height:1.38;
+  color:#9fb2c8;
+  -webkit-line-clamp:1;
+}
+.note-card.active .card-title{color:var(--gold-light)}
+.note-card.active .card-preview{-webkit-line-clamp:1;color:#b7c6d7}
+.card-meta{
+  margin-top:7px;
+  gap:6px;
+  align-items:center;
+}
+.mini-tag{
+  font-size:.56rem;
+  line-height:1.25;
+  padding:2px 7px;
+}
+.date-mini{
+  line-height:1.25;
+  white-space:nowrap;
+}
+.pin-dot{
+  top:12px;
+  right:12px;
+}
+@media(max-width:860px){
+  .notes-list{max-height:320px;gap:8px}
+  .note-card{min-height:56px;padding:11px 13px 10px 15px}
+  .card-title{font-size:.80rem;line-height:1.40}
+}
+
 </style>
 </head>
 <body>
@@ -569,7 +655,7 @@ function renderNotesList(){
     return;
   }
   els.notesList.innerHTML = list.map(n=>{
-    const title = n.title.trim() || plainPreview(n.body,80) || 'Nota sem título';
+    const title = n.title.trim() || plainPreview(n.body,44) || 'Nota sem título';
     const preview = plainPreview(n.body,110) || 'Folha em branco';
     const tags = (n.tags||[]).slice(0,3).map(t=>`<span class="mini-tag">#${escapeHTML(t)}</span>`).join('');
     const extra = (n.tags||[]).length > 3 ? `<span class="mini-tag">+${(n.tags||[]).length-3}</span>` : '';
