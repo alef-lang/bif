@@ -5936,6 +5936,7 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, get, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
@@ -5949,6 +5950,7 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
+  const auth = getAuth(app);
 
   // Operações por item individual (empresas)
   window._fbPushEmpresa   = (data)     => push(ref(db, 'painel/empresas'), data);
@@ -5966,12 +5968,34 @@ window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.queryS
   window._fbGet = (path) => get(ref(db, path));
   window._fbSet = (path, data) => set(ref(db, path), data);
 
-  // Dispara init após Firebase pronto
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => init());
-  } else {
-    init();
-  }
+  // Aguarda autenticação antes de iniciar
+  const startApp = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => init());
+    } else {
+      init();
+    }
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window._currentUser = user;
+      startApp();
+    } else {
+      window._currentUser = null;
+      setCloudStatus('error', 'Sem login — faça login no portal');
+      // Fallback: carrega do localStorage sem Firebase
+      try {
+        const saved = localStorage.getItem('gestao_v3');
+        if (saved) {
+          const d = JSON.parse(saved);
+          S.empresas = (d.empresas || []).map(normalizeEmpresa);
+        }
+      } catch(e) {}
+      if (document.readyState !== 'loading') renderAll();
+      else document.addEventListener('DOMContentLoaded', () => renderAll());
+    }
+  });
 </script>
 
 <script>
