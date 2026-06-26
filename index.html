@@ -591,6 +591,16 @@
           </div>
         </div>
 
+        <div class="tool-card ready" onclick="openTool('apoio-escrituracao')">
+          <div class="tool-icon">📒</div>
+          <h3>Apoio à Escrituração</h3>
+          <p>Planilhas, modelos e materiais de suporte para a escrituração fiscal. Upload de XLSX, HTML, PDF, CSV e outros.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -992,7 +1002,8 @@
       'planos-negocio': './planos/index-planos.html',
       'controle-guias': './controleguias/controle-guias.html',
       'pop': './procedimentos/pop.html',
-      'documentos': './documentos/documentos.html'
+      'documentos': './documentos/documentos.html',
+      'apoio-escrituracao': './apoio/apoio.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
