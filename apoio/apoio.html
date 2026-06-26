@@ -1,1013 +1,774 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Business Intelligence Fiscal</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --navy:       #0d1b2a;
-      --navy-card:  #1b2e42;
-      --navy-hover: #223650;
-      --gold:       #c9a84c;
-      --gold-light: #e8c97a;
-      --gold-dim:   rgba(201,168,76,0.18);
-      --gold-glow:  rgba(201,168,76,0.35);
-      --text:       #e8edf3;
-      --text-muted: #8ba0b8;
-      --radius:     16px;
-      --radius-sm:  8px;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Apoio à Escrituração — BIF</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18' fill='%23c9a84c'%3E📒%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:          #0d1b2a;
+  --card:        #1b2e42;
+  --card2:       #162438;
+  --gold:        #c9a84c;
+  --gold-light:  #e8c97a;
+  --gold-dim:    rgba(201,168,76,0.18);
+  --gold-border: rgba(201,168,76,0.30);
+  --gold-glow:   rgba(201,168,76,0.14);
+  --text:        #e8edf2;
+  --muted:       #7a92a8;
+  --green:       #4caf82;
+  --red:         #e05c5c;
+  --blue:        #4a9eda;
+  --radius:      16px;
+  --radius-sm:   10px;
+  --shadow:      0 8px 32px rgba(0,0,0,0.45);
+  --font-title:  'Poppins', sans-serif;
+  --font-body:   'DM Sans', sans-serif;
+  --font-mono:   'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 8%,  rgba(201,168,76,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 82%, rgba(74,158,218,0.07) 0%, transparent 52%);
+  color: var(--text);
+  min-height: 100vh;
+}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--navy);
-      color: var(--text);
-      min-height: 100vh;
-      background-image: radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 90%, rgba(30,80,140,0.15) 0%, transparent 50%);
-    }
+/* ── HEADER ─────────────────────────────────────── */
+.header {
+  position: sticky; top: 0; z-index: 200;
+  background: linear-gradient(135deg, #0d1b2a, #1b2e42);
+  border-bottom: 1px solid var(--gold-dim);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+}
+.head-left { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0d1b2a; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(201,168,76,0.22);
+}
+.head-title h1 {
+  font: 700 16px var(--font-title);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.head-title p { font: 500 11px var(--font-mono); color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-    /* ── LOGIN ─────────────────────────────────────────────── */
-    #loginScreen {
-      min-height: 100vh;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
+.cloud-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px; padding: 5px 12px;
+}
+.cloud-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
+  transition: background .3s;
+}
+.cloud-dot.ok    { background: var(--green); box-shadow: 0 0 6px rgba(76,175,130,0.5); }
+.cloud-dot.error { background: var(--red); }
+.cloud-dot.loading { background: var(--gold); animation: pulse .8s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity:.4; } to { opacity:1; } }
+#cloudStatus { font: 500 11px var(--font-mono); color: var(--muted); }
 
-    .login-card {
-      background: var(--navy-card);
-      border: 1px solid var(--gold-dim);
-      border-radius: var(--radius);
-      padding: 48px 40px 40px;
-      width: 100%;
-      max-width: 420px;
-      position: relative;
-      overflow: hidden;
-    }
+.btn {
+  border: 1px solid var(--gold-dim); border-radius: var(--radius-sm);
+  padding: 8px 14px; background: rgba(201,168,76,0.10);
+  color: var(--gold-light); font: 600 12px var(--font-body);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: .18s; white-space: nowrap;
+}
+.btn:hover { background: rgba(201,168,76,0.22); border-color: var(--gold); transform: translateY(-1px); }
+.btn.gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0d1b2a; border-color: transparent; }
+.btn.gold:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-back { border-color: rgba(255,255,255,0.12); color: var(--muted); }
+.btn-back:hover { color: var(--text); border-color: var(--muted); background: rgba(255,255,255,0.06); }
 
-    .login-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
+/* ── MAIN ─────────────────────────────────────── */
+.main {
+  max-width: 1400px; margin: 0 auto; padding: 32px 24px 60px;
+}
 
-    .login-logo {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+.section-title {
+  font: 600 0.75rem var(--font-mono); color: var(--gold);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::before {
+  content: ''; width: 4px; height: 18px;
+  background: var(--gold); border-radius: 2px; flex-shrink: 0;
+}
 
-    .login-logo .glyph {
-      font-family: 'DM Mono', monospace;
-      font-size: 2.2rem;
-      color: var(--gold);
-      display: block;
-      letter-spacing: -2px;
-      line-height: 1;
-      margin-bottom: 10px;
-    }
+.category { margin-bottom: 48px; }
 
-    .login-logo h1 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: 0.04em;
-    }
+/* ── GRID DE MÓDULOS ─────────────────────────── */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
 
-    .login-logo p {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
+.doc-card {
+  background: var(--card);
+  border: 1.5px solid var(--gold-dim);
+  border-radius: var(--radius);
+  padding: 22px 20px 18px;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 170px;
+}
+.doc-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(201,168,76,0.15);
+}
+.doc-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.doc-card:hover::after { opacity: 1; }
 
-    .field {
-      margin-bottom: 16px;
-    }
+.doc-card.empty {
+  border-style: dashed;
+  border-color: rgba(201,168,76,0.25);
+  background: rgba(201,168,76,0.03);
+}
+.doc-card.empty:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.07);
+}
 
-    .field label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
+.doc-card.filled { border-color: rgba(201,168,76,0.35); }
 
-    .field input {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,168,76,0.2);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+.doc-icon {
+  width: 44px; height: 44px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.doc-icon.filled-icon {
+  background: rgba(76,175,130,0.12);
+  border-color: rgba(76,175,130,0.3);
+}
 
-    .field input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px var(--gold-glow);
-    }
+.doc-name {
+  font: 700 0.95rem var(--font-title); color: var(--text); line-height: 1.3;
+}
+.doc-desc {
+  font: 400 0.8rem var(--font-body); color: var(--muted); line-height: 1.5; flex: 1;
+}
 
-    .btn-login {
-      width: 100%;
-      margin-top: 8px;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      color: var(--navy);
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      letter-spacing: 0.05em;
-      transition: opacity 0.2s, transform 0.15s;
-    }
+.doc-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: auto; padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.doc-status {
+  font: 500 0.7rem var(--font-mono);
+  padding: 3px 9px; border-radius: 999px;
+}
+.doc-status.empty-badge {
+  background: rgba(201,168,76,0.10); color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+.doc-status.filled-badge {
+  background: rgba(76,175,130,0.12); color: var(--green);
+  border: 1px solid rgba(76,175,130,0.3);
+}
 
-    .btn-login:hover { opacity: 0.92; transform: translateY(-1px); }
-    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+/* Badge de tipo de arquivo */
+.doc-type-badge {
+  font: 500 0.65rem var(--font-mono);
+  padding: 2px 7px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.type-html  { background: rgba(74,158,218,0.12); color: #7bbfe8; border: 1px solid rgba(74,158,218,0.25); }
+.type-xlsx  { background: rgba(76,175,130,0.12); color: #6fcba8; border: 1px solid rgba(76,175,130,0.25); }
+.type-xls   { background: rgba(76,175,130,0.12); color: #6fcba8; border: 1px solid rgba(76,175,130,0.25); }
+.type-csv   { background: rgba(76,175,130,0.12); color: #6fcba8; border: 1px solid rgba(76,175,130,0.25); }
+.type-pdf   { background: rgba(224,92,92,0.12);  color: #e87a7a; border: 1px solid rgba(224,92,92,0.25); }
+.type-docx  { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+.type-doc   { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+.type-other { background: rgba(201,168,76,0.10); color: var(--gold); border: 1px solid var(--gold-dim); }
 
-    .login-error {
-      margin-top: 14px;
-      background: rgba(239,68,68,0.12);
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 0.83rem;
-      color: #fca5a5;
-      display: none;
-    }
+.doc-updated {
+  font: 400 0.68rem var(--font-mono); color: var(--muted);
+}
 
-    /* ── DASHBOARD ─────────────────────────────────────────── */
-    #dashboard { display: none; min-height: 100vh; }
+.doc-actions {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 4px; opacity: 0; transition: opacity .18s;
+}
+.doc-card:hover .doc-actions { opacity: 1; }
+.doc-action-btn {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(13,27,42,0.8);
+  color: var(--muted); font-size: 12px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: .15s;
+}
+.doc-action-btn:hover { border-color: var(--gold); color: var(--gold-light); background: var(--card); }
+.doc-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      height: 64px;
-      background: rgba(13,27,42,0.9);
-      border-bottom: 1px solid var(--gold-dim);
-      backdrop-filter: blur(8px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+/* ── CARD ADICIONAR ─────────────────────────── */
+.add-card {
+  background: rgba(201,168,76,0.04);
+  border: 1.5px dashed rgba(201,168,76,0.2);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  cursor: pointer; min-height: 170px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  transition: .2s;
+  color: var(--muted);
+}
+.add-card:hover {
+  border-color: var(--gold); background: rgba(201,168,76,0.08);
+  color: var(--gold-light); transform: translateY(-2px);
+}
+.add-card .plus { font-size: 2rem; line-height: 1; }
+.add-card span { font: 600 0.82rem var(--font-body); letter-spacing: 0.04em; }
 
-    .topbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+/* ── MODAL ─────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(5,12,22,0.82);
+  backdrop-filter: blur(6px); z-index: 1500;
+  display: none; align-items: center; justify-content: center; padding: 18px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  width: min(480px, 100%); background: var(--card);
+  border: 1px solid var(--gold-border); border-radius: var(--radius);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6); overflow: hidden;
+}
+.modal-head {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--gold-dim);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.modal-head h2 { font: 700 15px var(--font-title); color: var(--gold-light); }
+.modal-head p  { font: 400 11px var(--font-mono); color: var(--muted); margin-top: 3px; }
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 18px; cursor: pointer; line-height: 1;
+  padding: 2px 6px; border-radius: 6px;
+  transition: color .15s;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer { padding: 14px 22px; border-top: 1px solid var(--gold-dim); display: flex; gap: 8px; justify-content: flex-end; }
 
-    .topbar-brand .glyph {
-      font-family: 'DM Mono', monospace;
-      font-size: 1.3rem;
-      color: var(--gold);
-      letter-spacing: -1px;
-    }
+.field-label {
+  font: 700 10px var(--font-mono); color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;
+}
+.field-input {
+  width: 100%; padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.10);
+  border-radius: var(--radius-sm);
+  color: var(--text); font: 500 13px var(--font-body); outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.field-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
 
-    .topbar-brand span {
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: 0.04em;
-    }
+.emoji-grid {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.emoji-opt {
+  width: 36px; height: 36px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  transition: .15s;
+}
+.emoji-opt:hover { border-color: var(--gold); background: var(--gold-dim); }
+.emoji-opt.selected { border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 0 0 2px var(--gold-glow); }
 
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+/* Upload zone */
+.upload-zone {
+  border: 1.5px dashed var(--gold-border); border-radius: var(--radius-sm);
+  padding: 20px 16px; text-align: center; cursor: pointer;
+  transition: .18s; background: rgba(201,168,76,0.04);
+}
+.upload-zone:hover { border-color: var(--gold); background: rgba(201,168,76,0.09); }
+.upload-zone p { font: 500 12px var(--font-body); color: var(--muted); margin-top: 4px; }
+.upload-zone .upload-icon { font-size: 1.8rem; line-height: 1; }
+.upload-zone.has-file { border-color: var(--green); background: rgba(76,175,130,0.07); }
+.upload-zone.has-file p { color: var(--green); }
+.upload-zone small { font: 400 10px var(--font-mono); color: var(--muted); display: block; margin-top: 4px; }
 
-    .user-info {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-    }
+/* ── TOAST ─────────────────────────────────── */
+.toast {
+  position: fixed; right: 20px; bottom: 24px;
+  background: var(--card); border: 1px solid var(--gold-border);
+  color: var(--text); padding: 10px 16px; border-radius: 12px;
+  box-shadow: var(--shadow); font: 600 12px var(--font-body);
+  z-index: 4000; display: none; gap: 8px; align-items: center;
+  animation: slideUp .22s ease;
+}
+.toast.show { display: flex; }
+.toast.error { border-color: rgba(224,92,92,0.4); }
+@keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
-    .btn-logout {
-      background: transparent;
-      border: 1px solid var(--gold-dim);
-      border-radius: 999px;
-      padding: 6px 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.82rem;
-      color: var(--gold);
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
+/* ── LOADING ─────────────────────────────── */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(13,27,42,0.7);
+  backdrop-filter: blur(4px); z-index: 3000;
+  display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--gold-dim); border-top-color: var(--gold);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay p { font: 500 13px var(--font-mono); color: var(--muted); }
 
-    .btn-logout:hover {
-      background: var(--gold-dim);
-      border-color: var(--gold);
-    }
-
-    .main {
-      padding: 40px 32px 60px;
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-
-    .section-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--gold);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title::before {
-      content: '';
-      width: 4px;
-      height: 18px;
-      background: var(--gold);
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    .welcome {
-      margin-bottom: 40px;
-    }
-
-    .welcome h2 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.2;
-    }
-
-    .welcome h2 span { color: var(--gold); }
-
-    .welcome p {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      max-width: 500px;
-    }
-
-    /* ── GRID DE FERRAMENTAS ────────────────────────────────── */
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-      margin-bottom: 48px;
-    }
-
-    .tool-card {
-      background: var(--navy-card);
-      border: 1px solid rgba(201,168,76,0.12);
-      border-radius: var(--radius);
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-      cursor: default;
-    }
-
-    .tool-card.ready {
-      cursor: pointer;
-    }
-
-    .tool-card.ready:hover {
-      border-color: var(--gold);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(201,168,76,0.15);
-    }
-
-    .tool-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .tool-card.ready:hover::after { opacity: 1; }
-
-    .tool-icon {
-      width: 44px;
-      height: 44px;
-      background: var(--gold-dim);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 16px;
-      border: 1px solid rgba(201,168,76,0.2);
-    }
-
-    .tool-card h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
-
-    .tool-card p {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
-
-    .tool-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .badge-ready {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 500;
-      background: rgba(34,197,94,0.12);
-      color: #86efac;
-      border: 1px solid rgba(34,197,94,0.25);
-      border-radius: 999px;
-      padding: 3px 10px;
-      letter-spacing: 0.04em;
-    }
-
-    .badge-soon {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 500;
-      background: rgba(201,168,76,0.1);
-      color: var(--gold);
-      border: 1px solid var(--gold-dim);
-      border-radius: 999px;
-      padding: 3px 10px;
-      letter-spacing: 0.04em;
-    }
-
-    .badge-wip {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 500;
-      background: rgba(99,102,241,0.12);
-      color: #a5b4fc;
-      border: 1px solid rgba(99,102,241,0.25);
-      border-radius: 999px;
-      padding: 3px 10px;
-      letter-spacing: 0.04em;
-    }
-
-    .btn-open {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 500;
-      background: var(--gold-dim);
-      color: var(--gold-light);
-      border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 999px;
-      padding: 5px 14px;
-      cursor: pointer;
-      transition: background 0.15s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .btn-open:hover { background: rgba(201,168,76,0.28); }
-
-    /* overlay bloqueio */
-    .tool-card.locked::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(13,27,42,0.45);
-      z-index: 2;
-      border-radius: var(--radius);
-    }
-
-    /* ── CATEGORIAS ─────────────────────────────────────────── */
-    .category { margin-bottom: 40px; }
-
-    /* ── RESPONSIVO ─────────────────────────────────────────── */
-    @media (max-width: 640px) {
-      .topbar { padding: 0 16px; }
-      .topbar-brand span { display: none; }
-      .main { padding: 24px 16px 48px; }
-      .welcome h2 { font-size: 1.4rem; }
-      .tools-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+/* ── RESPONSIVE ──────────────────────────── */
+@media (max-width: 640px) {
+  .main { padding: 20px 14px 48px; }
+  .docs-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .doc-card { min-height: 150px; padding: 16px 14px 14px; }
+}
+@media (max-width: 400px) {
+  .docs-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══════════════════════════════════════════════ -->
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">
-      <span class="glyph">◈</span>
-      <h1>BUSINESS INTELLIGENCE FISCAL</h1>
-      <p>Acesse com suas credenciais para continuar</p>
+<!-- HEADER -->
+<header class="header">
+  <div class="head-left">
+    <div class="logo">📒</div>
+    <div class="head-title">
+      <h1>Apoio à Escrituração</h1>
+      <p>Planilhas, modelos e materiais de suporte fiscal · Nuvem Firebase</p>
     </div>
-    <div class="field">
-      <label>E-mail</label>
-      <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email"/>
+  </div>
+  <div class="head-actions">
+    <div class="cloud-pill">
+      <div class="cloud-dot loading" id="cloudDot"></div>
+      <span id="cloudStatus">Conectando...</span>
     </div>
-    <div class="field">
-      <label>Senha</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="btn btn-back" onclick="history.back()">← Voltar</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main" id="mainContent" style="display:none">
+
+  <div class="category">
+    <div class="section-title">Materiais de Apoio</div>
+    <div class="docs-grid" id="customGrid"></div>
+  </div>
+
+</main>
+
+<!-- MODAL: CRIAR / EDITAR MÓDULO -->
+<div class="modal-overlay" id="modalCreate">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="modalCreateTitle">Novo material</h2>
+        <p id="modalCreateSub">Dê um nome, escolha um ícone e selecione o arquivo</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalCreate')">✕</button>
     </div>
-    <button class="btn-login" id="btnLogin">Entrar</button>
-    <div class="login-error" id="loginError"></div>
+    <div class="modal-body">
+      <div>
+        <div class="field-label">Nome do material</div>
+        <input class="field-input" id="newModuleName" placeholder="Ex.: Planilha de Apuração ICMS" maxlength="60"/>
+      </div>
+      <div>
+        <div class="field-label">Descrição (opcional)</div>
+        <input class="field-input" id="newModuleDesc" placeholder="Ex.: Modelo para apuração mensal do ICMS" maxlength="120"/>
+      </div>
+      <div>
+        <div class="field-label">Ícone</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+      <div>
+        <div class="field-label">Arquivo</div>
+        <div class="upload-zone" id="newUploadZone" onclick="document.getElementById('newFileInput').click()">
+          <div class="upload-icon">📂</div>
+          <p id="newFileLabel">Clique para selecionar o arquivo</p>
+          <small>HTML, XLSX, XLS, CSV, PDF, DOCX, DOC e outros</small>
+        </div>
+        <input type="file" id="newFileInput" accept=".html,.htm,.xlsx,.xlsm,.xls,.csv,.pdf,.docx,.doc,.txt,.ods,.pptx,.ppt" hidden/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modalCreate')">Cancelar</button>
+      <button class="btn gold" onclick="saveModule()">Salvar</button>
+    </div>
   </div>
 </div>
 
-<!-- ══ DASHBOARD ══════════════════════════════════════════ -->
-<div id="dashboard">
-  <header class="topbar">
-    <div class="topbar-brand">
-      <span class="glyph">◈</span>
-      <span>BUSINESS INTELLIGENCE FISCAL</span>
-    </div>
-    <div class="topbar-right">
-      <span class="user-info" id="userEmail"></span>
-      <button class="btn-logout" id="btnLogout">Sair</button>
-    </div>
-  </header>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-  <main class="main">
-    <div class="welcome">
-      <h2>Bem-vindo ao seu<br><span>centro de operações.</span></h2>
-      <p>Todas as ferramentas do escritório em um só lugar. Clique em uma ferramenta para acessá-la.</p>
-    </div>
-
-    <!-- Ferramentas disponíveis -->
-    <div class="category">
-      <div class="section-title">Gestão do Conhecimento</div>
-      <div class="tools-grid">
-
-        <div class="tool-card ready" onclick="openTool('portal-treinamentos')">
-          <div class="tool-icon">📋</div>
-          <h3>Centro de Treinamentos</h3>
-          <p>Registro e rastreamento de transferências de conhecimento tácito entre colaboradores.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('tarefas')">
-          <div class="tool-icon">✅</div>
-          <h3>Tarefas Fiscal</h3>
-          <p>Gestão de tarefas com prioridades, atribuição por e-mail, lembretes e sistema de recompensas.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('anotacoes')">
-          <div class="tool-icon">📝</div>
-          <h3>Anotações</h3>
-          <p>Folha em branco para capturar ideias rápidas, pensamentos soltos e lembretes com tags, pesquisa e salvamento na nuvem.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-
-        <div class="tool-card ready" onclick="openTool('painel')">
-          <div class="tool-icon">🏢</div>
-          <h3>Painel de Gestão</h3>
-          <p>Gestão completa de empresas por regime tributário, obrigações acessórias, status de apuração e relatórios.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('checklist')">
-          <div class="tool-icon">✅</div>
-          <h3>Checklist de Fechamento</h3>
-          <p>Controle mensal de fechamento por empresa, com instruções permanentes e geração do próximo mês.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('pop')">
-          <div class="tool-icon">📋</div>
-          <h3>Procedimentos Operacionais — POP</h3>
-          <p>Biblioteca inteligente de POPs por área e processo. Criação, revisão, tags e impressão padronizada de procedimentos do escritório.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('documentos')">
-          <div class="tool-icon">🗃️</div>
-          <h3>Documentos</h3>
-          <p>Biblioteca de documentos HTML do escritório. Módulos fixos e personalizados, upload e abertura direta com salvamento automático na nuvem.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📚</div>
-          <h3>Manuais Externos</h3>
-          <p>Repositório de manuais de sistemas, fornecedores e órgãos reguladores — acesso centralizado às referências externas do escritório.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="category">
-      <div class="section-title">Fiscal & Tributário</div>
-      <div class="tools-grid">
-
-        <div class="tool-card ready" onclick="openTool('controle-guias')">
-          <div class="tool-icon">📋</div>
-          <h3>Controle de Guias</h3>
-          <p>Rastreamento completo de guias geradas, enviadas e pagas por empresa. KPIs de entrega, comprovantes e integração com o Checklist.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📊</div>
-          <h3>Capa de Fechamento Fiscal</h3>
-          <p>Painel de acompanhamento mensal do fechamento fiscal por empresa.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🧮</div>
-          <h3>Simulador de Planejamento Tributário</h3>
-          <p>Comparativo de regimes tributários com projeção de carga fiscal por faixa de receita.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📐</div>
-          <h3>Calculadora de Retenções</h3>
-          <p>IRRF, PIS, COFINS, CSLL, ISS — cálculo automático por tipo de serviço e tomador.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('apoio-escrituracao')">
-          <div class="tool-icon">📒</div>
-          <h3>Apoio à Escrituração</h3>
-          <p>Planilhas, modelos e materiais de suporte para a escrituração fiscal. Upload de XLSX, HTML, PDF, CSV e outros.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="category">
-      <div class="section-title">Cadastros & Relacionamento</div>
-      <div class="tools-grid">
-
-        <div class="tool-card locked">
-          <div class="tool-icon">👥</div>
-          <h3>Cadastro de Colaboradores</h3>
-          <p>Gestão de equipe com funções, acessos e histórico de treinamentos vinculados.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🏢</div>
-          <h3>Cadastro de Clientes</h3>
-          <p>Ficha completa por cliente com regime tributário, responsável e documentos vinculados.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🔗</div>
-          <h3>Interface com Cliente</h3>
-          <p>Portal externo para envio de documentos e comunicação direta com o escritório.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ══ MODELOS & FORMULÁRIOS ══ -->
-    <div class="category">
-      <div class="section-title">Modelos &amp; Formulários</div>
-      <div class="tools-grid">
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🗂️</div>
-          <h3>Capa de Arquivo Morto</h3>
-          <p>Gerador de capas padronizadas para arquivamento físico de documentos fiscais e contábeis.</p>
-          <div class="tool-footer">
-            <span class="badge-wip">● Em construção</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📁</div>
-          <h3>Capas de Fechamento</h3>
-          <p>Modelos de capa para fechamento fiscal e contábil mensal por empresa.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📄</div>
-          <h3>Formulários Internos</h3>
-          <p>Formulários padronizados para uso interno — solicitações, autorizações e registros operacionais.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📊</div>
-          <h3>Demonstrativos</h3>
-          <p>Templates de demonstrativos financeiros e fiscais para entrega ao cliente.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">✉️</div>
-          <h3>Modelos de Comunicado</h3>
-          <p>Cartas, e-mails e ofícios padronizados para comunicação formal com clientes e órgãos.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ══ CENTRAL DE RELACIONAMENTO ══ -->
-    <div class="category">
-      <div class="section-title">Central de Relacionamento</div>
-      <div class="tools-grid">
-
-        <div class="tool-card ready" onclick="openTool('central-relacionamento')">
-          <div class="tool-icon">🤝</div>
-          <h3>CS &amp; CX</h3>
-          <p>Customer Success e Customer Experience — protocolos de atendimento, jornada do cliente e gestão de relacionamento.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📣</div>
-          <h3>Comunicação com Cliente</h3>
-          <p>Templates de comunicados, régua de contato e scripts para situações recorrentes.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📋</div>
-          <h3>Pesquisa de Satisfação</h3>
-          <p>NPS e pesquisas periódicas para medir percepção do cliente e alimentar melhorias de processo.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ══ CAMADA: PESSOAS ══ -->
-    <div class="category">
-      <div class="section-title">Pessoas</div>
-      <div class="tools-grid">
-
-        <div class="tool-card ready" onclick="openTool('leitura-org')">
-          <div class="tool-icon">🔍</div>
-          <h3>Leitura Organizacional</h3>
-          <p>Diagnóstico de clima, cultura, poder informal e perfis comportamentais — DISC e MBTI aplicados ao escritório contábil.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🗂️</div>
-          <h3>Cargos &amp; Estrutura</h3>
-          <p>Mapa de funções num escritório sem RH formal — quem faz o quê, responsabilidades e fronteiras entre os papéis.</p>
-          <div class="tool-footer">
-            <span class="badge-wip">● Em construção</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🎓</div>
-          <h3>Elicitação &amp; Treinamento</h3>
-          <p>Captura de conhecimento tácito, onboarding e trilhas de capacitação. Porta de entrada do Centro de Treinamentos.</p>
-          <div class="tool-footer">
-            <span class="badge-wip">● Em construção</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📊</div>
-          <h3>RH Analytics</h3>
-          <p>Dados de desempenho, perfis e indicadores de equipe. A camada de evidência que informa a decisão de liderança.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🧭</div>
-          <h3>Liderança</h3>
-          <p>Estilos por contexto, frameworks de feedback, PDIs e assessments, rituais de gestão — 1:1, alinhamento, ciclos de avaliação.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('cultura-clima')">
-          <div class="tool-icon">🌱</div>
-          <h3>Cultura &amp; Clima</h3>
-          <p>Valores, conduta, clima e endomarketing — registre observações e leituras organizacionais na Leitura Organizacional.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ══ CAMADA: GOVERNANÇA DE PROCESSOS ══ -->
-    <div class="category">
-      <div class="section-title">Governança de Processos</div>
-      <div class="tools-grid">
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🛡️</div>
-          <h3>Padrão de Revisão</h3>
-          <p>Dupla checagem, controle de qualidade e o que torna um SOP confiável. Camada que atravessa todas as linhas de serviço.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">⚖️</div>
-          <h3>Conduta &amp; Ética Profissional</h3>
-          <p>Responsabilidade técnica, sigilo e normas do CFC. A fatia humana referenciada a partir de Cultura.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ══ CAMADA: COMERCIAL & MARKETING ══ -->
-    <div class="category">
-      <div class="section-title">Comercial &amp; Marketing</div>
-      <div class="tools-grid">
-
-        <div class="tool-card locked">
-          <div class="tool-icon">🎨</div>
-          <h3>Identidade Visual</h3>
-          <p>Manual de marca, tokens visuais e aplicação consistente em todos os materiais do escritório.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📝</div>
-          <h3>Planejamento Editorial</h3>
-          <p>Calendário de conteúdo, linha editorial e voz da marca para canais externos.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📣</div>
-          <h3>Comunicação Externa</h3>
-          <p>Materiais voltados pra fora — atrair e relacionar com o cliente. A comunicação pra dentro fica em Pessoas.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ══ VERTICAIS: LINHAS DE SERVIÇO ══ -->
-    <div class="category">
-      <div class="section-title">Linhas de Serviço</div>
-      <div class="tools-grid">
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📚</div>
-          <h3>Contábil</h3>
-          <p>SOPs e rotinas da escrituração contábil. Vertical de entrega.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">💸</div>
-          <h3>BPO Financeiro</h3>
-          <p>Contas a pagar e receber, conciliação, fluxo operacional. Execução que gera o dado consumido pela Controladoria.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">📈</div>
-          <h3>Controladoria</h3>
-          <p>Relatório gerencial, margem, orçamento, indicadores e valuation. Análise que consome o dado do BPO e orienta a decisão do cliente.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
-          <div class="tool-icon">👤</div>
-          <h3>Departamento Pessoal</h3>
-          <p>Folha, admissões, rescisões e obrigações trabalhistas. Vertical de entrega.</p>
-          <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
-          </div>
-        </div>
-
-        <div class="tool-card ready" onclick="openTool('planos-negocio')">
-          <div class="tool-icon">📋</div>
-          <h3>Planos de Negócio</h3>
-          <p>Criação e gestão de planos completos — Canvas, SWOT, análise financeira, concorrentes e cronograma.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingMsg">Salvando no Firebase...</p>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
-    authDomain: "portal-treinamentos-lang.firebaseapp.com",
-    databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
-    projectId: "portal-treinamentos-lang",
-    storageBucket: "portal-treinamentos-lang.firebasestorage.app",
-    messagingSenderId: "1049839891406",
-    appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+/* ── CONFIG FIREBASE ── */
+const firebaseConfig = {
+  apiKey:            "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain:        "portal-treinamentos-lang.firebaseapp.com",
+  databaseURL:       "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId:         "portal-treinamentos-lang",
+  storageBucket:     "portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId: "1049839891406",
+  appId:             "1:1049839891406:web:c5874166bdbee74139f19f"
+};
+
+/* ── PATHS FIREBASE (separados de documentos/) ── */
+const META_PATH = 'apoio_escrituracao_meta';
+const DATA_PATH = 'apoio_escrituracao';
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+/* ── EMOJIS ── */
+const EMOJIS = ['📒','📋','📊','📈','📉','🧾','🗂️','📁','📂','📄','📃','📑','💹','🧮','📐','⚖️','💰','💸','🔖','📌','🏛️','🗃️','📚','📝','💼','🔍','🛡️','💡','🎯','✅'];
+
+/* ── STATE ── */
+let editingId      = null;
+let newFileContent = null;
+let newFileMime    = null;
+let newFileExt     = null;
+let selectedEmoji  = EMOJIS[0];
+let modules        = [];
+let docState       = {};
+
+/* ── CLOUD STATUS ── */
+function setCloudStatus(status, msg) {
+  const dot = document.getElementById('cloudDot');
+  const lbl = document.getElementById('cloudStatus');
+  if (dot) { dot.className = 'cloud-dot ' + status; }
+  if (lbl) { lbl.textContent = msg; lbl.style.color = status === 'ok' ? 'var(--green)' : status === 'error' ? 'var(--red)' : 'var(--muted)'; }
+}
+
+/* ── UTIL ── */
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type === 'error' ? ' error' : '');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function loading(show, msg = 'Salvando no Firebase...') {
+  const el = document.getElementById('loadingOverlay');
+  document.getElementById('loadingMsg').textContent = msg;
+  el.classList.toggle('show', show);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* Detecta extensão e retorna classe CSS e label */
+function extInfo(ext) {
+  const map = {
+    html: { cls: 'type-html',  label: 'HTML'  },
+    htm:  { cls: 'type-html',  label: 'HTML'  },
+    xlsx: { cls: 'type-xlsx',  label: 'XLSX'  },
+    xlsm: { cls: 'type-xlsx',  label: 'XLSM'  },
+    xls:  { cls: 'type-xls',   label: 'XLS'   },
+    csv:  { cls: 'type-csv',   label: 'CSV'   },
+    pdf:  { cls: 'type-pdf',   label: 'PDF'   },
+    docx: { cls: 'type-docx',  label: 'DOCX'  },
+    doc:  { cls: 'type-doc',   label: 'DOC'   },
   };
+  return map[(ext || '').toLowerCase()] || { cls: 'type-other', label: (ext || 'ARQ').toUpperCase() };
+}
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+/* MIME types para abrir corretamente */
+function mimeFromExt(ext) {
+  const map = {
+    html: 'text/html', htm: 'text/html',
+    pdf:  'application/pdf',
+    csv:  'text/csv',
+    txt:  'text/plain',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    xlsm: 'application/vnd.ms-excel.sheet.macroEnabled.12',
+    xls:  'application/vnd.ms-excel',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    doc:  'application/msword',
+    pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ppt:  'application/vnd.ms-powerpoint',
+    ods:  'application/vnd.oasis.opendocument.spreadsheet',
+  };
+  return map[(ext || '').toLowerCase()] || 'application/octet-stream';
+}
 
-  const loginScreen = document.getElementById('loginScreen');
-  const dashboard   = document.getElementById('dashboard');
-  const loginEmail  = document.getElementById('loginEmail');
-  const loginPass   = document.getElementById('loginPassword');
-  const btnLogin    = document.getElementById('btnLogin');
-  const loginError  = document.getElementById('loginError');
-  const userEmail   = document.getElementById('userEmail');
-  const btnLogout   = document.getElementById('btnLogout');
+/* ── FIREBASE ── */
+async function loadAll() {
+  setCloudStatus('loading', 'Carregando...');
+  loading(true, 'Carregando materiais...');
+  try {
+    const [snapMeta, snapDocs] = await Promise.all([
+      get(ref(db, META_PATH)),
+      get(ref(db, DATA_PATH))
+    ]);
+    modules  = snapMeta.val() ? Object.values(snapMeta.val()) : [];
+    docState = snapDocs.val() || {};
+    setCloudStatus('ok', 'Sincronizado');
+  } catch(e) {
+    setCloudStatus('error', 'Erro de conexão');
+    toast('Erro ao carregar Firebase.', 'error');
+  }
+  loading(false);
+  render();
+  document.getElementById('mainContent').style.display = 'block';
+}
 
-  // Detecta estado de autenticação
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      loginScreen.style.display = 'none';
-      dashboard.style.display = 'block';
-      userEmail.textContent = user.email;
-    } else {
-      loginScreen.style.display = 'flex';
-      dashboard.style.display = 'none';
-    }
-  });
+async function saveDoc(id, content, ext) {
+  const payload = { content, ext, updatedAt: new Date().toISOString() };
+  await set(ref(db, `${DATA_PATH}/${id}`), payload);
+  docState[id] = payload;
+}
 
-  // Login
-  btnLogin.addEventListener('click', async () => {
-    const email = loginEmail.value.trim();
-    const pass  = loginPass.value;
-    if (!email || !pass) {
-      showError('Preencha e-mail e senha.');
-      return;
-    }
-    btnLogin.disabled = true;
-    btnLogin.textContent = 'Entrando...';
-    loginError.style.display = 'none';
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-    } catch(e) {
-      const msgs = {
-        'auth/user-not-found':  'Usuário não encontrado.',
-        'auth/wrong-password':  'Senha incorreta.',
-        'auth/invalid-email':   'E-mail inválido.',
-        'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
-        'auth/invalid-credential': 'E-mail ou senha incorretos.'
-      };
-      showError(msgs[e.code] || 'Erro ao entrar. Tente novamente.');
-    } finally {
-      btnLogin.disabled = false;
-      btnLogin.textContent = 'Entrar';
-    }
-  });
+async function saveMeta(m) {
+  await set(ref(db, `${META_PATH}/${m.id}`), m);
+}
 
-  loginPass.addEventListener('keydown', e => {
-    if (e.key === 'Enter') btnLogin.click();
-  });
+async function deleteModule(id) {
+  await Promise.all([
+    remove(ref(db, `${DATA_PATH}/${id}`)),
+    remove(ref(db, `${META_PATH}/${id}`))
+  ]);
+  modules  = modules.filter(m => m.id !== id);
+  delete docState[id];
+}
 
-  // Logout
-  btnLogout.addEventListener('click', () => signOut(auth));
+/* ── RENDER ── */
+function render() {
+  const grid = document.getElementById('customGrid');
+  grid.innerHTML = modules.map(m => cardHTML(m)).join('') + addCardHTML();
+}
 
-  function showError(msg) {
-    loginError.textContent = msg;
-    loginError.style.display = 'block';
+function cardHTML(m) {
+  const st     = docState[m.id];
+  const filled = !!(st && st.content);
+  const ext    = (st && st.ext) || m.ext || '';
+  const info   = extInfo(ext);
+  const updated = filled ? fmtDate(st.updatedAt) : '';
+  const clickFn = filled ? `openDoc('${m.id}')` : `openModal('${m.id}')`;
+
+  return `
+    <div class="doc-card ${filled ? 'filled' : 'empty'}" onclick="${clickFn}">
+      <div class="doc-actions">
+        <button class="doc-action-btn" title="Editar / substituir" onclick="event.stopPropagation(); openModal('${m.id}')">✏️</button>
+        <button class="doc-action-btn danger" title="Excluir" onclick="event.stopPropagation(); confirmDelete('${m.id}')">🗑</button>
+      </div>
+      <div class="doc-icon ${filled ? 'filled-icon' : ''}">${m.icon}</div>
+      <div>
+        <div class="doc-name">${esc(m.name)}</div>
+        ${filled ? `<span class="doc-type-badge ${info.cls}" style="margin-top:4px;display:inline-block">${info.label}</span>` : ''}
+      </div>
+      <div class="doc-desc">${esc(m.desc || '')}</div>
+      <div class="doc-footer">
+        <span class="doc-status ${filled ? 'filled-badge' : 'empty-badge'}">
+          ${filled ? '● Disponível' : 'Sem arquivo'}
+        </span>
+        ${updated ? `<span class="doc-updated">${updated}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function addCardHTML() {
+  return `
+    <div class="add-card" onclick="openModal(null)">
+      <div class="plus">＋</div>
+      <span>Novo material</span>
+    </div>`;
+}
+
+/* ── ABRIR DOCUMENTO ── */
+window.openDoc = function(id) {
+  const st = docState[id];
+  if (!st || !st.content) { toast('Nenhum arquivo carregado.', 'error'); return; }
+
+  const ext  = st.ext || 'html';
+  const mime = mimeFromExt(ext);
+  const isTextBased = ['html','htm','csv','txt'].includes(ext.toLowerCase());
+
+  let blob;
+  if (isTextBased) {
+    blob = new Blob([st.content], { type: mime });
+  } else {
+    // Binário: conteúdo salvo como base64
+    const binary = atob(st.content);
+    const bytes  = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    blob = new Blob([bytes], { type: mime });
   }
 
-  // Navegação entre ferramentas
-  window.openTool = function(tool) {
-    const urls = {
-      'portal-treinamentos': './portal/portal.html',
-      'tarefas': './tarefas/tarefas.html',
-      'anotacoes': './anotacoes/anotacoes.html',
-      'checklist': './checklist/checklist.html',
-      'painel': './painel/painel.html',
-      'central-relacionamento': './relacionamento/central-relacionamento-bif.html',
-      'leitura-org': './leitura-org/leitura-organizacional-bif.html',
-      'cultura-clima': './cultura-clima/cultura-clima-bif.html',
-      'planos-negocio': './planos/index-planos.html',
-      'controle-guias': './controleguias/controle-guias.html',
-      'pop': './procedimentos/pop.html',
-      'documentos': './documentos/documentos.html',
-      'apoio-escrituracao': './apoio/apoio.html'
-    };
-    if (urls[tool]) window.location.href = urls[tool];
-  };
-</script>
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+};
 
+/* ── MODAL CRIAR / EDITAR ── */
+window.openModal = function(id) {
+  editingId      = id;
+  newFileContent = null;
+  newFileMime    = null;
+  newFileExt     = null;
+  const existing = id ? modules.find(m => m.id === id) : null;
+
+  document.getElementById('modalCreateTitle').textContent = id ? 'Editar material' : 'Novo material';
+  document.getElementById('modalCreateSub').textContent   = id ? 'Altere os dados ou substitua o arquivo' : 'Dê um nome, escolha um ícone e selecione o arquivo';
+
+  document.getElementById('newModuleName').value = existing?.name || '';
+  document.getElementById('newModuleDesc').value = existing?.desc || '';
+  selectedEmoji = existing?.icon || EMOJIS[0];
+
+  const hasDoc = id && docState[id]?.content;
+  const curExt = hasDoc ? (docState[id].ext || '') : '';
+  const info   = curExt ? extInfo(curExt) : null;
+  document.getElementById('newFileLabel').textContent = hasDoc
+    ? `✓ Arquivo já carregado${info ? ' [' + info.label + ']' : ''} — selecione para substituir`
+    : 'Clique para selecionar o arquivo';
+  document.getElementById('newUploadZone').classList.toggle('has-file', !!hasDoc);
+  document.getElementById('newFileInput').value = '';
+
+  buildEmojiGrid();
+  document.getElementById('modalCreate').classList.add('open');
+};
+
+function buildEmojiGrid() {
+  document.getElementById('emojiGrid').innerHTML = EMOJIS.map(e =>
+    `<div class="emoji-opt ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}')">${e}</div>`
+  ).join('');
+}
+
+window.selectEmoji = function(e) { selectedEmoji = e; buildEmojiGrid(); };
+
+/* ── FILE INPUT ── */
+document.getElementById('newFileInput').addEventListener('change', function() {
+  const file = this.files[0]; if (!file) return;
+  const rawExt = file.name.split('.').pop() || '';
+  newFileExt = rawExt.toLowerCase();
+  const isTextBased = ['html','htm','csv','txt'].includes(newFileExt);
+
+  if (isTextBased) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      newFileContent = e.target.result;
+      document.getElementById('newFileLabel').textContent = `✓ ${file.name}`;
+      document.getElementById('newUploadZone').classList.add('has-file');
+    };
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    // Binário: lê como base64
+    const reader = new FileReader();
+    reader.onload = e => {
+      // e.target.result é data URL: "data:...;base64,XXXXXX"
+      newFileContent = e.target.result.split(',')[1];
+      document.getElementById('newFileLabel').textContent = `✓ ${file.name}`;
+      document.getElementById('newUploadZone').classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+/* ── SALVAR MÓDULO ── */
+window.saveModule = async function() {
+  const name = document.getElementById('newModuleName').value.trim();
+  if (!name) { toast('Informe o nome do material.', 'error'); return; }
+
+  const isNew  = !editingId;
+  const hasDoc = editingId && docState[editingId]?.content;
+  if (!newFileContent && !hasDoc) { toast('Selecione um arquivo.', 'error'); return; }
+
+  const id = editingId || ('apoio_' + Date.now().toString(36));
+  const m  = {
+    id,
+    icon: selectedEmoji,
+    name,
+    desc: document.getElementById('newModuleDesc').value.trim(),
+    ext:  newFileExt || (hasDoc ? (docState[editingId]?.ext || '') : ''),
+    createdAt: editingId ? (modules.find(x => x.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString()
+  };
+
+  closeModal('modalCreate');
+  setCloudStatus('loading', 'Salvando...');
+  loading(true, isNew ? 'Criando material...' : 'Atualizando material...');
+  try {
+    await saveMeta(m);
+    if (newFileContent) await saveDoc(id, newFileContent, newFileExt || '');
+    if (isNew) modules.push(m);
+    else { const idx = modules.findIndex(x => x.id === id); if (idx >= 0) modules[idx] = m; }
+    setCloudStatus('ok', 'Salvo');
+    toast(isNew ? `"${name}" adicionado! ✓` : `"${name}" atualizado! ✓`);
+    render();
+  } catch(e) {
+    setCloudStatus('error', 'Erro ao salvar');
+    toast('Erro ao salvar no Firebase.', 'error');
+  }
+  loading(false);
+};
+
+/* ── DELETAR ── */
+window.confirmDelete = async function(id) {
+  const m = modules.find(m => m.id === id);
+  if (!m) return;
+  if (!confirm(`Excluir "${m.name}"?\nO arquivo salvo no Firebase também será removido.`)) return;
+  loading(true, 'Excluindo...');
+  setCloudStatus('loading', 'Excluindo...');
+  try {
+    await deleteModule(id);
+    setCloudStatus('ok', 'Sincronizado');
+    toast('Material excluído.');
+    render();
+  } catch(e) {
+    setCloudStatus('error', 'Erro');
+    toast('Erro ao excluir.', 'error');
+  }
+  loading(false);
+};
+
+/* ── FECHAR MODAL ── */
+const modalEl = document.getElementById('modalCreate');
+let mdSelf = false;
+modalEl.addEventListener('mousedown', e => { mdSelf = e.target === modalEl; });
+modalEl.addEventListener('mouseup',   e => { if (mdSelf && e.target === modalEl) closeModal('modalCreate'); mdSelf = false; });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal('modalCreate'); });
+
+/* ── INIT ── */
+loadAll();
+</script>
 </body>
 </html>
