@@ -194,6 +194,12 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);font-size:12px;color:var(--text);background:var(--bg-input);outline:none;transition:all 0.18s;font-family:var(--font-body);}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:rgba(201,168,76,0.06);box-shadow:0 0 0 3px var(--gold-glow);}
 .form-group textarea{resize:vertical;min-height:72px;}
+.checklist-collapse{border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);background:var(--bg-input);overflow:hidden;}
+.checklist-collapse summary{cursor:pointer;list-style:none;padding:10px 12px;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+.checklist-collapse summary::-webkit-details-marker{display:none;}
+.checklist-collapse summary::before{content:'▸ ';color:var(--gold);}
+.checklist-collapse[open] summary::before{content:'▾ ';}
+.checklist-collapse-body{display:flex;flex-direction:column;gap:8px;padding:0 12px 12px;}
 .checkbox-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);background:var(--bg-input);cursor:pointer;}
 .checkbox-row input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--gold);}
 .checkbox-row label{font-size:12px;font-weight:600;cursor:pointer;color:var(--text);}
@@ -1391,7 +1397,6 @@ th.col-dragging{opacity:0.45;}
     <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
     <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
     <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
-    <button class="btn-header" onclick="sincronizarBasePlanilha()" title="Inclui somente as empresas da planilha que ainda não existem pelo CNPJ">🧩 Incluir faltantes</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
     <button class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
     <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
@@ -4469,19 +4474,16 @@ function empresaFormHtml(e){
       <div class="form-group"><label>Inscrição Municipal</label><input id="f_im" value="${esc(e.inscricaoMunicipal)}"></div>
       <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_fechada" ${e.fechada?'checked':''}><label for="f_fechada">Empresa fechada / encerrada</label></div></div>
       <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_semMovimento" ${e.semMovimento?'checked':''}><label for="f_semMovimento">Empresa sem movimento</label></div></div>
+      <div class="form-group full">
+        <details class="checklist-collapse">
+          <summary>📑 Itens para relatório</summary>
+          <div class="checklist-collapse-body">
+            <div class="checkbox-row"><input type="checkbox" id="f_servEnergia" ${e.servEnergia?'checked':''}><label for="f_servEnergia">Energia Elétrica</label></div>
+            <div class="checkbox-row"><input type="checkbox" id="f_servTelefone" ${e.servTelefone?'checked':''}><label for="f_servTelefone">Telefone</label></div>
+          </div>
+        </details>
+      </div>
     </div>
-  </div>
-
-  <div class="form-section">
-    <div class="form-section-title">📚 Registros do Portal</div>
-    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Registros relacionados no Portal / Base de Conhecimento aparecem aqui automaticamente. A relação é feita pelo próprio registro do portal, sem alterar os dados cadastrais da empresa.</p>
-    <div id="portalRecordsForEmpresa">${renderPortalRegistrosHtml(e)}</div>
-  </div>
-
-  <div class="form-section">
-    <div class="form-section-title">✅ Tarefas vinculadas</div>
-    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Tarefas relacionadas no painel de Tarefas aparecem aqui automaticamente. A relação é feita pela própria tarefa, sem alterar os dados cadastrais da empresa.</p>
-    <div id="tarefasForEmpresa">${renderTarefasHtml(e)}</div>
   </div>
 
   <div class="form-section">
@@ -4608,6 +4610,18 @@ function empresaFormHtml(e){
       <input id="newCustomFieldLabel" placeholder="Nome do novo campo. Ex: Particularidades do cliente">
       <button class="btn-add-obrig" type="button" onclick="addCustomFieldToModal()">Adicionar campo</button>
     </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">✅ Tarefas vinculadas</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Tarefas relacionadas no painel de Tarefas aparecem aqui automaticamente. A relação é feita pela própria tarefa, sem alterar os dados cadastrais da empresa.</p>
+    <div id="tarefasForEmpresa">${renderTarefasHtml(e)}</div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">📚 Registros do Portal</div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Registros relacionados no Portal / Base de Conhecimento aparecem aqui automaticamente. A relação é feita pelo próprio registro do portal, sem alterar os dados cadastrais da empresa.</p>
+    <div id="portalRecordsForEmpresa">${renderPortalRegistrosHtml(e)}</div>
   </div>`;
 }
 
@@ -4701,6 +4715,8 @@ function collectCompanyFormData(){
     inscricaoMunicipal: $('f_im')?.value?.trim() || '',
     fechada: !!$('f_fechada')?.checked,
     semMovimento: !!$('f_semMovimento')?.checked,
+    servEnergia: !!$('f_servEnergia')?.checked,
+    servTelefone: !!$('f_servTelefone')?.checked,
     statusApuracao: original.statusApuracao || 'nao_apurada',
     endereco: $('f_endereco')?.value?.trim() || '',
     cep: $('f_cep')?.value?.trim() || '',
@@ -4996,6 +5012,10 @@ function relatorioHtml(){
       <optgroup label="Por Colaborador">
         <option value="colaborador">👤 Empresas por colaborador</option>
       </optgroup>
+      <optgroup label="Itens para relatório">
+        <option value="serv_energia">💡 Empresas — Energia Elétrica</option>
+        <option value="serv_telefone">☎️ Empresas — Telefone</option>
+      </optgroup>
       <optgroup label="Gerais">
         <option value="checklist">📋 Checklist geral de obrigações</option>
         <option value="regime">📂 Por regime tributário</option>
@@ -5082,6 +5102,22 @@ function renderRelatorioTabela(){
         <div class="rel-sum-card"><div class="num">${colaboradores.length}</div><div class="lbl">Colaboradores</div></div>
       </div>
       ${html || '<div class="empty-state"><p>Nenhum dado encontrado.</p></div>'}
+    </div>`;
+    return;
+  }
+
+  // ── ITENS PARA RELATÓRIO (Energia Elétrica / Telefone) ───────
+  if(type === 'serv_energia' || type === 'serv_telefone'){
+    const campo = type === 'serv_energia' ? 'servEnergia' : 'servTelefone';
+    const titulo3 = type === 'serv_energia' ? '💡 Empresas — Energia Elétrica' : '☎️ Empresas — Telefone';
+    const emps = base.filter(e => !!e[campo]);
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>${esc(titulo3)} — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${emps.length}</div><div class="lbl">Marcadas</div></div>
+        <div class="rel-sum-card"><div class="num">${new Set(emps.map(e=>e.colaborador).filter(Boolean)).size}</div><div class="lbl">Colaboradores</div></div>
+      </div>
+      ${emps.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Status Empresa</th></tr></thead><tbody>${emps.map(e=>`<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhuma empresa marcada encontrada.</p></div>'}
     </div>`;
     return;
   }
@@ -5416,6 +5452,12 @@ function exportRelatorioCSV(){
     data = type==='movimento'
       ? emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',e.atividade||'',impostosToText(e),e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Com movimento'])
       : emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',(e.obrigacoes||[]).map(o=>o.nome).join(' | '),apuracaoLabel(e.statusApuracao),e.fechada?'Fechada':'Aberta']);
+  } else if(type==='serv_energia' || type==='serv_telefone'){
+    const campo = type === 'serv_energia' ? 'servEnergia' : 'servTelefone';
+    const base = getFilteredEmpresas();
+    const emps = base.filter(e => !!e[campo]);
+    headers = ['Empresa','CNPJ','Regime','Colaborador','Status Empresa'];
+    data = emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta']);
   } else {
     const rows = allObrigRows(getFilteredEmpresas());
     headers = ['Empresa','CNPJ','Regime','Colaborador','Obrigação','Vencimento','Status Apuração','Status Empresa'];
