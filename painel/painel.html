@@ -4472,12 +4472,12 @@ function empresaFormHtml(e){
       <div class="form-group"><label>Colaborador Responsável</label><input id="f_colaborador" value="${esc(e.colaborador)}"></div>
       <div class="form-group"><label>Inscrição Estadual</label><input id="f_ie" value="${esc(e.inscricaoEstadual)}"></div>
       <div class="form-group"><label>Inscrição Municipal</label><input id="f_im" value="${esc(e.inscricaoMunicipal)}"></div>
-      <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_fechada" ${e.fechada?'checked':''}><label for="f_fechada">Empresa fechada / encerrada</label></div></div>
-      <div class="form-group full"><div class="checkbox-row"><input type="checkbox" id="f_semMovimento" ${e.semMovimento?'checked':''}><label for="f_semMovimento">Empresa sem movimento</label></div></div>
       <div class="form-group full">
         <details class="checklist-collapse">
-          <summary>📑 Itens para relatório</summary>
+          <summary>📑 Demais informações</summary>
           <div class="checklist-collapse-body">
+            <div class="checkbox-row"><input type="checkbox" id="f_fechada" ${e.fechada?'checked':''}><label for="f_fechada">Empresa fechada / encerrada</label></div>
+            <div class="checkbox-row"><input type="checkbox" id="f_semMovimento" ${e.semMovimento?'checked':''}><label for="f_semMovimento">Empresa sem movimento</label></div>
             <div class="checkbox-row"><input type="checkbox" id="f_servEnergia" ${e.servEnergia?'checked':''}><label for="f_servEnergia">Energia Elétrica</label></div>
             <div class="checkbox-row"><input type="checkbox" id="f_servTelefone" ${e.servTelefone?'checked':''}><label for="f_servTelefone">Telefone</label></div>
           </div>
