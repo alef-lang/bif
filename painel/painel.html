@@ -1052,6 +1052,95 @@ select option{background:#1b2e42;color:#e8eaf0;}
 
 
 
+/* REPOSITÓRIO DE NOTAS NA FICHA */
+.nota-repo-manager{
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+  background:rgba(201,168,76,0.025);
+}
+.nota-repo-list{display:flex;flex-direction:column;gap:0;}
+.nota-repo-item{
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) 100px 130px 32px;
+  align-items:center;
+  gap:8px;
+  padding:9px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.nota-repo-item:hover{background:rgba(201,168,76,0.05);}
+.nota-repo-link{
+  color:var(--gold-light);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:700;
+  font-family:var(--font-body);
+  overflow-wrap:anywhere;
+  line-height:1.35;
+}
+.nota-repo-link:hover{text-decoration:underline;color:var(--gold);}
+.nota-repo-meta{
+  color:var(--text-light);
+  font-size:10px;
+  font-family:var(--font-mono);
+  overflow-wrap:anywhere;
+}
+.nota-repo-add-row{
+  padding:10px 12px;
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) auto;
+  gap:8px;
+  align-items:center;
+  background:rgba(201,168,76,0.05);
+}
+.nota-repo-add-row input[type="file"]{
+  min-width:0;
+  padding:7px 9px;
+  border:1.5px dashed var(--gold-dim);
+  border-radius:8px;
+  background:var(--bg-input);
+  color:var(--text-light);
+  font-size:11px;
+  font-family:var(--font-body);
+  cursor:pointer;
+}
+.nota-repo-counter{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:10px;
+  color:var(--gold-light);
+  font-family:var(--font-mono);
+  border:1px solid var(--gold-dim);
+  border-radius:999px;
+  padding:2px 8px;
+  background:rgba(201,168,76,0.08);
+  margin-left:6px;
+}
+.btn-remove-nota-repo{
+  width:26px;
+  height:26px;
+  border-radius:6px;
+  border:none;
+  background:rgba(255,118,117,0.15);
+  color:#ff7675;
+  cursor:pointer;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.18s;
+  font-family:inherit;
+}
+.btn-remove-nota-repo:hover{background:#ff7675;color:#0d1b2a;}
+.modal.view-mode .nota-repo-add-row,
+.modal.view-mode .btn-remove-nota-repo{display:none!important;}
+@media(max-width:700px){
+  .nota-repo-item{grid-template-columns:1fr;align-items:start;}
+  .nota-repo-add-row{grid-template-columns:1fr;}
+}
+
+
 /* IMPOSTOS FIXOS NA FICHA */
 .impostos-manager{
   border:1.5px solid var(--border);
@@ -1301,6 +1390,46 @@ th.col-dragging{opacity:0.45;}
 .regime-pill.presumido{background:var(--presumido-light);color:var(--presumido);border-color:rgba(116,185,255,0.25);}
 .regime-pill.real{background:var(--real-light);color:var(--real);border-color:rgba(162,155,254,0.25);}
 .regime-pill.outros{background:var(--outros-light);color:var(--outros);border-color:rgba(253,121,168,0.25);}
+
+.categoria-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:800;
+  font-family:var(--font-mono);
+  border:1px solid rgba(201,168,76,0.28);
+  background:rgba(255,255,255,0.04);
+  color:var(--text-light);
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.categoria-pill.produtor_rural{
+  background:rgba(201,168,76,0.18);
+  color:var(--gold-light);
+  border-color:var(--gold-dim);
+  box-shadow:0 0 0 1px rgba(201,168,76,0.06);
+}
+.card-produtor-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin:0 0 6px;
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:900;
+  font-family:var(--font-mono);
+  letter-spacing:.03em;
+  background:rgba(201,168,76,0.18);
+  color:var(--gold-light);
+  border:1px solid var(--gold-dim);
+}
+.stat-card.produtor .stat-number{color:var(--gold-light);}
+.empresa-table th[data-key="categoria"]{width:125px;}
+
 .tbl-atividade{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-light);}
 .tbl-colaborador{font-weight:600;color:var(--text);white-space:nowrap;}
 .tbl-obrig-list{display:flex;flex-wrap:wrap;gap:3px;max-width:220px;}
@@ -1397,6 +1526,7 @@ th.col-dragging{opacity:0.45;}
     <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
     <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
     <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
+    <button class="btn-header" onclick="sincronizarProdutoresRurais()">🌾 Produtores</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
     <button class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
     <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
@@ -1429,6 +1559,11 @@ th.col-dragging{opacity:0.45;}
         <option value="real">Lucro Real</option>
         <option value="outros">Outros</option>
       </select>
+      <select class="select-filter" id="filterCategoria" onchange="renderAll()">
+        <option value="">Todas as categorias</option>
+        <option value="produtor_rural">🌾 Produtor rural</option>
+        <option value="empresa">Demais empresas</option>
+      </select>
       <select class="select-filter" id="filterStatus" onchange="renderAll()">
         <option value="">Todos os status</option>
         <option value="ativa">Ativas</option>
@@ -1456,6 +1591,7 @@ th.col-dragging{opacity:0.45;}
 <!-- STATS -->
 <div class="stats-bar">
   <div class="stat-card total"><div class="stat-label">Total</div><div class="stat-number" id="stat-total">0</div></div>
+  <div class="stat-card produtor"><div class="stat-label">Produtor Rural</div><div class="stat-number" id="stat-produtor-rural">0</div></div>
   <div class="stat-card simples"><div class="stat-label">Simples</div><div class="stat-number" id="stat-simples">0</div></div>
   <div class="stat-card presumido"><div class="stat-label">Presumido</div><div class="stat-number" id="stat-presumido">0</div></div>
   <div class="stat-card real"><div class="stat-label">Real</div><div class="stat-number" id="stat-real">0</div></div>
@@ -1475,6 +1611,7 @@ th.col-dragging{opacity:0.45;}
       <option value="nome">Nome</option>
       <option value="cnpj">CNPJ</option>
       <option value="regime">Regime</option>
+      <option value="categoria">Categoria</option>
       <option value="colaborador">Colaborador</option>
       <option value="atividade">Atividade</option>
       <option value="status">Status</option>
@@ -1492,6 +1629,7 @@ th.col-dragging{opacity:0.45;}
           <th onclick="sortByCol('nome')" class="sortable col-draggable" data-col="nome" data-key="nome" draggable="true">Empresa <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('cnpj')" class="sortable col-draggable" data-col="cnpj" data-key="cnpj" draggable="true">CNPJ <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('regime')" class="sortable col-draggable" data-col="regime" data-key="regime" draggable="true">Regime <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
+          <th onclick="sortByCol('categoria')" class="sortable col-draggable" data-col="categoria" data-key="categoria" draggable="true">Categoria <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('atividade')" class="sortable col-draggable" data-col="atividade" data-key="atividade" draggable="true">Atividade <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('colaborador')" class="sortable col-draggable" data-col="colaborador" data-key="colaborador" draggable="true">Colaborador <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
           <th onclick="sortByCol('status')" class="sortable col-draggable" data-col="status" data-key="status" draggable="true">Status <span class="sort-arrow">↕</span><div class="col-resizer"></div></th>
@@ -1591,6 +1729,12 @@ th.col-dragging{opacity:0.45;}
             <option value="presumido">Lucro Presumido</option>
             <option value="real">Lucro Real</option>
             <option value="outros">Outros (MEI, entidade...)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Categoria da empresa</label>
+          <select id="addCategoriaEmpresa">
+            <option value="empresa">Demais empresas</option>
+            <option value="produtor_rural">🌾 Produtor Rural</option>
           </select>
         </div>
         <div class="form-group full"><label>Atividade Econômica</label><input id="addAtividade" placeholder="Ex: Comércio varejista de roupas"></div>
@@ -1935,12 +2079,19 @@ let S = {
 const BASE_EMPRESAS_PASTA1 = [{"nome":"2D TATUI EMPREENDIMENTOS","cnpj":"43459798000147","colaborador":"RAFA"},{"nome":"4D EMPREENDIMENTOS IMOBIL.","cnpj":"43460131000164","colaborador":"RAFA"},{"nome":"A CAMPONESA","cnpj":"45560411000170","colaborador":"ERICK"},{"nome":"A. PRUDENTE 1 - SANTO ANTONIO","cnpj":"50004981000113","colaborador":"BIA"},{"nome":"A. PRUDENTE 2 - SITIO CASTELO","cnpj":"50004981000202","colaborador":"BIA"},{"nome":"A. PRUDENTE 3 - SITIO GUARAPO","cnpj":"50004981000385","colaborador":"BIA"},{"nome":"A. PRUDENTE 4 - RANCHO ALEGRE","cnpj":"50004981000466","colaborador":"BIA"},{"nome":"A. PRUDENTE 5 - SITIO ALICE","cnpj":"50004981000547","colaborador":"BIA"},{"nome":"A. PRUDENTE 6 - NOSSA SRª AP","cnpj":"50004981000628","colaborador":"BIA"},{"nome":"A. PRUDENTE 7 - SITIO ALELUIA","cnpj":"50004981000709","colaborador":"BIA"},{"nome":"ACEP EMPREENDIMENTOS IMOB LTDA","cnpj":"65731707000113","colaborador":"ALEF"},{"nome":"AFIUSA ENGENHARIA LTDA","cnpj":"48705306000170","colaborador":"RAFA"},{"nome":"AGROP.NOVA PORANGABA","cnpj":"04953458000116","colaborador":"RAFA"},{"nome":"ALEUS - A S SATO COSMETICOS (AWDS)","cnpj":"42677718000167","colaborador":"ERICK"},{"nome":"ALEUS - OTICA BOITUVA PRESENTES","cnpj":"53012332000152","colaborador":"ERICK"},{"nome":"ALEUS - OTICA DEZ LTDA","cnpj":"05585736000192","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ CERQUILHO","cnpj":"19831530000100","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ LARANJAL PAULISTA","cnpj":"27794780000145","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ TATUI","cnpj":"07038293000145","colaborador":"ERICK"},{"nome":"ALEUS - OTICAS DEZ TIETE","cnpj":"24058399000120","colaborador":"ERICK"},{"nome":"AMADEI ODONTOLOGIA LTDA","cnpj":"12352441000131","colaborador":"PEDRO"},{"nome":"ANA REGINA F. SARDINHA - CLINICA PSICOLOGICA","cnpj":"34719275000100","colaborador":"PEDRO"},{"nome":"ARBOR CONSULTING","cnpj":"08794362000103","colaborador":"BIA"},{"nome":"ASSESSORIA CONTABIL POLIS","cnpj":"50822683000130","colaborador":"BIA"},{"nome":"AUTO POSTO BOM JESUS DE QUADRA LTDA","cnpj":"01692636000104","colaborador":"BIA"},{"nome":"B P DA SILVA LTDA","cnpj":"58501753000160","colaborador":"RAFA"},{"nome":"BELLAS - AME TECNOLOGIA","cnpj":"37257162000110","colaborador":"BIA"},{"nome":"BELLAS - BELLAS ARTES FILIAL","cnpj":"35190898000273","colaborador":"BIA"},{"nome":"BELLAS - BELLAS ARTES INCORPORADORA","cnpj":"35190898000192","colaborador":"BIA"},{"nome":"BELLAS - EVA ADMINISTRAÇÃO","cnpj":"37042466000160","colaborador":"BIA"},{"nome":"BELLAS - MAIS - MARQUES ASSI","cnpj":"37232554000124","colaborador":"BIA"},{"nome":"BELLAS - MARIANO E MARQUES ADV","cnpj":"33751394000179","colaborador":"BIA"},{"nome":"BELLAS - MARIANO HOLDING","cnpj":"40224459000193","colaborador":"BIA"},{"nome":"BETO - EUROSHOPPING","cnpj":"54641733000134","colaborador":"BIA"},{"nome":"BETO - ILHAS CANARIAS EMPR. IMOB LTDA","cnpj":"60732668000155","colaborador":"BIA"},{"nome":"BETO - IMOBILIARIA ARIDANE","cnpj":"09531686000111","colaborador":"BIA"},{"nome":"BETO - IMOVEX PARTICIPACOES LTDA.","cnpj":"10724851000130","colaborador":"BIA"},{"nome":"BETO - INVESTER PARTICIPACOES E NEGOCIOS LTDA.","cnpj":"18981516000120","colaborador":"BIA"},{"nome":"C A M CASARINE","cnpj":"24511266000167","colaborador":"PEDRO"},{"nome":"C S VALDRIGHI","cnpj":"33585663000174","colaborador":"RAFA"},{"nome":"CAMPOS CAMARGO E RODRIGUES","cnpj":"10912009000122","colaborador":"ERICK"},{"nome":"CASA DE CARNES POPULAR","cnpj":"53908182000160","colaborador":"ERICK"},{"nome":"CASTANHEIRA TRANSPORTES","cnpj":"08303145000173","colaborador":"RAFA"},{"nome":"CEDRO EMPREENDIMENTOS","cnpj":"29974190000120","colaborador":"BIA"},{"nome":"CENTRO INTEGRADO AGAPE LTDA","cnpj":"59952260000100","colaborador":"PEDRO"},{"nome":"CES EMPREENDIMENTOS IMOB LTDA","cnpj":"65713833000145","colaborador":"ERICK"},{"nome":"CLINICA FISIOTRAT LTDA - ME","cnpj":"50826130000156","colaborador":"PEDRO"},{"nome":"CLINICA GVB LTDA","cnpj":"46815329000101","colaborador":"PEDRO"},{"nome":"CLINICA MEDICA LOTFI DE TATUI","cnpj":"07416824000196","colaborador":"PEDRO"},{"nome":"CLINICA MULLER LTDA","cnpj":"59778801000125","colaborador":"PEDRO"},{"nome":"CLINICA VITHY LTDA","cnpj":"53422621000120","colaborador":"PEDRO"},{"nome":"COMERCIAL PEIXOTO","cnpj":"72185002000103","colaborador":"ERICK"},{"nome":"COMPOSE MODA - 1","cnpj":"23227737000147","colaborador":"RAFA"},{"nome":"COMPOSE MODA - 2","cnpj":"23227737000228","colaborador":"RAFA"},{"nome":"COSTA POLES & POLIS EMPREEND.","cnpj":"28509763000181","colaborador":"BIA"},{"nome":"CROWD CLUSTER EMPREENDIMENTOS","cnpj":"27860696000182","colaborador":"BIA"},{"nome":"CUNHA SOUZA E CUNHA","cnpj":"43736588000159","colaborador":"RAFA"},{"nome":"D T ARAHATA LTDA","cnpj":"57367207000116","colaborador":"ERICK"},{"nome":"D.P.M.M. DESENVOLVIMENTO GERENCIAL","cnpj":"14017915000114","colaborador":"PEDRO"},{"nome":"DANIEL MARTINS SIQUEIRA","cnpj":"03872871000193","colaborador":"ALEF"},{"nome":"DANIEL STAPE","cnpj":"08938349000180","colaborador":"BIA"},{"nome":"DANILO RICARDO SIMON MANIS","cnpj":"57974173000128","colaborador":"RAFA"},{"nome":"DBL PICCHI LTDA","cnpj":"55327372000119","colaborador":"BIA"},{"nome":"DPF EMPRE. E PARTIC. EIRELI","cnpj":"37350182000130","colaborador":"ALEF"},{"nome":"E. BELTRAMI - ME","cnpj":"27305498000157","colaborador":"PEDRO"},{"nome":"EPM PROCTO LTDA","cnpj":"50587499000153","colaborador":"PEDRO"},{"nome":"ESSENZA MODAS COMERCIAL LTDA","cnpj":"63454702000165","colaborador":"RAFA"},{"nome":"FBF EMPREENDIMENTOS IMOB","cnpj":"22484605000138","colaborador":"ALEF"},{"nome":"FOM ASSESSORIA LTDA","cnpj":"57207428000127","colaborador":"ALEF"},{"nome":"FOM LEILOES LTDA","cnpj":"61853316000110","colaborador":"ALEF"},{"nome":"FORTEC S/A PARTICIPAÇOES","cnpj":"50615301000289","colaborador":"PEDRO"},{"nome":"FREFER OCCHIALINI AGROPECUARIA LTDA","cnpj":"66776097000137","colaborador":"ALEF"},{"nome":"FW ESPECIALIDADES MEDICAS","cnpj":"34352524000163","colaborador":"PEDRO"},{"nome":"GARCIA & SANTANA LTDA","cnpj":"66840789000105","colaborador":""},{"nome":"G- BEACH CLUB - PA VIEIRA EVENTOS LTDA","cnpj":"63160879000159","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - J P P COMERCIO","cnpj":"39232374000178","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS CIANE","cnpj":"45197762000168","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS ESPLANADA","cnpj":"47417591000160","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS INDAIATUBA","cnpj":"51535377000186","colaborador":"ERICK"},{"nome":"G- HAVAIANAS - POLIS ITAPETININGA","cnpj":"44852562000139","colaborador":"ERICK"},{"nome":"G- HERING - CMA","cnpj":"19722510000109","colaborador":"ERICK"},{"nome":"G- HERING - DEIFER","cnpj":"19722515000123","colaborador":"ERICK"},{"nome":"G- HERING - M V (ITAPE)","cnpj":"18558461000140","colaborador":"ERICK"},{"nome":"G- HERING - RA COMERCIAL","cnpj":"19834885000152","colaborador":"ERICK"},{"nome":"G- HERING - RENATO (ITU)","cnpj":"08974972000199","colaborador":"ERICK"},{"nome":"G- MIRIAM KIDS - J AUGUSTO","cnpj":"03015074000190","colaborador":"ERICK"},{"nome":"G- MIRIAM LINGERIE - MIRIAM DE CASSIA","cnpj":"44800951000110","colaborador":"ERICK"},{"nome":"G- MIRIAM STORE - PV COMERCIO","cnpj":"15270057000188","colaborador":"ERICK"},{"nome":"G- MULTIMARCAS - P A VIEIRA","cnpj":"18958963000168","colaborador":"ERICK"},{"nome":"G- MULTIMARCAS - RAV - CASA JOAO","cnpj":"13772849000125","colaborador":"ERICK"},{"nome":"G- SMART TATUI ACADEMIA","cnpj":"54559416000173","colaborador":"ERICK"},{"nome":"G.A. SOARES","cnpj":"27761359000138","colaborador":"PEDRO"},{"nome":"BAIXADA 05/05 - G.G. SERVIÇOS ADMINISTRATIVOS LTDA","cnpj":"50884671000130","colaborador":"PEDRO"},{"nome":"GIRASOLE","cnpj":"45741735000104","colaborador":"PEDRO"},{"nome":"GM RAUSHER SOLUÇÕES AGROPECUARIAS","cnpj":"55605667000100","colaborador":"PEDRO"},{"nome":"Grandino - CASTELLABATE","cnpj":"19174834000141","colaborador":"ALEF"},{"nome":"Grandino - GDO PRE MOLDADOS","cnpj":"43640489000179","colaborador":"ALEF"},{"nome":"Grandino - GRANDINO PRE MOLDADOS","cnpj":"65413486000135","colaborador":"ALEF"},{"nome":"Grandino - GRANDINO PRE MOLDADOS - FILIAL 2","cnpj":"65413486000216","colaborador":"ALEF"},{"nome":"H M P M CENTRO DE IDIOMAS","cnpj":"59196283000131","colaborador":"PEDRO"},{"nome":"HELENA MARIA PUJOL MONTEIRO","cnpj":"05624890000126","colaborador":"PEDRO"},{"nome":"HM PERNASETTI LTDA","cnpj":"49818516000137","colaborador":"RAFA"},{"nome":"HM TATUI LTDA","cnpj":"54036552000189","colaborador":"RAFA"},{"nome":"HOTEL DEL FIOL","cnpj":"00229295000172","colaborador":"ALEF"},{"nome":"IND LOG MATRIZ","cnpj":"46775267000151","colaborador":"RAFA"},{"nome":"J. SÁ CONSULTORIA","cnpj":"57255731000103","colaborador":"PEDRO"},{"nome":"J. SÁ HOLDING","cnpj":"56174480000161","colaborador":"ALEF"},{"nome":"J. SÁ PUBLICIDADE","cnpj":"56174534000199","colaborador":"PEDRO"},{"nome":"JOSE MENEGATTI","cnpj":"04903120000150","colaborador":"RAFA"},{"nome":"JUVENAL 430 LTDA","cnpj":"65054506000129","colaborador":"ALEF"},{"nome":"KALMAR CONSULTORIA EMPRESARIAL","cnpj":"30533223000185","colaborador":"RAFA"},{"nome":"LABORATORIO CAMPOS","cnpj":"46898219000150","colaborador":"PEDRO"},{"nome":"LAVANIRA DE C LOPES","cnpj":"39012802000157","colaborador":"ERICK"},{"nome":"LAVANIRA DE C LOPES - FILIAL","cnpj":"39012802000238","colaborador":"ERICK"},{"nome":"BAIXADA 05/05 - LAVANIRA PRESENTES LTDA","cnpj":"04221989000114","colaborador":"ERICK"},{"nome":"LELO - CASAS SJ- 1 TATUÍ","cnpj":"41585745000147","colaborador":"RAFA"},{"nome":"LELO - CASAS SJ- 2 BOITUVA","cnpj":"41585745000228","colaborador":"RAFA"},{"nome":"LELO - CASAS SJ- 3 CERQUILHO","cnpj":"41585745000309","colaborador":"RAFA"},{"nome":"LELO - CSJ EMPREENDIMENTOS LTDA","cnpj":"42313869000136","colaborador":"RAFA"},{"nome":"LELO - CSJ SHOP LTDA","cnpj":"46942995000100","colaborador":"RAFA"},{"nome":"LELO - DSE INVESTIMENTOS S/A","cnpj":"21584596000194","colaborador":"RAFA"},{"nome":"LELO - LAZINSOARES","cnpj":"49669104000182","colaborador":"RAFA"},{"nome":"LELO - SÃO JOSE DE TATUI SERVIÇOS ADM","cnpj":"45459531000185","colaborador":"RAFA"},{"nome":"LELO - TRANSPORTADORA SÃO CRISTOVAO","cnpj":"44174736000151","colaborador":"RAFA"},{"nome":"Lidiane - A. POLASTRI LTDA","cnpj":"25013370000194","colaborador":"PEDRO"},{"nome":"Lidiane - A. R.T. DE BARROS  EIRELI","cnpj":"18378460000113","colaborador":"RAFA"},{"nome":"Lidiane - C CAMARGO E POLASTRI","cnpj":"18011915000168","colaborador":"ALEF"},{"nome":"Lidiane - DUARTE METAIS","cnpj":"42059706000179","colaborador":"ALEF"},{"nome":"Lidiane - F XAVIER","cnpj":"45393671000106","colaborador":"PEDRO"},{"nome":"Lidiane - L.C.D DE CAMARGO EIRELI - ME","cnpj":"22764148000135","colaborador":"RAFA"},{"nome":"Lidiane - M. EDSON ALEXANDRE","cnpj":"22659357000119","colaborador":"RAFA"},{"nome":"Lidiane - M.J.P COMERCIO E IMPORT","cnpj":"41659354000120","colaborador":"PEDRO"},{"nome":"Lidiane - PEDRO DE CAMPOS","cnpj":"16800228000104","colaborador":"RAFA"},{"nome":"Lidiane - POLASTRI VIAGENS & TURISMO","cnpj":"48389935000138","colaborador":"PEDRO"},{"nome":"Lidiane - S XAVIER","cnpj":"45676024000101","colaborador":"PEDRO"},{"nome":"LILOU STORE ACESSORIOS","cnpj":"26263720000133","colaborador":"RAFA"},{"nome":"LVM CONSULTORIA LTDA","cnpj":"58027084000137","colaborador":"RAFA"},{"nome":"M L L MATIAS LTDA","cnpj":"11682472000198","colaborador":"PEDRO"},{"nome":"M.S. ROMAGNOLO EMPREEND.","cnpj":"11490868000133","colaborador":"ALEF"},{"nome":"MAEDA E MAEDA","cnpj":"71563621000121","colaborador":"PEDRO"},{"nome":"MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA","cnpj":"63789312000146","colaborador":"ALEF"},{"nome":"MARQUES OLIVEIRA IMOVEIS","cnpj":"22151361000171","colaborador":"PEDRO"},{"nome":"MFJ CAMPOS","cnpj":"64277948000171","colaborador":"ALEF"},{"nome":"MINERAÇÃO GURINI","cnpj":"57601521000111","colaborador":"PEDRO"},{"nome":"MLS EMPREENDIMENTOS IMOB.","cnpj":"66085090000179","colaborador":"ERICK"},{"nome":"MM OFICIUM","cnpj":"65710150000134","colaborador":"ERICK"},{"nome":"MONTEIRO IRRI. COM. ONLINE","cnpj":"57619597000174","colaborador":"RAFA"},{"nome":"MONTEIRO IRRIGAÇÃO","cnpj":"05280411000100","colaborador":"RAFA"},{"nome":"MONTEIRO SOLUÇÕES","cnpj":"27885395000103","colaborador":"RAFA"},{"nome":"MUNIR - L.L IMPORTS","cnpj":"07726461000195","colaborador":"BIA"},{"nome":"MUNIR - MEGAMIX","cnpj":"21484338000136","colaborador":"BIA"},{"nome":"MUNIR - MUHAMED EMPREEND. IMOB.","cnpj":"02896931000145","colaborador":"BIA"},{"nome":"MUNIR - NOVA TATUI EMPREENDIMENTOS","cnpj":"09186299000195","colaborador":"BIA"},{"nome":"MUNIR - NOVO IMPERIO EMPREEND.","cnpj":"21459767000153","colaborador":"BIA"},{"nome":"MUNIR - S M J EMPREEND IMOB","cnpj":"36334271000120","colaborador":"BIA"},{"nome":"NELSON - CONSORCIO GZ ENERGIA RENOVAVEL","cnpj":"54173945000134","colaborador":"BIA"},{"nome":"NELSON - GZ ENERGIA LTDA","cnpj":"53838177000128","colaborador":"BIA"},{"nome":"NELSON - NOVA QUADRA","cnpj":"45196536000162","colaborador":"ALEF"},{"nome":"NELSON - NZ ENERGIA LTDA","cnpj":"53838582000146","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 1 - Tatuí","cnpj":"06353644000140","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 2 - SP","cnpj":"06353644000220","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 3 - PR","cnpj":"06353644000301","colaborador":"BIA"},{"nome":"NELSON - NZ LOG 4 - RJ","cnpj":"06353644000492","colaborador":"BIA"},{"nome":"NGC SERVIÇOS ADM","cnpj":"48862302000103","colaborador":"PEDRO"},{"nome":"NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA","cnpj":"58138259000183","colaborador":"ALEF"},{"nome":"NOVA VIDA TATUI CORRE DE SEG","cnpj":"01031341000197","colaborador":"RAFA"},{"nome":"NSC NOVESETE COMUNICAÇÃO LTDA","cnpj":"03009199000107","colaborador":"ALEF"},{"nome":"OBOTICARIO BR 001 - 6894","cnpj":"03780076000175","colaborador":"BIA"},{"nome":"OBOTICARIO BR 002 - 7185","cnpj":"03780076000256","colaborador":"BIA"},{"nome":"OBOTICARIO DIFA - 13858","cnpj":"15077072000104","colaborador":"BIA"},{"nome":"OBOTICARIO MR 001 - 6200 - XI","cnpj":"02841329000100","colaborador":"BIA"},{"nome":"OBOTICARIO MR 002 - 12676 - Coop","cnpj":"02841329000291","colaborador":"BIA"},{"nome":"OBOTICARIO MR 003 - 17314 - Picida","cnpj":"02841329000372","colaborador":"BIA"},{"nome":"OBOTICARIO MR 004 - 20518 - São Roque","cnpj":"02841329000453","colaborador":"BIA"},{"nome":"OBOTICARIO MR 005","cnpj":"02841329000534","colaborador":"BIA"},{"nome":"OBOTICARIO MR 006","cnpj":"02841329000615","colaborador":"BIA"},{"nome":"OBOTICARIO MR 007","cnpj":"02841329000704","colaborador":"BIA"},{"nome":"OCCHIALINI EMPREEND. IMOBI LTDA","cnpj":"35783871000103","colaborador":"ALEF"},{"nome":"OCCHIALINI FREIRE HOLDING LTDA","cnpj":"64736056000191","colaborador":"ALEF"},{"nome":"ODONTOLOGIA MANCINI LTDA","cnpj":"60553004000129","colaborador":"RAFA"},{"nome":"P. de A. MONTEIRO","cnpj":"23777813000198","colaborador":"RAFA"},{"nome":"PAULO VANIN & FILHOS","cnpj":"68462621000120","colaborador":"ERICK"},{"nome":"PEREIRA - 2T REPRESENTAÇÃO - 1","cnpj":"40961016000185","colaborador":"BIA"},{"nome":"PEREIRA - 2T REPRESENTAÇÃO - 2","cnpj":"40961016000266","colaborador":"BIA"},{"nome":"PEREIRA - FAMA - FILIAL","cnpj":"40961016000266","colaborador":"BIA"},{"nome":"PEREIRA - FAMA COMERCIO LTDA","cnpj":"57143310000182","colaborador":"BIA"},{"nome":"PEREIRA - P & P REPRESENTAÇÕES - 1","cnpj":"38440431000141","colaborador":"BIA"},{"nome":"PEREIRA - P & P REPRESENTAÇÕES - 2","cnpj":"38440431000222","colaborador":"BIA"},{"nome":"PEREIRA - P & P REPRESENTAÇÕES - 3","cnpj":"38440431000303","colaborador":"BIA"},{"nome":"PEREZ & GODINO EMPREEND. IMOB","cnpj":"62781166000140","colaborador":"BIA"},{"nome":"PLT EMBALAGENS","cnpj":"04104990000169","colaborador":"RAFA"},{"nome":"POLES & POLIS EMPREENDIMENTOS","cnpj":"18940489000147","colaborador":"RAFA"},{"nome":"POLIS SERVIÇOS","cnpj":"44377684000110","colaborador":"RAFA"},{"nome":"R de C. COQUE DA CRUZ","cnpj":"34410840000144","colaborador":"PEDRO"},{"nome":"R. J. SAMPAIO DE ALMEIDA LTDA","cnpj":"66652630000159","colaborador":"ALEF"},{"nome":"RRZ ENGENHARIA LTDA","cnpj":"66164895000108","colaborador":"PEDRO"},{"nome":"R S MANSO SOC. UNIPESSOAL ADVOC.","cnpj":"42648712000161","colaborador":"PEDRO"},{"nome":"RAKKI JAPANESE","cnpj":"18875003000134","colaborador":"ERICK"},{"nome":"RAM SOLUÇÕES LTDA","cnpj":"60841696000100","colaborador":"RAFA"},{"nome":"REGINATO & REGINATO LTDA","cnpj":"14586029000101","colaborador":"ERICK"},{"nome":"RIBEIRO BRANCO EMPREENDIMENTOS","cnpj":"49507538000186","colaborador":"ALEF"},{"nome":"ROSSI SERVIÇOS MEDICOS","cnpj":"06066244000153","colaborador":"PEDRO"},{"nome":"SOARES  & FAVORITO","cnpj":"14676263000120","colaborador":"PEDRO"},{"nome":"SONESTA COMERCIAL AGRICOLA","cnpj":"10773254000104","colaborador":"ERICK"},{"nome":"SR DRAGAO","cnpj":"44341934000162","colaborador":"ERICK"},{"nome":"T MEDEIROS LTDA","cnpj":"21021822000129","colaborador":"RAFA"},{"nome":"T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA","cnpj":"54581448000175","colaborador":"ALEF"},{"nome":"TATIANA LOPES TREINAMENTOS","cnpj":"65202077000190","colaborador":"ALEF"},{"nome":"TATUILAB ANATOMIA","cnpj":"05093755000100","colaborador":"PEDRO"},{"nome":"TECHNOWORK SERVIÇOS TECNICOS","cnpj":"07023603000158","colaborador":"RAFA"},{"nome":"TL EMPREENDIMENTOS","cnpj":"51074518000100","colaborador":"ALEF"},{"nome":"TRANSPORTADORA TATUI","cnpj":"45503836000147","colaborador":"RAFA"},{"nome":"TRANSPORTADORA TATUI FILIAL","cnpj":"45503836000228","colaborador":"RAFA"},{"nome":"TRANSTATUI EXPRESS","cnpj":"23353270000181","colaborador":"RAFA"},{"nome":"TUTORIAR","cnpj":"22262314000103","colaborador":"RAFA"},{"nome":"TW TESTES DE VEICULOS","cnpj":"17327179000199","colaborador":"RAFA"},{"nome":"V.L.R. MADUREIRA","cnpj":"09533300000100","colaborador":"ERICK"},{"nome":"VIEIRA & O. VIEIRA LTDA ME","cnpj":"23361688000130","colaborador":"RAFA"},{"nome":"W. LANDA SAUDE LTDA - ITAPETININGA","cnpj":"30527810000161","colaborador":"PEDRO"},{"nome":"WB","cnpj":"50780808000107","colaborador":"ALEF"},{"nome":"WT - ABPS PINHEIROS COMERCIO DE TENIS E ARTIGOS ESPORTIVOS LTDA","cnpj":"60115527000193","colaborador":"PEDRO"},{"nome":"WT - ABPS VILA MARIANA COMERCIO DE TENIS E ARTIGOS ESPORTIVOS LTDA","cnpj":"60115431000125","colaborador":"PEDRO"},{"nome":"WT - ALEXTI COMERCIO DE TENIS","cnpj":"60704787000102","colaborador":"PEDRO"},{"nome":"WT - TYPA - FILIAL 2","cnpj":"23982359000298","colaborador":"PEDRO"},{"nome":"WT - TYPA - MATRIZ","cnpj":"23982359000107","colaborador":"PEDRO"},{"nome":"WT - YASBET COMERCIO DE TENIS E ARTIGOS ESPORTIVOS LTDA","cnpj":"60439096000110","colaborador":"PEDRO"},{"nome":"YOUNIC SOLUÇÕES LTDA","cnpj":"55631266000124","colaborador":"RAFA"}];
 
 
+// Base fixa de produtores rurais enviada em 01/07/2026.
+// Não consulta CNPJ. Ao sincronizar, marca por CNPJ os cadastros já existentes e inclui apenas os faltantes.
+const BASE_PRODUTORES_RURAIS = [{"nome":"BAIXADA DIRCEU DE CAMPOS","cnpj":"08.358.124/0001-55"},{"nome":"BAIXADA  MARISA HADDAD DE CAMPOS","cnpj":"08.157.820/0002-84"},{"nome":"GERALDO LOPES","cnpj":""},{"nome":"MARIA APARECIDA FRANCO DE GODOY FALCONE","cnpj":"08.069.937/0001-25"},{"nome":"MONICA FRANCO DE GODOY FALCONE","cnpj":"08.066.537/0001-66"},{"nome":"ROBERTO MONTENEGRO - RTM","cnpj":"29.814.442/0001-53"},{"nome":"ANTONIO FERNANDO MIRANDA","cnpj":"08.069.983/0001-24"},{"nome":"ANTONIO MARCOS MARTINS VIEIRA","cnpj":"09.269.991/0002-68"},{"nome":"CAMILA MONTENEGRO","cnpj":"34.944.881/0001-10"},{"nome":"DANILO PELISSONI SALVADOR E OUTROS","cnpj":"45.253.627/0001-92"},{"nome":"FABIO CORREA AYROSA GALVAO","cnpj":"07.980.644/0001-32"},{"nome":"FELIPE DE OLIVEIRA","cnpj":"37.599.746/0001-73"},{"nome":"FERNANDA BOCCHI SIQUEIRA","cnpj":"09.608.818/0001-66"},{"nome":"FERNANDA DE OLIVEIRA","cnpj":"10.817.882/0001-36"},{"nome":"FERNANDO ORTEGA MONTENEGRO","cnpj":"47.793.758/0001-98"},{"nome":"FRANCISCO DE CAMPOS CAMARGO FILHO (TICO AÇOUGUE)","cnpj":"08.066.186/0001-93"},{"nome":"GASPAR GASPARIAN FILHO","cnpj":"07.926.924/0001-62"},{"nome":"GENTIL ANTONIO DE OLIVEIRA","cnpj":"08.392.937/0016-48"},{"nome":"GENTIL ANTONIO DE OLIVEIRA","cnpj":"08.392.937/0001-61"},{"nome":"GILBERTO APARECIDO MILCK E OUTRO","cnpj":"17.225.114/0001-32"},{"nome":"HILDEBRANDO MIRANDA NETO","cnpj":"30.528.593/0001-24"},{"nome":"JOSÉ ADÃO POLES","cnpj":"08.063.533/0001-24"},{"nome":"JULIANO RODRIGUES MARINHO","cnpj":"51.932.533/0001-42"},{"nome":"LAVANIRA DE CASTRO LOPES E OUTRO","cnpj":"62.283.156/0001-84"},{"nome":"LILIAN ROSE GOES BRANCO PERES E OUTROS","cnpj":"47.497.718/0001-07"},{"nome":"LUCIANO DE CAMARGO","cnpj":"13.522.019/0001-40"},{"nome":"MARIA DO CARMO VARA LOPES ORSI","cnpj":"10.351.177/0001-96"},{"nome":"MARIA EMILIA LEITE OLIVEIRA","cnpj":"37.600.184/0001-30"},{"nome":"MARIA ISABEL BASSI DE CAMPOS","cnpj":"55.613.315/0001-04"},{"nome":"MARIA NILSA COELHO LOPES","cnpj":"66.863.777/0001-98"},{"nome":"MARISA HADAD CAMPOS","cnpj":"08.157.820/0001-01"},{"nome":"NELSON ZANELLA DOS SANTOS","cnpj":"07.927.281/0001-71"},{"nome":"PALMIRA DE ALMEIDA COELHO","cnpj":"08.395.228/0001-30"},{"nome":"PATRICIA CONCHA PAEZ","cnpj":"35.576.632/0001-82"},{"nome":"ROBERTO MONTENEGRO FILHO (Pai do Beto)","cnpj":"07.991.519/0001-28"},{"nome":"ROBERTO MONTENEGRO NETO (Beto)","cnpj":"20.710.375/0001-52"},{"nome":"BAIXADA - RONALDO MONTENEGRO","cnpj":"40.089.648/0001-09"},{"nome":"SERGIO FRANCISCO LOPES","cnpj":"08.614.475/0001-80"},{"nome":"SERGIO FRANCISCO LOPES JUNIOR - (Juca)","cnpj":"51.842.663/0001-94"},{"nome":"SOLANGE CONCEIÇÃO PIRES DE CAMPOS E OUTRO","cnpj":"57.506.030/0001-91"},{"nome":"UMBERTO FANGANIELLO FILHO E OUTRO","cnpj":"07.938.246/0001-58"},{"nome":"VALDOMIRO DE OLIVEIRA","cnpj":"08.231.216/0001-70"},{"nome":"VANIA MARIA DELAZARI","cnpj":"38.149.331/0001-60"},{"nome":"RONALDO MONTENEGRO","cnpj":"67.540.629/0001-03"}];
+const PRODUTOR_RURAL_CNPJS = new Set(BASE_PRODUTORES_RURAIS.map(p => String(p.cnpj||'').replace(/\D/g,'')).filter(v => v.length === 14));
+let _produtoresSyncRunning = false;
+
 let currentEditId = null;
 let pendingDeleteId = null;
 let currentPin = '';
 let modalObrigacoes = [];
 let modalImportacoes = [];
 let modalImpostos = [];
+let modalRepositorioNotas = [];
 let modalCamposPersonalizados = [];
 let empresaFormInitialSnapshot = '';
 let empresaDirtyNoticeTimer = null;
@@ -1987,6 +2138,31 @@ function formatCnpjValue(value){
 
 function rawCnpjValue(value){
   return String(value || '').replace(/\D/g, '');
+}
+
+function isProdutorCnpjBase(cnpj){
+  const raw = rawCnpjValue(cnpj);
+  return raw.length === 14 && PRODUTOR_RURAL_CNPJS.has(raw);
+}
+function categoriaEmpresaValue(eOrValue){
+  if(typeof eOrValue === 'string') return eOrValue === 'produtor_rural' ? 'produtor_rural' : 'empresa';
+  const e = eOrValue || {};
+  if(e.categoriaEmpresa === 'produtor_rural' || isProdutorCnpjBase(e.cnpj)) return 'produtor_rural';
+  return 'empresa';
+}
+function categoriaEmpresaLabel(v){
+  return categoriaEmpresaValue(v) === 'produtor_rural' ? 'Produtor Rural' : 'Demais empresas';
+}
+function isProdutorRural(e){
+  return categoriaEmpresaValue(e) === 'produtor_rural';
+}
+function categoriaPillHtml(e){
+  const val = categoriaEmpresaValue(e);
+  const icon = val === 'produtor_rural' ? '🌾' : '🏢';
+  return `<span class="categoria-pill ${esc(val)}">${icon} ${esc(categoriaEmpresaLabel(val))}</span>`;
+}
+function empresaSubtitle(e){
+  return `${regimeLabel(e.regime)} • ${categoriaEmpresaLabel(e)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
 }
 
 async function buscarCnpj() {
@@ -2085,11 +2261,13 @@ function normalizeEmpresa(e) {
   return {
     ...e,
     regime: e.regime || 'outros',
+    categoriaEmpresa: e.categoriaEmpresa === 'produtor_rural' ? 'produtor_rural' : 'empresa',
     fechada: !!e.fechada,
     semMovimento: !!e.semMovimento,
     obrigacoes: Array.isArray(e.obrigacoes) ? e.obrigacoes : [],
     importacoes: Array.isArray(e.importacoes) ? e.importacoes : [],
     impostos: Array.isArray(e.impostos) ? e.impostos : [],
+    repositorioNotas: Array.isArray(e.repositorioNotas) ? e.repositorioNotas.map(normalizeNotaRepositorioItem).filter(a => a.nome) : [],
     camposPersonalizados: Array.isArray(e.camposPersonalizados) ? e.camposPersonalizados : [],
     camposEstaticosData: e.camposEstaticosData && typeof e.camposEstaticosData === 'object' ? e.camposEstaticosData : {},
     parametros: e.parametros || '',
@@ -2127,7 +2305,7 @@ function aplicarRegimesDaPlanilha() {
   });
 
   if (atualizadas > 0) {
-    localStorage.setItem('gestao_v3', JSON.stringify(S));
+    safePersistStateLocal();
     console.log(`[Migração regimes] ${atualizadas} empresa(s) atualizadas.`);
     toast(`Regimes atualizados: ${atualizadas} empresa(s) sincronizadas da planilha.`, 'success');
   }
@@ -2179,9 +2357,10 @@ async function init(){
       });
     }
     S.empresas = lista;
-    localStorage.setItem('gestao_v3', JSON.stringify(S));
+    safePersistStateLocal();
     setCloudStatus('ok', 'Nuvem sincronizada');
     aplicarRegimesDaPlanilha();
+    sincronizarProdutoresRurais(true);
     renderAll();
     renderPortalRecordsForCurrentEmpresa();
     renderTarefasForCurrentEmpresa();
@@ -2234,7 +2413,7 @@ async function init(){
 // Salva config global (sem empresas) no Firebase
 function saveState(){
   // Cache local completo
-  localStorage.setItem('gestao_v3', JSON.stringify(S));
+  safePersistStateLocal();
 
   // Salva config no Firebase (debounced) — sem tocar em empresas
   setCloudStatus('loading', 'Salvando...');
@@ -2339,6 +2518,10 @@ function safe(v){ return (v ?? '').toString(); }
 function esc(v){
   return safe(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 }
+function safePersistStateLocal(){
+  try { localStorage.setItem('gestao_v3', JSON.stringify(S)); }
+  catch(err) { console.warn('Cache local ignorado para evitar estouro de armazenamento:', err); }
+}
 function norm(v){ return safe(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function regimeLabel(r){ return ({simples:'Simples Nacional',presumido:'Lucro Presumido',real:'Lucro Real',outros:'Outros'}[r] || 'Outros'); }
 function statusLabel(s){ return ({entregue:'Entregue',pendente:'Pendente',atrasado:'Atrasado'}[s] || 'Pendente'); }
@@ -2424,6 +2607,7 @@ function clearFilters(){
   S.searchTerm = '';
   if($('searchInput')) $('searchInput').value = '';
   if($('filterRegime')) $('filterRegime').value = '';
+  if($('filterCategoria')) $('filterCategoria').value = '';
   if($('filterStatus')) $('filterStatus').value = '';
   if($('filterApuracao')) $('filterApuracao').value = '';
   if($('filterColaborador')) $('filterColaborador').value = '';
@@ -2437,11 +2621,14 @@ function doSearch(v){ S.searchTerm = v || ''; renderAll(); }
 
 function passesFilters(e){
   const fr = $('filterRegime')?.value || '';
+  const fc = $('filterCategoria')?.value || '';
   const fs = $('filterStatus')?.value || '';
   const fa = selectedActivity();
   const fap = $('filterApuracao')?.value || '';
   const fcol = $('filterColaborador')?.value || '';
   if(fr && e.regime !== fr) return false;
+  if(fc === 'produtor_rural' && !isProdutorRural(e)) return false;
+  if(fc === 'empresa' && isProdutorRural(e)) return false;
   if(fs === 'com_movimento') { if(e.fechada || e.semMovimento) return false; }
   else if(fs && empresaStatus(e) !== fs) return false;
   if(fa && e.atividade !== fa) return false;
@@ -2500,6 +2687,7 @@ function getSortedEmpresas(arr){
     if(col === 'nome')        { va = norm(a.nome||'');        vb = norm(b.nome||''); }
     else if(col === 'cnpj')        { va = rawCnpjValue(a.cnpj||'');     vb = rawCnpjValue(b.cnpj||''); }
     else if(col === 'regime')      { va = norm(regimeLabel(a.regime)); vb = norm(regimeLabel(b.regime)); }
+    else if(col === 'categoria')   { va = norm(categoriaEmpresaLabel(a)); vb = norm(categoriaEmpresaLabel(b)); }
     else if(col === 'colaborador') { va = norm(a.colaborador||'');    vb = norm(b.colaborador||''); }
     else if(col === 'atividade')   { va = norm(a.atividade||'');      vb = norm(b.atividade||''); }
     else if(col === 'status')      { va = empresaStatus(a);           vb = empresaStatus(b); }
@@ -2520,16 +2708,17 @@ function renderListView(filtered){
   }
   empty.style.display = 'none';
   const thead = document.getElementById('empresaTableHead');
-  const colOrder = thead ? Array.from(thead.querySelectorAll('th')).map(th=>th.dataset.key||'') : ['nome','cnpj','regime','atividade','colaborador','status','obrigacoes','acoes'];
+  const colOrder = thead ? Array.from(thead.querySelectorAll('th')).map(th=>th.dataset.key||'') : ['nome','cnpj','regime','categoria','atividade','colaborador','status','obrigacoes','acoes'];
   tbody.innerHTML = sorted.map(e => {
     const badgeCls = e.fechada ? 'badge-fechada' : e.semMovimento ? 'badge-sem-movimento' : 'badge-ativa';
     const badgeTxt = e.fechada ? 'FECHADA' : e.semMovimento ? 'SEM MOV.' : 'ABERTA';
     const obrigTags = (e.obrigacoes||[]).slice(0,4).map(o=>`<span class="tbl-obrig-tag">${esc(o.nome)}</span>`).join('');
     const more = (e.obrigacoes||[]).length > 4 ? `<span class="tbl-obrig-tag">+${(e.obrigacoes||[]).length-4}</span>` : '';
     const cells = {
-      nome: `<td><span class="tbl-name">${esc(e.nome)}</span></td>`,
+      nome: `<td><span class="tbl-name">${esc(e.nome)}</span>${isProdutorRural(e)?'<div style="margin-top:4px;">'+categoriaPillHtml(e)+'</div>':''}</td>`,
       cnpj: `<td><span class="tbl-cnpj-only" title="${esc(e.cnpj||'')}">${esc(e.cnpj||'—')}</span></td>`,
       regime: `<td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>`,
+      categoria: `<td>${categoriaPillHtml(e)}</td>`,
       atividade: `<td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>`,
       colaborador: `<td><span class="tbl-colaborador">${esc(e.colaborador||'—')}</span></td>`,
       status: `<td><span class="card-status-badge ${badgeCls}">${badgeTxt}</span></td>`,
@@ -2551,7 +2740,7 @@ function toggleFilterPanel(){
 }
 
 function updateFilterBadge(){
-  const count = [$('filterRegime'),$('filterStatus'),$('filterApuracao'),$('filterColaborador'),$('filterAtividade')]
+  const count = [$('filterRegime'),$('filterCategoria'),$('filterStatus'),$('filterApuracao'),$('filterColaborador'),$('filterAtividade')]
     .filter(el => el && el.value).length + S.activeFilters.length + S.activeStatusObrig.length + (S.searchTerm ? 1 : 0);
   const badge = $('filterActiveCount');
   if(badge){ badge.style.display = count ? '' : 'none'; badge.textContent = count; }
@@ -2601,6 +2790,7 @@ function renderCard(e){
   return `<div class="company-card ${esc(e.regime||'outros')} ${e.fechada?'fechada-card':''}" onclick="openEmpresa('${esc(e.id)}')">
     <button class="btn-delete" onclick="event.stopPropagation();askDelete('${esc(e.id)}')" title="Excluir empresa">×</button>
     <div class="card-top"><div class="card-name">${esc(e.nome)}</div><span class="card-status-badge ${e.fechada?'badge-fechada':e.semMovimento?'badge-sem-movimento':'badge-ativa'}">${e.fechada?'FECHADA':e.semMovimento?'SEM MOVIMENTO':'ABERTA'}</span></div>
+    ${isProdutorRural(e)?'<div class="card-produtor-badge">🌾 PRODUTOR RURAL</div>':''}
     <div class="card-meta">
       <div class="card-meta-row"><span class="card-meta-icon">🏷️</span><span class="card-meta-text">${esc(regimeLabel(e.regime))}</span></div>
       <div class="card-meta-row"><span class="card-meta-icon">💼</span><span class="card-meta-text">${esc(e.atividade || 'Sem atividade informada')}</span></div>
@@ -2615,6 +2805,7 @@ function renderCard(e){
 function updateStats(){
   const arr = getFilteredEmpresas();
   $('stat-total').textContent = arr.length;
+  if($('stat-produtor-rural')) $('stat-produtor-rural').textContent = arr.filter(isProdutorRural).length;
   ['simples','presumido','real','outros'].forEach(r => $('stat-'+r).textContent = arr.filter(e=>e.regime===r).length);
   $('stat-sem-movimento').textContent = arr.filter(e=>e.semMovimento && !e.fechada).length;
 }
@@ -2667,7 +2858,7 @@ function discardEmpresaChangesAndClose(){
 }
 
 function openAddModal(regime){
-  $('addNome').value=''; $('addCnpj').value=''; $('addAtividade').value=''; $('addColaborador').value=''; $('addFechada').checked=false; if($('addSemMovimento')) $('addSemMovimento').checked=false;
+  $('addNome').value=''; $('addCnpj').value=''; $('addAtividade').value=''; $('addColaborador').value=''; $('addFechada').checked=false; if($('addSemMovimento')) $('addSemMovimento').checked=false; if($('addCategoriaEmpresa')) $('addCategoriaEmpresa').value='empresa';
   $('addRegime').value = regime || 'simples';
   openModal('modalAdd');
   setTimeout(()=>$('addNome').focus(),100);
@@ -2681,6 +2872,7 @@ function criarEmpresaBasica(nome, cnpj, colaborador, observacaoExtra=''){
     nome: String(nome || cnpjFmt).trim(),
     cnpj: cnpjFmt,
     regime: 'outros',
+    categoriaEmpresa: 'empresa',
     atividade: '',
     colaborador: String(colaborador || '').trim(),
     fechada: false,
@@ -2691,9 +2883,92 @@ function criarEmpresaBasica(nome, cnpj, colaborador, observacaoExtra=''){
     observacoes: observacaoExtra || '',
     parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], impostos: [], camposEstaticosData: {}, camposPersonalizados: []
+    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: []
   };
 }
+
+
+async function sincronizarProdutoresRurais(silent=false){
+  if(_produtoresSyncRunning) return;
+  _produtoresSyncRunning = true;
+
+  const produtores = Array.isArray(BASE_PRODUTORES_RURAIS) ? BASE_PRODUTORES_RURAIS : [];
+  const porCnpj = new Map((S.empresas || []).map(e => [rawCnpjValue(e.cnpj), e]).filter(([k]) => k));
+  const porNome = new Map((S.empresas || []).map(e => [norm(e.nome), e]).filter(([k]) => k));
+
+  let adicionados = 0;
+  let marcados = 0;
+  let semCnpjIncluidos = 0;
+  let semCnpjMarcados = 0;
+
+  try{
+    setCloudStatus('loading', 'Sincronizando produtores...');
+    for(const item of produtores){
+      const nome = safe(item.nome).trim();
+      const raw = rawCnpjValue(item.cnpj);
+      let empresa = null;
+
+      if(raw.length === 14){
+        empresa = porCnpj.get(raw);
+        if(empresa){
+          if(empresa.categoriaEmpresa !== 'produtor_rural'){
+            empresa.categoriaEmpresa = 'produtor_rural';
+            if(!safe(empresa.atividade).trim()) empresa.atividade = 'Produtor rural';
+            await saveEmpresa(empresa);
+            marcados++;
+          }
+          continue;
+        }
+
+        const nova = criarEmpresaBasica(nome || formatCnpjValue(raw), raw, '', `Incluído pela lista de Produtor Rural em ${todayBR()}. Cadastro criado sem consulta automática de CNPJ.`);
+        nova.categoriaEmpresa = 'produtor_rural';
+        nova.atividade = nova.atividade || 'Produtor rural';
+        S.empresas.push(nova);
+        porCnpj.set(raw, nova);
+        porNome.set(norm(nova.nome), nova);
+        await saveEmpresa(nova);
+        adicionados++;
+        continue;
+      }
+
+      if(nome){
+        empresa = porNome.get(norm(nome));
+        if(empresa){
+          if(empresa.categoriaEmpresa !== 'produtor_rural'){
+            empresa.categoriaEmpresa = 'produtor_rural';
+            if(!safe(empresa.atividade).trim()) empresa.atividade = 'Produtor rural';
+            await saveEmpresa(empresa);
+            semCnpjMarcados++;
+          }
+        }else{
+          const nova = criarEmpresaBasica(nome, '', '', `Incluído pela lista de Produtor Rural em ${todayBR()}, sem CNPJ informado na planilha.`);
+          nova.categoriaEmpresa = 'produtor_rural';
+          nova.atividade = nova.atividade || 'Produtor rural';
+          S.empresas.push(nova);
+          porNome.set(norm(nova.nome), nova);
+          await saveEmpresa(nova);
+          semCnpjIncluidos++;
+        }
+      }
+    }
+
+    safePersistStateLocal();
+    renderAll();
+
+    const totalAlteracoes = adicionados + marcados + semCnpjIncluidos + semCnpjMarcados;
+    if(!silent || totalAlteracoes){
+      toast(`Produtores rurais sincronizados: ${adicionados} incluído(s), ${marcados} CNPJ(s) marcado(s), ${semCnpjIncluidos} sem CNPJ incluído(s), ${semCnpjMarcados} sem CNPJ marcado(s).`, totalAlteracoes ? 'success' : 'success');
+    }
+    setCloudStatus('ok', 'Nuvem sincronizada');
+  }catch(err){
+    console.error('Erro ao sincronizar produtores rurais:', err);
+    setCloudStatus('error', 'Erro ao sincronizar produtores');
+    if(!silent) toast('Não consegui concluir a sincronização dos produtores rurais.', 'error');
+  }finally{
+    _produtoresSyncRunning = false;
+  }
+}
+
 
 function getBasePlanilhaUnica(){
   const vistos = new Set();
@@ -3002,6 +3277,7 @@ async function iniciarImportacao(){
           nome:       d.razao_social || cnpjFmt,
           cnpj:       cnpjFmt,
           regime:     d.opcao_pelo_simples ? 'simples' : '',
+          categoriaEmpresa: 'empresa',
           atividade:  d.cnae_fiscal_descricao
                         ? `${d.cnae_fiscal_descricao}${d.cnae_fiscal ? ' ('+d.cnae_fiscal+')' : ''}`
                         : '',
@@ -3142,6 +3418,7 @@ async function addCompany(){
     id: genId(), nome,
     cnpj: $('addCnpj').value.trim(),
     regime: $('addRegime').value,
+    categoriaEmpresa: $('addCategoriaEmpresa')?.value || 'empresa',
     atividade: $('addAtividade').value.trim(),
     colaborador: $('addColaborador').value.trim(),
     fechada: $('addFechada').checked,
@@ -3151,7 +3428,7 @@ async function addCompany(){
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
     observacoes:'', parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], impostos: [], camposEstaticosData: {}, camposPersonalizados: []
+    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: []
   };
   try {
     setCloudStatus('loading', 'Salvando...');
@@ -4406,13 +4683,15 @@ function openEmpresa(id){
   modalObrigacoes = JSON.parse(JSON.stringify(e.obrigacoes || []));
   modalImportacoes = JSON.parse(JSON.stringify(e.importacoes || []));
   modalImpostos = JSON.parse(JSON.stringify(e.impostos || []));
+  modalRepositorioNotas = JSON.parse(JSON.stringify(e.repositorioNotas || []));
   modalCamposPersonalizados = JSON.parse(JSON.stringify(e.camposPersonalizados || []));
   $('modalEmpresaTitle').textContent = e.nome;
-  $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
+  $('modalEmpresaSubtitle').textContent = empresaSubtitle(e);
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
   renderModalImportacoes();
   renderModalImpostos();
+  renderRepositorioNotasForModal();
   renderStaticFieldsForModal(e);
   renderModalCamposPersonalizados();
   initCompanyRichFields();
@@ -4467,6 +4746,10 @@ function empresaFormHtml(e){
         <option value="presumido" ${e.regime==='presumido'?'selected':''}>Lucro Presumido</option>
         <option value="real" ${e.regime==='real'?'selected':''}>Lucro Real</option>
         <option value="outros" ${e.regime==='outros'?'selected':''}>Outros</option>
+      </select></div>
+      <div class="form-group"><label>Categoria da empresa</label><select id="f_categoriaEmpresa">
+        <option value="empresa" ${categoriaEmpresaValue(e)==='empresa'?'selected':''}>Demais empresas</option>
+        <option value="produtor_rural" ${categoriaEmpresaValue(e)==='produtor_rural'?'selected':''}>🌾 Produtor Rural</option>
       </select></div>
       <div class="form-group"><label>Atividade Econômica</label><input id="f_atividade" value="${esc(e.atividade)}"></div>
       <div class="form-group"><label>Colaborador Responsável</label><input id="f_colaborador" value="${esc(e.colaborador)}"></div>
@@ -4551,6 +4834,19 @@ function empresaFormHtml(e){
       <button class="btn-add-obrig" onclick="addImportacaoToModal()">Adicionar</button>
     </div>
   </div>
+  <div class="form-section">
+    <div class="form-section-title">🗂️ Repositório de Notas <span class="nota-repo-counter" id="modalRepositorioNotasCount">0 arquivo(s)</span></div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Seção fixa da ficha para guardar XML, DANFE/PDF, imagens, planilhas ou comprovantes vinculados à empresa.</p>
+    <div class="nota-repo-manager">
+      <div class="obrig-header" style="grid-template-columns:minmax(180px,1fr) 100px 130px 32px;"><div>Arquivo</div><div>Tamanho</div><div>Anexado em</div><div></div></div>
+      <div class="nota-repo-list" id="modalRepositorioNotasList"></div>
+      <div class="nota-repo-add-row">
+        <input type="file" id="notaRepositorioInput" multiple accept=".xml,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.csv,.txt,.xlsx,.xls,.doc,.docx,.zip,.rar,image/*" onchange="handleRepositorioNotasInput(this)">
+        <button class="btn-add-obrig" type="button" onclick="$('notaRepositorioInput')?.click()">Anexar arquivo(s)</button>
+      </div>
+    </div>
+  </div>
+
   <div class="form-section">
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
     <div class="rich-hint">💡 Selecione um trecho para abrir o menu flutuante. Cole uma faixa do Excel para virar tabela automaticamente. Imagens entram por Ctrl+V, arraste ou 🖼️; clique na imagem para redimensionar ou excluir.</div>
@@ -4709,6 +5005,7 @@ function collectCompanyFormData(){
     nome: $('f_nome')?.value?.trim() || '',
     cnpj: $('f_cnpj')?.value?.trim() || '',
     regime: $('f_regime')?.value || 'outros',
+    categoriaEmpresa: $('f_categoriaEmpresa')?.value || categoriaEmpresaValue(original),
     atividade: $('f_atividade')?.value?.trim() || '',
     colaborador: $('f_colaborador')?.value?.trim() || '',
     inscricaoEstadual: $('f_ie')?.value?.trim() || '',
@@ -4738,6 +5035,7 @@ function collectCompanyFormData(){
     obrigacoes: JSON.parse(JSON.stringify(modalObrigacoes || [])),
     importacoes: JSON.parse(JSON.stringify(modalImportacoes || [])),
     impostos: JSON.parse(JSON.stringify(modalImpostos || [])),
+    repositorioNotas: JSON.parse(JSON.stringify(modalRepositorioNotas || [])),
     camposEstaticosData: collectStaticFieldsData(),
     camposPersonalizados: collectModalCamposPersonalizados()
   };
@@ -4786,6 +5084,115 @@ function addImportacaoToModal(){
   renderModalImportacoes(); markCompanyDirtySoft();
 }
 function removeImportacaoFromModal(i){ modalImportacoes.splice(i,1); renderModalImportacoes(); markCompanyDirtySoft(); }
+
+function normalizeNotaRepositorioItem(item){
+  const obj = item && typeof item === 'object' ? item : { nome: safe(item || '') };
+  return {
+    id: safe(obj.id || genId()),
+    nome: safe(obj.nome || obj.name || 'Arquivo sem nome').trim(),
+    tipo: safe(obj.tipo || obj.type || ''),
+    tamanho: Number(obj.tamanho || obj.size || 0) || 0,
+    dataUrl: safe(obj.dataUrl || obj.url || ''),
+    adicionadoEm: safe(obj.adicionadoEm || obj.addedAt || new Date().toISOString())
+  };
+}
+function formatFileSize(bytes){
+  const n = Number(bytes || 0);
+  if(!n) return '—';
+  const units = ['B','KB','MB','GB'];
+  let value = n;
+  let idx = 0;
+  while(value >= 1024 && idx < units.length - 1){ value = value / 1024; idx++; }
+  return `${value.toLocaleString('pt-BR', {maximumFractionDigits: idx ? 1 : 0})} ${units[idx]}`;
+}
+function formatDateTimeBR(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(Number.isNaN(d.getTime())) return safe(iso);
+  return d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+function renderRepositorioNotasForModal(){
+  const el = $('modalRepositorioNotasList');
+  const count = $('modalRepositorioNotasCount');
+  if(!el) return;
+  modalRepositorioNotas = (modalRepositorioNotas || []).map(normalizeNotaRepositorioItem).filter(a => a.nome);
+  if(count) count.textContent = `${modalRepositorioNotas.length} arquivo(s)`;
+  if(!modalRepositorioNotas.length){
+    el.innerHTML = '<div class="empty-state"><p>Nenhum arquivo anexado ainda. Use o campo abaixo para anexar XML, PDF, imagem ou planilha.</p></div>';
+    return;
+  }
+  el.innerHTML = modalRepositorioNotas.map((a,i)=>{
+    const href = a.dataUrl || '#';
+    const link = a.dataUrl
+      ? `<a class="nota-repo-link" href="${escAttr(href)}" download="${escAttr(a.nome)}" target="_blank" rel="noopener">📎 ${esc(a.nome)}</a>`
+      : `<span class="nota-repo-link">📎 ${esc(a.nome)}</span>`;
+    return `<div class="nota-repo-item">
+      <div>${link}<div class="nota-repo-meta">${esc(a.tipo || 'tipo não identificado')}</div></div>
+      <div class="nota-repo-meta">${esc(formatFileSize(a.tamanho))}</div>
+      <div class="nota-repo-meta">${esc(formatDateTimeBR(a.adicionadoEm))}</div>
+      <button class="btn-remove-nota-repo" type="button" onclick="removeRepositorioNota(${i})" title="Remover anexo">×</button>
+    </div>`;
+  }).join('');
+}
+function readRepositorioNotaFile(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = ev => resolve({
+      id: genId(),
+      nome: file.name || 'arquivo',
+      tipo: file.type || '',
+      tamanho: file.size || 0,
+      dataUrl: ev.target.result || '',
+      adicionadoEm: new Date().toISOString()
+    });
+    reader.onerror = () => reject(reader.error || new Error('Falha ao ler arquivo'));
+    reader.readAsDataURL(file);
+  });
+}
+async function handleRepositorioNotasInput(input){
+  const files = Array.from(input?.files || []);
+  if(input) input.value = '';
+  if(!files.length) return;
+  if(!isEmpresaInEditMode()){
+    toast('Clique em Editar para anexar arquivos.', 'error');
+    return;
+  }
+  const maxBytes = 5 * 1024 * 1024;
+  const validos = [];
+  const recusados = [];
+  files.forEach(file => {
+    if(file.size > maxBytes) recusados.push(file.name);
+    else validos.push(file);
+  });
+  if(recusados.length){
+    toast(`Arquivo(s) acima de 5 MB ignorado(s): ${recusados.slice(0,2).join(', ')}${recusados.length>2?'...':''}`, 'error');
+  }
+  if(!validos.length) return;
+  try{
+    setCloudStatus('loading', 'Lendo anexos...');
+    const novos = await Promise.all(validos.map(readRepositorioNotaFile));
+    modalRepositorioNotas = (modalRepositorioNotas || []).map(normalizeNotaRepositorioItem).filter(a => a.nome);
+    modalRepositorioNotas.push(...novos);
+    renderRepositorioNotasForModal();
+    markCompanyDirtySoft();
+    setCloudStatus('ok', 'Anexo(s) pronto(s) para salvar');
+    toast(`${novos.length} arquivo(s) anexado(s) ao repositório. Clique em Salvar para gravar.`, 'success');
+  }catch(err){
+    console.error('Erro ao anexar arquivo ao repositório:', err);
+    setCloudStatus('error', 'Erro ao ler anexo');
+    toast('Não consegui ler um dos arquivos selecionados.', 'error');
+  }
+}
+function removeRepositorioNota(i){
+  if(!isEmpresaInEditMode()){
+    toast('Clique em Editar para remover anexos.', 'error');
+    return;
+  }
+  modalRepositorioNotas = (modalRepositorioNotas || []).map(normalizeNotaRepositorioItem).filter(a => a.nome);
+  modalRepositorioNotas.splice(i, 1);
+  renderRepositorioNotasForModal();
+  markCompanyDirtySoft();
+}
 
 function normalizeImpostoItem(item){
   if(typeof item === 'string') return {nome:item.trim(), periodicidade:'Mensal', observacao:''};
@@ -4850,7 +5257,7 @@ async function saveCompany(options={}){
   await saveEmpresa(e);
   saveState();
   $('modalEmpresaTitle').textContent = e.nome;
-  $('modalEmpresaSubtitle').textContent = `${regimeLabel(e.regime)} • ${e.fechada ? 'Empresa fechada' : 'Empresa aberta'}`;
+  $('modalEmpresaSubtitle').textContent = empresaSubtitle(e);
   ensureActivityFilter();
   renderAll();
   setCompanyFormSnapshot();
@@ -4996,6 +5403,11 @@ function relatorioHtml(){
     <select id="relTipo" onchange="renderRelatorioTabela()">
       <optgroup label="Operacional">
         <option value="movimento">📌 Empresas com movimento</option>
+        <option value="empresas_todas">🏢 Todas as empresas</option>
+      </optgroup>
+      <optgroup label="Categoria especial">
+        <option value="produtor_rural">🌾 Produtor rural</option>
+        <option value="demais_empresas">🏢 Demais empresas</option>
       </optgroup>
       <optgroup label="Por Apuração">
         <option value="apuracao_geral">📊 Status de apuração geral</option>
@@ -5018,6 +5430,8 @@ function relatorioHtml(){
       </optgroup>
       <optgroup label="Gerais">
         <option value="checklist">📋 Checklist geral de obrigações</option>
+        <option value="obrigacoes_produtor">🌾 Obrigações — produtores rurais</option>
+        <option value="obrigacoes_demais">🏢 Obrigações — demais empresas</option>
         <option value="regime">📂 Por regime tributário</option>
         <option value="atividade">🏭 Por atividade econômica</option>
       </optgroup>
@@ -5053,6 +5467,31 @@ function renderRelatorioTabela(){
   $('relColaborador').style.display = type==='colaborador' ? '' : 'none';
 
   const base = getFilteredEmpresas();
+
+  // ── TODAS AS EMPRESAS / CATEGORIA ESPECIAL ───────────────────
+  if(type === 'empresas_todas' || type === 'produtor_rural' || type === 'demais_empresas'){
+    let emps = base;
+    if(type === 'produtor_rural') emps = base.filter(isProdutorRural);
+    if(type === 'demais_empresas') emps = base.filter(e => !isProdutorRural(e));
+    const titulo = {
+      empresas_todas:'Todas as empresas',
+      produtor_rural:'Produtores Rurais',
+      demais_empresas:'Demais empresas'
+    }[type];
+    const produtores = emps.filter(isProdutorRural).length;
+    const demais = emps.length - produtores;
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>${esc(titulo)} — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${emps.length}</div><div class="lbl">Empresas</div></div>
+        <div class="rel-sum-card"><div class="num">${produtores}</div><div class="lbl">Produtor rural</div></div>
+        <div class="rel-sum-card"><div class="num">${demais}</div><div class="lbl">Demais</div></div>
+        <div class="rel-sum-card"><div class="num">${new Set(emps.map(e=>e.colaborador).filter(Boolean)).size}</div><div class="lbl">Colaboradores</div></div>
+      </div>
+      ${emps.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Categoria</th><th>Regime</th><th>Colaborador</th><th>Atividade</th><th>Obrigações</th><th>Status</th></tr></thead><tbody>${emps.map(e=>`<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${categoriaPillHtml(e)}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td>${esc(e.atividade||'-')}</td><td>${esc((e.obrigacoes||[]).map(o=>o.nome).join(' | ') || '-')}</td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhuma empresa encontrada.</p></div>'}
+    </div>`;
+    return;
+  }
 
   // ── EMPRESAS COM MOVIMENTO ───────────────────────────────────
   if(type === 'movimento'){
@@ -5175,18 +5614,22 @@ function renderRelatorioTabela(){
     return;
   }
 
-  // ── RELATÓRIOS GERAIS (checklist / regime / atividade) ───────
+  // ── RELATÓRIOS GERAIS (checklist / regime / atividade / obrigações por categoria) ───────
   let rows = allObrigRows(base);
   if(type==='atividade'){ const at=$('relAtividade').value; if(at) rows=rows.filter(r=>r.empresa.atividade===at); }
   if(type==='regime'){ const rg=$('relRegime').value; if(rg) rows=rows.filter(r=>r.empresa.regime===rg); }
-  const titulo2 = {checklist:'Checklist geral de obrigações',regime:'Por regime tributário',atividade:'Por atividade econômica'}[type]||type;
+  if(type==='obrigacoes_produtor') rows = rows.filter(r=>isProdutorRural(r.empresa));
+  if(type==='obrigacoes_demais') rows = rows.filter(r=>!isProdutorRural(r.empresa));
+  const titulo2 = {checklist:'Checklist geral de obrigações',obrigacoes_produtor:'Obrigações — produtores rurais',obrigacoes_demais:'Obrigações — demais empresas',regime:'Por regime tributário',atividade:'Por atividade econômica'}[type]||type;
   $('relatorioConteudo').innerHTML = `<div class="rel-section">
     <h3>${esc(titulo2)} — ${todayBR()}</h3>
     <div class="rel-summary">
       <div class="rel-sum-card"><div class="num">${rows.length}</div><div class="lbl">Obrigações</div></div>
       <div class="rel-sum-card"><div class="num">${new Set(rows.map(r=>r.empresa.id)).size}</div><div class="lbl">Empresas</div></div>
+      <div class="rel-sum-card"><div class="num">${rows.filter(r=>isProdutorRural(r.empresa)).length}</div><div class="lbl">Itens produtor</div></div>
+      <div class="rel-sum-card"><div class="num">${rows.filter(r=>!isProdutorRural(r.empresa)).length}</div><div class="lbl">Itens demais</div></div>
     </div>
-    ${rows.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>Regime</th><th>Colaborador</th><th>Obrigação</th><th>Vencimento</th><th>Status Apuração</th><th>Status Empresa</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.empresa.nome)}</td><td>${esc(regimeLabel(r.empresa.regime))}</td><td>${esc(r.empresa.colaborador||'-')}</td><td>${esc(r.obrig.nome)}</td><td style="font-family:var(--font-mono)">${esc(r.obrig.vencimento||'-')}</td><td><span class="rel-badge ${apuracaoClass(r.empresa.statusApuracao)}">${apuracaoLabel(r.empresa.statusApuracao)}</span></td><td><span class="rel-badge ${r.empresa.fechada?'fechada':'ativa'}">${r.empresa.fechada?'Fechada':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhum item encontrado.</p></div>'}
+    ${rows.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Categoria</th><th>Regime</th><th>Colaborador</th><th>Obrigação</th><th>Vencimento</th><th>Status Empresa</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.empresa.nome)}</td><td style="font-family:var(--font-mono)">${esc(r.empresa.cnpj||'-')}</td><td>${categoriaPillHtml(r.empresa)}</td><td>${esc(regimeLabel(r.empresa.regime))}</td><td>${esc(r.empresa.colaborador||'-')}</td><td>${esc(r.obrig.nome)}</td><td style="font-family:var(--font-mono)">${esc(r.obrig.vencimento||'-')}</td><td><span class="rel-badge ${r.empresa.fechada?'fechada':'ativa'}">${r.empresa.fechada?'Fechada':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhum item encontrado.</p></div>'}
   </div>`;
 }
 function printFontStack(){
@@ -5231,6 +5674,8 @@ function printRichSection(title, html){
 function buildEmpresaPrintHtml(e){
   const obrigacoes = (e.obrigacoes || []).map(o => `<tr><td>${esc(o.nome)}</td><td>${esc(o.vencimento || '—')}</td></tr>`).join('') || '<tr><td colspan="2">—</td></tr>';
   const importacoes = (e.importacoes || []).map(i => `<span class="pill">${esc(i)}</span>`).join('') || '<span class="muted">—</span>';
+  const notasRepo = (e.repositorioNotas || []).map(normalizeNotaRepositorioItem).filter(a => a.nome);
+  const notasRepoRows = notasRepo.map(a => `<tr><td>${esc(a.nome)}</td><td>${esc(a.tipo || '—')}</td><td>${esc(formatFileSize(a.tamanho))}</td><td>${esc(formatDateTimeBR(a.adicionadoEm))}</td></tr>`).join('') || '<tr><td colspan="4">—</td></tr>';
   const staticSections = (S.camposEstaticos || []).map(c => printRichSection(c.label || 'Campo estático', (e.camposEstaticosData || {})[c.id] || '')).join('');
   const custom = (e.camposPersonalizados || []).map(c => printRichSection(c.label || 'Campo personalizado', c.content || '')).join('');
   const status = e.fechada ? 'Empresa fechada / encerrada' : 'Empresa aberta';
@@ -5269,7 +5714,7 @@ function buildEmpresaPrintHtml(e){
     </header>
 
     <section class="p-section"><h2>Dados cadastrais</h2><div class="p-grid">
-      ${printRow('Razão Social', e.nome)}${printRow('CNPJ', e.cnpj)}${printRow('Regime', regimeLabel(e.regime))}${printRow('Status', status)}
+      ${printRow('Razão Social', e.nome)}${printRow('CNPJ', e.cnpj)}${printRow('Regime', regimeLabel(e.regime))}${printRow('Categoria', categoriaEmpresaLabel(e))}${printRow('Status', status)}
       ${printRow('Atividade Econômica', e.atividade)}${printRow('Colaborador', e.colaborador)}${printRow('Inscrição Estadual', e.inscricaoEstadual)}${printRow('Inscrição Municipal', e.inscricaoMunicipal)}
     </div></section>
 
@@ -5280,6 +5725,7 @@ function buildEmpresaPrintHtml(e){
 
     <section class="p-section"><h2>Obrigações acessórias</h2><table><thead><tr><th>Obrigação</th><th>Vencimento</th></tr></thead><tbody>${obrigacoes}</tbody></table></section>
     <section class="p-section"><h2>Importações XML</h2><div>${importacoes}</div></section>
+    <section class="p-section"><h2>Repositório de Notas</h2><table><thead><tr><th>Arquivo</th><th>Tipo</th><th>Tamanho</th><th>Anexado em</th></tr></thead><tbody>${notasRepoRows}</tbody></table></section>
     ${printRichSection('Parâmetros', e.parametros)}
     ${printRichSection('Regras / Procedimentos', e.regras)}
     ${printRichSection('Observações', e.observacoes)}
@@ -5318,6 +5764,9 @@ function printEmpresa(){
 function relatorioAtualTitulo(type){
   return ({
     movimento:'Empresas com Movimento',
+    empresas_todas:'Todas as empresas',
+    produtor_rural:'Produtores Rurais',
+    demais_empresas:'Demais empresas',
     apuracao_geral:'Status de Apuração Geral',
     apuracao_pendente:'Empresas Não Apuradas',
     apuracao_aguardando:'Empresas Aguardando Info do Cliente',
@@ -5328,6 +5777,8 @@ function relatorioAtualTitulo(type){
     sped_ecf:'Empresas com SPED ECF',
     colaborador:'Empresas por Colaborador',
     checklist:'Checklist geral de obrigações',
+    obrigacoes_produtor:'Obrigações — produtores rurais',
+    obrigacoes_demais:'Obrigações — demais empresas',
     regime:'Por regime tributário',
     atividade:'Por atividade econômica'
   })[type] || 'Relatório';
@@ -5337,7 +5788,15 @@ function getRelatorioPrintRows(){
   const base = getFilteredEmpresas();
   if(type === 'movimento'){
     return base.filter(isEmpresaComMovimento).map(e => ({
-      empresa:e.nome || '', cnpj:e.cnpj || '—', regime:regimeLabel(e.regime), colaborador:e.colaborador || '—', atividade:e.atividade || '—', impostos:impostosToText(e), status:apuracaoLabel(e.statusApuracao)
+      empresa:e.nome || '', cnpj:e.cnpj || '—', regime:regimeLabel(e.regime), colaborador:e.colaborador || '—', atividade:e.atividade || '—', impostos:impostosToText(e), status:apuracaoLabel(e.statusApuracao), categoria:categoriaEmpresaLabel(e)
+    }));
+  }
+  if(type === 'empresas_todas' || type === 'produtor_rural' || type === 'demais_empresas'){
+    let emps = base;
+    if(type === 'produtor_rural') emps = base.filter(isProdutorRural);
+    if(type === 'demais_empresas') emps = base.filter(e => !isProdutorRural(e));
+    return emps.map(e => ({
+      empresa:e.nome || '', cnpj:e.cnpj || '—', regime:regimeLabel(e.regime), colaborador:e.colaborador || '—', atividade:e.atividade || '—', impostos:(e.obrigacoes||[]).map(o=>o.nome).join(' | ') || '—', status:e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta', categoria:categoriaEmpresaLabel(e)
     }));
   }
   if(type.startsWith('apuracao') || type.startsWith('sped') || type === 'colaborador'){
@@ -5348,12 +5807,14 @@ function getRelatorioPrintRows(){
     const spedMap = {sped_todos:null,sped_icms:'SPED ICMS/IPI',sped_contrib:'SPED Contribuições',sped_ecd:'SPED ECD',sped_ecf:'SPED ECF'};
     if(type.startsWith('sped')){ const f=spedMap[type]; emps=base.filter(e=>(e.obrigacoes||[]).some(o=>f?o.nome===f:o.nome.startsWith('SPED'))); }
     if(type==='colaborador'){ const cv=$('relColaborador')?.value || ''; if(cv) emps=base.filter(e=>e.colaborador===cv); }
-    return emps.map(e => ({empresa:e.nome||'', cnpj:e.cnpj||'—', regime:regimeLabel(e.regime), colaborador:e.colaborador||'—', atividade:e.atividade||'—', impostos:impostosToText(e), status:apuracaoLabel(e.statusApuracao)}));
+    return emps.map(e => ({empresa:e.nome||'', cnpj:e.cnpj||'—', regime:regimeLabel(e.regime), colaborador:e.colaborador||'—', atividade:e.atividade||'—', impostos:impostosToText(e), status:apuracaoLabel(e.statusApuracao), categoria:categoriaEmpresaLabel(e)}));
   }
   let rows = allObrigRows(base);
   if(type==='atividade'){ const at=$('relAtividade')?.value || ''; if(at) rows=rows.filter(r=>r.empresa.atividade===at); }
   if(type==='regime'){ const rg=$('relRegime')?.value || ''; if(rg) rows=rows.filter(r=>r.empresa.regime===rg); }
-  return rows.map(r => ({empresa:r.empresa.nome||'', cnpj:r.empresa.cnpj||'—', regime:regimeLabel(r.empresa.regime), colaborador:r.empresa.colaborador||'—', atividade:r.obrig.nome||'—', impostos:r.obrig.vencimento||'—', status:apuracaoLabel(r.empresa.statusApuracao)}));
+  if(type==='obrigacoes_produtor') rows = rows.filter(r=>isProdutorRural(r.empresa));
+  if(type==='obrigacoes_demais') rows = rows.filter(r=>!isProdutorRural(r.empresa));
+  return rows.map(r => ({empresa:r.empresa.nome||'', cnpj:r.empresa.cnpj||'—', regime:regimeLabel(r.empresa.regime), colaborador:r.empresa.colaborador||'—', atividade:r.obrig.nome||'—', impostos:r.obrig.vencimento||'—', status:apuracaoLabel(r.empresa.statusApuracao), categoria:categoriaEmpresaLabel(r.empresa)}));
 }
 function buildRelatorioPrintHtml(){
   const type = $('relTipo')?.value || 'movimento';
@@ -5365,7 +5826,7 @@ function buildRelatorioPrintHtml(){
   const emitido = new Date().toLocaleString('pt-BR');
   const logoHtml = S.relatorioLogo ? `<img src="${escAttr(S.relatorioLogo)}" alt="Logo do escritório">` : 'Logo / Escritório';
   const logoClass = S.relatorioLogo ? 'logo-box has-logo' : 'logo-box';
-  const tableRows = rows.map((r,i)=>`<tr><td class="num">${i+1}</td><td class="empresa">${esc(r.empresa)}</td><td>${esc(r.cnpj)}</td><td>${esc(r.regime)}</td><td>${esc(r.colaborador)}</td><td>${esc(r.atividade)}</td><td>${esc(r.impostos)}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">Nenhum registro encontrado.</td></tr>';
+  const tableRows = rows.map((r,i)=>`<tr><td class="num">${i+1}</td><td class="empresa">${esc(r.empresa)}</td><td>${esc(r.cnpj)}</td><td>${esc(r.categoria||'')}</td><td>${esc(r.regime)}</td><td>${esc(r.colaborador)}</td><td>${esc(r.atividade)}</td><td>${esc(r.impostos)}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Nenhum registro encontrado.</td></tr>';
   const regimeSummary = Object.keys(regimes).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(k=>`<span><strong>${esc(k)}:</strong> ${regimes[k]}</span>`).join('');
   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(titulo)}</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -5405,7 +5866,7 @@ function buildRelatorioPrintHtml(){
     tbody tr:nth-child(even){background:#f8f9fc;}
     .num{width:28px;text-align:right;color:#64748b;}
     .empresa{font-weight:800;color:#0d1b2a;font-family:'Poppins',sans-serif;}
-    th:nth-child(1){width:30px;} th:nth-child(2){width:25%;} th:nth-child(3){width:16%;} th:nth-child(4){width:14%;} th:nth-child(5){width:13%;} th:nth-child(6){width:18%;} th:nth-child(7){width:14%;}
+    th:nth-child(1){width:28px;} th:nth-child(2){width:23%;} th:nth-child(3){width:14%;} th:nth-child(4){width:13%;} th:nth-child(5){width:13%;} th:nth-child(6){width:12%;} th:nth-child(7){width:15%;} th:nth-child(8){width:12%;}
     .empty{text-align:center;padding:18px;color:#64748b;}
     .footer{margin-top:auto;height:4px;background:linear-gradient(90deg,transparent,#c9a84c,#e8c97a,#0d1b2a);}
     @media print{.sheet{width:100%;min-height:100vh;box-shadow:none;margin:0;} body{background:#fff;}}
@@ -5414,7 +5875,7 @@ function buildRelatorioPrintHtml(){
     <header class="doc-header"><div class="${logoClass}">${logoHtml}</div><div class="title-area"><div class="office">${esc(S.nomeEscritorio || 'Painel de Gestão')}</div><h1>${esc(titulo)}</h1><div class="sub">Relatório fiscal operacional • Emitido em ${esc(emitido)}</div></div></header>
     <section class="info-banner"><div class="icon">📌</div><div><h3>Lista para conferência de fechamento</h3><p>Empresas marcadas como sem movimento ou fechadas não entram no relatório de empresas com movimento. Use o filtro do painel antes de exportar caso queira restringir por regime, colaborador, atividade ou obrigação.</p></div></section>
     <section class="summary"><div class="field"><span class="label">Total no relatório</span><span class="value">${total}</span></div><div class="field"><span class="label">Colaboradores</span><span class="value">${colaboradores}</span></div><div class="field"><span class="label">Tipo</span><span class="value">${esc(titulo)}</span></div><div class="regimes">${regimeSummary || '<span><strong>Regimes:</strong> —</span>'}</div></section>
-    <div class="section-title">Empresas listadas</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Atividade / obrigação</th><th>Impostos / venc.</th></tr></thead><tbody>${tableRows}</tbody></table></div>
+    <div class="section-title">Empresas listadas</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Empresa</th><th>CNPJ</th><th>Categoria</th><th>Regime</th><th>Colaborador</th><th>Atividade / obrigação</th><th>Impostos / venc.</th></tr></thead><tbody>${tableRows}</tbody></table></div>
     <div class="footer"></div>
   </main></body></html>`;
 }
@@ -5439,8 +5900,19 @@ function printRelatorio(){
 function exportRelatorioCSV(){
   const type = $('relTipo').value;
   let headers, data;
-  if(type==='movimento' || type==='colaborador' || type.startsWith('apuracao') || type.startsWith('sped')){
-    const base = getFilteredEmpresas();
+  const base = getFilteredEmpresas();
+
+  if(type==='empresas_todas' || type==='produtor_rural' || type==='demais_empresas'){
+    let emps = base;
+    if(type==='produtor_rural') emps = base.filter(isProdutorRural);
+    if(type==='demais_empresas') emps = base.filter(e=>!isProdutorRural(e));
+    headers = ['Empresa','CNPJ','Categoria','Regime','Colaborador','Atividade','Obrigações','Status Empresa'];
+    data = emps.map(e=>[
+      e.nome, e.cnpj||'', categoriaEmpresaLabel(e), regimeLabel(e.regime), e.colaborador||'', e.atividade||'',
+      (e.obrigacoes||[]).map(o=>o.nome).join(' | '),
+      e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'
+    ]);
+  } else if(type==='movimento' || type==='colaborador' || type.startsWith('apuracao') || type.startsWith('sped')){
     let emps = base;
     if(type==='movimento') emps = base.filter(isEmpresaComMovimento);
     if(type==='apuracao_pendente') emps = base.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada');
@@ -5448,20 +5920,25 @@ function exportRelatorioCSV(){
     const spedMap = {sped_todos:null,sped_icms:'SPED ICMS/IPI',sped_contrib:'SPED Contribuições',sped_ecd:'SPED ECD',sped_ecf:'SPED ECF'};
     if(type.startsWith('sped')){ const f=spedMap[type]; emps=base.filter(e=>(e.obrigacoes||[]).some(o=>f?o.nome===f:o.nome.startsWith('SPED'))); }
     if(type==='colaborador'){ const cv=$('relColaborador').value; if(cv) emps=base.filter(e=>e.colaborador===cv); }
-    headers = type==='movimento' ? ['Empresa','CNPJ','Regime','Colaborador','Atividade','Impostos','Status Empresa'] : ['Empresa','CNPJ','Regime','Colaborador','Obrigações','Status Apuração','Status Empresa'];
+    headers = type==='movimento'
+      ? ['Empresa','CNPJ','Categoria','Regime','Colaborador','Atividade','Impostos','Status Empresa']
+      : ['Empresa','CNPJ','Categoria','Regime','Colaborador','Obrigações','Status Apuração','Status Empresa'];
     data = type==='movimento'
-      ? emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',e.atividade||'',impostosToText(e),e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Com movimento'])
-      : emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',(e.obrigacoes||[]).map(o=>o.nome).join(' | '),apuracaoLabel(e.statusApuracao),e.fechada?'Fechada':'Aberta']);
+      ? emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),e.colaborador||'',e.atividade||'',impostosToText(e),e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Com movimento'])
+      : emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),e.colaborador||'',(e.obrigacoes||[]).map(o=>o.nome).join(' | '),apuracaoLabel(e.statusApuracao),e.fechada?'Fechada':'Aberta']);
   } else if(type==='serv_energia' || type==='serv_telefone'){
     const campo = type === 'serv_energia' ? 'servEnergia' : 'servTelefone';
-    const base = getFilteredEmpresas();
     const emps = base.filter(e => !!e[campo]);
-    headers = ['Empresa','CNPJ','Regime','Colaborador','Status Empresa'];
-    data = emps.map(e=>[e.nome,e.cnpj||'',regimeLabel(e.regime),e.colaborador||'',e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta']);
+    headers = ['Empresa','CNPJ','Categoria','Regime','Colaborador','Status Empresa'];
+    data = emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),e.colaborador||'',e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta']);
   } else {
-    const rows = allObrigRows(getFilteredEmpresas());
-    headers = ['Empresa','CNPJ','Regime','Colaborador','Obrigação','Vencimento','Status Apuração','Status Empresa'];
-    data = rows.map(r=>[r.empresa.nome,r.empresa.cnpj||'',regimeLabel(r.empresa.regime),r.empresa.colaborador||'',r.obrig.nome,r.obrig.vencimento||'',apuracaoLabel(r.empresa.statusApuracao),r.empresa.fechada?'Fechada':'Aberta']);
+    let rows = allObrigRows(base);
+    if(type==='obrigacoes_produtor') rows = rows.filter(r=>isProdutorRural(r.empresa));
+    if(type==='obrigacoes_demais') rows = rows.filter(r=>!isProdutorRural(r.empresa));
+    if(type==='atividade'){ const at=$('relAtividade')?.value || ''; if(at) rows=rows.filter(r=>r.empresa.atividade===at); }
+    if(type==='regime'){ const rg=$('relRegime')?.value || ''; if(rg) rows=rows.filter(r=>r.empresa.regime===rg); }
+    headers = ['Empresa','CNPJ','Categoria','Regime','Colaborador','Obrigação','Vencimento','Status Apuração','Status Empresa'];
+    data = rows.map(r=>[r.empresa.nome,r.empresa.cnpj||'',categoriaEmpresaLabel(r.empresa),regimeLabel(r.empresa.regime),r.empresa.colaborador||'',r.obrig.nome,r.obrig.vencimento||'',apuracaoLabel(r.empresa.statusApuracao),r.empresa.fechada?'Fechada':'Aberta']);
   }
   const csv = [headers].concat(data).map(row=>row.map(v=>'"'+safe(v).replace(/"/g,'""')+'"').join(';')).join('\n');
   const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
