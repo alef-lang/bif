@@ -704,6 +704,7 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
            contenteditable="true"
            style="min-height:80px;padding:10px 14px;font-size:0.85rem;font-family:var(--sans);border:1px solid var(--gold-dim);border-radius:var(--rsm);background:rgba(255,255,255,0.05);color:var(--white);outline:none;line-height:1.6;word-break:break-word;"
            data-placeholder="O que precisa ser feito..."></div>
+      <span class="attachment-hint" style="display:block;margin-top:5px;">Você pode colar imagens aqui (Ctrl+V) — prints, arquivos ou copiadas direto de um site.</span>
       <style>
         #tmDesc:empty::before { content: attr(data-placeholder); color: var(--text-dim); pointer-events: none; }
         #tmDesc:focus { border-color: var(--gold); background: var(--gold-glow); }
@@ -1725,6 +1726,7 @@ function renderTaskDetailsHTML(t){
         </div>`:''}
         <div class="task-details-actions">
           <select class="move-select" onchange="moveTaskToLane(${t.id},this.value);setTimeout(refreshTaskDetailsModal,0)" title="Mover entre prioridades">${laneSelectOptions(lane)}</select>
+          <button class="btn btn-sm btn-ghost" onclick="printTaskDetails(${t.id})" title="Imprimir tarefa">🖨️ Imprimir</button>
           ${t.assigneeEmail?`<button class="btn btn-sm btn-ghost" onclick="sendAssignment(${t.id})" title="Enviar tarefa por e-mail">📧 Atribuir</button>`:''}
           ${t.assigneeEmail?`<button class="btn btn-sm btn-ghost" onclick="sendReminder(${t.id})" title="Enviar lembrete por e-mail">🔔 Lembrete</button>`:''}
           <button class="btn btn-sm btn-ghost" onclick="closeTaskDetails();openEditTask(${t.id})">Editar</button>
@@ -1745,6 +1747,58 @@ function closeTaskDetails(){
   currentDetailsTaskId=null;
   const modal=document.getElementById('taskDetailsModal');
   if(modal)modal.classList.remove('open');
+}
+function printTaskDetails(id){
+  const t=tasks.find(x=>String(x.id)===String(id));if(!t)return;
+  const companyName=getTaskCompanyName(t);
+  const subs=t.subtasks||[];
+  const subsHtml=subs.length
+    ? '<ul>'+subs.map(s=>`<li style="text-decoration:${s.done?'line-through':'none'};color:${s.done?'#888':'#111'}">${esc(s.name)}</li>`).join('')+'</ul>'
+    : '<p style="color:#888;font-size:12px">Nenhuma subtarefa cadastrada.</p>';
+  const attachments=normalizeAttachments(t.attachments);
+  const attachHtml=attachments.length
+    ? '<ul>'+attachments.map(a=>`<li>${esc(a.name)} <span style="color:#888">(${esc(a.type||'arquivo')} · ${formatFileSize(a.size)})</span></li>`).join('')+'</ul>'
+    : '';
+  const win=window.open('','_blank');
+  if(!win){toast('Permita pop-ups para imprimir a tarefa.','error');return;}
+  win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
+    <title>${esc(t.name||'Tarefa')} — Impressão</title>
+    <style>
+      body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:32px;max-width:800px;margin:0 auto;}
+      h1{font-size:20px;margin-bottom:4px;}
+      .meta{font-size:12px;color:#555;margin-bottom:14px;}
+      .badges{margin-bottom:10px;}
+      .badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;background:#f0f0f0;border:1px solid #ddd;margin-right:5px;margin-bottom:5px;}
+      .section{margin-top:18px;}
+      .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#a07d1f;font-weight:bold;margin-bottom:6px;border-bottom:1px solid #ddd;padding-bottom:4px;}
+      .field{font-size:13px;margin-bottom:6px;}
+      .field strong{color:#333;}
+      .desc{font-size:13px;line-height:1.6;}
+      .desc img{max-width:100%;border:1px solid #ddd;border-radius:4px;margin:6px 0;}
+      ul{margin:0;padding-left:20px;font-size:13px;}
+      li{margin-bottom:3px;}
+      @media print{ body{padding:12px;} }
+    </style>
+    </head><body>
+      <h1>${esc(t.name||'Sem título')}</h1>
+      <div class="meta">${[companyName,t.deadline?('Prazo: '+formatDate(t.deadline)):'',t.assigneeName?('Responsável: '+t.assigneeName):''].filter(Boolean).join(' · ')}</div>
+      <div class="badges">
+        <span class="badge">${esc(PRI_LABELS[t.priority]||'')}</span>
+        ${t.taskType?`<span class="badge">${esc(t.taskType)}</span>`:''}
+        ${t.risk?`<span class="badge">Risco ${esc(RISK_LABELS[t.risk]||t.risk)}</span>`:''}
+        ${t.clientWaiting?'<span class="badge">Cliente esperando</span>':''}
+        ${t.blocking?'<span class="badge">Bloqueia</span>':''}
+      </div>
+      ${(t.nextAction||t.doneCriteria)?`<div class="section"><div class="section-title">Execução</div>
+        ${t.nextAction?`<div class="field"><strong>Próxima ação:</strong> ${esc(t.nextAction)}</div>`:''}
+        ${t.doneCriteria?`<div class="field"><strong>Critério de concluído:</strong> ${esc(t.doneCriteria)}</div>`:''}
+      </div>`:''}
+      ${t.desc?`<div class="section"><div class="section-title">Descrição / contexto</div><div class="desc">${t.desc}</div></div>`:''}
+      <div class="section"><div class="section-title">Subtarefas</div>${subsHtml}</div>
+      ${attachHtml?`<div class="section"><div class="section-title">Anexos</div>${attachHtml}</div>`:''}
+    </body></html>`);
+  win.document.close();
+  win.onload=()=>{win.focus();win.print();};
 }
 function refreshTaskDetailsModal(){
   const modal=document.getElementById('taskDetailsModal');
@@ -2290,28 +2344,58 @@ function render(){renderHeader();renderOverview();renderFilters();renderCompanyF
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)closeModal(this.id)})});
 document.getElementById('rewardOverlay').addEventListener('click',function(e){if(e.target===this)closeReward()});
 document.addEventListener('click',function(e){/* seletor de empresas em lista fixa; mantido sem fechamento automático */});
-// Rich editor: paste de imagem no tmDesc
+// Rich editor: paste de imagem no tmDesc — arquivos de imagem, HTML com <img> remoto, ou link de imagem colado como texto
+function insertImageAtCaret(container, src) {
+  const img = document.createElement('img');
+  img.src = src;
+  const sel = window.getSelection();
+  if (sel?.rangeCount && container.contains(sel.anchorNode)) {
+    const range = sel.getRangeAt(0);
+    range.deleteContents(); range.insertNode(img);
+    range.setStartAfter(img); range.collapse(true);
+    sel.removeAllRanges(); sel.addRange(range);
+  } else {
+    container.appendChild(img);
+  }
+}
+
+const IMG_URL_REGEX = /^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|bmp|avif)(\?\S*)?$/i;
+
 document.getElementById('tmDesc').addEventListener('paste', function(e) {
+  const container = this;
   const items = e.clipboardData?.items;
-  if (!items) return;
-  for (const item of items) {
-    if (item.type.startsWith('image/')) {
-      e.preventDefault();
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = document.createElement('img');
-        img.src = ev.target.result;
-        const sel = window.getSelection();
-        if (sel?.rangeCount) {
-          const range = sel.getRangeAt(0);
-          range.deleteContents(); range.insertNode(img);
-          range.setStartAfter(img); range.collapse(true);
-          sel.removeAllRanges(); sel.addRange(range);
-        } else { document.getElementById('tmDesc').appendChild(img); }
-      };
-      reader.readAsDataURL(item.getAsFile());
-      break;
+  let handledFile = false;
+
+  // 1) Arquivos de imagem no clipboard (screenshots, "copiar imagem", arquivos colados)
+  if (items) {
+    for (const item of items) {
+      if (item.type && item.type.startsWith('image/')) {
+        e.preventDefault();
+        handledFile = true;
+        const reader = new FileReader();
+        reader.onload = (ev) => insertImageAtCaret(container, ev.target.result);
+        reader.readAsDataURL(item.getAsFile());
+      }
     }
+  }
+  if (handledFile) return;
+
+  // 2) HTML colado contendo <img> (ex: "copiar imagem" de uma página/site) — pega a URL remota
+  const html = e.clipboardData?.getData('text/html');
+  if (html) {
+    const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      e.preventDefault();
+      insertImageAtCaret(container, match[1]);
+      return;
+    }
+  }
+
+  // 3) Texto colado que é diretamente um link de imagem (ex: copiou o endereço da imagem)
+  const text = e.clipboardData?.getData('text/plain')?.trim();
+  if (text && IMG_URL_REGEX.test(text)) {
+    e.preventDefault();
+    insertImageAtCaret(container, text);
   }
 });
 
@@ -2422,6 +2506,7 @@ window.moveTaskToLane=moveTaskToLane; window.handleDragStart=handleDragStart; wi
 window.handleTaskAttachmentInput=handleTaskAttachmentInput; window.removeTaskAttachment=removeTaskAttachment;
 window.allowDrop=allowDrop; window.enterLane=enterLane; window.leaveLane=leaveLane; window.dropOnLane=dropOnLane;
 window.openTaskDetails=openTaskDetails; window.closeTaskDetails=closeTaskDetails; window.refreshTaskDetailsModal=refreshTaskDetailsModal;
+window.printTaskDetails=printTaskDetails;
 window.togglePriorityHelp=togglePriorityHelp;
 window.handleWorkLevelChange=handleWorkLevelChange; window.handleParentMacroChange=handleParentMacroChange; window.handleParentActionChange=handleParentActionChange; window.openTaskFromTree=openTaskFromTree;
 
