@@ -378,6 +378,18 @@
       letter-spacing: 0.04em;
     }
 
+    .badge-noaccess {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      background: rgba(255,118,117,0.1);
+      color: #ff8b89;
+      border: 1px solid rgba(255,118,117,0.25);
+      border-radius: 999px;
+      padding: 3px 10px;
+      letter-spacing: 0.04em;
+    }
+
     .btn-open {
       font-family: 'DM Sans', sans-serif;
       font-size: 0.8rem;
@@ -467,7 +479,7 @@
       <div class="section-title">Gestão do Conhecimento</div>
       <div class="tools-grid">
 
-        <div class="tool-card ready" onclick="openTool('portal-treinamentos')">
+        <div class="tool-card ready" data-tool="portal-treinamentos" onclick="openTool('portal-treinamentos')">
           <div class="tool-icon">📋</div>
           <h3>Centro de Treinamentos</h3>
           <p>Registro e rastreamento de transferências de conhecimento tácito entre colaboradores.</p>
@@ -477,7 +489,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('tarefas')">
+        <div class="tool-card ready" data-tool="tarefas" onclick="openTool('tarefas')">
           <div class="tool-icon">✅</div>
           <h3>Tarefas Fiscal</h3>
           <p>Gestão de tarefas com prioridades, atribuição por e-mail, lembretes e sistema de recompensas.</p>
@@ -487,7 +499,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('anotacoes')">
+        <div class="tool-card ready" data-tool="anotacoes" onclick="openTool('anotacoes')">
           <div class="tool-icon">📝</div>
           <h3>Anotações</h3>
           <p>Folha em branco para capturar ideias rápidas, pensamentos soltos e lembretes com tags, pesquisa e salvamento na nuvem.</p>
@@ -498,7 +510,7 @@
         </div>
 
 
-        <div class="tool-card ready" onclick="openTool('painel')">
+        <div class="tool-card ready" data-tool="painel" onclick="openTool('painel')">
           <div class="tool-icon">🏢</div>
           <h3>Painel de Gestão</h3>
           <p>Gestão completa de empresas por regime tributário, obrigações acessórias, status de apuração e relatórios.</p>
@@ -508,7 +520,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('checklist')">
+        <div class="tool-card ready" data-tool="checklist" onclick="openTool('checklist')">
           <div class="tool-icon">✅</div>
           <h3>Checklist de Fechamento</h3>
           <p>Controle mensal de fechamento por empresa, com instruções permanentes e geração do próximo mês.</p>
@@ -518,7 +530,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('pop')">
+        <div class="tool-card ready" data-tool="pop" onclick="openTool('pop')">
           <div class="tool-icon">📋</div>
           <h3>Procedimentos Operacionais — POP</h3>
           <p>Biblioteca inteligente de POPs por área e processo. Criação, revisão, tags e impressão padronizada de procedimentos do escritório.</p>
@@ -528,7 +540,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('documentos')">
+        <div class="tool-card ready" data-tool="documentos" onclick="openTool('documentos')">
           <div class="tool-icon">🗃️</div>
           <h3>Documentos</h3>
           <p>Biblioteca de documentos HTML do escritório. Módulos fixos e personalizados, upload e abertura direta com salvamento automático na nuvem.</p>
@@ -538,12 +550,13 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="manuais-externos" onclick="openTool('manuais-externos')">
           <div class="tool-icon">📚</div>
           <h3>Manuais Externos</h3>
           <p>Repositório de manuais de sistemas, fornecedores e órgãos reguladores — acesso centralizado às referências externas do escritório.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -554,7 +567,7 @@
       <div class="section-title">Fiscal & Tributário</div>
       <div class="tools-grid">
 
-        <div class="tool-card ready" onclick="openTool('controle-guias')">
+        <div class="tool-card ready" data-tool="controle-guias" onclick="openTool('controle-guias')">
           <div class="tool-icon">📋</div>
           <h3>Controle de Guias</h3>
           <p>Rastreamento completo de guias geradas, enviadas e pagas por empresa. KPIs de entrega, comprovantes e integração com o Checklist.</p>
@@ -591,7 +604,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('apoio-escrituracao')">
+        <div class="tool-card ready" data-tool="apoio-escrituracao" onclick="openTool('apoio-escrituracao')">
           <div class="tool-icon">📒</div>
           <h3>Apoio à Escrituração</h3>
           <p>Planilhas, modelos e materiais de suporte para a escrituração fiscal. Upload de XLSX, HTML, PDF, CSV e outros.</p>
@@ -608,12 +621,13 @@
       <div class="section-title">Cadastros & Relacionamento</div>
       <div class="tools-grid">
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="colaboradores" onclick="openTool('colaboradores')">
           <div class="tool-icon">👥</div>
           <h3>Cadastro de Colaboradores</h3>
-          <p>Gestão de equipe com funções, acessos e histórico de treinamentos vinculados.</p>
+          <p>Gestão de equipe com funções, controle de acessos por módulo e ativação/desativação de contas.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -696,7 +710,7 @@
       <div class="section-title">Central de Relacionamento</div>
       <div class="tools-grid">
 
-        <div class="tool-card ready" onclick="openTool('central-relacionamento')">
+        <div class="tool-card ready" data-tool="central-relacionamento" onclick="openTool('central-relacionamento')">
           <div class="tool-icon">🤝</div>
           <h3>CS &amp; CX</h3>
           <p>Customer Success e Customer Experience — protocolos de atendimento, jornada do cliente e gestão de relacionamento.</p>
@@ -732,7 +746,7 @@
       <div class="section-title">Pessoas</div>
       <div class="tools-grid">
 
-        <div class="tool-card ready" onclick="openTool('leitura-org')">
+        <div class="tool-card ready" data-tool="leitura-org" onclick="openTool('leitura-org')">
           <div class="tool-icon">🔍</div>
           <h3>Leitura Organizacional</h3>
           <p>Diagnóstico de clima, cultura, poder informal e perfis comportamentais — DISC e MBTI aplicados ao escritório contábil.</p>
@@ -778,7 +792,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('cultura-clima')">
+        <div class="tool-card ready" data-tool="cultura-clima" onclick="openTool('cultura-clima')">
           <div class="tool-icon">🌱</div>
           <h3>Cultura &amp; Clima</h3>
           <p>Valores, conduta, clima e endomarketing — registre observações e leituras organizacionais na Leitura Organizacional.</p>
@@ -893,7 +907,7 @@
           </div>
         </div>
 
-        <div class="tool-card ready" onclick="openTool('planos-negocio')">
+        <div class="tool-card ready" data-tool="planos-negocio" onclick="openTool('planos-negocio')">
           <div class="tool-icon">📋</div>
           <h3>Planos de Negócio</h3>
           <p>Criação e gestão de planos completos — Canvas, SWOT, análise financeira, concorrentes e cronograma.</p>
@@ -913,6 +927,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getDatabase, ref, get }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
@@ -926,6 +942,7 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getDatabase(app);
 
   const loginScreen = document.getElementById('loginScreen');
   const dashboard   = document.getElementById('dashboard');
@@ -942,6 +959,7 @@
       loginScreen.style.display = 'none';
       dashboard.style.display = 'block';
       userEmail.textContent = user.email;
+      applyAccessControl(user.uid);
     } else {
       loginScreen.style.display = 'flex';
       dashboard.style.display = 'none';
@@ -988,6 +1006,54 @@
     loginError.style.display = 'block';
   }
 
+  // ── Controle de acessos ──────────────────────────────────
+  function lockCard(card) {
+    card.classList.remove('ready');
+    card.classList.add('locked');
+    card.onclick = null;
+    const footer = card.querySelector('.tool-footer');
+    if (footer) footer.innerHTML = '<span class="badge-noaccess">🔒 Sem acesso</span>';
+  }
+
+  function unlockCard(card, tool) {
+    card.classList.remove('locked');
+    card.classList.add('ready');
+    card.onclick = () => window.openTool(tool);
+    const footer = card.querySelector('.tool-footer');
+    if (footer) footer.innerHTML = '<span class="badge-ready">● Disponível</span><span class="btn-open">Abrir →</span>';
+  }
+
+  async function applyAccessControl(uid) {
+    const cards = document.querySelectorAll('.tool-card[data-tool]');
+    try {
+      const snap = await get(ref(db, 'colaboradores/' + uid));
+      if (!snap.exists()) {
+        // Sem registro de colaborador cadastrado: mantém acesso total (conta administrativa/legada)
+        cards.forEach(c => unlockCard(c, c.dataset.tool));
+        return;
+      }
+      const colaborador = snap.val();
+      if (colaborador.status !== 'ativo') {
+        alert('Sua conta está desativada. Contate o administrador.');
+        await signOut(auth);
+        return;
+      }
+      const permissoes = colaborador.permissoes || {};
+      cards.forEach(card => {
+        const tool = card.dataset.tool;
+        if (permissoes[tool] === true) {
+          unlockCard(card, tool);
+        } else {
+          lockCard(card);
+        }
+      });
+    } catch(e) {
+      console.error('Erro ao verificar permissões:', e);
+      // Falha na consulta: mantém acesso total para não travar o uso do sistema
+      cards.forEach(c => unlockCard(c, c.dataset.tool));
+    }
+  }
+
   // Navegação entre ferramentas
   window.openTool = function(tool) {
     const urls = {
@@ -1003,10 +1069,13 @@
       'controle-guias': './controleguias/controle-guias.html',
       'pop': './procedimentos/pop.html',
       'documentos': './documentos/documentos.html',
-      'apoio-escrituracao': './apoio/apoio.html'
+      'apoio-escrituracao': './apoio/apoio.html',
+      'colaboradores': './colaboradores/colaboradores.html',
+      'manuais-externos': './manuaisext/manuais.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
+
 </script>
 
 </body>
