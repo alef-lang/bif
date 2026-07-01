@@ -179,6 +179,13 @@ body {
 .doc-updated {
   font: 400 0.68rem var(--font-mono); color: var(--muted);
 }
+.doc-ext-badge {
+  font: 600 0.66rem var(--font-mono); color: var(--muted);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 2px 7px; border-radius: 6px;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
 
 .doc-actions {
   position: absolute; top: 10px; right: 10px;
@@ -327,7 +334,7 @@ body {
     <div class="logo">📚</div>
     <div class="head-title">
       <h1>Manuais Externos</h1>
-      <p>Repositório de manuais externos HTML · Salvamento automático na nuvem</p>
+      <p>Repositório de manuais externos · HTML, PDF, DOC/DOCX, planilhas e outros · Salvamento automático na nuvem</p>
     </div>
   </div>
   <div class="head-actions">
@@ -351,7 +358,7 @@ body {
     <div class="modal-head">
       <div>
         <h2 id="modalCreateTitle">Novo módulo</h2>
-        <p id="modalCreateSub">Dê um nome, escolha um ícone e selecione o arquivo HTML</p>
+        <p id="modalCreateSub">Dê um nome, escolha um ícone e selecione o arquivo (HTML, PDF, DOCX, etc.)</p>
       </div>
       <button class="modal-close" onclick="closeModal('modalCreate')">✕</button>
     </div>
@@ -369,12 +376,12 @@ body {
         <div class="emoji-grid" id="emojiGrid"></div>
       </div>
       <div>
-        <div class="field-label">Arquivo HTML</div>
+        <div class="field-label">Arquivo</div>
         <div class="upload-zone" id="newUploadZone" onclick="document.getElementById('newFileInput').click()">
           <div class="upload-icon">📂</div>
-          <p id="newFileLabel">Clique para selecionar um arquivo .html</p>
+          <p id="newFileLabel">Clique para selecionar um arquivo (HTML, PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT...)</p>
         </div>
-        <input type="file" id="newFileInput" accept=".html,.htm" hidden/>
+        <input type="file" id="newFileInput" accept=".html,.htm,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf,.odt" hidden/>
       </div>
     </div>
     <div class="modal-footer">
@@ -418,9 +425,13 @@ const EMOJIS = ['📚','🖥️','🏛️','⚖️','📋','📒','📁','📂',
 /* ── STATE ── */
 let editingId      = null;   // null = novo, string = editar/substituir existente
 let newFileContent = null;
+let newFileName     = null;
+let newFileExt       = null;
 let selectedEmoji  = EMOJIS[0];
 let modules        = [];     // metadados de todos os módulos
-let docState       = {};     // { [id]: { content, updatedAt } }
+let docState       = {};     // { [id]: { content, fileName, ext, updatedAt } }
+
+const TAMANHO_MAX_ARQUIVO = 5 * 1024 * 1024; // 5MB — limite prudente para o plano gratuito do Firebase
 
 /* ── UTIL ── */
 function toast(msg, type = 'ok') {
@@ -466,8 +477,8 @@ async function loadAll() {
   document.getElementById('mainContent').style.display = 'block';
 }
 
-async function saveDoc(id, content) {
-  const payload = { content, updatedAt: new Date().toISOString() };
+async function saveDoc(id, content, fileName, ext) {
+  const payload = { content, fileName: fileName || '', ext: ext || 'html', updatedAt: new Date().toISOString() };
   await set(ref(db, `manuais_externos/${id}`), payload);
   docState[id] = payload;
 }
@@ -495,6 +506,7 @@ function cardHTML(m) {
   const st     = docState[m.id];
   const filled = !!(st && st.content);
   const updated = filled ? fmtDate(st.updatedAt) : '';
+  const ext      = filled ? (st.ext || 'html').toUpperCase() : '';
   const clickFn = filled ? `openDoc('${m.id}')` : `openModal('${m.id}')`;
 
   return `
@@ -510,6 +522,7 @@ function cardHTML(m) {
         <span class="doc-status ${filled ? 'filled-badge' : 'empty-badge'}">
           ${filled ? '● Disponível' : 'Sem arquivo'}
         </span>
+        ${filled ? `<span class="doc-ext-badge">${esc(ext)}</span>` : ''}
         ${updated ? `<span class="doc-updated">${updated}</span>` : ''}
       </div>
     </div>`;
@@ -527,19 +540,60 @@ function addCardHTML() {
 window.openDoc = function(id) {
   const st = docState[id];
   if (!st || !st.content) { toast('Nenhum manual carregado.', 'error'); return; }
-  const url = URL.createObjectURL(new Blob([st.content], { type: 'text/html' }));
-  window.open(url, '_blank');
+
+  const ext = (st.ext || 'html').toLowerCase();
+  const isDataUrl = typeof st.content === 'string' && st.content.startsWith('data:');
+
+  // HTML/HTM: renderiza direto no navegador
+  if (ext === 'html' || ext === 'htm') {
+    let htmlText = st.content;
+    if (isDataUrl) {
+      // arquivo html novo, salvo como data URL — decodifica de volta para texto
+      fetch(st.content).then(r => r.text()).then(text => {
+        const url = URL.createObjectURL(new Blob([text], { type: 'text/html' }));
+        window.open(url, '_blank');
+      }).catch(() => toast('Erro ao abrir o manual.', 'error'));
+    } else {
+      // manuais antigos: conteúdo já salvo como texto puro
+      const url = URL.createObjectURL(new Blob([htmlText], { type: 'text/html' }));
+      window.open(url, '_blank');
+    }
+    return;
+  }
+
+  // Demais tipos (PDF, DOCX, XLSX, etc.): converte a data URL em blob
+  if (!isDataUrl) { toast('Formato de arquivo não reconhecido.', 'error'); return; }
+  fetch(st.content)
+    .then(res => res.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      if (ext === 'pdf') {
+        // navegador exibe o PDF nativamente numa nova aba
+        window.open(url, '_blank');
+      } else {
+        // demais formatos (doc, docx, xls, xlsx, ppt, pptx...): baixa o arquivo
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = st.fileName || ('manual.' + ext);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    })
+    .catch(() => toast('Erro ao abrir o arquivo.', 'error'));
 };
 
 /* ── MODAL CRIAR / EDITAR ── */
 window.openModal = function(id) {
   editingId      = id;
   newFileContent = null;
+  newFileName    = null;
+  newFileExt     = null;
   const existing = id ? modules.find(m => m.id === id) : null;
 
   // Cabeçalho do modal
   document.getElementById('modalCreateTitle').textContent = id ? 'Editar módulo' : 'Novo módulo';
-  document.getElementById('modalCreateSub').textContent   = id ? 'Altere os dados ou substitua o arquivo HTML' : 'Dê um nome, escolha um ícone e selecione o arquivo HTML';
+  document.getElementById('modalCreateSub').textContent   = id ? 'Altere os dados ou substitua o arquivo' : 'Dê um nome, escolha um ícone e selecione o arquivo (HTML, PDF, DOCX, etc.)';
 
   // Preencher campos se editando
   document.getElementById('newModuleName').value = existing?.name || '';
@@ -547,9 +601,11 @@ window.openModal = function(id) {
   selectedEmoji = existing?.icon || EMOJIS[0];
 
   // Upload zone
-  const hasDoc = id && docState[id]?.content;
-  document.getElementById('newFileLabel').textContent = hasDoc ? '✓ Arquivo já carregado — selecione para substituir' : 'Clique para selecionar um arquivo .html';
-  document.getElementById('newUploadZone').classList.toggle('has-file', !!hasDoc);
+  const stAtual = id ? docState[id] : null;
+  const hasDoc = !!(stAtual && stAtual.content);
+  const nomeAtual = hasDoc ? (stAtual.fileName || ('arquivo.' + (stAtual.ext || 'html'))) : '';
+  document.getElementById('newFileLabel').textContent = hasDoc ? `✓ ${nomeAtual} — selecione para substituir` : 'Clique para selecionar um arquivo (HTML, PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT...)';
+  document.getElementById('newUploadZone').classList.toggle('has-file', hasDoc);
   document.getElementById('newFileInput').value = '';
 
   buildEmojiGrid();
@@ -566,13 +622,20 @@ window.selectEmoji = function(e) { selectedEmoji = e; buildEmojiGrid(); };
 
 document.getElementById('newFileInput').addEventListener('change', function() {
   const file = this.files[0]; if (!file) return;
+  if (file.size > TAMANHO_MAX_ARQUIVO) {
+    toast('Arquivo muito grande (máx. 5MB). Reduza o arquivo ou compacte o PDF.', 'error');
+    this.value = '';
+    return;
+  }
   const reader = new FileReader();
   reader.onload = e => {
-    newFileContent = e.target.result;
+    newFileContent = e.target.result; // data URL (base64) — funciona para qualquer tipo
+    newFileName    = file.name;
+    newFileExt     = (file.name.split('.').pop() || 'html').toLowerCase();
     document.getElementById('newFileLabel').textContent = `✓ ${file.name}`;
     document.getElementById('newUploadZone').classList.add('has-file');
   };
-  reader.readAsText(file, 'UTF-8');
+  reader.readAsDataURL(file);
 });
 
 window.saveModule = async function() {
@@ -582,7 +645,7 @@ window.saveModule = async function() {
   // Exige arquivo apenas na criação ou se ainda não tem arquivo
   const isNew    = !editingId;
   const hasDoc   = editingId && docState[editingId]?.content;
-  if (!newFileContent && !hasDoc) { toast('Selecione um arquivo .html.', 'error'); return; }
+  if (!newFileContent && !hasDoc) { toast('Selecione um arquivo.', 'error'); return; }
 
   const id = editingId || ('manual_' + Date.now().toString(36));
   const m  = {
@@ -597,7 +660,7 @@ window.saveModule = async function() {
   loading(true, isNew ? 'Criando módulo...' : 'Atualizando módulo...');
   try {
     await saveMeta(m);
-    if (newFileContent) await saveDoc(id, newFileContent);
+    if (newFileContent) await saveDoc(id, newFileContent, newFileName, newFileExt);
     if (isNew) modules.push(m);
     else { const idx = modules.findIndex(x => x.id === id); if (idx >= 0) modules[idx] = m; }
     toast(isNew ? `Módulo "${name}" criado! ✓` : `Módulo "${name}" atualizado! ✓`);
