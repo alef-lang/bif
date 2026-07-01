@@ -720,12 +720,13 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="comunicacao" onclick="openTool('comunicacao')">
           <div class="tool-icon">📣</div>
           <h3>Comunicação com Cliente</h3>
           <p>Templates de comunicados, régua de contato e scripts para situações recorrentes.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -1071,7 +1072,8 @@
       'documentos': './documentos/documentos.html',
       'apoio-escrituracao': './apoio/apoio.html',
       'colaboradores': './colaboradores/colaboradores.html',
-      'manuais-externos': './manuaisext/manuais.html'
+      'manuais-externos': './manuaisext/manuais.html',
+      'comunicacao': './comunicacao/comunicacao.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
