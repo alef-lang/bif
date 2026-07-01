@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manuais Externos — BIF</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18' fill='%23c9a84c'%3E📚%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:          #0d1b2a;
+  --card:        #1b2e42;
+  --card2:       #162438;
+  --gold:        #c9a84c;
+  --gold-light:  #e8c97a;
+  --gold-dim:    rgba(201,168,76,0.18);
+  --gold-border: rgba(201,168,76,0.30);
+  --gold-glow:   rgba(201,168,76,0.14);
+  --text:        #e8edf2;
+  --muted:       #7a92a8;
+  --green:       #4caf82;
+  --red:         #e05c5c;
+  --radius:      16px;
+  --radius-sm:   10px;
+  --shadow:      0 8px 32px rgba(0,0,0,0.45);
+  --font-title:  'Poppins', sans-serif;
+  --font-body:   'DM Sans', sans-serif;
+  --font-mono:   'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 8%,  rgba(201,168,76,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 82%, rgba(74,158,218,0.07) 0%, transparent 52%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.header {
+  position: sticky; top: 0; z-index: 200;
+  background: linear-gradient(135deg, #0d1b2a, #1b2e42);
+  border-bottom: 1px solid var(--gold-dim);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+}
+.head-left { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0d1b2a; display: flex; align-items: center; justify-content: center;
+  font: 800 18px var(--font-title); flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(201,168,76,0.22);
+}
+.head-title h1 {
+  font: 700 16px var(--font-title);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.head-title p { font: 500 11px var(--font-mono); color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.btn {
+  border: 1px solid var(--gold-dim); border-radius: var(--radius-sm);
+  padding: 8px 14px; background: rgba(201,168,76,0.10);
+  color: var(--gold-light); font: 600 12px var(--font-body);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: .18s; white-space: nowrap;
+}
+.btn:hover { background: rgba(201,168,76,0.22); border-color: var(--gold); transform: translateY(-1px); }
+.btn.gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0d1b2a; border-color: transparent; }
+.btn.gold:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-back { border-color: rgba(255,255,255,0.12); color: var(--muted); }
+.btn-back:hover { color: var(--text); border-color: var(--muted); background: rgba(255,255,255,0.06); }
+
+/* ── MAIN ─────────────────────────────────────── */
+.main {
+  max-width: 1400px; margin: 0 auto; padding: 32px 24px 60px;
+}
+
+.section-title {
+  font: 600 0.75rem var(--font-mono); color: var(--gold);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::before {
+  content: ''; width: 4px; height: 18px;
+  background: var(--gold); border-radius: 2px; flex-shrink: 0;
+}
+
+.category { margin-bottom: 48px; }
+
+/* ── GRID DE MÓDULOS ─────────────────────────── */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.doc-card {
+  background: var(--card);
+  border: 1.5px solid var(--gold-dim);
+  border-radius: var(--radius);
+  padding: 22px 20px 18px;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 170px;
+}
+.doc-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(201,168,76,0.15);
+}
+.doc-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.doc-card:hover::after { opacity: 1; }
+
+/* Estado: vazio */
+.doc-card.empty {
+  border-style: dashed;
+  border-color: rgba(201,168,76,0.25);
+  background: rgba(201,168,76,0.03);
+}
+.doc-card.empty:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.07);
+}
+
+/* Estado: preenchido */
+.doc-card.filled { border-color: rgba(201,168,76,0.35); }
+
+.doc-icon {
+  width: 44px; height: 44px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.doc-icon.filled-icon {
+  background: rgba(76,175,130,0.12);
+  border-color: rgba(76,175,130,0.3);
+}
+
+.doc-name {
+  font: 700 0.95rem var(--font-title); color: var(--text); line-height: 1.3;
+}
+.doc-desc {
+  font: 400 0.8rem var(--font-body); color: var(--muted); line-height: 1.5; flex: 1;
+}
+
+.doc-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: auto; padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.doc-status {
+  font: 500 0.7rem var(--font-mono);
+  padding: 3px 9px; border-radius: 999px;
+}
+.doc-status.empty-badge {
+  background: rgba(201,168,76,0.10); color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+.doc-status.filled-badge {
+  background: rgba(76,175,130,0.12); color: var(--green);
+  border: 1px solid rgba(76,175,130,0.3);
+}
+.doc-updated {
+  font: 400 0.68rem var(--font-mono); color: var(--muted);
+}
+
+.doc-actions {
+  position: absolute; top: 10px; right: 10px;
+  display: flex; gap: 4px; opacity: 0; transition: opacity .18s;
+}
+.doc-card:hover .doc-actions { opacity: 1; }
+.doc-action-btn {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(13,27,42,0.8);
+  color: var(--muted); font-size: 12px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: .15s;
+}
+.doc-action-btn:hover { border-color: var(--gold); color: var(--gold-light); background: var(--card); }
+.doc-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* ── CARD ADICIONAR ─────────────────────────── */
+.add-card {
+  background: rgba(201,168,76,0.04);
+  border: 1.5px dashed rgba(201,168,76,0.2);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  cursor: pointer; min-height: 170px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  transition: .2s;
+  color: var(--muted);
+}
+.add-card:hover {
+  border-color: var(--gold); background: rgba(201,168,76,0.08);
+  color: var(--gold-light); transform: translateY(-2px);
+}
+.add-card .plus { font-size: 2rem; line-height: 1; }
+.add-card span { font: 600 0.82rem var(--font-body); letter-spacing: 0.04em; }
+
+/* ── MODAL ─────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(5,12,22,0.82);
+  backdrop-filter: blur(6px); z-index: 1500;
+  display: none; align-items: center; justify-content: center; padding: 18px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  width: min(480px, 100%); background: var(--card);
+  border: 1px solid var(--gold-border); border-radius: var(--radius);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6); overflow: hidden;
+}
+.modal-head {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--gold-dim);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.modal-head h2 { font: 700 15px var(--font-title); color: var(--gold-light); }
+.modal-head p  { font: 400 11px var(--font-mono); color: var(--muted); margin-top: 3px; }
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 18px; cursor: pointer; line-height: 1;
+  padding: 2px 6px; border-radius: 6px;
+  transition: color .15s;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer { padding: 14px 22px; border-top: 1px solid var(--gold-dim); display: flex; gap: 8px; justify-content: flex-end; }
+
+.field-label {
+  font: 700 10px var(--font-mono); color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;
+}
+.field-input {
+  width: 100%; padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.10);
+  border-radius: var(--radius-sm);
+  color: var(--text); font: 500 13px var(--font-body); outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.field-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
+
+.emoji-grid {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.emoji-opt {
+  width: 36px; height: 36px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  transition: .15s;
+}
+.emoji-opt:hover { border-color: var(--gold); background: var(--gold-dim); }
+.emoji-opt.selected { border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 0 0 2px var(--gold-glow); }
+
+/* Upload zone */
+.upload-zone {
+  border: 1.5px dashed var(--gold-border); border-radius: var(--radius-sm);
+  padding: 20px 16px; text-align: center; cursor: pointer;
+  transition: .18s; background: rgba(201,168,76,0.04);
+}
+.upload-zone:hover { border-color: var(--gold); background: rgba(201,168,76,0.09); }
+.upload-zone p { font: 500 12px var(--font-body); color: var(--muted); margin-top: 4px; }
+.upload-zone .upload-icon { font-size: 1.8rem; line-height: 1; }
+.upload-zone.has-file { border-color: var(--green); background: rgba(76,175,130,0.07); }
+.upload-zone.has-file p { color: var(--green); }
+
+/* ── TOAST ─────────────────────────────────── */
+.toast {
+  position: fixed; right: 20px; bottom: 24px;
+  background: var(--card); border: 1px solid var(--gold-border);
+  color: var(--text); padding: 10px 16px; border-radius: 12px;
+  box-shadow: var(--shadow); font: 600 12px var(--font-body);
+  z-index: 4000; display: none; gap: 8px; align-items: center;
+  animation: slideUp .22s ease;
+}
+.toast.show { display: flex; }
+.toast.error { border-color: rgba(224,92,92,0.4); }
+@keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── LOADING ─────────────────────────────── */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(13,27,42,0.7);
+  backdrop-filter: blur(4px); z-index: 3000;
+  display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--gold-dim); border-top-color: var(--gold);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay p { font: 500 13px var(--font-mono); color: var(--muted); }
+
+/* ── RESPONSIVE ──────────────────────────── */
+@media (max-width: 640px) {
+  .main { padding: 20px 14px 48px; }
+  .docs-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .doc-card { min-height: 150px; padding: 16px 14px 14px; }
+}
+@media (max-width: 400px) {
+  .docs-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="head-left">
+    <div class="logo">📚</div>
+    <div class="head-title">
+      <h1>Manuais Externos</h1>
+      <p>Repositório de manuais externos HTML · Salvamento automático na nuvem</p>
+    </div>
+  </div>
+  <div class="head-actions">
+    <button class="btn btn-back" onclick="history.back()">← Voltar</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main" id="mainContent" style="display:none">
+
+  <div class="category">
+    <div class="section-title">Manuais Externos</div>
+    <div class="docs-grid" id="customGrid"></div>
+  </div>
+
+</main>
+
+<!-- MODAL: CRIAR / EDITAR MÓDULO -->
+<div class="modal-overlay" id="modalCreate">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="modalCreateTitle">Novo módulo</h2>
+        <p id="modalCreateSub">Dê um nome, escolha um ícone e selecione o arquivo HTML</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalCreate')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="field-label">Nome do módulo</div>
+        <input class="field-input" id="newModuleName" placeholder="Ex.: Manual Domínio Sistemas" maxlength="60"/>
+      </div>
+      <div>
+        <div class="field-label">Descrição (opcional)</div>
+        <input class="field-input" id="newModuleDesc" placeholder="Ex.: Guia externo do sistema, órgão ou fornecedor" maxlength="120"/>
+      </div>
+      <div>
+        <div class="field-label">Ícone</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+      <div>
+        <div class="field-label">Arquivo HTML</div>
+        <div class="upload-zone" id="newUploadZone" onclick="document.getElementById('newFileInput').click()">
+          <div class="upload-icon">📂</div>
+          <p id="newFileLabel">Clique para selecionar um arquivo .html</p>
+        </div>
+        <input type="file" id="newFileInput" accept=".html,.htm" hidden/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modalCreate')">Cancelar</button>
+      <button class="btn gold" onclick="saveModule()">Salvar módulo</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingMsg">Salvando no Firebase...</p>
+</div>
+
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+/* ── CONFIG FIREBASE ── */
+const firebaseConfig = {
+  apiKey:            "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain:        "portal-treinamentos-lang.firebaseapp.com",
+  databaseURL:       "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId:         "portal-treinamentos-lang",
+  storageBucket:     "portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId: "1049839891406",
+  appId:             "1:1049839891406:web:c5874166bdbee74139f19f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+/* ── MÓDULOS / MANUAIS EXTERNOS (metadados + conteúdo no Firebase) ── */
+const EMOJIS = ['📚','🖥️','🏛️','⚖️','📋','📒','📁','📂','📄','📃','📑','🗂️','🗃️','📊','📈','🧾','💼','🔖','📌','💡','🎯','🔐','🛡️','👥','💸','🤝','📣','🧮','📐','🌱','🔍'];
+
+/* ── STATE ── */
+let editingId      = null;   // null = novo, string = editar/substituir existente
+let newFileContent = null;
+let selectedEmoji  = EMOJIS[0];
+let modules        = [];     // metadados de todos os módulos
+let docState       = {};     // { [id]: { content, updatedAt } }
+
+/* ── UTIL ── */
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type === 'error' ? 'error' : ''}`;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function loading(show, msg = 'Salvando no Firebase...') {
+  const el = document.getElementById('loadingOverlay');
+  document.getElementById('loadingMsg').textContent = msg;
+  el.classList.toggle('show', show);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ── FIREBASE ── */
+async function loadAll() {
+  loading(true, 'Carregando manuais externos...');
+  try {
+    const [snapMeta, snapDocs] = await Promise.all([
+      get(ref(db, 'manuais_externos_meta')),
+      get(ref(db, 'manuais_externos'))
+    ]);
+    modules  = snapMeta.val() ? Object.values(snapMeta.val()) : [];
+    docState = snapDocs.val() || {};
+  } catch(e) {
+    toast('Erro ao carregar Firebase.', 'error');
+  }
+  loading(false);
+  render();
+  document.getElementById('mainContent').style.display = 'block';
+}
+
+async function saveDoc(id, content) {
+  const payload = { content, updatedAt: new Date().toISOString() };
+  await set(ref(db, `manuais_externos/${id}`), payload);
+  docState[id] = payload;
+}
+
+async function saveMeta(m) {
+  await set(ref(db, `manuais_externos_meta/${m.id}`), m);
+}
+
+async function deleteModule(id) {
+  await Promise.all([
+    remove(ref(db, `manuais_externos/${id}`)),
+    remove(ref(db, `manuais_externos_meta/${id}`))
+  ]);
+  modules  = modules.filter(m => m.id !== id);
+  delete docState[id];
+}
+
+/* ── RENDER ── */
+function render() {
+  const grid = document.getElementById('customGrid');
+  grid.innerHTML = modules.map(m => cardHTML(m)).join('') + addCardHTML();
+}
+
+function cardHTML(m) {
+  const st     = docState[m.id];
+  const filled = !!(st && st.content);
+  const updated = filled ? fmtDate(st.updatedAt) : '';
+  const clickFn = filled ? `openDoc('${m.id}')` : `openModal('${m.id}')`;
+
+  return `
+    <div class="doc-card ${filled ? 'filled' : 'empty'}" onclick="${clickFn}">
+      <div class="doc-actions">
+        <button class="doc-action-btn" title="Editar / substituir" onclick="event.stopPropagation(); openModal('${m.id}')">✏️</button>
+        <button class="doc-action-btn danger" title="Excluir" onclick="event.stopPropagation(); confirmDelete('${m.id}')">🗑</button>
+      </div>
+      <div class="doc-icon ${filled ? 'filled-icon' : ''}">${m.icon}</div>
+      <div class="doc-name">${esc(m.name)}</div>
+      <div class="doc-desc">${esc(m.desc || '')}</div>
+      <div class="doc-footer">
+        <span class="doc-status ${filled ? 'filled-badge' : 'empty-badge'}">
+          ${filled ? '● Disponível' : 'Sem arquivo'}
+        </span>
+        ${updated ? `<span class="doc-updated">${updated}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function addCardHTML() {
+  return `
+    <div class="add-card" onclick="openModal(null)">
+      <div class="plus">＋</div>
+      <span>Novo módulo</span>
+    </div>`;
+}
+
+/* ── ABRIR MANUAL ── */
+window.openDoc = function(id) {
+  const st = docState[id];
+  if (!st || !st.content) { toast('Nenhum manual carregado.', 'error'); return; }
+  const url = URL.createObjectURL(new Blob([st.content], { type: 'text/html' }));
+  window.open(url, '_blank');
+};
+
+/* ── MODAL CRIAR / EDITAR ── */
+window.openModal = function(id) {
+  editingId      = id;
+  newFileContent = null;
+  const existing = id ? modules.find(m => m.id === id) : null;
+
+  // Cabeçalho do modal
+  document.getElementById('modalCreateTitle').textContent = id ? 'Editar módulo' : 'Novo módulo';
+  document.getElementById('modalCreateSub').textContent   = id ? 'Altere os dados ou substitua o arquivo HTML' : 'Dê um nome, escolha um ícone e selecione o arquivo HTML';
+
+  // Preencher campos se editando
+  document.getElementById('newModuleName').value = existing?.name || '';
+  document.getElementById('newModuleDesc').value = existing?.desc || '';
+  selectedEmoji = existing?.icon || EMOJIS[0];
+
+  // Upload zone
+  const hasDoc = id && docState[id]?.content;
+  document.getElementById('newFileLabel').textContent = hasDoc ? '✓ Arquivo já carregado — selecione para substituir' : 'Clique para selecionar um arquivo .html';
+  document.getElementById('newUploadZone').classList.toggle('has-file', !!hasDoc);
+  document.getElementById('newFileInput').value = '';
+
+  buildEmojiGrid();
+  document.getElementById('modalCreate').classList.add('open');
+};
+
+function buildEmojiGrid() {
+  document.getElementById('emojiGrid').innerHTML = EMOJIS.map(e =>
+    `<div class="emoji-opt ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}')">${e}</div>`
+  ).join('');
+}
+
+window.selectEmoji = function(e) { selectedEmoji = e; buildEmojiGrid(); };
+
+document.getElementById('newFileInput').addEventListener('change', function() {
+  const file = this.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    newFileContent = e.target.result;
+    document.getElementById('newFileLabel').textContent = `✓ ${file.name}`;
+    document.getElementById('newUploadZone').classList.add('has-file');
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+window.saveModule = async function() {
+  const name = document.getElementById('newModuleName').value.trim();
+  if (!name) { toast('Informe o nome do módulo.', 'error'); return; }
+
+  // Exige arquivo apenas na criação ou se ainda não tem arquivo
+  const isNew    = !editingId;
+  const hasDoc   = editingId && docState[editingId]?.content;
+  if (!newFileContent && !hasDoc) { toast('Selecione um arquivo .html.', 'error'); return; }
+
+  const id = editingId || ('manual_' + Date.now().toString(36));
+  const m  = {
+    id,
+    icon: selectedEmoji,
+    name,
+    desc: document.getElementById('newModuleDesc').value.trim(),
+    createdAt: editingId ? (modules.find(x => x.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString()
+  };
+
+  closeModal('modalCreate');
+  loading(true, isNew ? 'Criando módulo...' : 'Atualizando módulo...');
+  try {
+    await saveMeta(m);
+    if (newFileContent) await saveDoc(id, newFileContent);
+    if (isNew) modules.push(m);
+    else { const idx = modules.findIndex(x => x.id === id); if (idx >= 0) modules[idx] = m; }
+    toast(isNew ? `Módulo "${name}" criado! ✓` : `Módulo "${name}" atualizado! ✓`);
+    render();
+  } catch(e) {
+    toast('Erro ao salvar no Firebase.', 'error');
+  }
+  loading(false);
+};
+
+/* ── DELETAR ── */
+window.confirmDelete = async function(id) {
+  const m = modules.find(m => m.id === id);
+  if (!m) return;
+  if (!confirm(`Excluir o módulo "${m.name}"?\nO manual salvo no Firebase também será removido.`)) return;
+  loading(true, 'Excluindo...');
+  try {
+    await deleteModule(id);
+    toast('Módulo excluído.');
+    render();
+  } catch(e) {
+    toast('Erro ao excluir.', 'error');
+  }
+  loading(false);
+};
+
+/* ── FECHAR MODAL ── */
+const modalEl = document.getElementById('modalCreate');
+let mdSelf = false;
+modalEl.addEventListener('mousedown', e => { mdSelf = e.target === modalEl; });
+modalEl.addEventListener('mouseup',   e => { if (mdSelf && e.target === modalEl) closeModal('modalCreate'); mdSelf = false; });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal('modalCreate'); });
+
+/* ── INIT ── */
+loadAll();
+</script>
+</body>
+</html>
