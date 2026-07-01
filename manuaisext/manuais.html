@@ -706,7 +706,7 @@ function toast(msg, type = 'ok') {
   el.textContent = msg;
   el.className = `toast show ${type === 'error' ? 'error' : ''}`;
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  window._toastTimer = setTimeout(() => el.classList.remove('show'), type === 'error' ? 7000 : 3000);
 }
 
 function loading(show, msg = 'Salvando no Firebase...') {
@@ -778,7 +778,8 @@ async function loadAll() {
     docState = snapDocs.val() || {};
     sections = snapSections.val() ? Object.values(snapSections.val()) : [];
   } catch(e) {
-    toast('Erro ao carregar Firebase.', 'error');
+    console.error(e);
+    toast('Erro ao carregar Firebase: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
   render();
@@ -1052,7 +1053,8 @@ window.saveManual = async function() {
     toast(isNew ? `Manual "${name}" criado! ✓` : `Manual "${name}" atualizado! ✓`);
     render();
   } catch(e) {
-    toast('Erro ao salvar no Firebase.', 'error');
+    console.error(e);
+    toast('Erro ao salvar no Firebase: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
 };
@@ -1099,7 +1101,8 @@ window.saveSection = async function() {
     toast(isNew ? `Seção "${name}" criada! ✓` : `Seção "${name}" atualizada! ✓`);
     render();
   } catch(e) {
-    toast('Erro ao salvar seção.', 'error');
+    console.error(e);
+    toast('Erro ao salvar seção: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
 };
@@ -1116,7 +1119,8 @@ window.toggleSectionFixed = async function(id) {
     toast(updated.type === 'fixed' ? 'Seção fixada.' : 'Seção virou dinâmica.');
     render();
   } catch(e) {
-    toast('Erro ao atualizar seção.', 'error');
+    console.error(e);
+    toast('Erro ao atualizar seção: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
 };
@@ -1132,7 +1136,8 @@ window.confirmDeleteSection = async function(id) {
     toast('Seção excluída.');
     render();
   } catch(e) {
-    toast('Erro ao excluir seção.', 'error');
+    console.error(e);
+    toast('Erro ao excluir seção: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
 };
@@ -1164,7 +1169,8 @@ async function moveManualToSection(manualId, sectionId) {
     toast(`Manual movido para "${sectionName(sectionId)}".`);
     render();
   } catch(e) {
-    toast('Erro ao mover manual.', 'error');
+    console.error(e);
+    toast('Erro ao mover manual: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
 }
@@ -1217,7 +1223,8 @@ window.confirmDeleteManual = async function(id) {
     toast('Manual excluído.');
     render();
   } catch(e) {
-    toast('Erro ao excluir.', 'error');
+    console.error(e);
+    toast('Erro ao excluir: ' + (e.code || e.message || e), 'error');
   }
   loading(false);
 };
