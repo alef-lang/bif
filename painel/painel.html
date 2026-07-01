@@ -1004,7 +1004,9 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .modal.view-mode .importacao-add-row,
 .modal.view-mode .btn-remove-importacao,
 .modal.view-mode .custom-field-add,
-.modal.view-mode .btn-remove-custom-field {
+.modal.view-mode .btn-remove-custom-field,
+.modal.view-mode .tag-add-row .tag-chip-remove,
+.modal.view-mode .tag-add-row > div:last-child {
   display: none !important;
 }
 .modal.view-mode .custom-field-title-input{
@@ -1550,6 +1552,10 @@ th.col-dragging{opacity:0.45;}
       <div class="filter-tags" id="filterTags"></div>
       <button class="filter-clear" onclick="clearFilters()">✕ Limpar tudo</button>
     </div>
+    <div class="filter-bar" style="border-bottom:1px solid rgba(201,168,76,0.10);">
+      <span class="filter-label">🏷️ Tags:</span>
+      <div class="filter-tags" id="filterTagsRow"></div>
+    </div>
     <div class="filter-row2" style="border-bottom:none;">
       <span class="filter-label">🔎 Filtros:</span>
       <select class="select-filter" id="filterRegime" onchange="renderAll()">
@@ -1974,6 +1980,16 @@ th.col-dragging{opacity:0.45;}
         </div>
         <div id="cfgObrigList" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;"></div>
       </div>
+
+      <div class="config-section">
+        <h3>🏷️ Tags de empresas</h3>
+        <p>Crie as tags que poderão ser marcadas nas empresas, usadas para filtrar a lista e gerar relatórios. Ex: Empresa Nova.</p>
+        <div class="config-row">
+          <input type="text" id="cfgNovaTag" placeholder="Ex: Empresa Nova" onkeydown="if(event.key==='Enter'){event.preventDefault();addEmpresaTag();}">
+          <button class="btn-primary" onclick="addEmpresaTag()">Adicionar</button>
+        </div>
+        <div id="cfgTagsList" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modalConfig')">Fechar</button>
@@ -2089,6 +2105,7 @@ let currentEditId = null;
 let pendingDeleteId = null;
 let currentPin = '';
 let modalObrigacoes = [];
+let modalTags = [];
 let modalImportacoes = [];
 let modalImpostos = [];
 let modalRepositorioNotas = [];
@@ -2270,6 +2287,8 @@ function normalizeEmpresa(e) {
     repositorioNotas: Array.isArray(e.repositorioNotas) ? e.repositorioNotas.map(normalizeNotaRepositorioItem).filter(a => a.nome) : [],
     camposPersonalizados: Array.isArray(e.camposPersonalizados) ? e.camposPersonalizados : [],
     camposEstaticosData: e.camposEstaticosData && typeof e.camposEstaticosData === 'object' ? e.camposEstaticosData : {},
+    codigoErp: e.codigoErp || '',
+    tags: Array.isArray(e.tags) ? e.tags.filter(Boolean) : [],
     parametros: e.parametros || '',
     regras: e.regras || '',
     observacoes: e.observacoes || '',
@@ -2335,6 +2354,8 @@ async function init(){
   // Normaliza campos de config
   S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
   S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
+  S.empresaTags = Array.isArray(S.empresaTags) ? S.empresaTags : [];
+  S.activeTagFilters = Array.isArray(S.activeTagFilters) ? S.activeTagFilters : [];
   S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
   S.relatorioLogo = typeof S.relatorioLogo === 'string' ? S.relatorioLogo : '';
   S.printFont = S.printFont || 'Arial';
@@ -2345,7 +2366,9 @@ async function init(){
 
   updateHeaderName();
   renderFilterTags();
+  renderTagFilterChips();
   renderCfgObrigList();
+  renderCfgTagsList();
   renderCfgCamposEstaticosList();
 
   // 2. Listener em tempo real para empresas (igual ao sistema de vida)
@@ -2604,6 +2627,7 @@ function toggleStatusObrigFilter(btn, st){
 function clearFilters(){
   S.activeFilters = [];
   S.activeStatusObrig = [];
+  S.activeTagFilters = [];
   S.searchTerm = '';
   if($('searchInput')) $('searchInput').value = '';
   if($('filterRegime')) $('filterRegime').value = '';
@@ -2614,6 +2638,7 @@ function clearFilters(){
   if($('filterAtividade')) $('filterAtividade').value = '';
   document.querySelectorAll('#filterStatusObrig .filter-tag').forEach(b=>b.classList.remove('active'));
   renderFilterTags();
+  renderTagFilterChips();
   renderAll();
 }
 
@@ -2636,9 +2661,10 @@ function passesFilters(e){
   if(fcol && (e.colaborador || '') !== fcol) return false;
   if(S.activeFilters.length && !S.activeFilters.every(f => (e.obrigacoes||[]).some(o=>o.nome === f))) return false;
   if(S.activeStatusObrig.length && !S.activeStatusObrig.some(st => (e.obrigacoes||[]).some(o=>o.status === st))) return false;
+  if((S.activeTagFilters||[]).length && !S.activeTagFilters.some(t => (e.tags||[]).includes(t))) return false;
   const q = norm(S.searchTerm);
   if(q){
-    const blob = norm([e.nome,e.cnpj,e.atividade,e.colaborador,e.cidade,e.uf,e.responsavel].join(' '));
+    const blob = norm([e.nome,e.cnpj,e.atividade,e.colaborador,e.cidade,e.uf,e.responsavel,e.codigoErp].join(' '));
     if(!blob.includes(q)) return false;
   }
   return true;
@@ -2883,7 +2909,7 @@ function criarEmpresaBasica(nome, cnpj, colaborador, observacaoExtra=''){
     observacoes: observacaoExtra || '',
     parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: []
+    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: [], tags: []
   };
 }
 
@@ -3428,7 +3454,7 @@ async function addCompany(){
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
     observacoes:'', parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: []
+    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: [], tags: []
   };
   try {
     setCloudStatus('loading', 'Salvando...');
@@ -4681,6 +4707,7 @@ function openEmpresa(id){
   if(!e) return;
   currentEditId = id;
   modalObrigacoes = JSON.parse(JSON.stringify(e.obrigacoes || []));
+  modalTags = Array.isArray(e.tags) ? [...e.tags] : [];
   modalImportacoes = JSON.parse(JSON.stringify(e.importacoes || []));
   modalImpostos = JSON.parse(JSON.stringify(e.impostos || []));
   modalRepositorioNotas = JSON.parse(JSON.stringify(e.repositorioNotas || []));
@@ -4689,6 +4716,7 @@ function openEmpresa(id){
   $('modalEmpresaSubtitle').textContent = empresaSubtitle(e);
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
+  renderEmpresaTagsPicker();
   renderModalImportacoes();
   renderModalImpostos();
   renderRepositorioNotasForModal();
@@ -4755,6 +4783,16 @@ function empresaFormHtml(e){
       <div class="form-group"><label>Colaborador Responsável</label><input id="f_colaborador" value="${esc(e.colaborador)}"></div>
       <div class="form-group"><label>Inscrição Estadual</label><input id="f_ie" value="${esc(e.inscricaoEstadual)}"></div>
       <div class="form-group"><label>Inscrição Municipal</label><input id="f_im" value="${esc(e.inscricaoMunicipal)}"></div>
+      <div class="form-group"><label>Código ERP</label><input id="f_codigoErp" value="${esc(e.codigoErp)}"></div>
+      <div class="form-group full tag-add-row">
+        <label>🏷️ Tags</label>
+        <div id="empresaTagsPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input id="f_novaTagInput" placeholder="Nova tag... (ex: Empresa Nova)" list="empresaTagsDatalist" style="flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addTagToEmpresaForm();}">
+          <datalist id="empresaTagsDatalist"></datalist>
+          <button type="button" class="btn-secondary" onclick="addTagToEmpresaForm()" style="white-space:nowrap;">+ Tag</button>
+        </div>
+      </div>
       <div class="form-group full">
         <details class="checklist-collapse">
           <summary>📑 Demais informações</summary>
@@ -5010,6 +5048,7 @@ function collectCompanyFormData(){
     colaborador: $('f_colaborador')?.value?.trim() || '',
     inscricaoEstadual: $('f_ie')?.value?.trim() || '',
     inscricaoMunicipal: $('f_im')?.value?.trim() || '',
+    codigoErp: $('f_codigoErp')?.value?.trim() || '',
     fechada: !!$('f_fechada')?.checked,
     semMovimento: !!$('f_semMovimento')?.checked,
     servEnergia: !!$('f_servEnergia')?.checked,
@@ -5037,7 +5076,8 @@ function collectCompanyFormData(){
     impostos: JSON.parse(JSON.stringify(modalImpostos || [])),
     repositorioNotas: JSON.parse(JSON.stringify(modalRepositorioNotas || [])),
     camposEstaticosData: collectStaticFieldsData(),
-    camposPersonalizados: collectModalCamposPersonalizados()
+    camposPersonalizados: collectModalCamposPersonalizados(),
+    tags: JSON.parse(JSON.stringify(modalTags || []))
   };
 }
 
@@ -5064,6 +5104,96 @@ function addObrigToModal(){
   renderModalObrigacoes(); renderFilterTags(); renderCfgObrigList(); markCompanyDirtySoft();
 }
 function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); markCompanyDirtySoft(); }
+
+// ── TAGS DA EMPRESA (dentro da ficha) ──
+function renderEmpresaTagsPicker(){
+  const el = $('empresaTagsPicker');
+  if(!el) return;
+  const todas = S.empresaTags || [];
+  if(!todas.length){
+    el.innerHTML = '<span style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);">Nenhuma tag criada ainda. Crie uma tag ao lado (ex: Empresa Nova).</span>';
+  } else {
+    el.innerHTML = todas.map(tag => {
+      const active = modalTags.includes(tag);
+      return `<button type="button" class="filter-tag ${active?'active':''}" onclick="toggleModalTag('${esc(tag).replace(/'/g,'&#39;')}')" title="${active?'Remover tag':'Adicionar tag'}">${active?'✓ ':''}${esc(tag)}</button>`;
+    }).join('');
+  }
+  const dl = $('empresaTagsDatalist');
+  if(dl) dl.innerHTML = todas.map(t=>`<option value="${escAttr(t)}">`).join('');
+}
+function toggleModalTag(tag){
+  const i = modalTags.indexOf(tag);
+  if(i>=0) modalTags.splice(i,1); else modalTags.push(tag);
+  renderEmpresaTagsPicker();
+  markCompanyDirtySoft();
+}
+function addTagToEmpresaForm(){
+  const input = $('f_novaTagInput');
+  const v = (input?.value || '').trim();
+  if(!v) return;
+  if(!S.empresaTags) S.empresaTags = [];
+  if(!S.empresaTags.includes(v)){ S.empresaTags.push(v); saveState(); renderCfgTagsList(); }
+  if(!modalTags.includes(v)) modalTags.push(v);
+  input.value = '';
+  renderEmpresaTagsPicker();
+  renderTagFilterChips();
+  markCompanyDirtySoft();
+}
+
+// ── TAGS: CADASTRO GLOBAL (config) E FILTRO ──
+function renderCfgTagsList(){
+  const el = $('cfgTagsList');
+  if(!el) return;
+  const todas = S.empresaTags || [];
+  if(!todas.length){ el.innerHTML = '<span style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);">Nenhuma tag criada ainda.</span>'; return; }
+  el.innerHTML = todas.map((tag,i)=>
+    `<span class="obrig-chip">${esc(tag)} <button title="Remover" onclick="removeEmpresaTag(${i})">✕</button></span>`
+  ).join('');
+}
+function addEmpresaTag(){
+  const input = $('cfgNovaTag');
+  const v = (input?.value || '').trim();
+  if(!v) return;
+  if(!S.empresaTags) S.empresaTags = [];
+  if(S.empresaTags.includes(v)){ toast('Essa tag já existe.', 'error'); return; }
+  S.empresaTags.push(v);
+  input.value = '';
+  saveState();
+  renderCfgTagsList();
+  renderTagFilterChips();
+  toast('Tag criada.', 'success');
+}
+function removeEmpresaTag(i){
+  const tag = (S.empresaTags||[])[i];
+  if(!tag) return;
+  S.empresaTags.splice(i,1);
+  S.activeTagFilters = (S.activeTagFilters||[]).filter(t=>t!==tag);
+  saveState();
+  renderCfgTagsList();
+  renderTagFilterChips();
+  renderAll();
+  toast('Tag removida dos filtros. As empresas que a tinham marcada mantêm o histórico salvo.', 'success');
+}
+function renderTagFilterChips(){
+  const wrap = $('filterTagsRow');
+  if(!wrap) return;
+  const todas = S.empresaTags || [];
+  if(!todas.length){
+    wrap.innerHTML = '<span style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);">Crie tags em ⚙ Configurações → Tags de empresas.</span>';
+    return;
+  }
+  wrap.innerHTML = todas.map(tag => {
+    const active = (S.activeTagFilters||[]).includes(tag);
+    return `<button class="filter-tag ${active?'active':''}" onclick="toggleTagFilter(this,'${esc(tag).replace(/'/g,'&#39;')}')">${esc(tag)}</button>`;
+  }).join('');
+}
+function toggleTagFilter(btn, tag){
+  if(!S.activeTagFilters) S.activeTagFilters = [];
+  const i = S.activeTagFilters.indexOf(tag);
+  if(i>=0) S.activeTagFilters.splice(i,1); else S.activeTagFilters.push(tag);
+  renderTagFilterChips();
+  renderAll();
+}
 
 function renderModalImportacoes(){
   const el = $('modalImportacoesTags');
@@ -5424,6 +5554,9 @@ function relatorioHtml(){
       <optgroup label="Por Colaborador">
         <option value="colaborador">👤 Empresas por colaborador</option>
       </optgroup>
+      <optgroup label="Por Tag">
+        <option value="tag">🏷️ Empresas por tag</option>
+      </optgroup>
       <optgroup label="Itens para relatório">
         <option value="serv_energia">💡 Empresas — Energia Elétrica</option>
         <option value="serv_telefone">☎️ Empresas — Telefone</option>
@@ -5437,6 +5570,7 @@ function relatorioHtml(){
       </optgroup>
     </select>
     <select id="relColaborador" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todos os colaboradores</option>${colabOpts}</select>
+    <select id="relTag" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todas as tags</option>${(S.empresaTags||[]).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('')}</select>
     <select id="relAtividade" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todas as atividades</option>${atOpts}</select>
     <select id="relRegime" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todos os regimes</option><option value="simples">Simples Nacional</option><option value="presumido">Lucro Presumido</option><option value="real">Lucro Real</option><option value="outros">Outros</option></select>
     <button class="btn-export-rel" onclick="exportRelatorioCSV()">⬇️ Exportar CSV</button>
@@ -5465,6 +5599,7 @@ function renderRelatorioTabela(){
   $('relAtividade').style.display = type==='atividade' ? '' : 'none';
   $('relRegime').style.display = type==='regime' ? '' : 'none';
   $('relColaborador').style.display = type==='colaborador' ? '' : 'none';
+  $('relTag').style.display = type==='tag' ? '' : 'none';
 
   const base = getFilteredEmpresas();
 
@@ -5541,6 +5676,34 @@ function renderRelatorioTabela(){
         <div class="rel-sum-card"><div class="num">${colaboradores.length}</div><div class="lbl">Colaboradores</div></div>
       </div>
       ${html || '<div class="empty-state"><p>Nenhum dado encontrado.</p></div>'}
+    </div>`;
+    return;
+  }
+
+  // ── POR TAG ────────────────────────────────────────────────
+  if(type === 'tag'){
+    const filtroTag = $('relTag').value;
+    const tags = filtroTag ? [filtroTag] : (S.empresaTags||[]);
+    let html = '';
+    let totalGeral = 0;
+    tags.forEach(tag => {
+      const emps = base.filter(e => (e.tags||[]).includes(tag));
+      if(!emps.length) return;
+      totalGeral += emps.length;
+      html += `<div class="colab-section-header">🏷️ ${esc(tag)} — ${emps.length} empresa${emps.length>1?'s':''}</div>`;
+      html += `<table class="colab-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Status</th></tr></thead><tbody>`;
+      emps.forEach(e => {
+        html += `<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':'Aberta'}</span></td></tr>`;
+      });
+      html += `</tbody></table>`;
+    });
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>Empresas por Tag — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${totalGeral}</div><div class="lbl">Empresas marcadas</div></div>
+        <div class="rel-sum-card"><div class="num">${tags.length}</div><div class="lbl">Tag${tags.length!==1?'s':''}</div></div>
+      </div>
+      ${html || '<div class="empty-state"><p>Nenhuma empresa com essa tag ainda. Marque tags nas fichas das empresas primeiro.</p></div>'}
     </div>`;
     return;
   }
@@ -5715,7 +5878,7 @@ function buildEmpresaPrintHtml(e){
 
     <section class="p-section"><h2>Dados cadastrais</h2><div class="p-grid">
       ${printRow('Razão Social', e.nome)}${printRow('CNPJ', e.cnpj)}${printRow('Regime', regimeLabel(e.regime))}${printRow('Categoria', categoriaEmpresaLabel(e))}${printRow('Status', status)}
-      ${printRow('Atividade Econômica', e.atividade)}${printRow('Colaborador', e.colaborador)}${printRow('Inscrição Estadual', e.inscricaoEstadual)}${printRow('Inscrição Municipal', e.inscricaoMunicipal)}
+      ${printRow('Atividade Econômica', e.atividade)}${printRow('Colaborador', e.colaborador)}${printRow('Inscrição Estadual', e.inscricaoEstadual)}${printRow('Inscrição Municipal', e.inscricaoMunicipal)}${printRow('Código ERP', e.codigoErp)}
     </div></section>
 
     <section class="p-section"><h2>Contato e localização</h2><div class="p-grid">
@@ -5912,7 +6075,7 @@ function exportRelatorioCSV(){
       (e.obrigacoes||[]).map(o=>o.nome).join(' | '),
       e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'
     ]);
-  } else if(type==='movimento' || type==='colaborador' || type.startsWith('apuracao') || type.startsWith('sped')){
+  } else if(type==='movimento' || type==='colaborador' || type==='tag' || type.startsWith('apuracao') || type.startsWith('sped')){
     let emps = base;
     if(type==='movimento') emps = base.filter(isEmpresaComMovimento);
     if(type==='apuracao_pendente') emps = base.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada');
@@ -5920,6 +6083,7 @@ function exportRelatorioCSV(){
     const spedMap = {sped_todos:null,sped_icms:'SPED ICMS/IPI',sped_contrib:'SPED Contribuições',sped_ecd:'SPED ECD',sped_ecf:'SPED ECF'};
     if(type.startsWith('sped')){ const f=spedMap[type]; emps=base.filter(e=>(e.obrigacoes||[]).some(o=>f?o.nome===f:o.nome.startsWith('SPED'))); }
     if(type==='colaborador'){ const cv=$('relColaborador').value; if(cv) emps=base.filter(e=>e.colaborador===cv); }
+    if(type==='tag'){ const tv=$('relTag').value; emps = tv ? base.filter(e=>(e.tags||[]).includes(tv)) : base.filter(e=>(e.tags||[]).length); }
     headers = type==='movimento'
       ? ['Empresa','CNPJ','Categoria','Regime','Colaborador','Atividade','Impostos','Status Empresa']
       : ['Empresa','CNPJ','Categoria','Regime','Colaborador','Obrigações','Status Apuração','Status Empresa'];
@@ -6450,6 +6614,23 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 window.addEventListener('keydown', ev => { if(ev.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>closeModal(m.id)); });
+
+// Ctrl+Z / Ctrl+Y (e variações Cmd no Mac) só devem desfazer/refazer dentro de campos de texto
+// (input, textarea ou campo rico contenteditable). Fora disso, o navegador pode "vazar" o undo
+// nativo para outras partes da página, mexendo em coisas que não são texto. Bloqueamos esse
+// comportamento por padrão e deixamos passar só quando o foco realmente está num campo de texto.
+document.addEventListener('keydown', ev => {
+  const key = (ev.key || '').toLowerCase();
+  const isUndo = (ev.ctrlKey || ev.metaKey) && key === 'z';
+  const isRedo = (ev.ctrlKey || ev.metaKey) && (key === 'y' || (key === 'z' && ev.shiftKey));
+  if(!isUndo && !isRedo) return;
+  const el = document.activeElement;
+  const isTextContext = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable === true);
+  if(!isTextContext){
+    ev.preventDefault();
+    ev.stopPropagation();
+  }
+}, true);
 </script>
 
 <script type="module">
