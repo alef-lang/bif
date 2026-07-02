@@ -171,8 +171,8 @@ select option{background:#1b2e42;color:#e8edf3}
   <div class="brand">
     <div class="logo">K</div>
     <div class="title">
-      <h1>Kanban Fiscal</h1>
-      <p>Empresas · dependências · tarefas vinculadas · visual por colaborador</p>
+      <h1>Kanban Fiscal — Alef</h1>
+      <p>Empresas do Painel · responsável fixo: Alef · dependências e tarefas vinculadas</p>
     </div>
   </div>
   <div class="actions">
@@ -189,11 +189,11 @@ select option{background:#1b2e42;color:#e8edf3}
   <section class="filters">
     <div class="field">
       <label>Busca rápida</label>
-      <input class="input" id="searchInput" placeholder="Buscar empresa, CNPJ, colaborador, tarefa, pendência..." oninput="setFilter('search',this.value)">
+      <input class="input" id="searchInput" placeholder="Buscar empresa, CNPJ, tarefa, pendência..." oninput="setFilter('search',this.value)">
     </div>
     <div class="field">
-      <label>Colaborador</label>
-      <select class="select" id="collabFilter" onchange="setFilter('collab',this.value)"></select>
+      <label>Colaborador Responsável</label>
+      <select class="select" id="collabFilter" disabled title="Visual travado para Alef"></select>
     </div>
     <div class="field">
       <label>Regime</label>
@@ -219,7 +219,7 @@ select option{background:#1b2e42;color:#e8edf3}
   </section>
 
   <section class="radar" id="radar">
-    <div class="kpi"><div class="kpi-label">Empresas filtradas</div><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-sub">visíveis no kanban</div></div>
+    <div class="kpi"><div class="kpi-label">Empresas do Alef</div><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-sub">geradas do Painel</div></div>
     <div class="kpi"><div class="kpi-label">Tarefas abertas</div><div class="kpi-val" id="kpiTasks">0</div><div class="kpi-sub">puxadas do Tarefas</div></div>
     <div class="kpi"><div class="kpi-label">Com pendência</div><div class="kpi-val" id="kpiDeps">0</div><div class="kpi-sub">falta info/documento</div></div>
     <div class="kpi"><div class="kpi-label">Aguardando cliente</div><div class="kpi-val" id="kpiWaiting">0</div><div class="kpi-sub">bloqueio externo</div></div>
@@ -345,8 +345,10 @@ const DEPS=[
   {id:'retorno_cliente',label:'Retorno do cliente',short:'Cliente'}
 ];
 const DEP_STATUS={pendente:'Falta',ok:'Recebido',na:'N/A'};
+const TARGET_COLLAB='Alef';
+const TARGET_COLLAB_NORM=norm(TARGET_COLLAB);
 
-let empresas=[],tarefas=[],kanban={cards:{}},filters={search:'',collab:'',regime:'',lane:'',dep:'',onlyActive:false};
+let empresas=[],tarefas=[],kanban={cards:{}},filters={search:'',collab:TARGET_COLLAB,regime:'',lane:'',dep:'',onlyActive:false};
 let currentCardId=null,dragId=null,dragWasMoved=false,saveTimer=null;
 const $=id=>document.getElementById(id);
 
@@ -366,7 +368,8 @@ function normalizeEmpresa(e,idx=0){
   const cnpj=e.cnpj||e.CNPJ||e.cnpjFormatado||'';
   const cnpjDigits=onlyDigits(cnpj);
   const id=String(e.id||e._id||e.codigo||e.cod||e._fbKey||cnpjDigits||nome||`empresa_${idx}`).trim();
-  return {...e,id,nome,cnpj:String(cnpj||''),cnpjDigits,regime:e.regime||e.regimeTributario||e.tipoRegime||'outros',atividade:e.atividade||e.atividadeEconomica||e.cnae||'',colaborador:e.colaborador||e.responsavel||e.responsavelFiscal||'',fechada:!!e.fechada,semMovimento:!!e.semMovimento};
+  const colaborador=String(e.colaborador||e.responsavel||e.responsavelFiscal||'').trim();
+  return {...e,id,nome,cnpj:String(cnpj||''),cnpjDigits,regime:e.regime||e.regimeTributario||e.tipoRegime||'outros',atividade:e.atividade||e.atividadeEconomica||e.cnae||'',colaborador,fechada:!!e.fechada,semMovimento:!!e.semMovimento};
 }
 function empresaKey(e){return String(e?.cnpjDigits||onlyDigits(e?.cnpj)||e?.id||e?.nome||'').trim();}
 function mergeEmpresas(list){
@@ -432,12 +435,13 @@ function hasAnyDep(card){
   return DEPS.some(d=>card.deps?.[d.id]==='pendente');
 }
 function findEmpresaById(id){return empresas.find(e=>empresaKey(e)===id || e.id===id || norm(e.nome)===norm(id));}
+function isTargetCollaborator(e){return norm(e?.colaborador||'')===TARGET_COLLAB_NORM;}
+function targetCompanies(){return empresas.filter(isTargetCollaborator);}
 
 function getVisibleCompanies(){
   const s=norm(filters.search), dep=filters.dep;
-  return empresas.filter(e=>{
+  return targetCompanies().filter(e=>{
     const id=empresaKey(e), c=cardState(id,e), ts=tasksForEmpresa(e), openTs=ts.filter(taskOpen);
-    if(filters.collab && norm(e.colaborador)!==norm(filters.collab))return false;
     if(filters.regime && String(e.regime||'outros')!==filters.regime)return false;
     if(filters.lane && c.lane!==filters.lane)return false;
     if(dep && c.deps?.[dep]!=='pendente')return false;
@@ -451,22 +455,17 @@ function getVisibleCompanies(){
 }
 
 function renderFilters(){
-  const collabs=[...new Set(empresas.map(e=>String(e.colaborador||'Sem responsável').trim()||'Sem responsável'))].sort((a,b)=>norm(a).localeCompare(norm(b)));
-  $('collabFilter').innerHTML='<option value="">Todos</option>'+collabs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-  $('collabFilter').value=filters.collab||'';
+  filters.collab=TARGET_COLLAB;
+  $('collabFilter').innerHTML=`<option value="${esc(TARGET_COLLAB)}">${esc(TARGET_COLLAB)}</option>`;
+  $('collabFilter').value=TARGET_COLLAB;
   $('laneFilter').innerHTML='<option value="">Todas as colunas</option>'+LANE_ORDER.map(l=>`<option value="${l}">${LANES[l].icon} ${LANES[l].label}</option>`).join('');
   $('laneFilter').value=filters.lane||'';
   $('depFilter').innerHTML='<option value="">Todas</option>'+DEPS.map(d=>`<option value="${d.id}">${d.label}</option>`).join('');
   $('depFilter').value=filters.dep||'';
 }
 function renderCollabStrip(visible){
-  const counts=new Map();
-  visible.forEach(e=>{const c=e.colaborador||'Sem responsável';counts.set(c,(counts.get(c)||0)+1);});
-  const html=['<button class="collab-chip '+(!filters.collab?'active':'')+'" onclick="setFilter(\'collab\',\'\')">Todos · '+visible.length+'</button>'];
-  [...counts.entries()].sort((a,b)=>b[1]-a[1]).forEach(([c,n])=>{
-    html.push(`<button class="collab-chip ${filters.collab===c?'active':''}" onclick="setFilter('collab',${JSON.stringify(c)})">${esc(c)} · ${n}</button>`);
-  });
-  $('collabStrip').innerHTML=html.join('');
+  const total=visible.length;
+  $('collabStrip').innerHTML=`<button type="button" class="collab-chip active">${esc(TARGET_COLLAB)} · ${total}</button>`;
 }
 function renderKpis(visible){
   const allTasks=visible.flatMap(e=>tasksForEmpresa(e).filter(taskOpen));
@@ -504,7 +503,7 @@ function renderLane(lane, list){
       <div><div class="lane-title"><span class="dot"></span>${meta.icon} ${esc(meta.label)}</div><div class="lane-sub">${esc(meta.sub)}</div></div>
       <div class="lane-count">${list.length}</div>
     </div>
-    <div class="lane-body">${list.length?list.map(renderCompanyCard).join(''):`<div class="empty-lane">Solte empresas aqui<br>ou filtre outro colaborador.</div>`}</div>
+    <div class="lane-body">${list.length?list.map(renderCompanyCard).join(''):`<div class="empty-lane">Nenhuma empresa do Alef<br>nesta coluna.</div>`}</div>
   </section>`;
 }
 function renderCompanyCard(e){
@@ -543,8 +542,12 @@ function renderCompanyCard(e){
 }
 function regimeLabel(r){return ({simples:'Simples',presumido:'Presumido',real:'Real',outros:'Outros'})[r]||String(r||'Outros');}
 function setFilter(key,val){
-  filters[key]=val;
-  if(key==='collab')$('collabFilter').value=val||'';
+  if(key==='collab'){
+    filters.collab=TARGET_COLLAB;
+    $('collabFilter').value=TARGET_COLLAB;
+  }else{
+    filters[key]=val;
+  }
   renderBoard();
 }
 
