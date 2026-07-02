@@ -499,6 +499,29 @@
           </div>
         </div>
 
+
+        <div class="tool-card ready" data-tool="mapa-agenda" onclick="openTool('mapa-agenda')">
+          <div class="tool-icon">🗓️</div>
+          <h3>Agenda Fiscal — Mapa do Mês</h3>
+          <p>Radar visual das rotinas fiscais recorrentes, com botão para gerar tarefas automaticamente no Painel de Tarefas.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+
+
+        <div class="tool-card ready" data-tool="gestao-equipes" onclick="openTool('gestao-equipes')">
+          <div class="tool-icon">👥</div>
+          <h3>Gestão de Equipes</h3>
+          <p>Delegação com perguntas poderosas, acompanhamento por responsável e integração com o Painel de Tarefas.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
         <div class="tool-card ready" data-tool="anotacoes" onclick="openTool('anotacoes')">
           <div class="tool-icon">📝</div>
           <h3>Anotações</h3>
@@ -608,6 +631,16 @@
           <div class="tool-icon">📒</div>
           <h3>Apoio à Escrituração</h3>
           <p>Planilhas, modelos e materiais de suporte para a escrituração fiscal. Upload de XLSX, HTML, PDF, CSV e outros.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="calculadora-simples" onclick="openTool('calculadora-simples')">
+          <div class="tool-icon">🧮</div>
+          <h3>Calculadora Simples Nacional</h3>
+          <p>Alíquota efetiva, RBT12 e comparativo por anexo — cálculo automático por empresa.</p>
           <div class="tool-footer">
             <span class="badge-ready">● Disponível</span>
             <span class="btn-open">Abrir →</span>
@@ -724,6 +757,18 @@
           <div class="tool-icon">📣</div>
           <h3>Comunicação com Cliente</h3>
           <p>Templates de comunicados, régua de contato e scripts para situações recorrentes.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+
+
+        <div class="tool-card ready" data-tool="atendimento-cliente" onclick="openTool('atendimento-cliente')">
+          <div class="tool-icon">🎧</div>
+          <h3>Atendimento ao Cliente</h3>
+          <p>Quadro de demandas por empresa, origem do contato, urgência, parqueamento e status do atendimento.</p>
           <div class="tool-footer">
             <span class="badge-ready">● Disponível</span>
             <span class="btn-open">Abrir →</span>
@@ -1042,7 +1087,9 @@
       const permissoes = colaborador.permissoes || {};
       cards.forEach(card => {
         const tool = card.dataset.tool;
-        if (permissoes[tool] === true) {
+        // O Mapa da Agenda é complemento direto de Tarefas.
+        // Quem tem acesso a Tarefas também consegue abrir o Mapa, mesmo que a permissão nova ainda não exista no Firebase.
+        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true))) {
           unlockCard(card, tool);
         } else {
           lockCard(card);
@@ -1060,6 +1107,9 @@
     const urls = {
       'portal-treinamentos': './portal/portal.html',
       'tarefas': './tarefas/tarefas.html',
+      'mapa-agenda': './tarefas/mapa.html',
+      'gestao-equipes': './equipes/gestao.html',
+      'atendimento-cliente': './atendimento/atendimento.html',
       'anotacoes': './anotacoes/anotacoes.html',
       'checklist': './checklist/checklist.html',
       'painel': './painel/painel.html',
@@ -1073,6 +1123,7 @@
       'apoio-escrituracao': './apoio/apoio.html',
       'colaboradores': './colaboradores/colaboradores.html',
       'manuais-externos': './manuaisext/manuais.html',
+      'calculadora-simples': './ferramentas/calculadora-simples.html',
       'comunicacao': './comunicacao/comunicacao.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
