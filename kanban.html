@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kanban Fiscal — Visual de Empresas e Dependências</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1b2a;--card:#1b2e42;--card2:#162438;--card3:#102035;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,.22);--gold-border:rgba(201,168,76,.32);--gold-glow:rgba(201,168,76,.12);
+  --text:#e8edf3;--muted:#8ba0b8;--muted2:#5f7690;
+  --green:#86efac;--red:#f87171;--blue:#93c5fd;--amber:#fbbf24;--cyan:#5eead4;--purple:#c4b5fd;--orange:#fb923c;
+  --radius:16px;--rsm:10px;--font-title:'Poppins',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --shadow:0 18px 42px rgba(0,0,0,.38);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-body);background:var(--bg);background-image:radial-gradient(ellipse at 15% 8%,rgba(201,168,76,.07),transparent 55%),radial-gradient(ellipse at 88% 82%,rgba(74,158,218,.08),transparent 52%);color:var(--text);overflow:hidden}
+button,input,select,textarea{font-family:inherit}
+.hidden{display:none!important}
+
+/* Header */
+.app-header{height:auto;min-height:68px;background:linear-gradient(135deg,#0d1b2a,#1b2e42);border-bottom:1px solid var(--gold-dim);box-shadow:0 4px 24px rgba(0,0,0,.45);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:12px;min-width:260px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;display:flex;align-items:center;justify-content:center;font:800 18px var(--font-title)}
+.title h1{font:700 17px var(--font-title);color:var(--gold-light);letter-spacing:.01em}
+.title p{font:500 11px var(--font-mono);color:var(--muted);margin-top:1px}
+.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cloud{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 11px;color:var(--muted);font:600 11px var(--font-mono)}
+.cloud.ok{color:var(--green);border-color:rgba(134,239,172,.28);background:rgba(134,239,172,.08)}
+.cloud.saving{color:var(--gold-light);border-color:var(--gold-dim);background:rgba(201,168,76,.08)}
+.cloud.error{color:#fca5a5;border-color:rgba(248,113,113,.32);background:rgba(248,113,113,.08)}
+.btn{border:1px solid var(--gold-dim);background:rgba(255,255,255,.045);color:var(--gold-light);border-radius:999px;padding:8px 14px;font:700 12px var(--font-body);cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--gold);background:rgba(201,168,76,.15);transform:translateY(-1px)}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;border-color:transparent}
+.btn.red{border-color:rgba(248,113,113,.28);color:#fca5a5;background:rgba(248,113,113,.08)}
+.btn.small{padding:5px 10px;font-size:11px}
+.portal-back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted);border:1px solid var(--gold-dim);border-radius:999px;padding:8px 12px;font:600 12px var(--font-body);background:rgba(255,255,255,.03)}
+.portal-back:hover{color:var(--gold-light);background:rgba(201,168,76,.12)}
+
+/* App layout */
+.app{height:calc(100vh - 68px);display:grid;grid-template-rows:auto auto 1fr;overflow:hidden}
+.filters{padding:12px 18px;border-bottom:1px solid rgba(201,168,76,.16);background:rgba(13,27,42,.72);display:grid;grid-template-columns:1.2fr repeat(4,minmax(130px,.55fr)) auto;gap:8px;align-items:end}
+.field label{display:block;color:var(--gold);font:700 9px var(--font-mono);text-transform:uppercase;letter-spacing:.07em;margin:0 0 5px}
+.input,.select,.textarea{width:100%;background:rgba(255,255,255,.045);border:1px solid rgba(201,168,76,.18);border-radius:10px;color:var(--text);padding:9px 10px;font:600 12px var(--font-body);outline:none}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
+select option{background:#1b2e42;color:#e8edf3}
+.toggle-line{display:flex;align-items:center;gap:8px;color:var(--muted);font:600 11px var(--font-mono);padding-bottom:8px}
+.toggle-line input{accent-color:var(--gold);width:16px;height:16px}
+
+/* KPIs */
+.radar{padding:10px 18px;border-bottom:1px solid rgba(201,168,76,.16);background:rgba(27,46,66,.62);display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:9px}
+.kpi{border:1px solid rgba(201,168,76,.18);background:rgba(255,255,255,.032);border-radius:14px;padding:10px 12px;min-width:0;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.35}
+.kpi-label{font:700 9px var(--font-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-val{font:800 22px var(--font-title);line-height:1.1;margin-top:2px;color:var(--gold-light)}
+.kpi-sub{font:600 10px var(--font-mono);color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.collab-strip{display:flex;gap:6px;align-items:center;overflow:auto;grid-column:1/-1;padding-top:4px}
+.collab-chip{border:1px solid rgba(201,168,76,.18);background:rgba(255,255,255,.035);color:var(--muted);border-radius:999px;padding:5px 10px;font:700 10px var(--font-mono);cursor:pointer;white-space:nowrap}
+.collab-chip:hover,.collab-chip.active{border-color:var(--gold);color:var(--gold-light);background:rgba(201,168,76,.12)}
+
+/* Board */
+.board-wrap{min-height:0;overflow:auto;padding:14px 18px 18px}
+.board{display:grid;grid-template-columns:repeat(8,minmax(275px,1fr));gap:12px;min-width:2320px;align-items:start}
+.lane{background:rgba(27,46,66,.82);border:1px solid rgba(201,168,76,.18);border-radius:16px;min-height:360px;max-height:calc(100vh - 265px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.lane.drop{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.lane-head{padding:10px 11px;border-bottom:1px solid rgba(201,168,76,.15);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:rgba(0,0,0,.12)}
+.lane-title{font:800 12px var(--font-title);color:var(--text);line-height:1.15;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.02em}
+.lane-title .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,.5);flex-shrink:0}
+.lane-sub{font:600 10px var(--font-mono);color:var(--muted);margin-top:3px;line-height:1.3}
+.lane-count{font:800 11px var(--font-mono);padding:3px 8px;border-radius:999px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.20);color:var(--gold-light)}
+.lane-body{padding:9px;display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0;flex:1}
+.empty-lane{border:1px dashed rgba(201,168,76,.20);border-radius:12px;color:var(--muted2);font:600 11px var(--font-mono);line-height:1.45;text-align:center;padding:18px 10px;background:rgba(255,255,255,.02)}
+
+/* Card */
+.company-card{background:#15263b;border:1px solid rgba(255,255,255,.08);border-left:4px solid var(--gold);border-radius:14px;padding:10px;cursor:pointer;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.18);position:relative;min-width:0}
+.company-card:hover{border-color:rgba(201,168,76,.42);background:#1a2d45;transform:translateY(-1px)}
+.company-card.dragging{opacity:.45;transform:scale(.98)}
+.company-card.critical{border-left-color:var(--red)}
+.company-card.high{border-left-color:var(--amber)}
+.company-card.done{opacity:.62}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:7px}
+.card-name{font:800 12px var(--font-body);line-height:1.25;color:var(--text);overflow-wrap:anywhere}
+.drag-hint{font:900 14px var(--font-mono);color:var(--muted2);cursor:grab;padding:0 2px}
+.drag-hint:active{cursor:grabbing}
+.card-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 7px;font:800 9px var(--font-mono);border:1px solid rgba(201,168,76,.18);background:rgba(201,168,76,.08);color:var(--gold-light);max-width:100%}
+.badge.muted{color:var(--muted);background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.07)}
+.badge.green{color:var(--green);background:rgba(134,239,172,.08);border-color:rgba(134,239,172,.25)}
+.badge.red{color:#fca5a5;background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.28)}
+.badge.blue{color:var(--blue);background:rgba(147,197,253,.08);border-color:rgba(147,197,253,.25)}
+.badge.amber{color:var(--amber);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.24)}
+.missing-line{margin-top:8px;display:flex;gap:4px;flex-wrap:wrap}
+.dep-chip{display:inline-flex;align-items:center;gap:4px;border-radius:8px;padding:4px 6px;font:800 9px var(--font-mono);border:1px solid rgba(248,113,113,.24);background:rgba(248,113,113,.08);color:#fca5a5}
+.dep-chip.ok{border-color:rgba(134,239,172,.24);background:rgba(134,239,172,.07);color:var(--green)}
+.dep-chip.na{border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.035);color:var(--muted2)}
+.next-box{margin-top:8px;border:1px solid rgba(201,168,76,.14);background:rgba(201,168,76,.05);border-radius:10px;padding:7px 8px}
+.next-label{font:800 8px var(--font-mono);color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.next-text{font:600 11px/1.35 var(--font-body);color:var(--text);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note-preview{margin-top:6px;font:500 10px/1.4 var(--font-body);color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.task-list-mini{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.task-mini{border:1px solid rgba(147,197,253,.16);background:rgba(147,197,253,.06);border-radius:8px;padding:5px 6px;color:var(--blue);font:700 10px/1.25 var(--font-body);overflow-wrap:anywhere}
+.card-footer{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.move-select{min-width:120px;max-width:160px;background:rgba(255,255,255,.045);border:1px solid rgba(201,168,76,.18);color:var(--muted);border-radius:999px;padding:5px 8px;font:700 10px var(--font-mono);outline:none}
+.updated{font:700 9px var(--font-mono);color:var(--muted2);white-space:nowrap}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,12,22,.76);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:18px}
+.modal-overlay.open{display:flex}
+.modal{width:min(1020px,100%);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--gold-dim);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.58)}
+.modal-head{padding:16px 20px;border-bottom:1px solid rgba(201,168,76,.18);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.modal-title h2{font:800 16px var(--font-title);color:var(--gold-light);line-height:1.25}
+.modal-title p{font:600 11px var(--font-mono);color:var(--muted);margin-top:3px}
+.modal-body{padding:16px 20px;overflow:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:14px}
+.modal-footer{padding:12px 20px;border-top:1px solid rgba(201,168,76,.18);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.panel{border:1px solid rgba(201,168,76,.16);background:rgba(0,0,0,.12);border-radius:14px;padding:13px}
+.panel-title{font:800 11px var(--font-title);color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form-grid .full{grid-column:1/-1}
+.textarea{min-height:84px;resize:vertical;line-height:1.45;font-weight:500}
+.dep-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.dep-row{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);border-radius:10px;padding:8px}
+.dep-row label{display:block;font:800 10px var(--font-body);color:var(--text);margin-bottom:6px}
+.task-full-list{display:flex;flex-direction:column;gap:7px;max-height:350px;overflow:auto}
+.task-full{border:1px solid rgba(147,197,253,.18);background:rgba(147,197,253,.055);border-radius:11px;padding:8px 9px}
+.task-full-name{font:800 12px var(--font-body);color:var(--text);line-height:1.3}
+.task-full-meta{margin-top:5px;display:flex;gap:5px;flex-wrap:wrap}
+.empty-small{border:1px dashed rgba(201,168,76,.18);border-radius:12px;padding:14px;text-align:center;color:var(--muted);font:600 11px var(--font-mono);line-height:1.45}
+.toast{position:fixed;right:20px;bottom:20px;z-index:400;background:var(--card);border:1px solid var(--gold-dim);border-radius:12px;color:var(--text);box-shadow:var(--shadow);padding:11px 14px;display:none;font:800 12px var(--font-body);max-width:360px}
+.toast.show{display:block;animation:pop .2s ease}
+@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Scroll */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:rgba(0,0,0,.18);border-radius:999px}
+*::-webkit-scrollbar-thumb{background:rgba(201,168,76,.35);border-radius:999px;border:2px solid rgba(13,27,42,.8)}
+*::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,.55)}
+
+@media(max-width:980px){
+  body{overflow:auto}
+  .app{height:auto;min-height:calc(100vh - 68px);overflow:visible}
+  .filters{grid-template-columns:1fr 1fr}
+  .radar{grid-template-columns:repeat(2,1fr)}
+  .board-wrap{overflow:auto;min-height:600px}
+  .lane{max-height:620px}
+  .modal-body{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .app-header{padding:12px}
+  .actions{width:100%}
+  .btn,.portal-back{flex:1;justify-content:center}
+  .filters{grid-template-columns:1fr}
+  .radar{grid-template-columns:1fr 1fr}
+  .modal-body{padding:12px}
+  .form-grid,.dep-grid{grid-template-columns:1fr}
+}
+@media print{
+  body{overflow:visible;background:#fff;color:#111}
+  .app-header,.filters,.actions,.modal-overlay,.toast{display:none!important}
+  .app{display:block;height:auto}
+  .board-wrap{overflow:visible;padding:0}
+  .board{display:block;min-width:0}
+  .lane{break-inside:avoid;max-height:none;margin-bottom:12px;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="brand">
+    <div class="logo">K</div>
+    <div class="title">
+      <h1>Kanban Fiscal</h1>
+      <p>Empresas · dependências · tarefas vinculadas · visual por colaborador</p>
+    </div>
+  </div>
+  <div class="actions">
+    <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
+    <button class="btn gold" onclick="refreshAll()">↻ Atualizar</button>
+    <button class="btn" onclick="exportKanban()">⬇ Backup</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Importar</button>
+    <input id="importFile" type="file" accept="application/json" hidden onchange="importKanban(event)">
+    <a href="#" onclick="history.back();return false" class="portal-back">← BIF</a>
+  </div>
+</header>
+
+<main class="app">
+  <section class="filters">
+    <div class="field">
+      <label>Busca rápida</label>
+      <input class="input" id="searchInput" placeholder="Buscar empresa, CNPJ, colaborador, tarefa, pendência..." oninput="setFilter('search',this.value)">
+    </div>
+    <div class="field">
+      <label>Colaborador</label>
+      <select class="select" id="collabFilter" onchange="setFilter('collab',this.value)"></select>
+    </div>
+    <div class="field">
+      <label>Regime</label>
+      <select class="select" id="regimeFilter" onchange="setFilter('regime',this.value)">
+        <option value="">Todos</option><option value="simples">Simples</option><option value="presumido">Lucro Presumido</option><option value="real">Lucro Real</option><option value="outros">Outros</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Status do card</label>
+      <select class="select" id="laneFilter" onchange="setFilter('lane',this.value)">
+        <option value="">Todas as colunas</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Dependência</label>
+      <select class="select" id="depFilter" onchange="setFilter('dep',this.value)">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <label class="toggle-line" title="Mostra apenas empresas com tarefas abertas ou dependências marcadas">
+      <input type="checkbox" id="onlyActive" onchange="setFilter('onlyActive',this.checked)"> Só com ação
+    </label>
+  </section>
+
+  <section class="radar" id="radar">
+    <div class="kpi"><div class="kpi-label">Empresas filtradas</div><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-sub">visíveis no kanban</div></div>
+    <div class="kpi"><div class="kpi-label">Tarefas abertas</div><div class="kpi-val" id="kpiTasks">0</div><div class="kpi-sub">puxadas do Tarefas</div></div>
+    <div class="kpi"><div class="kpi-label">Com pendência</div><div class="kpi-val" id="kpiDeps">0</div><div class="kpi-sub">falta info/documento</div></div>
+    <div class="kpi"><div class="kpi-label">Aguardando cliente</div><div class="kpi-val" id="kpiWaiting">0</div><div class="kpi-sub">bloqueio externo</div></div>
+    <div class="kpi"><div class="kpi-label">Calculando</div><div class="kpi-val" id="kpiCalc">0</div><div class="kpi-sub">em apuração</div></div>
+    <div class="kpi"><div class="kpi-label">Parqueadas</div><div class="kpi-val" id="kpiPark">0</div><div class="kpi-sub">não é pra atacar agora</div></div>
+    <div class="collab-strip" id="collabStrip"></div>
+  </section>
+
+  <section class="board-wrap">
+    <div class="board" id="board"></div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="cardModal" onclick="if(event.target.id==='cardModal')closeCardModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">
+        <h2 id="modalCompanyName">Empresa</h2>
+        <p id="modalCompanyMeta">Vínculo com Painel de Gestão</p>
+      </div>
+      <button class="btn red small" onclick="closeCardModal()">✕ Fechar</button>
+    </div>
+    <div class="modal-body">
+      <div class="panel">
+        <div class="panel-title">Fluxo e dependências</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Status visual</label>
+            <select class="select" id="modalLane"></select>
+          </div>
+          <div class="field">
+            <label>Urgência</label>
+            <select class="select" id="modalPriority">
+              <option value="normal">Normal — entra na fila</option>
+              <option value="alta">Alta — atenção hoje</option>
+              <option value="critica">Crítica — bloqueando cliente/saída</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Prazo interno</label>
+            <input class="input" id="modalDue" type="date">
+          </div>
+          <div class="field">
+            <label>Parqueamento</label>
+            <input class="input" id="modalParkReason" placeholder="Ex.: aguardar XML / sem retorno / baixa prioridade">
+          </div>
+          <div class="field full">
+            <label>Próximo passo — bater o olho e executar</label>
+            <input class="input" id="modalNext" placeholder="Ex.: cobrar envelope + XML pelo WhatsApp">
+          </div>
+          <div class="field full">
+            <label>Texto livre do card</label>
+            <textarea class="textarea" id="modalNote" placeholder="Escreva aqui o contexto: o que aconteceu, quem falou, risco, observações rápidas..."></textarea>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="panel-title">O que falta?</div>
+        <div class="dep-grid" id="modalDeps"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Tarefas dessa empresa</div>
+        <div id="modalTasks" class="task-full-list"></div>
+        <div style="height:12px"></div>
+        <button class="btn gold" onclick="createTaskFromCurrentCard()">+ Gerar tarefa no Painel de Tarefas</button>
+        <div style="font:600 10px var(--font-mono);color:var(--muted);line-height:1.45;margin-top:8px">
+          A tarefa é criada em <b>bif_tarefas_fiscal</b>, vinculada a esta empresa, com o próximo passo e as dependências do card.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="resetCardState()">↩ Limpar card</button>
+      <button class="btn gold" onclick="saveCardModal()">💾 Salvar card</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig={apiKey:"AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",authDomain:"portal-treinamentos-lang.firebaseapp.com",databaseURL:"https://portal-treinamentos-lang-default-rtdb.firebaseio.com",projectId:"portal-treinamentos-lang",storageBucket:"portal-treinamentos-lang.firebasestorage.app",messagingSenderId:"1049839891406",appId:"1:1049839891406:web:c5874166bdbee74139f19f"};
+const fbApp=initializeApp(firebaseConfig);
+const db=getDatabase(fbApp);
+const auth=getAuth(fbApp);
+
+window.fb = {
+  ref, get, set, update, onValue, db,
+  empresasRef: ref(db,'painel/empresas'),
+  tarefasRef: ref(db,'bif_tarefas_fiscal'),
+  kanbanRef: ref(db,'kanban_empresas_fiscal')
+};
+window.dispatchEvent(new Event('fbReady'));
+
+onAuthStateChanged(auth, () => {
+  if(window.__kanbanStarted)return;
+  window.__kanbanStarted=true;
+  window.startKanban();
+});
+</script>
+
+<script>
+const LANE_ORDER=['aguardando_notas','importando','conferindo','calculando','aguardando_cliente','guias_envio','parqueado','concluido'];
+const LANES={
+  aguardando_notas:{label:'Aguardando notas',sub:'falta envelope, XML ou movimento',icon:'📥'},
+  importando:{label:'Importando notas',sub:'XML, planilha, entradas/saídas',icon:'⬆️'},
+  conferindo:{label:'Conferindo',sub:'pendências, divergências, documentos',icon:'🔎'},
+  calculando:{label:'Calculando',sub:'apuração/impostos em andamento',icon:'🧮'},
+  aguardando_cliente:{label:'Aguardando cliente',sub:'retorno externo ou confirmação',icon:'⏳'},
+  guias_envio:{label:'Guias / envio',sub:'guia, conferência, comunicação',icon:'📤'},
+  parqueado:{label:'Parqueado',sub:'não atacar agora; revisar depois',icon:'🅿️'},
+  concluido:{label:'Concluído',sub:'fechado neste ciclo',icon:'✅'}
+};
+const DEPS=[
+  {id:'envelope',label:'Envelope físico',short:'Envelope'},
+  {id:'xml',label:'Arquivos XML',short:'XML'},
+  {id:'movimento',label:'Movimento do mês',short:'Movimento'},
+  {id:'recibos',label:'Recibos de aluguel',short:'Recibos'},
+  {id:'produto',label:'Tributação/produto',short:'Produto'},
+  {id:'retorno_cliente',label:'Retorno do cliente',short:'Cliente'}
+];
+const DEP_STATUS={pendente:'Falta',ok:'Recebido',na:'N/A'};
+
+let empresas=[],tarefas=[],kanban={cards:{}},filters={search:'',collab:'',regime:'',lane:'',dep:'',onlyActive:false};
+let currentCardId=null,dragId=null,dragWasMoved=false,saveTimer=null;
+const $=id=>document.getElementById(id);
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function onlyDigits(v){return String(v??'').replace(/\D+/g,'');}
+function norm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function formatDate(d){if(!d)return ''; const [y,m,day]=String(d).split('-'); return day&&m?`${day}/${m}/${y}`:d;}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2700);}
+function setCloudStatus(cls,msg){const el=$('cloudStatus');el.className='cloud '+(cls||'');el.textContent=msg;}
+function debounceSave(){clearTimeout(saveTimer);setCloudStatus('saving','💾 Salvando...');saveTimer=setTimeout(saveKanban,450);}
+
+function normalizeEmpresa(e,idx=0){
+  if(!e||typeof e!=='object')return null;
+  const nome=String(e.nome||e.razaoSocial||e.razao_social||e.razao||e.name||e.fantasia||e.nomeFantasia||'').trim();
+  if(!nome)return null;
+  const cnpj=e.cnpj||e.CNPJ||e.cnpjFormatado||'';
+  const cnpjDigits=onlyDigits(cnpj);
+  const id=String(e.id||e._id||e.codigo||e.cod||e._fbKey||cnpjDigits||nome||`empresa_${idx}`).trim();
+  return {...e,id,nome,cnpj:String(cnpj||''),cnpjDigits,regime:e.regime||e.regimeTributario||e.tipoRegime||'outros',atividade:e.atividade||e.atividadeEconomica||e.cnae||'',colaborador:e.colaborador||e.responsavel||e.responsavelFiscal||'',fechada:!!e.fechada,semMovimento:!!e.semMovimento};
+}
+function empresaKey(e){return String(e?.cnpjDigits||onlyDigits(e?.cnpj)||e?.id||e?.nome||'').trim();}
+function mergeEmpresas(list){
+  const map=new Map();
+  (list||[]).forEach((raw,idx)=>{const e=normalizeEmpresa(raw,idx); if(!e)return; const key=empresaKey(e)||norm(e.nome); map.set(key,{...(map.get(key)||{}),...e});});
+  return [...map.values()].sort((a,b)=>norm(a.nome).localeCompare(norm(b.nome)));
+}
+function asTaskArray(raw){
+  if(Array.isArray(raw))return raw;
+  if(raw&&typeof raw==='object'){
+    if(Array.isArray(raw.tasks))return raw.tasks;
+    if(raw.tasks&&typeof raw.tasks==='object')return Object.values(raw.tasks);
+    return Object.values(raw).filter(x=>x&&typeof x==='object'&&x.name);
+  }
+  return [];
+}
+function taskLane(t){if(t.done)return 'concluido'; return t.tdahLane||t.lane||'inbox';}
+function taskOpen(t){return !t.done && taskLane(t)!=='done' && taskLane(t)!=='concluido';}
+function taskPriorityLabel(p){return ['','Baixa','Moderada','Média','Alta','Urgente'][Number(p)||3]||'Média';}
+
+function getTaskEmpresaIds(t){
+  const ids=[];
+  if(Array.isArray(t.empresasVinculadas))ids.push(...t.empresasVinculadas);
+  if(Array.isArray(t.empresaIds))ids.push(...t.empresaIds);
+  if(t.companyId)ids.push(t.companyId);
+  if(t.companyCnpj)ids.push(onlyDigits(t.companyCnpj));
+  if(Array.isArray(t.empresaRefs))t.empresaRefs.forEach(r=>{ids.push(r.id,r.cnpjDigits,onlyDigits(r.cnpj),r.nome)});
+  return [...new Set(ids.map(x=>String(x||'').trim()).filter(Boolean))];
+}
+function tasksForEmpresa(e){
+  const key=empresaKey(e), cnpj=onlyDigits(e.cnpj), n=norm(e.nome);
+  return tarefas.filter(t=>{
+    const ids=getTaskEmpresaIds(t);
+    if(ids.some(id=>id===key || (!!cnpj && onlyDigits(id)===cnpj) || norm(id)===n))return true;
+    if(norm(t.companyName)===n)return true;
+    return false;
+  });
+}
+function cardState(id,e){
+  const c=kanban.cards?.[id]||{};
+  return {
+    lane:c.lane || (e?.semMovimento?'aguardando_cliente':'aguardando_notas'),
+    deps:c.deps||{},
+    note:c.note||'',
+    next:c.next||'',
+    priority:c.priority||'normal',
+    due:c.due||'',
+    parkReason:c.parkReason||'',
+    order:Number.isFinite(c.order)?c.order:0,
+    updatedAt:c.updatedAt||''
+  };
+}
+function getCard(id){return kanban.cards?.[id]||{};}
+function setCard(id,data){
+  kanban.cards=kanban.cards||{};
+  kanban.cards[id]={...(kanban.cards[id]||{}),...data,updatedAt:new Date().toISOString()};
+  debounceSave();
+}
+function missingDeps(card){
+  return DEPS.filter(d=>card.deps?.[d.id]==='pendente');
+}
+function hasAnyDep(card){
+  return DEPS.some(d=>card.deps?.[d.id]==='pendente');
+}
+function findEmpresaById(id){return empresas.find(e=>empresaKey(e)===id || e.id===id || norm(e.nome)===norm(id));}
+
+function getVisibleCompanies(){
+  const s=norm(filters.search), dep=filters.dep;
+  return empresas.filter(e=>{
+    const id=empresaKey(e), c=cardState(id,e), ts=tasksForEmpresa(e), openTs=ts.filter(taskOpen);
+    if(filters.collab && norm(e.colaborador)!==norm(filters.collab))return false;
+    if(filters.regime && String(e.regime||'outros')!==filters.regime)return false;
+    if(filters.lane && c.lane!==filters.lane)return false;
+    if(dep && c.deps?.[dep]!=='pendente')return false;
+    if(filters.onlyActive && !openTs.length && !hasAnyDep(c) && !c.next && c.lane==='aguardando_notas')return false;
+    if(s){
+      const hay=[e.nome,e.cnpj,e.colaborador,e.regime,e.atividade,c.note,c.next,LANES[c.lane]?.label,...missingDeps(c).map(d=>d.label),...ts.map(t=>t.name)].join(' ');
+      if(!norm(hay).includes(s))return false;
+    }
+    return true;
+  });
+}
+
+function renderFilters(){
+  const collabs=[...new Set(empresas.map(e=>String(e.colaborador||'Sem responsável').trim()||'Sem responsável'))].sort((a,b)=>norm(a).localeCompare(norm(b)));
+  $('collabFilter').innerHTML='<option value="">Todos</option>'+collabs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  $('collabFilter').value=filters.collab||'';
+  $('laneFilter').innerHTML='<option value="">Todas as colunas</option>'+LANE_ORDER.map(l=>`<option value="${l}">${LANES[l].icon} ${LANES[l].label}</option>`).join('');
+  $('laneFilter').value=filters.lane||'';
+  $('depFilter').innerHTML='<option value="">Todas</option>'+DEPS.map(d=>`<option value="${d.id}">${d.label}</option>`).join('');
+  $('depFilter').value=filters.dep||'';
+}
+function renderCollabStrip(visible){
+  const counts=new Map();
+  visible.forEach(e=>{const c=e.colaborador||'Sem responsável';counts.set(c,(counts.get(c)||0)+1);});
+  const html=['<button class="collab-chip '+(!filters.collab?'active':'')+'" onclick="setFilter(\'collab\',\'\')">Todos · '+visible.length+'</button>'];
+  [...counts.entries()].sort((a,b)=>b[1]-a[1]).forEach(([c,n])=>{
+    html.push(`<button class="collab-chip ${filters.collab===c?'active':''}" onclick="setFilter('collab',${JSON.stringify(c)})">${esc(c)} · ${n}</button>`);
+  });
+  $('collabStrip').innerHTML=html.join('');
+}
+function renderKpis(visible){
+  const allTasks=visible.flatMap(e=>tasksForEmpresa(e).filter(taskOpen));
+  const withDeps=visible.filter(e=>hasAnyDep(cardState(empresaKey(e),e))).length;
+  $('kpiTotal').textContent=visible.length;
+  $('kpiTasks').textContent=allTasks.length;
+  $('kpiDeps').textContent=withDeps;
+  $('kpiWaiting').textContent=visible.filter(e=>cardState(empresaKey(e),e).lane==='aguardando_cliente').length;
+  $('kpiCalc').textContent=visible.filter(e=>cardState(empresaKey(e),e).lane==='calculando').length;
+  $('kpiPark').textContent=visible.filter(e=>cardState(empresaKey(e),e).lane==='parqueado').length;
+  renderCollabStrip(visible);
+}
+function renderBoard(){
+  const visible=getVisibleCompanies();
+  renderKpis(visible);
+  const byLane=Object.fromEntries(LANE_ORDER.map(l=>[l,[]]));
+  visible.forEach(e=>{
+    const id=empresaKey(e), c=cardState(id,e);
+    if(!byLane[c.lane])byLane[c.lane]=[];
+    byLane[c.lane].push(e);
+  });
+  Object.keys(byLane).forEach(l=>{
+    byLane[l].sort((a,b)=>{
+      const ca=cardState(empresaKey(a),a), cb=cardState(empresaKey(b),b);
+      const pa={critica:0,alta:1,normal:2};
+      return (pa[ca.priority]??2)-(pa[cb.priority]??2) || (ca.order||0)-(cb.order||0) || norm(a.nome).localeCompare(norm(b.nome));
+    });
+  });
+  $('board').innerHTML=LANE_ORDER.map(l=>renderLane(l,byLane[l]||[])).join('');
+}
+function renderLane(lane, list){
+  const meta=LANES[lane];
+  return `<section class="lane" data-lane="${lane}" ondragover="onLaneDragOver(event)" ondragleave="onLaneDragLeave(event)" ondrop="onLaneDrop(event)">
+    <div class="lane-head">
+      <div><div class="lane-title"><span class="dot"></span>${meta.icon} ${esc(meta.label)}</div><div class="lane-sub">${esc(meta.sub)}</div></div>
+      <div class="lane-count">${list.length}</div>
+    </div>
+    <div class="lane-body">${list.length?list.map(renderCompanyCard).join(''):`<div class="empty-lane">Solte empresas aqui<br>ou filtre outro colaborador.</div>`}</div>
+  </section>`;
+}
+function renderCompanyCard(e){
+  const id=empresaKey(e), c=cardState(id,e), ts=tasksForEmpresa(e).filter(taskOpen);
+  const urgent=ts.filter(t=>(Number(t.priority)||0)>=4 || t.blocking || t.clientWaiting).length;
+  const deps=DEPS.filter(d=>c.deps?.[d.id]).slice(0,5);
+  const missing=missingDeps(c);
+  const cls=c.priority==='critica'?'critical':c.priority==='alta'?'high':c.lane==='concluido'?'done':'';
+  const taskMini=ts.slice().sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)).slice(0,2).map(t=>`<div class="task-mini">${esc(t.name||'Tarefa')} ${t.deadline?`· ${formatDate(t.deadline)}`:''}</div>`).join('');
+  const updated=c.updatedAt?new Date(c.updatedAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
+  return `<article class="company-card ${cls}" draggable="true" data-id="${esc(id)}" onclick="onCardClick(event,'${esc(id)}')" ondragstart="onCardDragStart(event,'${esc(id)}')" ondragend="onCardDragEnd(event)">
+    <div class="card-top">
+      <div class="card-name">${esc(e.nome)}</div>
+      <div class="drag-hint" title="Arraste para outra coluna">☰</div>
+    </div>
+    <div class="card-meta">
+      <span class="badge muted">👤 ${esc(e.colaborador||'Sem resp.')}</span>
+      <span class="badge">${esc(regimeLabel(e.regime))}</span>
+      ${ts.length?`<span class="badge blue">📌 ${ts.length} tarefa(s)</span>`:''}
+      ${urgent?`<span class="badge red">⚠️ ${urgent} urgente(s)</span>`:''}
+      ${c.due?`<span class="badge amber">⏱ ${formatDate(c.due)}</span>`:''}
+    </div>
+    <div class="missing-line">
+      ${missing.length?missing.map(d=>`<span class="dep-chip">Falta ${esc(d.short)}</span>`).join(''):(deps.length?deps.map(d=>`<span class="dep-chip ${c.deps[d.id]==='ok'?'ok':'na'}">${esc(d.short)}: ${esc(DEP_STATUS[c.deps[d.id]])}</span>`).join(''):'<span class="badge muted">Sem falta marcada</span>')}
+    </div>
+    ${c.next?`<div class="next-box"><div class="next-label">Próximo passo</div><div class="next-text">${esc(c.next)}</div></div>`:''}
+    ${c.note?`<div class="note-preview">${esc(c.note)}</div>`:''}
+    ${taskMini?`<div class="task-list-mini">${taskMini}</div>`:''}
+    <div class="card-footer">
+      <select class="move-select" onclick="event.stopPropagation()" onchange="moveCard('${esc(id)}',this.value,true)">
+        ${LANE_ORDER.map(l=>`<option value="${l}" ${l===c.lane?'selected':''}>${LANES[l].icon} ${LANES[l].label}</option>`).join('')}
+      </select>
+      <span class="updated">${updated?`edit. ${updated}`:'novo'}</span>
+    </div>
+  </article>`;
+}
+function regimeLabel(r){return ({simples:'Simples',presumido:'Presumido',real:'Real',outros:'Outros'})[r]||String(r||'Outros');}
+function setFilter(key,val){
+  filters[key]=val;
+  if(key==='collab')$('collabFilter').value=val||'';
+  renderBoard();
+}
+
+function onCardClick(ev,id){
+  if(dragWasMoved){ev.preventDefault();ev.stopPropagation();return}
+  if(ev.target.closest('select'))return;
+  openCardModal(id);
+}
+window.onCardClick=onCardClick;
+window.onCardDragStart=function(ev,id){dragId=id;dragWasMoved=false;ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain',id);ev.currentTarget.classList.add('dragging');}
+window.onCardDragEnd=function(ev){ev.currentTarget.classList.remove('dragging');document.querySelectorAll('.lane.drop').forEach(x=>x.classList.remove('drop'));setTimeout(()=>dragWasMoved=false,200);}
+window.onLaneDragOver=function(ev){ev.preventDefault();ev.currentTarget.classList.add('drop');}
+window.onLaneDragLeave=function(ev){ev.currentTarget.classList.remove('drop');}
+window.onLaneDrop=function(ev){
+  ev.preventDefault();const lane=ev.currentTarget.dataset.lane;ev.currentTarget.classList.remove('drop');
+  const id=ev.dataTransfer.getData('text/plain')||dragId;if(!id||!lane)return;
+  dragWasMoved=true;moveCard(id,lane,false);
+}
+function moveCard(id,lane,fromSelect=false){
+  if(!LANES[lane])return;
+  const e=findEmpresaById(id); if(!e)return;
+  const old=cardState(id,e);
+  const maxOrder=Math.max(0,...Object.entries(kanban.cards||{}).filter(([k,c])=>c.lane===lane).map(([k,c])=>Number(c.order)||0));
+  setCard(id,{lane,order:maxOrder+1});
+  renderBoard();
+  toast(`${e.nome} movida para: ${LANES[lane].label}`);
+}
+window.moveCard=moveCard;
+
+function openCardModal(id){
+  currentCardId=id;
+  const e=findEmpresaById(id); if(!e)return;
+  const c=cardState(id,e);
+  $('modalCompanyName').textContent=e.nome;
+  $('modalCompanyMeta').textContent=[e.cnpj,e.colaborador,regimeLabel(e.regime)].filter(Boolean).join(' · ');
+  $('modalLane').innerHTML=LANE_ORDER.map(l=>`<option value="${l}">${LANES[l].icon} ${LANES[l].label}</option>`).join('');
+  $('modalLane').value=c.lane;
+  $('modalPriority').value=c.priority;
+  $('modalDue').value=c.due||'';
+  $('modalParkReason').value=c.parkReason||'';
+  $('modalNext').value=c.next||'';
+  $('modalNote').value=c.note||'';
+  $('modalDeps').innerHTML=DEPS.map(d=>`<div class="dep-row">
+    <label>${esc(d.label)}</label>
+    <select class="select" data-dep="${d.id}">
+      <option value="">Não marcado</option>
+      <option value="pendente" ${c.deps?.[d.id]==='pendente'?'selected':''}>Falta</option>
+      <option value="ok" ${c.deps?.[d.id]==='ok'?'selected':''}>Recebido / OK</option>
+      <option value="na" ${c.deps?.[d.id]==='na'?'selected':''}>Não se aplica</option>
+    </select>
+  </div>`).join('');
+  renderModalTasks(e);
+  $('cardModal').classList.add('open');
+}
+function renderModalTasks(e){
+  const list=tasksForEmpresa(e).filter(taskOpen);
+  $('modalTasks').innerHTML=list.length?list.sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)).map(t=>`<div class="task-full">
+    <div class="task-full-name">${esc(t.name||'Tarefa')}</div>
+    <div class="task-full-meta">
+      <span class="badge blue">Fila: ${esc(taskLane(t))}</span>
+      <span class="badge ${Number(t.priority)>=4?'red':'muted'}">Prioridade: ${esc(taskPriorityLabel(t.priority))}</span>
+      ${t.assigneeName?`<span class="badge muted">👤 ${esc(t.assigneeName)}</span>`:''}
+      ${t.deadline?`<span class="badge amber">⏱ ${formatDate(t.deadline)}</span>`:''}
+    </div>
+    ${t.nextAction?`<div class="note-preview"><b>Próxima ação:</b> ${esc(t.nextAction)}</div>`:''}
+  </div>`).join(''):`<div class="empty-small">Nenhuma tarefa aberta vinculada a esta empresa.</div>`;
+}
+function saveCardModal(){
+  const id=currentCardId; if(!id)return;
+  const deps={};
+  document.querySelectorAll('#modalDeps select[data-dep]').forEach(sel=>{if(sel.value)deps[sel.dataset.dep]=sel.value;});
+  setCard(id,{lane:$('modalLane').value,priority:$('modalPriority').value,due:$('modalDue').value,parkReason:$('modalParkReason').value.trim(),next:$('modalNext').value.trim(),note:$('modalNote').value.trim(),deps});
+  closeCardModal(); renderBoard(); toast('Card salvo.');
+}
+function closeCardModal(){currentCardId=null;$('cardModal').classList.remove('open');}
+function resetCardState(){
+  if(!currentCardId)return;
+  if(!confirm('Limpar texto, dependências e status manual deste card?'))return;
+  delete kanban.cards[currentCardId];debounceSave();closeCardModal();renderBoard();toast('Card limpo.');
+}
+async function createTaskFromCurrentCard(){
+  const id=currentCardId, e=findEmpresaById(id); if(!id||!e)return;
+  const c=cardState(id,e);
+  const missing=missingDeps(c).map(d=>d.short).join(', ');
+  const name=(c.next?c.next:`Resolver pendências — ${e.nome}`).slice(0,140);
+  const desc=`Origem: Kanban Fiscal\nEmpresa: ${e.nome}\n${e.cnpj?`CNPJ: ${e.cnpj}\n`:''}${missing?`Faltando: ${missing}\n`:''}${c.note?`\nContexto:\n${c.note}`:''}`.replace(/\n/g,'<br>');
+  const newTask={
+    id:Date.now(),
+    name,
+    desc,
+    priority:c.priority==='critica'?5:c.priority==='alta'?4:3,
+    reward:'',
+    interaction:true,
+    assigneeName:e.colaborador||'',
+    assigneeEmail:'',
+    deadline:c.due||'',
+    attachments:[],
+    taskType:'Kanban Fiscal',
+    workLevel:'acao',
+    taskLevel:'acao',
+    parentMacroId:'',
+    parentActionId:'',
+    risk:c.priority==='critica'?'alto':c.priority==='alta'?'medio':'baixo',
+    energy:'media',
+    nextAction:c.next||'Atualizar card no Kanban e resolver a próxima pendência.',
+    doneCriteria:'Pendência resolvida e card atualizado no Kanban Fiscal.',
+    clientWaiting:c.lane==='aguardando_cliente',
+    blocking:c.priority==='critica',
+    tdahLane:c.priority==='critica'?'agora':'proximo',
+    done:false,
+    subtasks:missingDeps(c).map(d=>({id:Date.now()+Math.random(),name:`Obter/validar: ${d.label}`,done:false})),
+    parqueado:false,
+    parqueLocal:'',
+    parqueMotive:'',
+    parqueRetorno:'',
+    empresasVinculadas:[empresaKey(e)],
+    empresaIds:[empresaKey(e)],
+    empresaRefs:[{id:empresaKey(e),painelId:e.id||'',nome:e.nome,cnpj:e.cnpj||'',cnpjDigits:e.cnpjDigits||onlyDigits(e.cnpj),regime:e.regime||'outros',colaborador:e.colaborador||''}],
+    companyId:empresaKey(e),
+    companyName:e.nome,
+    companyCnpj:e.cnpj||'',
+    companyRegime:e.regime||'outros',
+    createdAt:new Date().toISOString(),
+    origem:'Kanban Fiscal'
+  };
+  try{
+    setCloudStatus('saving','Criando tarefa...');
+    let current={tasks:[],points:0};
+    const snap=await fb.get(fb.tarefasRef);
+    if(snap.exists()){
+      const d=snap.val();
+      current={...d,tasks:asTaskArray(d.tasks)};
+    }else{
+      try{current.tasks=asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'));}catch(e){}
+    }
+    current.tasks.push(newTask);
+    await fb.update(fb.tarefasRef,{...current,tasks:current.tasks});
+    tarefas=current.tasks;
+    try{localStorage.setItem('fiscal_tasks',JSON.stringify(tarefas));}catch(e){}
+    setCloudStatus('ok','Nuvem sincronizada');
+    renderModalTasks(e);renderBoard();
+    toast('Tarefa criada no Painel de Tarefas.');
+  }catch(err){
+    console.error(err);
+    tarefas.push(newTask);
+    try{localStorage.setItem('fiscal_tasks',JSON.stringify(tarefas));}catch(e){}
+    setCloudStatus('error','Offline — tarefa salva local');
+    renderModalTasks(e);renderBoard();
+    toast('Sem nuvem. Tarefa salva no backup local.');
+  }
+}
+window.openCardModal=openCardModal;window.closeCardModal=closeCardModal;window.saveCardModal=saveCardModal;window.resetCardState=resetCardState;window.createTaskFromCurrentCard=createTaskFromCurrentCard;
+
+async function loadKanban(){
+  try{
+    const snap=await fb.get(fb.kanbanRef);
+    if(snap.exists())kanban={cards:{},...snap.val()};
+    else{
+      const local=localStorage.getItem('kanban_empresas_fiscal');
+      if(local)kanban={cards:{},...JSON.parse(local)};
+    }
+  }catch(e){
+    try{kanban={cards:{},...JSON.parse(localStorage.getItem('kanban_empresas_fiscal')||'{"cards":{}}')};}catch(err){kanban={cards:{}}}
+  }
+  kanban.cards=kanban.cards||{};
+}
+async function saveKanban(){
+  kanban.savedAt=new Date().toISOString();
+  localStorage.setItem('kanban_empresas_fiscal',JSON.stringify(kanban));
+  try{await fb.set(fb.kanbanRef,kanban);setCloudStatus('ok','Nuvem sincronizada');}
+  catch(e){console.error(e);setCloudStatus('error','Offline — salvo local');}
+}
+function loadLocalEmpresas(){
+  const keys=['gestao_v3','painel_gestao_empresas','fiscal_painel_empresas_cache'];
+  for(const k of keys){
+    try{
+      const d=JSON.parse(localStorage.getItem(k)||'null');
+      const arr=Array.isArray(d)?d:(d?.empresas||d?.S?.empresas||d?.state?.empresas||[]);
+      if(arr&&arr.length)return mergeEmpresas(arr);
+    }catch(e){}
+  }
+  return [];
+}
+function setupFirebaseListeners(){
+  try{
+    fb.onValue(fb.empresasRef,snap=>{
+      const list=[]; if(snap.exists())snap.forEach(ch=>list.push({_fbKey:ch.key,...ch.val()}));
+      empresas=mergeEmpresas(list);
+      renderFilters();renderBoard();setCloudStatus('ok','Nuvem sincronizada');
+    },err=>{console.error(err);empresas=loadLocalEmpresas();renderFilters();renderBoard();setCloudStatus('error','Empresas locais');});
+  }catch(e){empresas=loadLocalEmpresas();}
+  try{
+    fb.onValue(fb.tarefasRef,snap=>{
+      tarefas=snap.exists()?asTaskArray(snap.val().tasks||snap.val()):asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'));
+      renderBoard(); if(currentCardId){const e=findEmpresaById(currentCardId);if(e)renderModalTasks(e);}
+    },err=>{console.error(err);try{tarefas=asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'));}catch(e){} renderBoard();});
+  }catch(e){}
+  try{
+    fb.onValue(fb.kanbanRef,snap=>{
+      if(snap.exists()){kanban={cards:{},...snap.val()}; renderBoard();}
+    });
+  }catch(e){}
+}
+async function startKanban(){
+  setCloudStatus('saving','Conectando...');
+  await loadKanban();
+  empresas=loadLocalEmpresas();
+  renderFilters();renderBoard();
+  setupFirebaseListeners();
+  setCloudStatus('ok','Pronto');
+}
+window.startKanban=startKanban;
+window.refreshAll=function(){renderFilters();renderBoard();toast('Tela atualizada.');}
+window.exportKanban=function(){
+  const data={version:1,exportedAt:new Date().toISOString(),kanban};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kanban-fiscal-backup.json';a.click();URL.revokeObjectURL(a.href);toast('Backup exportado.');
+}
+window.importKanban=function(ev){
+  const f=ev.target.files?.[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);kanban=d.kanban||d;kanban.cards=kanban.cards||{};saveKanban();renderBoard();toast('Backup importado.')}catch(e){toast('Arquivo inválido.')}};
+  r.readAsText(f);ev.target.value='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCardModal();});
+if(document.readyState!=='loading' && !window.__kanbanStarted){setTimeout(()=>{if(!window.__kanbanStarted){window.__kanbanStarted=true;startKanban();}},500)}
+else document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{if(!window.__kanbanStarted){window.__kanbanStarted=true;startKanban();}},700));
+</script>
+</body>
+</html>
