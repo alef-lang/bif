@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda Fiscal — Mapa do Mês</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1b2a;--navy-mid:#1b2e42;--navy-light:#243954;--navy-hover:#2a4366;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,.22);--gold-soft:rgba(201,168,76,.10);
+  --white:#fff;--text:#e8edf3;--muted:#8ba0b8;--dim:#536b83;
+  --green:#2ecc8a;--green-dim:rgba(46,204,138,.13);
+  --red:#e05a5a;--red-dim:rgba(224,90,90,.13);
+  --blue:#4a9eff;--blue-dim:rgba(74,158,255,.13);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.14);
+  --purple:#a78bfa;--purple-dim:rgba(167,139,250,.14);
+  --radius:16px;--rsm:10px;--sans:'DM Sans',sans-serif;--serif:'Poppins',sans-serif;--mono:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;background:var(--navy);color:var(--text);font-family:var(--sans);
+  background-image:radial-gradient(ellipse 80% 60% at 20% 8%,rgba(201,168,76,.07),transparent 58%),
+                   radial-gradient(ellipse 70% 70% at 88% 88%,rgba(74,158,255,.07),transparent 54%);
+  padding:0 0 34px;
+}
+.app-header{position:sticky;top:0;z-index:60;background:linear-gradient(135deg,#0d1b2a,#1b2e42);border-bottom:1px solid var(--gold-dim);box-shadow:0 4px 24px rgba(0,0,0,.45);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.app-header-left{display:flex;align-items:center;gap:12px;min-width:270px}
+.app-logo{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;color:var(--navy);font:800 19px var(--serif);flex-shrink:0}
+.app-title h1{font:700 16px var(--serif);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.app-title p{font:500 11px var(--mono);color:var(--muted);margin-top:1px}
+.app-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.page{max-width:1680px;margin:0 auto;padding:16px 18px 28px}
+.card{background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.32);margin-bottom:14px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.65}
+.section-title{font:700 .92rem var(--serif);color:var(--gold-light);display:flex;gap:9px;align-items:center;margin-bottom:14px}
+.section-title::before{content:'';width:4px;height:18px;border-radius:2px;background:var(--gold);display:block;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--gold-dim);background:rgba(255,255,255,.045);color:var(--text);border-radius:999px;padding:8px 14px;font:700 .78rem var(--sans);cursor:pointer;text-decoration:none;transition:.18s;white-space:nowrap}
+.btn:hover{border-color:var(--gold);background:rgba(201,168,76,.14);transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border-color:transparent}
+.btn-gold:hover{color:var(--navy);opacity:.95}
+.btn-sm{padding:5px 10px;font-size:.70rem}
+.btn-red{color:#fca5a5;border-color:rgba(224,90,90,.28);background:rgba(224,90,90,.08)}
+.btn-blue{color:#93c5fd;border-color:rgba(74,158,255,.28);background:rgba(74,158,255,.08)}
+.btn-green{color:#86efac;border-color:rgba(46,204,138,.28);background:rgba(46,204,138,.08)}
+.status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 12px;font:700 .72rem var(--mono);border:1px solid var(--gold-dim);background:rgba(255,255,255,.035);color:var(--muted)}
+.status-pill.ok{color:#86efac;background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.25)}
+.status-pill.saving{color:var(--gold-light);background:rgba(201,168,76,.10)}
+.status-pill.err{color:#fca5a5;background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.30)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.month-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.input,.select,textarea{width:100%;background:var(--navy-light);border:1.5px solid var(--gold-dim);border-radius:var(--rsm);padding:9px 12px;color:var(--text);font:500 .82rem var(--sans);outline:none;transition:.18s}
+.input:focus,.select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+textarea{min-height:86px;resize:vertical}
+.select option{background:var(--navy-mid);color:var(--text)}
+.grid-overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.metric{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden}
+.metric::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.38}
+.metric-label{font:700 .64rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.metric-value{font:800 1.55rem var(--serif);margin-top:4px;line-height:1}
+.metric small{display:block;color:var(--muted);font:.68rem var(--mono);margin-top:4px}
+.filters{display:grid;grid-template-columns:minmax(240px,1fr) 180px 180px auto;gap:10px;align-items:center}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quick-list{display:flex;flex-direction:column;gap:8px}
+.quick-empty{border:1px dashed rgba(201,168,76,.25);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font:500 .78rem var(--mono)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.weekday{color:var(--gold);font:700 .66rem var(--mono);letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:4px}
+.day-card{min-height:158px;background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:9px;display:flex;flex-direction:column;gap:7px;overflow:hidden;transition:.18s}
+.day-card.today{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.10);background:rgba(201,168,76,.06)}
+.day-card.other{opacity:.28}
+.day-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.day-number{font:800 .82rem var(--mono);color:var(--text)}
+.day-name{font:700 .58rem var(--mono);color:var(--dim);text-transform:uppercase}
+.day-items{display:flex;flex-direction:column;gap:6px;overflow-y:auto;padding-right:4px;flex:1;min-height:0}
+.day-card{height:228px;min-height:0}
+.day-items::-webkit-scrollbar,.quick-list::-webkit-scrollbar{width:8px}
+.day-items::-webkit-scrollbar-track,.quick-list::-webkit-scrollbar-track{background:rgba(255,255,255,.025);border-radius:999px}
+.day-items::-webkit-scrollbar-thumb,.quick-list::-webkit-scrollbar-thumb{background:rgba(201,168,76,.42);border-radius:999px;border:2px solid rgba(13,27,42,.75)}
+.quick-list{max-height:390px;overflow-y:auto;padding-right:4px;min-height:0}
+.focus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.focus-card{border:1px solid var(--gold-dim);background:rgba(255,255,255,.035);border-radius:14px;padding:14px;min-height:120px;position:relative;overflow:hidden}
+.focus-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.45}
+.focus-kicker{font:800 .62rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.focus-title{font:800 .9rem var(--serif);color:var(--text);margin-bottom:6px;line-height:1.25}
+.focus-text{font:.76rem/1.48 var(--sans);color:var(--muted)}
+.focus-text strong{color:var(--gold-light)}
+.badge-time{background:rgba(167,139,250,.14);border-color:rgba(167,139,250,.26);color:#c4b5fd}
+.badge-maponly{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.28);color:#fbbf24}
+@media(max-width:820px){.day-card{height:210px}.quick-list{max-height:310px}}
+.event-card{border:1px solid rgba(201,168,76,.17);background:rgba(13,27,42,.54);border-left:4px solid var(--gold);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;cursor:default;transition:.16s}
+.event-card:hover{border-color:var(--gold);background:rgba(201,168,76,.09)}
+.event-card.urgente{border-left-color:var(--red)}
+.event-card.alta{border-left-color:var(--amber)}
+.event-card.follow{border-left-color:var(--blue)}
+.event-card.generated{background:rgba(46,204,138,.07);border-color:rgba(46,204,138,.25)}
+.event-card.done{opacity:.50;background:rgba(255,255,255,.025)}
+.event-title{font:800 .76rem var(--sans);line-height:1.25;color:var(--text);word-break:break-word}
+.event-meta{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.badge{font:800 .55rem var(--mono);border-radius:999px;padding:2px 7px;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted)}
+.badge-gold{background:rgba(201,168,76,.12);border-color:var(--gold-dim);color:var(--gold-light)}
+.badge-red{background:var(--red-dim);border-color:rgba(224,90,90,.26);color:#fca5a5}
+.badge-green{background:var(--green-dim);border-color:rgba(46,204,138,.26);color:#86efac}
+.badge-blue{background:var(--blue-dim);border-color:rgba(74,158,255,.26);color:#93c5fd}
+.event-actions{display:flex;gap:5px;flex-wrap:wrap}
+.event-actions .btn{padding:4px 7px;font-size:.62rem}
+.routine-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+.routine-table th{text-align:left;color:var(--muted);font:700 .62rem var(--mono);text-transform:uppercase;letter-spacing:.08em;padding:0 9px}
+.routine-table td{background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);padding:10px 9px;font:.78rem var(--sans);vertical-align:middle}
+.routine-table td:first-child{border-left:1px solid rgba(255,255,255,.07);border-radius:10px 0 0 10px}
+.routine-table td:last-child{border-right:1px solid rgba(255,255,255,.07);border-radius:0 10px 10px 0;text-align:right}
+.routine-title{font-weight:800;color:var(--text)}
+.routine-sub{font:.68rem var(--mono);color:var(--muted);margin-top:2px}
+.modal-overlay{position:fixed;inset:0;background:rgba(5,12,22,.74);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
+.modal-overlay.open{display:flex}
+.modal{width:min(760px,100%);max-height:92vh;overflow:auto;background:var(--navy-mid);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.60);position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}
+.modal h2{font:800 1rem var(--serif);color:var(--gold-light)}
+.modal p{font:.78rem/1.55 var(--sans);color:var(--muted);margin-top:3px}
+.form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.form-group{grid-column:span 6}
+.form-group.full{grid-column:1/-1}
+.form-group.third{grid-column:span 4}
+.form-group label{display:block;font:800 .62rem var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin:5px 0 6px}
+.toggle-row{display:flex;align-items:center;gap:8px;padding:11px;border:1px solid var(--gold-dim);border-radius:12px;background:rgba(255,255,255,.03)}
+.toggle{width:42px;height:24px;border-radius:999px;border:0;background:rgba(255,255,255,.10);position:relative;cursor:pointer;transition:.18s}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:.18s}
+.toggle.on{background:rgba(201,168,76,.35)}
+.toggle.on::after{left:21px;background:var(--gold-light)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:15px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);z-index:300;opacity:0;transition:.28s;padding:12px 20px;border-radius:12px;background:var(--navy-mid);border:1px solid var(--gold-dim);color:var(--text);font:800 .82rem var(--sans);box-shadow:0 16px 44px rgba(0,0,0,.40);max-width:min(520px,92vw);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{color:#86efac;border-color:rgba(46,204,138,.30);background:rgba(18,44,40,.97)}
+.toast.error{color:#fca5a5;border-color:rgba(224,90,90,.30);background:rgba(44,20,28,.97)}
+.help-note{font:.78rem/1.6 var(--sans);color:var(--muted);border:1px solid var(--gold-dim);background:rgba(201,168,76,.055);border-radius:12px;padding:12px;margin-top:12px}
+.help-note strong{color:var(--gold-light)}
+.hidden{display:none!important}
+@media(max-width:1100px){.filters{grid-template-columns:1fr 1fr}.quick-grid{grid-template-columns:1fr}.calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.weekday{display:none}}
+@media(max-width:760px){.page{padding:14px}.app-header{padding:13px 15px}.app-header-left{min-width:0}.app-actions{width:100%}.app-actions .btn,.app-actions .status-pill{flex:1}.calendar-grid{grid-template-columns:1fr}.day-card{min-height:auto}.filters{grid-template-columns:1fr}.form-group,.form-group.third{grid-column:1/-1}.routine-table,.routine-table thead,.routine-table tbody,.routine-table tr,.routine-table td{display:block}.routine-table thead{display:none}.routine-table td{border:0!important;border-radius:0!important}.routine-table tr{display:block;border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;margin-bottom:8px;background:rgba(255,255,255,.03)}}
+@media print{.app-header,.toolbar,.filters,.event-actions,.modal-overlay,.toast,.btn{display:none!important}body{background:#fff!important;color:#111!important;padding:0}.page{padding:0;max-width:100%}.card{border:1px solid #ddd!important;box-shadow:none!important;background:#fff!important;break-inside:avoid}.calendar-grid{grid-template-columns:repeat(7,1fr)}.weekday{display:block;color:#333!important}.day-card,.event-card{background:#fff!important;border-color:#ccc!important;color:#111!important}.event-title,.day-number{color:#111!important}.badge{color:#333!important;border-color:#ccc!important;background:#f5f5f5!important}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-left">
+    <a class="btn" href="../index.html">◈ BIF</a>
+    <div class="app-logo">🗓️</div>
+    <div class="app-title">
+      <h1>Agenda Fiscal — Mapa do Mês</h1>
+      <p id="headerSub">Radar visual das rotinas antes de virarem urgência</p>
+    </div>
+  </div>
+  <div class="app-actions">
+    <span id="cloudStatus" class="status-pill saving">⏳ Conectando...</span>
+    <button class="btn btn-gold" onclick="openRoutineModal()">+ Rotina fixa</button>
+    <button class="btn" onclick="installRecommendedRoutines(false)">+ Rotinas sugeridas</button>
+    <button class="btn btn-green" onclick="generateMonthTasks()">Gerar tarefas do mês</button>
+    <a class="btn btn-blue" href="./tarefas.html">Abrir Tarefas</a>
+  </div>
+</header>
+
+<main class="page">
+  <section class="card">
+    <div class="toolbar" style="justify-content:space-between;gap:14px">
+      <div>
+        <div class="section-title" style="margin-bottom:6px">Mapa visual do mês</div>
+        <div style="font:.78rem/1.55 var(--sans);color:var(--muted);max-width:760px">
+          A agenda organiza o <strong style="color:var(--gold-light)">momento certo de olhar</strong> para cada rotina.
+          O botão de gerar tarefa cria a demanda diretamente no Painel de Tarefas Fiscal.
+        </div>
+      </div>
+      <div class="month-controls">
+        <button class="btn btn-sm" onclick="shiftMonth(-1)">← mês</button>
+        <input class="input" style="width:160px" type="month" id="monthInput" onchange="setMonth(this.value)">
+        <button class="btn btn-sm" onclick="shiftMonth(1)">mês →</button>
+        <button class="btn btn-sm" onclick="goCurrentMonth()">Hoje</button>
+      </div>
+    </div>
+    <div class="help-note">
+      <strong>Fluxo recomendado:</strong> cadastre as rotinas fixas uma vez, veja o mapa no início do mês e gere tarefas só do que precisa execução detalhada.
+      A tarefa nasce com subtarefas, prioridade, prazo e origem “Agenda Fiscal”.
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="grid-overview">
+      <div class="metric"><div class="metric-label">Hoje</div><div class="metric-value" id="mToday">0</div><small>itens no radar</small></div>
+      <div class="metric"><div class="metric-label">Próximos 7 dias</div><div class="metric-value" id="mNext7">0</div><small>rotinas próximas</small></div>
+      <div class="metric"><div class="metric-label">Tarefas geradas</div><div class="metric-value" id="mGenerated">0</div><small>integração com tarefas</small></div>
+      <div class="metric"><div class="metric-label">Pendentes no mapa</div><div class="metric-value" id="mPending">0</div><small>ainda não concluídas</small></div>
+      <div class="metric"><div class="metric-label">Críticas</div><div class="metric-value" id="mCritical">0</div><small>prioridade 5</small></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title">Roteiro de contenção do caos</div>
+    <div class="focus-grid">
+      <div class="focus-card">
+        <div class="focus-kicker">manhã · limpar dependências</div>
+        <div class="focus-title">Follow-up do que falta</div>
+        <div class="focus-text">Priorize envelope, XML, recibos de aluguel e movimentos pendentes. A ideia é destravar o que depende dos outros antes de entrar em execução pesada.</div>
+      </div>
+      <div class="focus-card">
+        <div class="focus-kicker">meio do dia · triagem técnica</div>
+        <div class="focus-title">Atendimento e tributação de produtos</div>
+        <div class="focus-text">Separe os problemas de emissão de notas por cliente/produto e gere tarefa apenas quando virar análise concreta.</div>
+      </div>
+      <div class="focus-card">
+        <div class="focus-kicker">tarde · execução dirigida</div>
+        <div class="focus-title">Chefia, apuração e apoio à equipe</div>
+        <div class="focus-text">Use a tarde para as demandas da patroa, apurações e auxílio da equipe. Se chegar pedido novo, registre no mapa/tarefas antes de trocar de contexto.</div>
+      </div>
+      <div class="focus-card">
+        <div class="focus-kicker">fim do dia · fechamento mental</div>
+        <div class="focus-title">Anotações + tarefas do dia</div>
+        <div class="focus-text">Revise tudo que foi anotado, parqueie o que não cabe hoje e gere tarefa para o que não pode depender da memória.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="filters">
+      <input id="searchInput" class="input" type="search" placeholder="Buscar rotina, empresa, categoria..." oninput="setFilter()">
+      <select id="categoryFilter" class="select" onchange="setFilter()"><option value="all">Todas as categorias</option></select>
+      <select id="statusFilter" class="select" onchange="setFilter()">
+        <option value="all">Todos os status</option>
+        <option value="pending">Pendentes</option>
+        <option value="generated">Tarefas geradas</option>
+        <option value="done">Concluídos no mapa</option>
+      </select>
+      <button class="btn" onclick="clearFilters()">Limpar filtros</button>
+    </div>
+  </section>
+
+  <section class="quick-grid">
+    <div class="card">
+      <div class="section-title">Hoje</div>
+      <div id="todayList" class="quick-list"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Próximos 7 dias</div>
+      <div id="nextList" class="quick-list"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title" id="mapTitle">Calendário</div>
+    <div class="calendar-grid" id="weekHeader">
+      <div class="weekday">Dom</div><div class="weekday">Seg</div><div class="weekday">Ter</div><div class="weekday">Qua</div><div class="weekday">Qui</div><div class="weekday">Sex</div><div class="weekday">Sáb</div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid" style="margin-top:8px"></div>
+  </section>
+
+  <section class="card">
+    <div class="toolbar" style="justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:0">Rotinas fixas cadastradas</div>
+      <button class="btn btn-gold" onclick="openRoutineModal()">+ Nova rotina</button>
+    </div>
+    <div style="overflow:auto">
+      <table class="routine-table">
+        <thead><tr><th>Rotina</th><th>Quando aparece</th><th>Prioridade</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="routineTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="routineModal" onclick="if(event.target.id==='routineModal') closeRoutineModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="routineModalTitle">Nova rotina fixa</h2>
+        <p>Configure o dia em que a rotina deve aparecer no mapa. Depois ela pode gerar tarefa automaticamente na página de tarefas.</p>
+      </div>
+      <button class="btn btn-sm" onclick="closeRoutineModal()">✕</button>
+    </div>
+    <input type="hidden" id="routineId">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nome da rotina</label>
+        <input class="input" id="rTitle" placeholder="Ex.: Gerar guia ISS">
+      </div>
+      <div class="form-group">
+        <label>Empresa / grupo</label>
+        <input class="input" id="rCompany" placeholder="Ex.: Novesete">
+      </div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <select class="select" id="rCategory">
+          <option>ISS / guia municipal</option>
+          <option>Apuração</option>
+          <option>Follow-up movimentos</option>
+          <option>Simples Nacional</option>
+          <option>Atendimento cliente</option>
+          <option>Tributação produtos</option>
+          <option>Auxílio equipe</option>
+          <option>Chefia / demandas internas</option>
+          <option>Arquivo</option>
+          <option>Ritual diário</option>
+          <option>Obrigação acessória</option>
+          <option>Conferência</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group third">
+        <label>Recorrência</label>
+        <select class="select" id="rRecurrence" onchange="toggleRecurrenceHelp()">
+          <option value="day">Dia fixo do mês</option>
+          <option value="first_business">Primeiro dia útil</option>
+          <option value="business_daily">Todos os dias úteis</option>
+          <option value="weekly_monday">Toda segunda-feira</option>
+          <option value="weekly_friday">Toda sexta-feira</option>
+        </select>
+      </div>
+      <div class="form-group third">
+        <label>Dia do mapa</label>
+        <input class="input" id="rDay" type="number" min="1" max="31" value="1">
+      </div>
+      <div class="form-group third">
+        <label>Prazo limite opcional</label>
+        <input class="input" id="rDueDay" type="number" min="1" max="31" placeholder="Ex.: 5">
+      </div>
+      <div class="form-group third">
+        <label>Prioridade</label>
+        <select class="select" id="rPriority">
+          <option value="2">2 — Moderada</option>
+          <option value="3">3 — Média</option>
+          <option value="4">4 — Alta</option>
+          <option value="5">5 — Urgente</option>
+        </select>
+      </div>
+      <div class="form-group third">
+        <label>Fila na página de tarefas</label>
+        <select class="select" id="rLane">
+          <option value="inbox">Caixa de Entrada</option>
+          <option value="agora">Agora</option>
+          <option value="proximo">Próximo</option>
+          <option value="semana">Esta semana</option>
+        </select>
+      </div>
+      <div class="form-group third">
+        <label>Tipo de tarefa</label>
+        <select class="select" id="rTaskType">
+          <option>Fiscal</option>
+          <option>Follow-up</option>
+          <option>ISS</option>
+          <option>Simples Nacional</option>
+          <option>Apuração</option>
+          <option>Atendimento</option>
+          <option>Tributação produtos</option>
+          <option>Auxílio equipe</option>
+          <option>Chefia</option>
+          <option>Arquivo</option>
+        </select>
+      </div>
+      <div class="form-group third">
+        <label>Bloco sugerido</label>
+        <select class="select" id="rTimeBlock">
+          <option value="">Sem bloco</option>
+          <option value="manha">Manhã</option>
+          <option value="meio">Meio do dia</option>
+          <option value="tarde">Tarde</option>
+          <option value="interrupcoes">Antena / interrupções</option>
+          <option value="fechamento">Fechamento do dia</option>
+        </select>
+      </div>
+      <div class="form-group third">
+        <label>Tipo no mapa</label>
+        <select class="select" id="rMapOnly">
+          <option value="false">Pode gerar tarefa em lote</option>
+          <option value="true">Só radar no mapa</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Observações / contexto</label>
+        <textarea id="rDesc" placeholder="Ex.: Em São Paulo o ISS vence antes. Gerar e conferir antecipadamente."></textarea>
+      </div>
+      <div class="form-group full">
+        <div class="toggle-row">
+          <button type="button" class="toggle on" id="rActive" onclick="toggleButton(this)"></button>
+          <div>
+            <strong style="color:var(--gold-light)">Rotina ativa</strong>
+            <div style="font:.72rem var(--mono);color:var(--muted);margin-top:2px">Quando ativa, aparece mensalmente no mapa.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-red" id="btnDeleteRoutine" onclick="deleteCurrentRoutine()">Excluir</button>
+      <button class="btn" onclick="closeRoutineModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveRoutine()">Salvar rotina</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain:"portal-treinamentos-lang.firebaseapp.com",
+  databaseURL:"https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId:"portal-treinamentos-lang",
+  storageBucket:"portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId:"1049839891406",
+  appId:"1:1049839891406:web:c5874166bdbee74139f19f"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+const MAP_DB_PATH = 'bif_tarefas_mapa_fiscal';
+const TASKS_DB_PATH = 'bif_tarefas_fiscal';
+const PAINEL_PATH = 'painel';
+const LOCAL_KEY = 'bif_tarefas_mapa_fiscal';
+const TASKS_LOCAL_KEY = 'fiscal_tasks';
+
+const DEFAULT_ROUTINES = [
+  {id:'rot_iss_novesete',title:'Gerar guia ISS antecipada',company:'Novesete',category:'ISS / guia municipal',recurrence:'day',day:1,dueDay:5,priority:5,lane:'proximo',taskType:'ISS',active:true,desc:'Rotina crítica: em São Paulo o ISS vence antes. Ver antecipadamente a geração da guia, conferir competência e salvar evidência.'},
+  {id:'rot_apur_romagnolo',title:'Iniciar apuração mensal',company:'Romagnolo',category:'Apuração',recurrence:'day',day:1,dueDay:'',priority:4,lane:'semana',taskType:'Apuração',active:true,desc:'Entrar no radar logo nos primeiros dias do mês para organizar documentos, XMLs, movimento e pendências.'},
+  {id:'rot_apur_ccamargo',title:'Iniciar apuração mensal',company:'C Camargo',category:'Apuração',recurrence:'day',day:1,dueDay:'',priority:4,lane:'semana',taskType:'Apuração',active:true,desc:'Entrar no radar no início do mês para evitar acúmulo e permitir follow-up com antecedência.'},
+  {id:'rot_followup_mov_1',title:'Follow-up inicial do envio dos movimentos',company:'Clientes com movimento pendente',category:'Follow-up movimentos',recurrence:'day',day:1,dueDay:'',priority:4,lane:'proximo',taskType:'Follow-up',active:true,desc:'Enviar cobrança inicial dos movimentos do mês. Registrar quem respondeu e quem permanece pendente.'},
+  {id:'rot_grandino_aliquota',title:'Passar alíquota do Simples',company:'Grandino',category:'Simples Nacional',recurrence:'day',day:1,dueDay:'',priority:5,lane:'proximo',taskType:'Simples Nacional',active:true,desc:'Informar a alíquota do Simples para uso operacional/comercial. Conferir se a base acumulada está correta.'},
+  {id:'rot_followup_mov_2',title:'Reforço de follow-up dos movimentos',company:'Clientes pendentes',category:'Follow-up movimentos',recurrence:'day',day:3,dueDay:'',priority:3,lane:'semana',taskType:'Follow-up',active:true,desc:'Segundo toque para clientes que ainda não enviaram movimento.'},
+  {id:'rot_alerta_sem_mov',title:'Alerta interno de movimentos pendentes',company:'Carteira fiscal',category:'Follow-up movimentos',recurrence:'day',day:5,dueDay:'',priority:4,lane:'proximo',taskType:'Follow-up',active:true,timeBlock:'manha',desc:'Mapear empresas ainda sem movimento e sinalizar risco de atraso no fechamento.'}
+];
+
+const RECOMMENDED_ROUTINES = [
+  {id:'rot_caos_manha_followup',title:'Bloco da manhã — follow-up do que falta',company:'Carteira fiscal',category:'Ritual diário',recurrence:'business_daily',day:1,dueDay:'',priority:5,lane:'agora',taskType:'Follow-up',active:true,timeBlock:'manha',mapOnly:true,desc:'Ritual diário para limpar dependências externas antes de executar tarefas pesadas: envelopes, XMLs, movimentos, recibos, respostas de clientes e pendências de e-mail.'},
+  {id:'rot_env_xml_grandino_campos_gdo',title:'Cobrar envelope físico e arquivos XML',company:'Grandino · Laboratório Campos · GDO',category:'Follow-up movimentos',recurrence:'day',day:1,dueDay:3,priority:5,lane:'proximo',taskType:'Follow-up',active:true,timeBlock:'manha',desc:'Depende do envio do envelope com notas e dos arquivos XML. Fazer cobrança logo no começo do mês e registrar retorno/pendência.'},
+  {id:'rot_recibos_aluguel_empreendimentos',title:'Cobrar e-mail com recibos de aluguel',company:'Empreendimentos',category:'Follow-up movimentos',recurrence:'day',day:1,dueDay:5,priority:4,lane:'proximo',taskType:'Follow-up',active:true,timeBlock:'manha',desc:'Aguardar e cobrar e-mail com informações dos recibos de aluguel dos empreendimentos. Sem isso, a apuração fica travada.'},
+  {id:'rot_triagem_produtos_nf',title:'Triagem: tributação de produtos com problema na emissão de notas',company:'Clientes com problema de NF',category:'Tributação produtos',recurrence:'business_daily',day:1,dueDay:'',priority:5,lane:'agora',taskType:'Tributação produtos',active:true,timeBlock:'meio',mapOnly:true,desc:'Manter antena ligada para clientes com rejeição, dúvida de NCM, CFOP, CST/CSOSN ou parametrização. Separar o que é urgência real do que pode virar tarefa planejada.'},
+  {id:'rot_auxilio_equipe_conducao',title:'Janela de auxílio à equipe',company:'Equipe fiscal',category:'Auxílio equipe',recurrence:'business_daily',day:1,dueDay:'',priority:4,lane:'proximo',taskType:'Auxílio equipe',active:true,timeBlock:'tarde',mapOnly:true,desc:'Reservar um bloco para orientar a equipe sem fragmentar o dia inteiro. Registrar decisões e próximos passos para não ficar tudo na cabeça.'},
+  {id:'rot_bloco_tarde_chefia',title:'Bloco da tarde — tarefas da chefia/patroa',company:'Demandas internas',category:'Chefia / demandas internas',recurrence:'business_daily',day:1,dueDay:'',priority:5,lane:'agora',taskType:'Chefia',active:true,timeBlock:'tarde',mapOnly:true,desc:'Concentrar demandas passadas pela chefia em um bloco visível. Se surgir pedido novo, anotar ou gerar tarefa antes de trocar de contexto.'},
+  {id:'rot_apuracao_impostos_bloco',title:'Bloco protegido de apuração de impostos',company:'Empresas em fechamento',category:'Apuração',recurrence:'business_daily',day:1,dueDay:'',priority:4,lane:'semana',taskType:'Apuração',active:true,timeBlock:'tarde',mapOnly:true,desc:'Tempo reservado para apurar impostos sem misturar com follow-up, atendimento e interrupções. Usar filtros por empresa quando precisar detalhar.'},
+  {id:'rot_antena_pedidos_chefia',title:'Antena ligada para pedidos da chefia',company:'Interno',category:'Chefia / demandas internas',recurrence:'business_daily',day:1,dueDay:'',priority:4,lane:'inbox',taskType:'Chefia',active:true,timeBlock:'interrupcoes',mapOnly:true,desc:'Capturar rapidamente pedidos novos, mas sem abandonar a fila principal sem registrar. Decidir: fazer agora, transformar em tarefa ou parqueiar.'},
+  {id:'rot_revisao_anotacoes_tarefas',title:'Fechamento do dia: revisar anotações e tarefas',company:'Rotina pessoal',category:'Ritual diário',recurrence:'business_daily',day:1,dueDay:'',priority:4,lane:'proximo',taskType:'Fiscal',active:true,timeBlock:'fechamento',mapOnly:true,desc:'Revisar anotações do dia, tarefas abertas, demandas da chefia e pendências de clientes. O que não couber hoje deve ser convertido em tarefa ou parqueado.'},
+  {id:'rot_desencalhe_arquivo_sobras',title:'Desencalhe: arquivo/documentos que sobraram',company:'Arquivo fiscal',category:'Arquivo',recurrence:'weekly_friday',day:1,dueDay:'',priority:3,lane:'semana',taskType:'Arquivo',active:true,timeBlock:'fechamento',desc:'Bloco semanal para reduzir sobras de arquivo, envelopes e documentos físicos sem ocupar o miolo do fechamento.'}
+];
+
+let state = {routines:[], generated:{}, done:{}, notes:{}, installedPackages:{}, updatedAt:''};
+let tasks = [];
+let painelEmpresas = [];
+let currentMonth = new Date();
+let filter = {q:'', category:'all', status:'all'};
+
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+const onlyDigits = v => String(v ?? '').replace(/\D+/g,'');
+function normalizeText(v){return String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+function pad(n){return String(n).padStart(2,'0')}
+function isoDate(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function todayISO(){return isoDate(new Date())}
+function dateFromISO(iso){const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d)}
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
+function monthKey(d=currentMonth){return `${d.getFullYear()}-${pad(d.getMonth()+1)}`}
+function monthLabel(d=currentMonth){return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase())}
+function setStatus(cls,msg){$('cloudStatus').className='status-pill '+cls;$('cloudStatus').textContent=msg}
+function nid(prefix='id'){return `${prefix}_${Date.now()}_${Math.floor(Math.random()*9999)}`}
+
+function toast(msg,type='success'){
+  const t=$('toast');t.textContent=msg;t.className='toast '+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+function asArray(raw){
+  if(Array.isArray(raw))return raw;
+  if(raw && typeof raw==='object')return Object.values(raw);
+  return [];
+}
+
+function extractEmpresasFromObject(d){
+  const arr=[];
+  const push=v=>{if(Array.isArray(v))arr.push(...v);else if(v&&typeof v==='object')arr.push(...Object.values(v));};
+  if(!d)return arr;
+  if(Array.isArray(d))push(d);
+  push(d.empresas);push(d.S?.empresas);push(d.state?.empresas);push(d.painel?.empresas);
+  return arr;
+}
+
+function normalizeEmpresaPainel(e,idx=0){
+  if(!e||typeof e!=='object')return null;
+  const nome=String(e.nome||e.razaoSocial||e.razao_social||e.razao||e.name||e.fantasia||e.nomeFantasia||'').trim();
+  if(!nome)return null;
+  const cnpj=e.cnpj||e.CNPJ||e.cnpjFormatado||'';
+  const cnpjDigits=onlyDigits(cnpj);
+  const id=String(e.id||e._id||e.codigo||e.cod||cnpjDigits||nome||`empresa_${idx}`).trim();
+  return {...e,id,nome,cnpj:String(cnpj||''),cnpjDigits,regime:e.regime||e.regimeTributario||e.tipoRegime||'outros',colaborador:e.colaborador||e.responsavel||e.responsavelFiscal||''};
+}
+
+function mergeEmpresas(listas){
+  const map=new Map();
+  listas.flat().forEach((raw,idx)=>{
+    const e=normalizeEmpresaPainel(raw,idx);
+    if(!e)return;
+    const key=e.cnpjDigits?`cnpj:${e.cnpjDigits}`:`nome:${normalizeText(e.nome)}`;
+    map.set(key,{...(map.get(key)||{}),...e});
+  });
+  return [...map.values()].sort((a,b)=>normalizeText(a.nome).localeCompare(normalizeText(b.nome),'pt-BR'));
+}
+
+function findEmpresaByName(name){
+  const q=normalizeText(name);
+  if(!q || q.includes('pendente') || q.includes('carteira') || q.includes('clientes'))return null;
+  return painelEmpresas.find(e=>normalizeText(e.nome)===q)
+      || painelEmpresas.find(e=>normalizeText(e.nome).includes(q) || q.includes(normalizeText(e.nome)));
+}
+
+function empresaPainelKey(e){return e.cnpjDigits?`cnpj:${e.cnpjDigits}`:`id:${e.id}`}
+
+async function loadPainelEmpresas(){
+  const listas=[];
+  try{
+    const snap=await get(ref(db,PAINEL_PATH));
+    if(snap.exists())listas.push(extractEmpresasFromObject(snap.val()));
+  }catch(e){}
+  try{
+    const raw=localStorage.getItem('fiscal_painel_empresas_cache');
+    if(raw)listas.push(JSON.parse(raw));
+  }catch(e){}
+  painelEmpresas=mergeEmpresas(listas);
+}
+
+async function loadTasks(){
+  try{
+    const snap=await get(ref(db,TASKS_DB_PATH));
+    if(snap.exists()){
+      const d=snap.val();
+      tasks=asArray(d.tasks);
+      localStorage.setItem(TASKS_LOCAL_KEY,JSON.stringify(tasks));
+      return;
+    }
+  }catch(e){}
+  try{tasks=asArray(JSON.parse(localStorage.getItem(TASKS_LOCAL_KEY)||'[]'));}catch(e){tasks=[]}
+}
+
+async function saveTasks(){
+  localStorage.setItem(TASKS_LOCAL_KEY,JSON.stringify(tasks));
+  await update(ref(db,TASKS_DB_PATH),{tasks,schemaVersion:6,updatedAt:new Date().toISOString()});
+}
+
+async function loadMap(){
+  setStatus('saving','⏳ Sincronizando...');
+  try{
+    const snap=await get(ref(db,MAP_DB_PATH));
+    if(snap.exists()){
+      const d=snap.val();
+      state={
+        routines:asArray(d.routines),
+        generated:d.generated||{},
+        done:d.done||{},
+        notes:d.notes||{},
+        installedPackages:d.installedPackages||{},
+        updatedAt:d.updatedAt||''
+      };
+      if(!state.routines.length)state.routines=[...structuredClone(DEFAULT_ROUTINES),...structuredClone(RECOMMENDED_ROUTINES)];
+      localStorage.setItem(LOCAL_KEY,JSON.stringify(state));
+      setStatus('ok','☁️ Mapa salvo na nuvem');
+      return;
+    }
+  }catch(e){}
+  try{
+    const local=JSON.parse(localStorage.getItem(LOCAL_KEY)||'null');
+    if(local&&Array.isArray(local.routines)){
+      state={routines:local.routines,generated:local.generated||{},done:local.done||{},notes:local.notes||{},installedPackages:local.installedPackages||{},updatedAt:local.updatedAt||''};
+      setStatus('saving','💾 Mapa local');
+      return;
+    }
+  }catch(e){}
+  state.routines=[...structuredClone(DEFAULT_ROUTINES),...structuredClone(RECOMMENDED_ROUTINES)];
+  state.installedPackages={fluxo_caos_v1:true};
+  setStatus('saving','💾 Mapa inicial');
+}
+
+async function saveMap(){
+  state.updatedAt=new Date().toISOString();
+  localStorage.setItem(LOCAL_KEY,JSON.stringify(state));
+  try{
+    await set(ref(db,MAP_DB_PATH),state);
+    setStatus('ok','☁️ Mapa salvo na nuvem');
+  }catch(e){
+    setStatus('err','⚠️ Salvo localmente');
+  }
+}
+
+function firstBusinessDay(base=currentMonth){
+  const y=base.getFullYear(), m=base.getMonth();
+  let d=new Date(y,m,1);
+  while(d.getDay()===0 || d.getDay()===6)d.setDate(d.getDate()+1);
+  return d;
+}
+
+function getOccurrenceDates(r,base=currentMonth){
+  if(!r.active)return [];
+  const y=base.getFullYear(), m=base.getMonth();
+  const last=daysInMonth(y,m);
+  if(r.recurrence==='first_business')return [firstBusinessDay(base)];
+  if(r.recurrence==='business_daily'){
+    const out=[];
+    for(let day=1;day<=last;day++){
+      const d=new Date(y,m,day);
+      if(d.getDay()!==0 && d.getDay()!==6)out.push(d);
+    }
+    return out;
+  }
+  if(r.recurrence==='weekly_monday' || r.recurrence==='weekly_friday'){
+    const target=r.recurrence==='weekly_monday'?1:5;
+    const out=[];
+    for(let day=1;day<=last;day++){
+      const d=new Date(y,m,day);
+      if(d.getDay()===target)out.push(d);
+    }
+    return out;
+  }
+  const day=Math.max(1,Math.min(31,Number(r.day||1)));
+  if(day>last)return [];
+  return [new Date(y,m,day)];
+}
+
+function getOccurrenceDate(r,base=currentMonth){return getOccurrenceDates(r,base)[0]||null}
+
+function getDueDate(r,base=currentMonth,date=null){
+  const y=base.getFullYear(), m=base.getMonth();
+  const due=Number(r.dueDay||0);
+  if(!due)return date||getOccurrenceDate(r,base);
+  if(due>daysInMonth(y,m))return date||getOccurrenceDate(r,base);
+  return new Date(y,m,due);
+}
+
+function getOccurrenceKey(r,date){return `${r.id}__${isoDate(date)}`}
+
+function allOccurrences(base=currentMonth){
+  return state.routines
+    .filter(r=>r.active!==false)
+    .flatMap(r=>getOccurrenceDates(r,base).map(date=>{
+      const due=getDueDate(r,base,date);
+      const key=getOccurrenceKey(r,date);
+      return {routine:r,date,due,key,dateISO:isoDate(date),dueISO:isoDate(due)};
+    }))
+    .filter(Boolean)
+    .sort((a,b)=>a.date-b.date || Number(b.routine.priority||3)-Number(a.routine.priority||3) || a.routine.title.localeCompare(b.routine.title,'pt-BR'));
+}
+
+function occurrenceStatus(occ){
+  if(state.done[occ.key])return 'done';
+  if(state.generated[occ.key])return 'generated';
+  return 'pending';
+}
+
+function filteredOccurrences(){
+  const q=normalizeText(filter.q);
+  return allOccurrences().filter(occ=>{
+    const r=occ.routine;
+    const text=normalizeText([r.title,r.company,r.category,r.desc,occ.dateISO].join(' '));
+    const st=occurrenceStatus(occ);
+    if(q&&!text.includes(q))return false;
+    if(filter.category!=='all'&&r.category!==filter.category)return false;
+    if(filter.status!=='all'&&st!==filter.status)return false;
+    return true;
+  });
+}
+
+function isInNextDays(date,days){
+  const start=dateFromISO(todayISO()); start.setHours(0,0,0,0);
+  const end=new Date(start); end.setDate(start.getDate()+days);
+  const d=new Date(date); d.setHours(0,0,0,0);
+  return d>=start && d<=end;
+}
+
+function render(){
+  $('monthInput').value=monthKey();
+  $('mapTitle').textContent='Calendário — '+monthLabel();
+  $('headerSub').textContent=`${monthLabel()} · ${state.routines.filter(r=>r.active!==false).length} rotina(s) ativa(s)`;
+  renderCategoryFilter();
+  renderMetrics();
+  renderQuickLists();
+  renderCalendar();
+  renderRoutineTable();
+}
+
+function renderCategoryFilter(){
+  const select=$('categoryFilter');
+  const current=select.value||filter.category;
+  const categories=[...new Set(state.routines.map(r=>r.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  select.innerHTML='<option value="all">Todas as categorias</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  select.value=categories.includes(current)?current:'all';
+  filter.category=select.value;
+}
+
+function renderMetrics(){
+  const occs=allOccurrences();
+  const today=todayISO();
+  const todayCount=occs.filter(o=>o.dateISO===today).length;
+  const next7=occs.filter(o=>isInNextDays(o.date,7)).length;
+  const generated=occs.filter(o=>state.generated[o.key]).length;
+  const done=occs.filter(o=>state.done[o.key]).length;
+  const critical=occs.filter(o=>Number(o.routine.priority||3)>=5&&!state.done[o.key]).length;
+  $('mToday').textContent=todayCount;
+  $('mNext7').textContent=next7;
+  $('mGenerated').textContent=generated;
+  $('mPending').textContent=Math.max(0,occs.length-done);
+  $('mCritical').textContent=critical;
+}
+
+function renderQuickLists(){
+  const occs=filteredOccurrences();
+  const today=todayISO();
+  const todayOcc=occs.filter(o=>o.dateISO===today);
+  const nextOcc=occs.filter(o=>o.dateISO!==today && isInNextDays(o.date,7)).slice(0,12);
+  $('todayList').innerHTML=todayOcc.length?todayOcc.map(o=>renderEvent(o,true)).join(''):'<div class="quick-empty">Nada específico para hoje neste mapa.</div>';
+  $('nextList').innerHTML=nextOcc.length?nextOcc.map(o=>renderEvent(o,true)).join(''):'<div class="quick-empty">Nenhuma rotina nos próximos 7 dias.</div>';
+}
+
+function renderCalendar(){
+  const grid=$('calendarGrid');
+  const y=currentMonth.getFullYear(), m=currentMonth.getMonth();
+  const first=new Date(y,m,1), lastDay=daysInMonth(y,m);
+  const firstDow=first.getDay();
+  const occs=filteredOccurrences();
+  const byDay=new Map();
+  occs.forEach(o=>{
+    const day=o.date.getDate();
+    if(!byDay.has(day))byDay.set(day,[]);
+    byDay.get(day).push(o);
+  });
+  const cells=[];
+  for(let i=0;i<firstDow;i++)cells.push(`<div class="day-card other"></div>`);
+  for(let day=1;day<=lastDay;day++){
+    const date=new Date(y,m,day);
+    const isToday=isoDate(date)===todayISO();
+    const dayOccs=byDay.get(day)||[];
+    cells.push(`<div class="day-card ${isToday?'today':''}">
+      <div class="day-head"><span class="day-number">${pad(day)}</span><span class="day-name">${date.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')}</span></div>
+      <div class="day-items">${dayOccs.map(o=>renderEvent(o,false)).join('') || '<div style="font:.68rem var(--mono);color:var(--dim);padding:7px 2px">sem rotina</div>'}</div>
+    </div>`);
+  }
+  grid.innerHTML=cells.join('');
+}
+
+function eventClass(occ){
+  const r=occ.routine;
+  const cls=[];
+  if(Number(r.priority||3)>=5)cls.push('urgente');
+  else if(Number(r.priority||3)>=4)cls.push('alta');
+  if(normalizeText(r.category).includes('follow'))cls.push('follow');
+  const st=occurrenceStatus(occ);
+  if(st==='generated')cls.push('generated');
+  if(st==='done')cls.push('done');
+  return cls.join(' ');
+}
+
+function timeBlockLabel(v){
+  const map={manha:'🌅 manhã',meio:'☀️ meio',tarde:'🌇 tarde',interrupcoes:'📡 antena',fechamento:'🌙 fechamento'};
+  return map[v]||v||'';
+}
+
+function renderEvent(occ,withDate=false){
+  const r=occ.routine;
+  const st=occurrenceStatus(occ);
+  const generated=!!state.generated[occ.key];
+  const done=!!state.done[occ.key];
+  const empresa=r.company?`<span class="badge badge-gold">🏢 ${esc(r.company)}</span>`:'';
+  const status=done?'<span class="badge badge-green">Concluído</span>':generated?'<span class="badge badge-green">Tarefa gerada</span>':'<span class="badge">Mapa</span>';
+  const due=r.dueDay?`<span class="badge badge-red">Prazo dia ${pad(r.dueDay)}</span>`:'';
+  const time=r.timeBlock?`<span class="badge badge-time">${timeBlockLabel(r.timeBlock)}</span>`:'';
+  const mapOnly=r.mapOnly?'<span class="badge badge-maponly">Radar</span>':'';
+  return `<div class="event-card ${eventClass(occ)}" data-key="${esc(occ.key)}">
+    <div class="event-title">${withDate?`<span style="color:var(--gold-light);font-family:var(--mono)">${occ.date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span> · `:''}${esc(r.title)}</div>
+    <div class="event-meta">${empresa}<span class="badge badge-blue">${esc(r.category||'Rotina')}</span>${time}<span class="badge ${Number(r.priority||3)>=5?'badge-red':''}">P${esc(r.priority||3)}</span>${due}${status}${mapOnly}</div>
+    <div class="event-actions">
+      <button class="btn btn-sm btn-green" onclick="generateTask('${esc(occ.key)}')" ${generated?'title="Já existe tarefa gerada"':''}>${generated?'↻ Atualizar':'Gerar tarefa'}</button>
+      <button class="btn btn-sm" onclick="toggleDone('${esc(occ.key)}')">${done?'Reabrir':'✓ Mapa'}</button>
+      <button class="btn btn-sm" onclick="openRoutineModal('${esc(r.id)}')">Editar</button>
+    </div>
+  </div>`;
+}
+
+function recurrenceLabel(r){
+  if(r.recurrence==='first_business')return 'Primeiro dia útil';
+  if(r.recurrence==='business_daily')return 'Dias úteis';
+  if(r.recurrence==='weekly_monday')return 'Toda segunda';
+  if(r.recurrence==='weekly_friday')return 'Toda sexta';
+  return `Dia ${pad(r.day||1)}`;
+}
+
+function renderRoutineTable(){
+  const tbody=$('routineTableBody');
+  if(!state.routines.length){
+    tbody.innerHTML='<tr><td colspan="5">Nenhuma rotina cadastrada.</td></tr>';return;
+  }
+  tbody.innerHTML=state.routines.map(r=>{
+    const when=recurrenceLabel(r);
+    return `<tr>
+      <td><div class="routine-title">${esc(r.title)}</div><div class="routine-sub">${esc(r.company||'Sem empresa')} · ${esc(r.category||'Sem categoria')}</div></td>
+      <td>${esc(when)}${r.dueDay?`<div class="routine-sub">prazo interno dia ${pad(r.dueDay)}</div>`:''}</td>
+      <td><span class="badge ${Number(r.priority)>=5?'badge-red':'badge-gold'}">Prioridade ${esc(r.priority||3)}</span></td>
+      <td>${r.active!==false?'<span class="badge badge-green">Ativa</span>':'<span class="badge">Inativa</span>'}</td>
+      <td><button class="btn btn-sm" onclick="openRoutineModal('${esc(r.id)}')">Editar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function findOccByKey(key){return allOccurrences().find(o=>o.key===key)||null}
+
+async function generateTask(key){
+  const occ=findOccByKey(key);
+  if(!occ){toast('Rotina não encontrada no mês atual.','error');return;}
+  await loadTasks();
+  const existing=tasks.find(t=>t.agendaRoutineId===occ.routine.id && t.agendaOccurrenceDate===occ.dateISO);
+  if(existing){
+    state.generated[key]=existing.id;
+    await saveMap();
+    render();
+    toast('Essa rotina já tem tarefa gerada. Atualizei o vínculo no mapa.','success');
+    return;
+  }
+  const task=buildTaskFromOccurrence(occ);
+  tasks.push(task);
+  state.generated[key]=task.id;
+  try{
+    await saveTasks();
+    await saveMap();
+    render();
+    toast('Tarefa gerada na página de Tarefas Fiscal.','success');
+  }catch(e){
+    tasks=tasks.filter(t=>t.id!==task.id);
+    delete state.generated[key];
+    toast('Não consegui salvar na nuvem. Verifique a conexão/permissões do Firebase.','error');
+  }
+}
+
+function buildTaskFromOccurrence(occ){
+  const r=occ.routine;
+  const e=findEmpresaByName(r.company);
+  const empresaId=e?empresaPainelKey(e):'';
+  const empresaRefs=e?[{id:empresaId,painelId:e.id||'',nome:e.nome||'',cnpj:e.cnpj||'',cnpjDigits:e.cnpjDigits||onlyDigits(e.cnpj),regime:e.regime||'outros',colaborador:e.colaborador||''}]:[];
+  const title=r.company && !normalizeText(r.title).includes(normalizeText(r.company)) ? `${r.title} — ${r.company}` : r.title;
+  const isFollow=normalizeText(r.category+' '+r.title).includes('follow') || normalizeText(r.category+' '+r.title).includes('movimento');
+  const p=Number(r.priority||3);
+  const desc=`<p><strong>Origem:</strong> Agenda Fiscal — Mapa do Mês.</p>
+<p><strong>Data de entrada no radar:</strong> ${occ.date.toLocaleDateString('pt-BR')}.</p>
+${r.dueDay?`<p><strong>Prazo interno:</strong> ${occ.due.toLocaleDateString('pt-BR')}.</p>`:''}
+${r.company?`<p><strong>Empresa / grupo:</strong> ${esc(r.company)}</p>`:''}
+${r.category?`<p><strong>Categoria:</strong> ${esc(r.category)}</p>`:''}
+${r.timeBlock?`<p><strong>Bloco sugerido:</strong> ${esc(timeBlockLabel(r.timeBlock))}</p>`:''}
+${r.desc?`<p><strong>Contexto:</strong> ${esc(r.desc)}</p>`:''}`;
+  const subtaskNames=isFollow
+    ? ['Levantar empresas/clientes pendentes','Enviar mensagem de cobrança ou reforço','Registrar retorno recebido','Atualizar mapa ou tarefa com o status']
+    : ['Conferir dados e competência da rotina','Executar procedimento principal','Salvar evidência, guia, protocolo ou print','Atualizar mapa ou tarefa com o status'];
+  return {
+    id:Date.now()+Math.floor(Math.random()*1000),
+    name:title,
+    desc,
+    priority:p,
+    reward:'',
+    interaction:isFollow,
+    assigneeName:'',
+    assigneeEmail:'',
+    deadline:occ.dueISO,
+    attachments:[],
+    taskType:r.taskType||'Fiscal',
+    workLevel:'acao',
+    taskLevel:'acao',
+    parentMacroId:'',
+    parentActionId:'',
+    risk:p>=5?'alto':p>=4?'medio':'baixo',
+    energy:'media',
+    nextAction:isFollow?'Enviar ou reforçar o pedido de movimento.':'Executar a rotina fiscal conforme o mapa.',
+    doneCriteria:isFollow?'Movimento cobrado/registrado e pendências atualizadas.':'Rotina executada, conferida e evidência salva.',
+    clientWaiting:isFollow,
+    blocking:p>=5,
+    tdahLane:r.lane||'proximo',
+    done:false,
+    subtasks:subtaskNames.map((name,i)=>({id:Date.now()+i+Math.floor(Math.random()*100),name,done:false})),
+    parqueado:false,
+    parqueLocal:'',
+    parqueMotive:'',
+    parqueRetorno:'',
+    empresasVinculadas:empresaId?[empresaId]:[],
+    empresaIds:empresaId?[empresaId]:[],
+    empresaRefs,
+    companyId:empresaId,
+    companyName:e?e.nome:(r.company||''),
+    companyCnpj:e?e.cnpj:'',
+    companyRegime:e?e.regime:'',
+    source:'agenda_fiscal_mapa',
+    agendaRoutineId:r.id,
+    agendaOccurrenceDate:occ.dateISO,
+    agendaOccurrenceKey:occ.key,
+    createdAt:new Date().toISOString()
+  };
+}
+
+async function generateMonthTasks(){
+  const occs=filteredOccurrences().filter(o=>!state.done[o.key] && !o.routine.mapOnly);
+  if(!occs.length){toast('Nenhuma rotina visível para gerar.','error');return;}
+  if(!confirm(`Gerar tarefas para ${occs.length} rotina(s) visíveis de ${monthLabel()}?\n\nDuplicadas serão ignoradas.`))return;
+  await loadTasks();
+  let created=0, skipped=0;
+  for(const occ of occs){
+    const exists=tasks.find(t=>t.agendaRoutineId===occ.routine.id && t.agendaOccurrenceDate===occ.dateISO);
+    if(exists){state.generated[occ.key]=exists.id;skipped++;continue;}
+    const task=buildTaskFromOccurrence(occ);
+    tasks.push(task);
+    state.generated[occ.key]=task.id;
+    created++;
+  }
+  try{
+    await saveTasks();
+    await saveMap();
+    render();
+    toast(`${created} tarefa(s) criada(s). ${skipped?`${skipped} duplicada(s) ignorada(s).`:''}`,'success');
+  }catch(e){
+    toast('Não consegui salvar as tarefas na nuvem.','error');
+  }
+}
+
+async function toggleDone(key){
+  if(state.done[key])delete state.done[key]; else state.done[key]=true;
+  await saveMap();
+  render();
+}
+
+function setMonth(value){
+  if(!value)return;
+  const [y,m]=value.split('-').map(Number);
+  currentMonth=new Date(y,m-1,1);
+  render();
+}
+
+function shiftMonth(delta){
+  currentMonth=new Date(currentMonth.getFullYear(),currentMonth.getMonth()+delta,1);
+  render();
+}
+
+function goCurrentMonth(){
+  currentMonth=new Date();
+  currentMonth=new Date(currentMonth.getFullYear(),currentMonth.getMonth(),1);
+  render();
+}
+
+function setFilter(){
+  filter.q=$('searchInput').value;
+  filter.category=$('categoryFilter').value;
+  filter.status=$('statusFilter').value;
+  renderMetrics();renderQuickLists();renderCalendar();
+}
+
+function clearFilters(){
+  $('searchInput').value='';$('categoryFilter').value='all';$('statusFilter').value='all';
+  filter={q:'',category:'all',status:'all'};render();
+}
+
+function toggleButton(btn){btn.classList.toggle('on')}
+
+function toggleRecurrenceHelp(){
+  const rec=$('rRecurrence').value;
+  $('rDay').disabled=['first_business','business_daily','weekly_monday','weekly_friday'].includes(rec);
+}
+
+function openRoutineModal(id=''){
+  $('routineId').value=id||'';
+  const r=id?state.routines.find(x=>x.id===id):null;
+  $('routineModalTitle').textContent=r?'Editar rotina fixa':'Nova rotina fixa';
+  $('btnDeleteRoutine').style.display=r?'inline-flex':'none';
+  $('rTitle').value=r?.title||'';
+  $('rCompany').value=r?.company||'';
+  $('rCategory').value=r?.category||'Outro';
+  $('rRecurrence').value=r?.recurrence||'day';
+  $('rDay').value=r?.day||1;
+  $('rDueDay').value=r?.dueDay||'';
+  $('rPriority').value=r?.priority||3;
+  $('rLane').value=r?.lane||'proximo';
+  $('rTaskType').value=r?.taskType||'Fiscal';
+  $('rTimeBlock').value=r?.timeBlock||'';
+  $('rMapOnly').value=r?.mapOnly?'true':'false';
+  $('rDesc').value=r?.desc||'';
+  $('rActive').classList.toggle('on',r?.active!==false);
+  toggleRecurrenceHelp();
+  $('routineModal').classList.add('open');
+  setTimeout(()=>$('rTitle').focus(),80);
+}
+
+function closeRoutineModal(){$('routineModal').classList.remove('open')}
+
+async function saveRoutine(){
+  const id=$('routineId').value || nid('rot');
+  const title=$('rTitle').value.trim();
+  if(!title){toast('Informe o nome da rotina.','error');return;}
+  const routine={
+    id,
+    title,
+    company:$('rCompany').value.trim(),
+    category:$('rCategory').value.trim()||'Outro',
+    recurrence:$('rRecurrence').value,
+    day:Number($('rDay').value||1),
+    dueDay:$('rDueDay').value?Number($('rDueDay').value):'',
+    priority:Number($('rPriority').value||3),
+    lane:$('rLane').value||'proximo',
+    taskType:$('rTaskType').value||'Fiscal',
+    timeBlock:$('rTimeBlock').value||'',
+    mapOnly:$('rMapOnly').value==='true',
+    active:$('rActive').classList.contains('on'),
+    desc:$('rDesc').value.trim()
+  };
+  const idx=state.routines.findIndex(x=>x.id===id);
+  if(idx>=0)state.routines[idx]=routine; else state.routines.push(routine);
+  await saveMap();
+  closeRoutineModal();
+  render();
+  toast('Rotina salva no mapa.','success');
+}
+
+async function deleteCurrentRoutine(){
+  const id=$('routineId').value;
+  if(!id)return;
+  const r=state.routines.find(x=>x.id===id);
+  if(!confirm(`Excluir a rotina "${r?.title||''}" do mapa?`))return;
+  state.routines=state.routines.filter(x=>x.id!==id);
+  Object.keys(state.generated).forEach(k=>{if(k.startsWith(id+'__'))delete state.generated[k]});
+  Object.keys(state.done).forEach(k=>{if(k.startsWith(id+'__'))delete state.done[k]});
+  await saveMap();
+  closeRoutineModal();
+  render();
+  toast('Rotina excluída.','success');
+}
+
+async function installRecommendedRoutines(silent=false){
+  state.installedPackages=state.installedPackages||{};
+  const existingIds=new Set(state.routines.map(r=>r.id));
+  let added=0;
+  for(const routine of RECOMMENDED_ROUTINES){
+    if(!existingIds.has(routine.id)){
+      state.routines.push(structuredClone(routine));
+      existingIds.add(routine.id);
+      added++;
+    }
+  }
+  state.installedPackages.fluxo_caos_v1=true;
+  if(added){
+    await saveMap();
+    render();
+  }
+  if(!silent)toast(added?`${added} rotina(s) sugerida(s) adicionada(s).`:'As rotinas sugeridas já estavam no mapa.','success');
+}
+
+async function init(){
+  $('monthInput').value=monthKey();
+  await Promise.all([loadMap(),loadTasks(),loadPainelEmpresas()]);
+  if(!state.installedPackages?.fluxo_caos_v1)await installRecommendedRoutines(true);
+  render();
+  setStatus('ok','☁️ Sincronizado');
+}
+
+Object.assign(window,{openRoutineModal,closeRoutineModal,saveRoutine,deleteCurrentRoutine,toggleButton,toggleRecurrenceHelp,generateTask,generateMonthTasks,toggleDone,setMonth,shiftMonth,goCurrentMonth,setFilter,clearFilters,installRecommendedRoutines});
+init();
+</script>
+</body>
+</html>
