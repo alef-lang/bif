@@ -1112,6 +1112,7 @@ function applysidebar(){
     if(btn){btn.textContent='📚 POPs';btn.title='Abrir lista de POPs e busca';}
   }
 }
+window.toggleSidebar=toggleSidebar;
 
 // ── DATA ──
 function currentSop(){return state.sops.find(s=>s.id===state.selectedId)||null;}
@@ -1158,11 +1159,15 @@ function renderAll(){
 function renderSopList(){
   const list=$id('sopList');
   if(!list)return;
-  const term=($id('sopSearch')?.value||'').toLowerCase().trim();
+  collectForm();
+  const rawTerm=$id('sopSearch')?.value||'';
   const tag=state.tagFilter;
   const rows=state.sops.filter(s=>{
-    const text=[...Object.values(s.fixed||{}),...(s.tags||[])].join(' ').toLowerCase();
-    return (!term||text.includes(term))&&(!tag||(s.tags||[]).includes(tag));
+    const fixedVals=Object.values(s.fixed||{});
+    const dynVals=(s.dynamic||[]).flatMap(d=>[d.label,d.content]);
+    const empresaVals=[...(s.empresasVinculadas||[]),...(state.sopEmpresaLinks?.[String(s.id)]||[])];
+    const text=['POP','procedimento',s.id,...fixedVals,...dynVals,...(s.tags||[]),...empresaVals];
+    return searchMatches(text,rawTerm)&&(!tag||(s.tags||[]).includes(tag));
   });
   if(!rows.length){list.innerHTML='<div class="empty">Nenhuma POP encontrada.</div>';return;}
   list.innerHTML=rows.map(s=>`<div class="sop-item ${s.id===state.selectedId?'active':''}" onclick="selectSop('${s.id}')">
@@ -1171,6 +1176,7 @@ function renderSopList(){
     <div class="sop-meta"><span>${esc(s.fixed?.area||'Área')}</span> · <span>${esc(s.fixed?.status||'Rascunho')}</span>${(s.tags||[]).slice(0,2).map(t=>`<span class="mini-tag">${esc(t)}</span>`).join('')}</div>
   </div>`).join('');
 }
+window.renderSopList=renderSopList;
 
 function allTags(){return [...new Set(state.sops.flatMap(s=>s.tags||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));}
 function renderTagFilters(){
@@ -1211,6 +1217,21 @@ function normBusca(v){
   return String(v??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 }
 function onlyDigits(v){return String(v??'').replace(/\D+/g,'');}
+function searchMatches(parts,rawQuery){
+  const q=String(rawQuery??'').trim();
+  if(!q)return true;
+  const arr=Array.isArray(parts)?parts:[parts];
+  const plain=arr.map(v=>String(v??'')).join(' ');
+  const hay=normBusca(plain);
+  const digitHay=onlyDigits(plain);
+  const tokens=normBusca(q).split(/\s+/).filter(Boolean);
+  const digitQuery=onlyDigits(q);
+  if(!tokens.length&&digitQuery)return digitHay.includes(digitQuery);
+  return tokens.every(tok=>{
+    const tokDigits=onlyDigits(tok);
+    return hay.includes(tok)||(tokDigits&&digitHay.includes(tokDigits));
+  });
+}
 function regimeShort(r){
   const s=normBusca(r);
   if(s.includes('simples'))return 'SN';
@@ -1417,11 +1438,9 @@ function renderEmpresasVinculadas(){
   // ── RESULTADOS PARA MARCAR/DESMARCAR ──
   const resEl=$id('empresasBuscaResultados');
   if(!resEl)return;
+  const rawEmpresaFilter=$id('empresaFilterInput')?.value||'';
   const hits=(filter
-    ? todas.filter(e=>{
-        const hay=[e.nome,e.cnpj,e.cnpjDigits,e.regime,e.colaborador,e.atividade].map(normBusca).join(' ');
-        return hay.includes(filter);
-      })
+    ? todas.filter(e=>searchMatches([e.nome,e.cnpj,e.cnpjDigits,e.regime,e.colaborador,e.atividade],rawEmpresaFilter))
     : todas
   ).slice(0,120);
 
@@ -1470,6 +1489,8 @@ function toggleEmpresaVinculada(empresaId){
   renderEmpresasVinculadas();
   scheduleSave();
 }
+window.renderEmpresasVinculadas=renderEmpresasVinculadas;
+window.toggleEmpresaVinculada=toggleEmpresaVinculada;
 
 // ── ANEXOS DA POP ──
 const SOP_ATTACHMENT_MAX_SIZE=5*1024*1024; // 5MB por arquivo
@@ -1576,7 +1597,7 @@ function renderActiveFields(){
         <span class="active-field-label">${esc(def.label)}</span>
         <span class="palette-type-badge">${typeBadge(def.type)}</span>
         ${def.type==='rich'?`<button type="button" class="btn small blue" onclick="openAttachmentPicker('fixed','${def.id}')" title="Anexar arquivo neste campo">📎 Anexo</button>`:''}
-        <button class="btn-remove-field" onclick="deactivateField('${def.id}')" title="Remover da POP">×</button>
+        <button type="button" class="btn-remove-field" onclick="deactivateField('${def.id}')" title="Remover da POP">×</button>
       </div>
       <div class="active-field-body">${inputHtml}</div>
     </div>`;
@@ -1594,7 +1615,7 @@ function renderActiveFields(){
     paletteEl.innerHTML='<span style="font:500 11px var(--font-mono);color:var(--muted)">Todos os campos já estão na POP.</span>';
   } else {
     paletteEl.innerHTML=inactiveDefs.map(d=>`
-      <button class="palette-chip" onclick="activateField('${d.id}')" title="Adicionar à POP">
+      <button type="button" class="palette-chip" onclick="activateField('${d.id}')" title="Adicionar à POP">
         ${esc(d.label)} <span class="palette-type-badge">${typeBadge(d.type)}</span>
       </button>`).join('');
   }
@@ -1806,7 +1827,7 @@ function renderConfig(){
         <option value="select" ${def.type==='select'?'selected':''}>Lista</option>
         <option value="date" ${def.type==='date'?'selected':''}>Data</option>
       </select>
-      <button class="btn small red" onclick="deleteFixedField('${def.id}')">×</button>
+      <button type="button" class="btn small red" onclick="deleteFixedField('${def.id}')">×</button>
     </div>`).join('');
 }
 window.updateFieldLabel=function(id,val){const d=state.fieldDefs.find(f=>f.id===id);if(d)d.label=val.trim()||d.label;persist();};
@@ -2018,6 +2039,8 @@ window.addEventListener('beforeunload',e=>{
 });
 
 // ── BOOT ──
+$id('sopSearch')?.addEventListener('input',()=>renderSopList());
+$id('empresaFilterInput')?.addEventListener('input',()=>renderEmpresasVinculadas());
 cloudLoad();
 
 })();
