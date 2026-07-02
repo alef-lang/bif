@@ -797,6 +797,17 @@ body > .header::before{
           </div>
           <div id="empresasEmptyMsg" style="font:500 11px var(--font-mono);color:var(--muted);display:none;">Nenhuma empresa encontrada no Painel de Gestão.</div>
         </div>
+        <!-- Anexos da POP -->
+        <div class="section-block" id="anexosPopBlock">
+          <div class="section-title"><h3>📎 Anexos desta POP</h3><span id="anexosPopCount">0 arquivos</span></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+            <button type="button" class="btn small gold" onclick="document.getElementById('sopAttachmentInput').click()">📎 Anexar arquivo</button>
+            <span style="font:500 10px var(--font-mono);color:var(--muted);">PDFs, imagens, planilhas, docs... o arquivo fica salvo dentro da própria POP.</span>
+          </div>
+          <input type="file" id="sopAttachmentInput" multiple style="display:none" onchange="handleSopAttachmentInput(event)">
+          <div id="anexosPopList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+          <div id="anexosPopEmptyMsg" style="font:500 11px var(--font-mono);color:var(--muted);">Nenhum arquivo anexado nesta POP.</div>
+        </div>
         <!-- Campos fixos ativados -->
         <div class="section-block" id="activeFieldsSection">
           <div class="section-title"><h3>Campos desta POP</h3><span id="activeFieldsCount">0 campos ativos</span></div>
@@ -1112,6 +1123,7 @@ function defaultSop(n){
     fixed:{code:`POP-FISCAL-${String(n).padStart(3,'0')}`,name:'Novo procedimento',area:'Fiscal',status:'Rascunho'},
     dynamic:[],
     empresasVinculadas:[],
+    attachments:[],
     activeFieldIds:getDefaultActiveIds()
   };
 }
@@ -1182,6 +1194,7 @@ function renderForm(){
   ensureEmpresaLinksStore();
   renderSelectedTags();
   loadAndRenderEmpresasVinculadas();
+  renderAnexosPop();
   renderActiveFields();
   renderDynamicFields();
   bindForm();
@@ -1271,6 +1284,7 @@ async function carregarEmpresasPainel(force=false){
   atualizarStatusEmpresasPainel();
   const listas=[];
   let fonte=[];
+  let erroNuvem=null;
 
   // 1) Nuvem do Painel
   try{
@@ -1281,7 +1295,8 @@ async function carregarEmpresasPainel(force=false){
       if(arr.length){listas.push(arr);fonte.push('nuvem');}
     }
   }catch(e){
-    console.warn('Não foi possível ler empresas do Firebase do Painel:',e);
+    erroNuvem=e;
+    console.error('Não foi possível ler empresas do Firebase do Painel:',e);
   }
 
   // 2) Fallback/espelho local do Painel — cobre quando a nuvem demora, falha ou está vazia
@@ -1290,15 +1305,22 @@ async function carregarEmpresasPainel(force=false){
 
   _cachedEmpresas=mergeEmpresasPainel(listas);
   _empresasLoading=false;
-  _empresasFonteStatus=_cachedEmpresas.length
-    ? `${_cachedEmpresas.length} empresa${_cachedEmpresas.length!==1?'s':''} carregada${_cachedEmpresas.length!==1?'s':''} do Painel (${fonte.join(' + ')||'fonte detectada'}).`
-    : 'Nenhuma empresa encontrada. Abra o Painel, confirme que existem empresas cadastradas e clique em Atualizar.';
+  if(_cachedEmpresas.length){
+    _empresasFonteStatus=`${_cachedEmpresas.length} empresa${_cachedEmpresas.length!==1?'s':''} carregada${_cachedEmpresas.length!==1?'s':''} do Painel (${fonte.join(' + ')||'fonte detectada'}).`;
+  } else if(erroNuvem){
+    _empresasFonteStatus=`⚠️ Não consegui ler as empresas do Firebase (${erroNuvem.code||erroNuvem.message||erroNuvem}). Clique em Atualizar ou avise o suporte com essa mensagem.`;
+    showToast('Não consegui carregar as empresas do Painel — veja o aviso abaixo do campo de busca.');
+  } else {
+    _empresasFonteStatus='Nenhuma empresa encontrada. Abra o Painel, confirme que existem empresas cadastradas e clique em Atualizar.';
+  }
   atualizarStatusEmpresasPainel();
   return _cachedEmpresas;
 }
 function atualizarStatusEmpresasPainel(){
   const el=$id('empresasFonteStatus');
-  if(el)el.textContent=_empresasFonteStatus;
+  if(!el)return;
+  el.textContent=_empresasFonteStatus;
+  el.style.color=_empresasFonteStatus.startsWith('⚠️')?'#e05a5a':'var(--muted)';
 }
 function empresaPainelKey(e){
   if(!e)return '';
@@ -1448,6 +1470,74 @@ function toggleEmpresaVinculada(empresaId){
   renderEmpresasVinculadas();
   scheduleSave();
 }
+
+// ── ANEXOS DA POP ──
+const SOP_ATTACHMENT_MAX_SIZE=5*1024*1024; // 5MB por arquivo
+
+function getSopAttachments(sop=currentSop()){
+  if(!sop)return [];
+  if(!Array.isArray(sop.attachments))sop.attachments=[];
+  return sop.attachments;
+}
+
+function renderAnexosPop(){
+  const sop=currentSop();
+  const listEl=$id('anexosPopList');
+  const emptyEl=$id('anexosPopEmptyMsg');
+  const countEl=$id('anexosPopCount');
+  if(!listEl||!sop)return;
+  const anexos=getSopAttachments(sop);
+  if(countEl)countEl.textContent=anexos.length+' arquivo'+(anexos.length!==1?'s':'');
+  if(emptyEl)emptyEl.style.display=anexos.length?'none':'';
+  listEl.innerHTML=anexos.map((a,idx)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--gold-border);border-radius:9px;background:rgba(255,255,255,.03);">
+      <span style="font-size:14px;flex-shrink:0;">📎</span>
+      <a href="${a.dataUrl}" download="${escAttr(a.name)}" style="flex:1;min-width:0;color:var(--gold-light);font:700 12px var(--font-body);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Baixar ${escAttr(a.name)}">${esc(a.name)}</a>
+      <span style="font:600 9px var(--font-mono);color:var(--muted);flex-shrink:0;">${esc(formatFileSize(a.size))}</span>
+      <button type="button" class="btn icon small red" onclick="removeSopAttachment(${idx})" title="Remover anexo">🗑</button>
+    </div>
+  `).join('');
+}
+
+window.handleSopAttachmentInput=async function(ev){
+  const sop=currentSop();
+  const files=Array.from(ev.target.files||[]);
+  ev.target.value='';
+  if(!sop||!files.length)return;
+  const anexos=getSopAttachments(sop);
+  for(const file of files){
+    if(file.size>SOP_ATTACHMENT_MAX_SIZE){
+      const ok=await askConfirm({title:'Anexo grande',message:`O arquivo "${file.name}" tem ${formatFileSize(file.size)}. Ele será salvo dentro da POP e pode deixar a sincronização mais pesada. Deseja anexar mesmo assim?`,okText:'Anexar',cancelText:'Pular arquivo'});
+      if(!ok)continue;
+    }
+    await new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onload=e=>{
+        anexos.push({name:file.name,size:file.size,type:file.type||'',dataUrl:e.target.result,addedAt:new Date().toISOString()});
+        resolve();
+      };
+      reader.onerror=()=>{showToast('Não consegui anexar '+file.name);resolve();};
+      reader.readAsDataURL(file);
+    });
+  }
+  renderAnexosPop();
+  scheduleSave();
+  showToast('Anexo adicionado à POP.');
+};
+
+window.removeSopAttachment=function(idx){
+  const sop=currentSop();
+  if(!sop)return;
+  const anexos=getSopAttachments(sop);
+  const item=anexos[idx];
+  if(!item)return;
+  askConfirm({title:'Remover anexo',message:`Remover o arquivo "${item.name}" desta POP?`,okText:'Remover',cancelText:'Cancelar',danger:true}).then(ok=>{
+    if(!ok)return;
+    anexos.splice(idx,1);
+    renderAnexosPop();
+    scheduleSave();
+  });
+};
 
 
 // ── ACTIVE FIELDS (paleta por POP) ──
