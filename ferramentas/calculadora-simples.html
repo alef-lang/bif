@@ -491,6 +491,10 @@
 <body>
   <div class="app no-print">
     <section class="hero">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <a href="../index.html" style="font-size:12px;color:#8899aa;text-decoration:none;">← Voltar ao painel</a>
+        <span id="cloudStatus" style="font-size:11px;font-family:monospace;color:#fdcb6e;">Conectando...</span>
+      </div>
       <h1>Calculadora de alíquota efetiva do Simples Nacional</h1>
       <p>Gerencie faturamento mensal por empresa, importe extratos PGDAS-D, preencha meses faltantes manualmente e acompanhe como a alíquota nominal vira alíquota efetiva.</p>
       <div class="badge-row">
@@ -638,6 +642,31 @@
   <section id="printArea" class="report-print"></section>
 
 <script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, get, onValue }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain: "portal-treinamentos-lang.firebaseapp.com",
+  databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId: "portal-treinamentos-lang",
+  storageBucket: "portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId: "1049839891406",
+  appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+const FB_PATH = 'calculadora_simples';
+
+function setCloudStatus(status, msg){
+  const el = document.getElementById('cloudStatus'); if(!el) return;
+  const cores = {ok:'#00cec9', error:'#ff7675', loading:'#fdcb6e'};
+  el.textContent = msg;
+  el.style.color = cores[status] || '#8899aa';
+}
+
   const STORAGE_KEY = 'snAliquotaManager.v1';
 
   const ANNEXES = {
@@ -658,8 +687,19 @@
     ]}
   };
 
-  let state = loadState();
-  let selectedId = state.selectedId || Object.keys(state.companies)[0];
+  let state = {};
+  let selectedId = '';
+
+  init();
+
+  async function init(){
+    state = await loadState();
+    selectedId = state.selectedId || Object.keys(state.companies)[0];
+    renderAnnexOptions();
+    renderCompanySelect();
+    bindEvents();
+    render();
+  }
 
   const els = {
     companySelect: document.getElementById('companySelect'),
@@ -693,26 +733,61 @@
     printArea: document.getElementById('printArea')
   };
 
-  init();
-
-  function init(){
-    renderAnnexOptions();
-    renderCompanySelect();
-    bindEvents();
-    render();
+  function defaultState(){
+    const sample = createSampleCompany();
+    return {selectedId: sample.id, targetMonth: currentMonthKey(), companies:{[sample.id]: sample}};
   }
 
-  function loadState(){
+  async function loadState(){
+    setCloudStatus('loading','Conectando...');
+    try{
+      const snap = await get(ref(db, FB_PATH));
+      if(snap.exists()){
+        const d = snap.val();
+        // Proteção: não aceitar state sem companies
+        if(d && d.companies && Object.keys(d.companies).length > 0){
+          setCloudStatus('ok','Sincronizado');
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+          return d;
+        }
+      }
+    }catch(e){
+      setCloudStatus('error','Sem nuvem — usando cache local: '+(e.code||e.message||e));
+      console.error('Firebase load error:',e);
+    }
+    // Fallback localStorage
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw) return JSON.parse(raw);
-    }catch(e){console.warn(e)}
-    const sample = createSampleCompany();
-    return {selectedId: sample.id, targetMonth:'2026-07', companies:{[sample.id]:sample}};
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed && parsed.companies && Object.keys(parsed.companies).length > 0) return parsed;
+      }
+    }catch(e){ console.warn(e); }
+    return defaultState();
   }
+
+  let _saveTimer = null;
   function saveState(){
     state.selectedId = selectedId;
+    // Salva local imediatamente
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Debounce Firebase: 800ms de inatividade
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(async ()=>{
+      // Proteção: nunca gravar state sem empresas
+      if(!state.companies || Object.keys(state.companies).length === 0){
+        console.warn('saveState bloqueado: state sem companies');
+        return;
+      }
+      setCloudStatus('loading','Salvando...');
+      try{
+        await set(ref(db, FB_PATH), state);
+        setCloudStatus('ok','Salvo');
+      }catch(e){
+        setCloudStatus('error','Erro ao salvar: '+(e.code||e.message||e));
+        console.error('Firebase save error:',e);
+      }
+    }, 800);
   }
 
   function createSampleCompany(){
