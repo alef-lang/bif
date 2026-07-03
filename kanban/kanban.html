@@ -63,7 +63,7 @@ select option{background:#1b2e42;color:#e8edf3}
 
 /* Board */
 .board-wrap{min-height:0;overflow:auto;padding:14px 18px 18px}
-.board{display:grid;grid-template-columns:repeat(8,minmax(275px,1fr));gap:12px;min-width:2320px;align-items:start}
+.board{display:grid;grid-template-columns:repeat(9,minmax(275px,1fr));gap:12px;min-width:2600px;align-items:start}
 .lane{background:rgba(27,46,66,.82);border:1px solid rgba(201,168,76,.18);border-radius:16px;min-height:360px;max-height:calc(100vh - 265px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.18)}
 .lane.drop{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
 .lane-head{padding:10px 11px;border-bottom:1px solid rgba(201,168,76,.15);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:rgba(0,0,0,.12)}
@@ -172,14 +172,14 @@ select option{background:#1b2e42;color:#e8edf3}
     <div class="logo">K</div>
     <div class="title">
       <h1>Kanban Fiscal — Alef</h1>
-      <p>Empresas do Painel · responsável fixo: Alef · dependências e tarefas vinculadas</p>
+      <p>Empresas do Painel · responsável fixo: Alef · Caixa de Entrada e fluxo fiscal</p>
     </div>
   </div>
   <div class="actions">
     <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
-    <button class="btn gold" onclick="refreshAll()">↻ Atualizar</button>
-    <button class="btn" onclick="exportKanban()">⬇ Backup</button>
-    <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Importar</button>
+    <button type="button" class="btn gold" onclick="refreshAll()">↻ Atualizar</button>
+    <button type="button" class="btn" onclick="exportKanban()">⬇ Backup</button>
+    <button type="button" class="btn" onclick="document.getElementById('importFile').click()">⬆ Importar</button>
     <input id="importFile" type="file" accept="application/json" hidden onchange="importKanban(event)">
     <a href="#" onclick="history.back();return false" class="portal-back">← BIF</a>
   </div>
@@ -219,7 +219,7 @@ select option{background:#1b2e42;color:#e8edf3}
   </section>
 
   <section class="radar" id="radar">
-    <div class="kpi"><div class="kpi-label">Empresas do Alef</div><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-sub">geradas do Painel</div></div>
+    <div class="kpi"><div class="kpi-label">Empresas do Alef</div><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-sub">puxadas do Painel</div></div>
     <div class="kpi"><div class="kpi-label">Tarefas abertas</div><div class="kpi-val" id="kpiTasks">0</div><div class="kpi-sub">puxadas do Tarefas</div></div>
     <div class="kpi"><div class="kpi-label">Com pendência</div><div class="kpi-val" id="kpiDeps">0</div><div class="kpi-sub">falta info/documento</div></div>
     <div class="kpi"><div class="kpi-label">Aguardando cliente</div><div class="kpi-val" id="kpiWaiting">0</div><div class="kpi-sub">bloqueio externo</div></div>
@@ -240,7 +240,7 @@ select option{background:#1b2e42;color:#e8edf3}
         <h2 id="modalCompanyName">Empresa</h2>
         <p id="modalCompanyMeta">Vínculo com Painel de Gestão</p>
       </div>
-      <button class="btn red small" onclick="closeCardModal()">✕ Fechar</button>
+      <button type="button" class="btn red small" onclick="closeCardModal()">✕ Fechar</button>
     </div>
     <div class="modal-body">
       <div class="panel">
@@ -284,15 +284,15 @@ select option{background:#1b2e42;color:#e8edf3}
         <div class="panel-title">Tarefas dessa empresa</div>
         <div id="modalTasks" class="task-full-list"></div>
         <div style="height:12px"></div>
-        <button class="btn gold" onclick="createTaskFromCurrentCard()">+ Gerar tarefa no Painel de Tarefas</button>
+        <button type="button" class="btn gold" onclick="createTaskFromCurrentCard()">+ Gerar tarefa no Painel de Tarefas</button>
         <div style="font:600 10px var(--font-mono);color:var(--muted);line-height:1.45;margin-top:8px">
           A tarefa é criada em <b>bif_tarefas_fiscal</b>, vinculada a esta empresa, com o próximo passo e as dependências do card.
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="resetCardState()">↩ Limpar card</button>
-      <button class="btn gold" onclick="saveCardModal()">💾 Salvar card</button>
+      <button type="button" class="btn" onclick="resetCardState()">↩ Limpar card</button>
+      <button type="button" class="btn gold" onclick="saveCardModal()">💾 Salvar card</button>
     </div>
   </div>
 </div>
@@ -325,8 +325,9 @@ onAuthStateChanged(auth, () => {
 </script>
 
 <script>
-const LANE_ORDER=['aguardando_notas','importando','conferindo','calculando','aguardando_cliente','guias_envio','parqueado','concluido'];
+const LANE_ORDER=['caixa_entrada','aguardando_notas','importando','conferindo','calculando','aguardando_cliente','guias_envio','parqueado','concluido'];
 const LANES={
+  caixa_entrada:{label:'Caixa de Entrada',sub:'todas as empresas do Alef para triagem inicial',icon:'📦'},
   aguardando_notas:{label:'Aguardando notas',sub:'falta envelope, XML ou movimento',icon:'📥'},
   importando:{label:'Importando notas',sub:'XML, planilha, entradas/saídas',icon:'⬆️'},
   conferindo:{label:'Conferindo',sub:'pendências, divergências, documentos',icon:'🔎'},
@@ -347,6 +348,7 @@ const DEPS=[
 const DEP_STATUS={pendente:'Falta',ok:'Recebido',na:'N/A'};
 const TARGET_COLLAB='Alef';
 const TARGET_COLLAB_NORM=norm(TARGET_COLLAB);
+const PAINEL_ALEF_FALLBACK=[{"nome":"ACEP EMPREENDIMENTOS IMOB LTDA","cnpj":"65731707000113","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"DANIEL MARTINS SIQUEIRA","cnpj":"03872871000193","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"DPF EMPRE. E PARTIC. EIRELI","cnpj":"37350182000130","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FBF EMPREENDIMENTOS IMOB","cnpj":"22484605000138","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FOM ASSESSORIA LTDA","cnpj":"57207428000127","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FOM LEILOES LTDA","cnpj":"61853316000110","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FREFER OCCHIALINI AGROPECUARIA LTDA","cnpj":"66776097000137","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - CASTELLABATE","cnpj":"19174834000141","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - GDO PRE MOLDADOS","cnpj":"43640489000179","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - GRANDINO PRE MOLDADOS","cnpj":"65413486000135","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - GRANDINO PRE MOLDADOS - FILIAL 2","cnpj":"65413486000216","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"HOTEL DEL FIOL","cnpj":"00229295000172","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"J. SÁ HOLDING","cnpj":"56174480000161","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"JUVENAL 430 LTDA","cnpj":"65054506000129","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Lidiane - C CAMARGO E POLASTRI","cnpj":"18011915000168","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Lidiane - DUARTE METAIS","cnpj":"42059706000179","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"M.S. ROMAGNOLO EMPREEND.","cnpj":"11490868000133","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA","cnpj":"63789312000146","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"MFJ CAMPOS","cnpj":"64277948000171","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"NELSON - NOVA QUADRA","cnpj":"45196536000162","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA","cnpj":"58138259000183","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"NSC NOVESETE COMUNICAÇÃO LTDA","cnpj":"03009199000107","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"OCCHIALINI EMPREEND. IMOBI LTDA","cnpj":"35783871000103","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"OCCHIALINI FREIRE HOLDING LTDA","cnpj":"64736056000191","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"R. J. SAMPAIO DE ALMEIDA LTDA","cnpj":"66652630000159","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"RIBEIRO BRANCO EMPREENDIMENTOS","cnpj":"49507538000186","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA","cnpj":"54581448000175","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"TATIANA LOPES TREINAMENTOS","cnpj":"65202077000190","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"TL EMPREENDIMENTOS","cnpj":"51074518000100","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"WB","cnpj":"50780808000107","colaborador":"ALEF","regime":"outros","atividade":""}];
 
 let empresas=[],tarefas=[],kanban={cards:{}},filters={search:'',collab:TARGET_COLLAB,regime:'',lane:'',dep:'',onlyActive:false};
 let currentCardId=null,dragId=null,dragWasMoved=false,saveTimer=null;
@@ -411,7 +413,7 @@ function tasksForEmpresa(e){
 function cardState(id,e){
   const c=kanban.cards?.[id]||{};
   return {
-    lane:c.lane || (e?.semMovimento?'aguardando_cliente':'aguardando_notas'),
+    lane:c.lane || 'caixa_entrada',
     deps:c.deps||{},
     note:c.note||'',
     next:c.next||'',
@@ -445,7 +447,7 @@ function getVisibleCompanies(){
     if(filters.regime && String(e.regime||'outros')!==filters.regime)return false;
     if(filters.lane && c.lane!==filters.lane)return false;
     if(dep && c.deps?.[dep]!=='pendente')return false;
-    if(filters.onlyActive && !openTs.length && !hasAnyDep(c) && !c.next && c.lane==='aguardando_notas')return false;
+    if(filters.onlyActive && !openTs.length && !hasAnyDep(c) && !c.next && ['caixa_entrada','aguardando_notas'].includes(c.lane))return false;
     if(s){
       const hay=[e.nome,e.cnpj,e.colaborador,e.regime,e.atividade,c.note,c.next,LANES[c.lane]?.label,...missingDeps(c).map(d=>d.label),...ts.map(t=>t.name)].join(' ');
       if(!norm(hay).includes(s))return false;
@@ -720,22 +722,27 @@ async function saveKanban(){
   try{await fb.set(fb.kanbanRef,kanban);setCloudStatus('ok','Nuvem sincronizada');}
   catch(e){console.error(e);setCloudStatus('error','Offline — salvo local');}
 }
-function loadLocalEmpresas(){
+function localEmpresasFromStorage(){
   const keys=['gestao_v3','painel_gestao_empresas','fiscal_painel_empresas_cache'];
+  const list=[];
   for(const k of keys){
     try{
       const d=JSON.parse(localStorage.getItem(k)||'null');
       const arr=Array.isArray(d)?d:(d?.empresas||d?.S?.empresas||d?.state?.empresas||[]);
-      if(arr&&arr.length)return mergeEmpresas(arr);
+      if(arr&&arr.length)list.push(...arr);
     }catch(e){}
   }
-  return [];
+  return list;
+}
+function loadLocalEmpresas(){
+  const local=localEmpresasFromStorage();
+  return mergeEmpresas([...(PAINEL_ALEF_FALLBACK||[]),...local]);
 }
 function setupFirebaseListeners(){
   try{
     fb.onValue(fb.empresasRef,snap=>{
       const list=[]; if(snap.exists())snap.forEach(ch=>list.push({_fbKey:ch.key,...ch.val()}));
-      empresas=mergeEmpresas(list);
+      empresas=mergeEmpresas([...(PAINEL_ALEF_FALLBACK||[]),...localEmpresasFromStorage(),...list]);
       renderFilters();renderBoard();setCloudStatus('ok','Nuvem sincronizada');
     },err=>{console.error(err);empresas=loadLocalEmpresas();renderFilters();renderBoard();setCloudStatus('error','Empresas locais');});
   }catch(e){empresas=loadLocalEmpresas();}
@@ -760,7 +767,7 @@ async function startKanban(){
   setCloudStatus('ok','Pronto');
 }
 window.startKanban=startKanban;
-window.refreshAll=function(){renderFilters();renderBoard();toast('Tela atualizada.');}
+window.refreshAll=function(){empresas=mergeEmpresas([...(PAINEL_ALEF_FALLBACK||[]),...localEmpresasFromStorage(),...empresas]);renderFilters();renderBoard();toast('Empresas do Alef atualizadas na Caixa de Entrada.');}
 window.exportKanban=function(){
   const data={version:1,exportedAt:new Date().toISOString(),kanban};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
