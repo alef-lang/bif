@@ -119,6 +119,14 @@ select option{background:#1b2e42;color:#e8eaf0}
 .toast.warn{color:var(--warn);border-color:rgba(253,203,110,.32);background:rgba(253,203,110,.10)}
 @media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:repeat(7,82vw)}}
+
+/* NOVO RECEBIMENTO */
+.company-preview{border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.065);border-radius:14px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.45;min-height:54px}
+.company-preview strong{display:block;color:var(--text);font-size:13px;margin-bottom:3px;line-height:1.25}
+.company-preview .preview-meta{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);display:grid;gap:2px}
+.company-preview .already{display:inline-flex;margin-top:7px;border:1px solid rgba(253,203,110,.32);background:rgba(253,203,110,.10);color:var(--warn);border-radius:999px;padding:3px 8px;font-family:var(--font-mono);font-size:10px;font-weight:700}
+.new-helper{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:-4px}
+
 @media print{
   @page{size:A4 portrait;margin:12mm}
   body{background:#fff!important;color:#111!important;font-family:Arial,sans-serif}
@@ -145,10 +153,11 @@ select option{background:#1b2e42;color:#e8eaf0}
   </div>
   <div class="header-actions">
     <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
+    <button type="button" class="btn primary" id="btnNovoRecebimento">➕ Novo recebimento</button>
     <button type="button" class="btn ghost" id="btnReload">↻ Recarregar</button>
     <button type="button" class="btn" id="btnExport">⬇ CSV</button>
     <button type="button" class="btn" id="btnBackup">🧾 Backup</button>
-    <button type="button" class="btn primary" id="btnPrint">🖨️ Imprimir</button>
+    <button type="button" class="btn" id="btnPrint">🖨️ Imprimir</button>
   </div>
 </header>
 
@@ -203,7 +212,7 @@ select option{background:#1b2e42;color:#e8eaf0}
 </section>
 
 <section class="dashboard">
-  <div class="kpi"><div class="label">Empresas Alef</div><div class="num" id="kpiTotal">0</div><div class="hint">Puxadas do Painel</div></div>
+  <div class="kpi"><div class="label">Recebimentos</div><div class="num" id="kpiTotal">0</div><div class="hint" id="kpiTotalHint">Criados na competência</div></div>
   <div class="kpi warn"><div class="label">Caixa de entrada</div><div class="num" id="kpiAguardando">0</div><div class="hint">Ainda sem solicitação</div></div>
   <div class="kpi blue"><div class="label">Em andamento</div><div class="num" id="kpiAndamento">0</div><div class="hint">Solicitado ou parcial</div></div>
   <div class="kpi ok"><div class="label">Concluído</div><div class="num" id="kpiConcluido">0</div><div class="hint">Completo, sem movimento ou conferido</div></div>
@@ -216,7 +225,7 @@ select option{background:#1b2e42;color:#e8eaf0}
     <div class="panel-head"><div><h2>Fluxo sugerido de recebimento</h2><p>Use a competência como unidade de controle; cada empresa tem sua própria trilha.</p></div></div>
     <div class="panel-body">
       <div class="flow">
-        <div class="flow-step"><b>1. Caixa de entrada</b><span>Empresa puxada do Painel, aguardando contato inicial.</span></div>
+        <div class="flow-step"><b>1. Novo recebimento</b><span>Clique no botão, escolha a empresa puxada do Painel/Index e crie o controle.</span></div>
         <div class="flow-step"><b>2. Solicitado</b><span>Cliente foi cobrado. Preencher data e prazo.</span></div>
         <div class="flow-step"><b>3. Parcial</b><span>Chegou parte do movimento; marcar o que falta.</span></div>
         <div class="flow-step"><b>4. Completo</b><span>Documentos suficientes para fechar a competência.</span></div>
@@ -227,8 +236,8 @@ select option{background:#1b2e42;color:#e8eaf0}
   <div class="panel">
     <div class="panel-head"><div><h2>Regras de uso</h2><p>Evita retrabalho e perda de contexto.</p></div></div>
     <div class="panel-body mini-list">
-      <div class="mini-item">☁️ <span><strong>Firebase primeiro:</strong> a página lê empresas do caminho <em>painel/empresas</em> e salva controles por competência.</span></div>
-      <div class="mini-item">🧩 <span><strong>Sem sobrescrever lista:</strong> os cards são criados visualmente a partir do Painel; só o controle editado é salvo.</span></div>
+      <div class="mini-item">☁️ <span><strong>Firebase primeiro:</strong> a janela de novo recebimento lê empresas do caminho <em>painel/empresas</em> e salva controles por competência.</span></div>
+      <div class="mini-item">🧩 <span><strong>Sem sobrescrever lista:</strong> o Painel/Index só alimenta a escolha da empresa; o card aparece quando o recebimento é criado ou salvo.</span></div>
       <div class="mini-item">📌 <span><strong>Próximo passo obrigatório:</strong> sempre deixe claro quem cobra, o que falta e qual prazo.</span></div>
     </div>
   </div>
@@ -239,6 +248,32 @@ select option{background:#1b2e42;color:#e8eaf0}
 </main>
 
 <section class="print-list" id="printList"></section>
+
+<div class="modal-overlay" id="newOverlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <h2>Novo recebimento</h2>
+        <p id="newModalSubtitle">Escolha uma empresa do Painel/Index do Alef</p>
+      </div>
+      <button type="button" class="btn ghost" id="btnCloseNew">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid two">
+        <div class="field full"><label>Buscar empresa</label><input id="newEmpresaSearch" type="search" placeholder="Digite nome, CNPJ, atividade ou regime..." /></div>
+        <div class="field full"><label>Empresa do Painel / Index</label><select id="newEmpresaSelect"></select></div>
+        <div class="field"><label>Status inicial</label><select id="newStatus"></select></div>
+        <div class="field"><label>Prazo</label><input id="newPrazo" type="date" /></div>
+      </div>
+      <div id="newEmpresaPreview" class="company-preview">Carregando empresas do Painel/Index...</div>
+      <p class="new-helper">A empresa é puxada automaticamente do Firebase em <strong>painel/empresas</strong>. Se o Firebase estiver indisponível, a página usa o cache local do index e, por último, a base de segurança.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn ghost" id="btnCancelNew">Cancelar</button>
+      <button type="button" class="btn primary" id="btnCreateRecebimento">Criar / abrir recebimento</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true">
@@ -647,6 +682,7 @@ const state = {
   docFilter: '',
   prazoFilter: '',
   currentKey: null,
+  newSearch: '',
   firebaseReady: false,
   database: null,
   movimentosUnsub: null,
@@ -762,12 +798,26 @@ function useFallbackEmpresas(reason) {
   state.movimentos = loadLocalForCompetencia(state.competencia);
   const fromLocal = loadPainelCacheEmpresas();
   state.empresas = mergeEmpresas(fromLocal, FALLBACK_ALEF_EMPRESAS);
-  state.dataSource = fromLocal.length ? 'cache do Painel' : 'base de segurança embutida';
-  setCloudStatus('offline', `${reason} • ${state.empresas.length} empresas Alef em cache`);
+  state.dataSource = fromLocal.length ? 'cache do Painel/Index' : 'base de segurança embarcada';
+  setCloudStatus(fromLocal.length ? 'offline' : 'error', `${reason} • ${state.empresas.length} empresas Alef`);
   renderAll();
+  if(qs('newOverlay')?.classList.contains('open')) renderNewEmpresaOptions();
 }
-
-function getEmpresaByKey(key) { return state.empresas.find(e => recordKeyEmpresa(e) === key); }
+function getEmpresaByKey(key) {
+  const found = state.empresas.find(e => recordKeyEmpresa(e) === key);
+  if(found) return found;
+  const rec = state.movimentos && state.movimentos[key];
+  if(rec && rec.empresaNome) {
+    return normalizeEmpresa({
+      nome: rec.empresaNome,
+      cnpj: rec.cnpj,
+      regime: rec.regime,
+      atividade: rec.atividade,
+      colaborador: rec.colaborador || COLABORADOR_ALVO
+    });
+  }
+  return null;
+}
 function getRecord(key) {
   const emp = getEmpresaByKey(key) || {};
   return normalizeRecord(state.movimentos[key] || {}, emp);
@@ -784,9 +834,20 @@ function prazoBucket(rec) {
   return 'futuro';
 }
 
+function recebimentoKeys() {
+  return Object.keys(state.movimentos || {}).filter(key => {
+    const rec = state.movimentos[key];
+    return rec && typeof rec === 'object' && (rec.empresaNome || rec.cnpj || getEmpresaByKey(key));
+  });
+}
+
 function filteredItems() {
   const q = norm(state.search);
-  return state.empresas.map(e => { const key = recordKeyEmpresa(e); return { empresa:e, key, rec:getRecord(key) }; })
+  return recebimentoKeys().map(key => {
+      const e = getEmpresaByKey(key);
+      return e ? { empresa:e, key, rec:getRecord(key) } : null;
+    })
+    .filter(Boolean)
     .filter(item => {
       const {empresa:e, rec} = item;
       if(state.statusFilter && rec.status !== state.statusFilter) return false;
@@ -800,31 +861,33 @@ function filteredItems() {
       return true;
     });
 }
-
 function renderAll() { renderKpis(); renderKanban(); renderPrintList(); }
 function renderKpis() {
-  const items = state.empresas.map(e => getRecord(recordKeyEmpresa(e)));
-  qs('kpiTotal').textContent = state.empresas.length;
+  const items = recebimentoKeys().map(key => getRecord(key));
+  qs('kpiTotal').textContent = items.length;
+  const hint = qs('kpiTotalHint');
+  if(hint) hint.textContent = `${state.empresas.length} empresas Alef disponíveis no Painel/Index`;
   qs('kpiAguardando').textContent = items.filter(r => r.status === 'aguardando').length;
   qs('kpiAndamento').textContent = items.filter(r => ['solicitado','parcial'].includes(r.status)).length;
   qs('kpiConcluido').textContent = items.filter(isConcluido).length;
   qs('kpiPendencia').textContent = items.filter(r => r.status === 'pendencia' || r.pendencia.trim()).length;
   qs('kpiAtrasado').textContent = items.filter(isAtrasado).length;
 }
-
 function renderKanban() {
   const host = qs('kanban');
   const items = filteredItems();
+  const noCreated = recebimentoKeys().length === 0;
   host.innerHTML = STATUS.map(st => {
     const colItems = items.filter(x => x.rec.status === st.id);
-    const cards = colItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">Nenhuma empresa nesta coluna.</div>`;
+    let emptyText = 'Nenhum recebimento nesta coluna.';
+    if(noCreated && st.id === 'aguardando') emptyText = 'Clique em “Novo recebimento” para escolher uma empresa do Painel/Index.';
+    const cards = colItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">${emptyText}</div>`;
     return `<section class="column" data-status="${st.id}">
       <div class="col-head"><div class="col-title"><b>${esc(st.label)}</b><span>${esc(st.hint)}</span></div><span class="count">${colItems.length}</span></div>
       <div class="cards">${cards}</div>
     </section>`;
   }).join('');
 }
-
 function renderCard(e, key, rec) {
   const miss = missingDocs(rec);
   const missChips = rec.status === 'sem_movimento' ? '<span class="chip ok">Sem movimento</span>' : (miss.slice(0,3).map(d => `<span class="chip missing">${esc(d.label)}</span>`).join('') + (miss.length>3 ? `<span class="chip missing">+${miss.length-3}</span>` : ''));
@@ -862,9 +925,98 @@ function renderDocsGrid(rec) {
 }
 
 function renderStatusOptions() {
-  qs('mStatus').innerHTML = STATUS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
+  const opts = STATUS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
+  qs('mStatus').innerHTML = opts;
+  const ns = qs('newStatus');
+  if(ns) ns.innerHTML = opts;
 }
 
+function newEmpresaList() {
+  const q = norm(state.newSearch);
+  return state.empresas.filter(e => {
+    if(!q) return true;
+    const blob = norm([e.nome, e.cnpj, e.atividade, e.regime, e.colaborador].join(' '));
+    return blob.includes(q);
+  }).slice(0, 200);
+}
+
+function renderNewEmpresaOptions() {
+  const select = qs('newEmpresaSelect');
+  if(!select) return;
+  const list = newEmpresaList();
+  if(!list.length) {
+    select.innerHTML = '<option value="">Nenhuma empresa encontrada</option>';
+    renderNewEmpresaPreview(null);
+    return;
+  }
+  select.innerHTML = list.map(e => {
+    const key = recordKeyEmpresa(e);
+    const exists = state.movimentos && state.movimentos[key];
+    const suffix = exists ? ' • já existe nesta competência' : '';
+    return `<option value="${esc(key)}">${esc(e.nome)} — ${esc(cnpjFmt(e.cnpj) || 'sem CNPJ')} — ${esc(regimeLabel(e.regime))}${suffix}</option>`;
+  }).join('');
+  renderNewEmpresaPreview(getEmpresaByKey(select.value));
+}
+
+function renderNewEmpresaPreview(e) {
+  const box = qs('newEmpresaPreview');
+  if(!box) return;
+  if(!e) {
+    box.innerHTML = 'Nenhuma empresa selecionada. Verifique se o Painel/Index carregou as empresas do Alef.';
+    return;
+  }
+  const key = recordKeyEmpresa(e);
+  const exists = !!(state.movimentos && state.movimentos[key]);
+  box.innerHTML = `<strong>${esc(e.nome)}</strong>
+    <div class="preview-meta">
+      <span>CNPJ: ${esc(cnpjFmt(e.cnpj) || 'não informado')}</span>
+      <span>Regime: ${esc(regimeLabel(e.regime))}</span>
+      <span>Atividade: ${esc(e.atividade || 'não informada')}</span>
+      <span>Fonte: ${esc(state.dataSource || 'Painel/Index')}</span>
+    </div>
+    ${exists ? '<span class="already">Já existe recebimento criado nesta competência — será aberto sem duplicar</span>' : ''}`;
+}
+
+function openNewRecebimento() {
+  state.newSearch = '';
+  renderStatusOptions();
+  const sub = qs('newModalSubtitle');
+  if(sub) sub.textContent = `Competência ${compLabel(state.competencia)} • escolha uma empresa do Painel/Index do Alef`;
+  qs('newEmpresaSearch').value = '';
+  qs('newPrazo').value = '';
+  qs('newStatus').value = 'aguardando';
+  renderNewEmpresaOptions();
+  qs('newOverlay').classList.add('open');
+  qs('newOverlay').setAttribute('aria-hidden','false');
+  setTimeout(() => qs('newEmpresaSearch')?.focus(), 60);
+}
+
+function closeNewRecebimento() {
+  qs('newOverlay').classList.remove('open');
+  qs('newOverlay').setAttribute('aria-hidden','true');
+}
+
+async function createRecebimentoFromPicker() {
+  const key = qs('newEmpresaSelect').value;
+  if(!key) return toast('Escolha uma empresa do Painel/Index.', 'warn');
+  const emp = getEmpresaByKey(key);
+  if(!emp) return toast('Empresa não encontrada no Painel/Index.', 'err');
+  const exists = !!(state.movimentos && state.movimentos[key]);
+  if(!exists) {
+    const rec = normalizeRecord({
+      status: qs('newStatus').value || 'aguardando',
+      prazo: qs('newPrazo').value || '',
+      proximoPasso: 'Solicitar movimento/documentos da competência',
+      updatedAt: new Date().toISOString()
+    }, emp);
+    await saveRecord(key, rec);
+    toast('Recebimento criado.', 'ok');
+  } else {
+    toast('Recebimento já existia; abrindo controle.', 'warn');
+  }
+  closeNewRecebimento();
+  openModal(key);
+}
 function openModal(key) {
   state.currentKey = key;
   const e = getEmpresaByKey(key);
@@ -1004,10 +1156,17 @@ function bindEvents() {
   qs('btnExport').addEventListener('click', exportCSV);
   qs('btnBackup').addEventListener('click', backupJSON);
   qs('btnReload').addEventListener('click', () => location.reload());
+  qs('btnNovoRecebimento').addEventListener('click', openNewRecebimento);
   qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
+  qs('btnCloseNew').addEventListener('click', closeNewRecebimento);
+  qs('btnCancelNew').addEventListener('click', closeNewRecebimento);
+  qs('btnCreateRecebimento').addEventListener('click', createRecebimentoFromPicker);
+  qs('newEmpresaSearch').addEventListener('input', e => { state.newSearch = e.target.value; renderNewEmpresaOptions(); });
+  qs('newEmpresaSelect').addEventListener('change', e => renderNewEmpresaPreview(getEmpresaByKey(e.target.value)));
+  qs('newOverlay').addEventListener('click', e => { if(e.target.id === 'newOverlay') closeNewRecebimento(); });
   qs('btnCloseModal').addEventListener('click', closeModal);
   qs('modalOverlay').addEventListener('click', e => { if(e.target.id === 'modalOverlay') closeModal(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeModal(); closeNewRecebimento(); } });
   qs('btnSave').addEventListener('click', () => saveFromModal());
   qs('btnMarkSolicitado').addEventListener('click', async () => { qs('mStatus').value='solicitado'; if(!qs('mSolicitacao').value) qs('mSolicitacao').value=todayISO(); await saveFromModal(); });
   qs('btnMarkCompleto').addEventListener('click', async () => { qs('mStatus').value='completo'; DOCS.forEach(d => { const el=qs(`doc_${d.id}`); if(el) el.checked=true; }); await saveFromModal({pendencia:''}); });
@@ -1067,6 +1226,7 @@ function attachEmpresasFirebase() {
       useFallbackEmpresas('Nenhuma empresa Alef no Firebase');
     }
     renderAll();
+    if(qs('newOverlay')?.classList.contains('open')) renderNewEmpresaOptions();
   }, err => {
     received = true;
     console.error(err);
