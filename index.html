@@ -195,6 +195,92 @@
       gap: 16px;
     }
 
+
+    .topbar-search {
+      flex: 1 1 360px;
+      max-width: 520px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px 0 14px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 999px;
+      color: var(--gold-light);
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+    }
+
+    .topbar-search:focus-within {
+      border-color: var(--gold);
+      background: rgba(255,255,255,0.055);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    }
+
+    .topbar-search .search-icon {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.95rem;
+      opacity: 0.9;
+      flex: 0 0 auto;
+    }
+
+    .topbar-search input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .topbar-search input::placeholder {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .btn-clear-search {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(201,168,76,0.18);
+      background: rgba(13,27,42,0.45);
+      color: var(--text-muted);
+      display: none;
+      place-items: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .btn-clear-search:hover {
+      color: var(--gold-light);
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.10);
+    }
+
+    .search-empty {
+      display: none;
+      margin: -18px 0 34px;
+      border: 1px dashed rgba(201,168,76,0.26);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      color: var(--text-muted);
+      background: rgba(27,46,66,0.42);
+      font-size: 0.9rem;
+    }
+
+    .search-empty strong {
+      color: var(--gold-light);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
     .user-info {
       font-size: 0.82rem;
       color: var(--text-muted);
@@ -424,8 +510,10 @@
 
     /* ── RESPONSIVO ─────────────────────────────────────────── */
     @media (max-width: 640px) {
-      .topbar { padding: 0 16px; }
+      .topbar { height: auto; padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
       .topbar-brand span { display: none; }
+      .topbar-search { order: 3; flex: 1 1 100%; max-width: none; width: 100%; }
+      .topbar-right { margin-left: auto; }
       .main { padding: 24px 16px 48px; }
       .welcome h2 { font-size: 1.4rem; }
       .tools-grid { grid-template-columns: 1fr; }
@@ -462,6 +550,11 @@
       <span class="glyph">◈</span>
       <span>BUSINESS INTELLIGENCE FISCAL</span>
     </div>
+    <label class="topbar-search" for="indexSearch" aria-label="Buscar ferramenta no portal">
+      <span class="search-icon">⌕</span>
+      <input type="search" id="indexSearch" placeholder="Buscar módulo, rotina ou ferramenta..." autocomplete="off" />
+      <button type="button" class="btn-clear-search" id="btnClearIndexSearch" aria-label="Limpar busca">×</button>
+    </label>
     <div class="topbar-right">
       <span class="user-info" id="userEmail"></span>
       <button class="btn-logout" id="btnLogout">Sair</button>
@@ -472,6 +565,11 @@
     <div class="welcome">
       <h2>Bem-vindo ao seu<br><span>centro de operações.</span></h2>
       <p>Todas as ferramentas do escritório em um só lugar. Clique em uma ferramenta para acessá-la.</p>
+    </div>
+
+    <div class="search-empty" id="searchEmpty">
+      <strong>Nenhum módulo encontrado</strong>
+      Tente buscar por palavras como fiscal, documentos, tarefas, recebimento, guias ou cliente.
     </div>
 
     <!-- Ferramentas disponíveis -->
@@ -613,6 +711,17 @@
           <div class="tool-icon">📋</div>
           <h3>Controle de Guias</h3>
           <p>Rastreamento completo de guias geradas, enviadas e pagas por empresa. KPIs de entrega, comprovantes e integração com o Checklist.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+
+        <div class="tool-card ready" data-tool="recebimento" onclick="openTool('recebimento')">
+          <div class="tool-icon">📥</div>
+          <h3>Recebimento de Movimento</h3>
+          <p>Controle de recebimento de movimento e documentos por empresa, competência, prazo, pendências e status de conferência.</p>
           <div class="tool-footer">
             <span class="badge-ready">● Disponível</span>
             <span class="btn-open">Abrir →</span>
@@ -1067,6 +1176,56 @@
   const loginError  = document.getElementById('loginError');
   const userEmail   = document.getElementById('userEmail');
   const btnLogout   = document.getElementById('btnLogout');
+  const indexSearch = document.getElementById('indexSearch');
+  const btnClearIndexSearch = document.getElementById('btnClearIndexSearch');
+  const searchEmpty = document.getElementById('searchEmpty');
+
+
+
+  function normalizeIndexSearch(v) {
+    return String(v || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function applyIndexSearch() {
+    if (!indexSearch) return;
+    const query = normalizeIndexSearch(indexSearch.value);
+    const cards = Array.from(document.querySelectorAll('.tool-card'));
+    const categories = Array.from(document.querySelectorAll('.category'));
+    let visible = 0;
+
+    cards.forEach(card => {
+      const category = card.closest('.category')?.querySelector('.section-title')?.textContent || '';
+      const text = normalizeIndexSearch([
+        card.dataset.tool || '',
+        category,
+        card.querySelector('h3')?.textContent || '',
+        card.querySelector('p')?.textContent || '',
+        card.querySelector('.tool-icon')?.textContent || ''
+      ].join(' '));
+      const match = !query || text.includes(query);
+      card.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+
+    categories.forEach(category => {
+      const hasVisibleCard = Array.from(category.querySelectorAll('.tool-card')).some(card => card.style.display !== 'none');
+      category.style.display = hasVisibleCard ? '' : 'none';
+    });
+
+    if (btnClearIndexSearch) btnClearIndexSearch.style.display = query ? 'grid' : 'none';
+    if (searchEmpty) searchEmpty.style.display = query && visible === 0 ? 'block' : 'none';
+  }
+
+  if (indexSearch) indexSearch.addEventListener('input', applyIndexSearch);
+  if (btnClearIndexSearch) btnClearIndexSearch.addEventListener('click', () => {
+    indexSearch.value = '';
+    applyIndexSearch();
+    indexSearch.focus();
+  });
 
   // Detecta estado de autenticação
   onAuthStateChanged(auth, user => {
@@ -1145,6 +1304,7 @@
       if (!snap.exists()) {
         // Sem registro de colaborador cadastrado: mantém acesso total (conta administrativa/legada)
         cards.forEach(c => unlockCard(c, c.dataset.tool));
+        applyIndexSearch();
         return;
       }
       const colaborador = snap.val();
@@ -1158,16 +1318,18 @@
         const tool = card.dataset.tool;
         // O Mapa da Agenda é complemento direto de Tarefas.
         // Quem tem acesso a Tarefas também consegue abrir o Mapa, mesmo que a permissão nova ainda não exista no Firebase.
-        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'criatividade-alef' && (permissoes['kanban'] === true || permissoes['painel'] === true || permissoes['anotacoes'] === true)) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true)) {
+        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'criatividade-alef' && (permissoes['kanban'] === true || permissoes['painel'] === true || permissoes['anotacoes'] === true)) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true))) {
           unlockCard(card, tool);
         } else {
           lockCard(card);
         }
       });
+      applyIndexSearch();
     } catch(e) {
       console.error('Erro ao verificar permissões:', e);
       // Falha na consulta: mantém acesso total para não travar o uso do sistema
       cards.forEach(c => unlockCard(c, c.dataset.tool));
+      applyIndexSearch();
     }
   }
 
@@ -1197,6 +1359,7 @@
       'obrigacoes': './obrigacoes/obrigacoes.html',
       'kanban': './kanban/kanban.html',
       'criatividade-alef': './kanban/kanban.html',
+      'recebimento': './recebimento/recebimento.html',
       'antena-fiscal': './antena/antena-fiscal.html',
       'calculadora-ibs-cbs': './ferramentas/calculadora_ibs_cbs_v2.html',
       'acesso-sistemas': './acesso/acesso_sistemas.html',
