@@ -1511,6 +1511,75 @@ th.col-dragging{opacity:0.45;}
 .rich-field font[size="7"]{font-size:26px;}
 @media(max-width:700px){.rte-float-v2{left:8px!important;right:8px!important;top:auto!important;bottom:12px!important;width:auto!important}.ff-hex{width:78px}.rte-float-v2 .ff-label{font-size:9px}}
 
+
+/* RELATÓRIO POR ATIVIDADE ECONÔMICA */
+.activity-report-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:10px;
+  margin:0 0 14px;
+}
+.activity-report-card{
+  border:1px solid var(--gold-dim);
+  border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025));
+  padding:11px 12px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.18);
+}
+.activity-report-card h4{
+  font-family:var(--font-title);
+  font-size:12px;
+  color:var(--gold-light);
+  line-height:1.35;
+  margin:0 0 7px;
+  overflow-wrap:anywhere;
+}
+.activity-report-card .activity-report-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+.activity-report-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  border:1px solid rgba(201,168,76,0.20);
+  background:rgba(13,27,42,0.24);
+  color:var(--text-light);
+  border-radius:999px;
+  padding:2px 7px;
+  font-size:9px;
+  font-family:var(--font-mono);
+  font-weight:700;
+}
+.activity-section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:18px 0 7px;
+  padding:8px 10px;
+  border:1px solid var(--gold-dim);
+  border-radius:10px;
+  background:rgba(201,168,76,0.06);
+}
+.activity-section-header strong{
+  color:var(--gold-light);
+  font-family:var(--font-title);
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+.activity-section-header small{
+  color:var(--text-light);
+  font-family:var(--font-mono);
+  font-size:10px;
+  white-space:nowrap;
+}
+@media(max-width:700px){
+  .activity-section-header{align-items:flex-start;flex-direction:column;}
+  .activity-section-header small{white-space:normal;}
+}
+
 </style>
 </head>
 <body>
@@ -1530,6 +1599,7 @@ th.col-dragging{opacity:0.45;}
     <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
     <button class="btn-header" onclick="sincronizarProdutoresRurais()">🌾 Produtores</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
+    <button type="button" class="btn-header" onclick="openRelatorioAtividade()">🏭 Atividades</button>
     <button class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
     <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
     <a href="#" onclick="history.back();return false;" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:8px;padding:7px 14px;background:rgba(201,168,76,0.08);transition:background 0.2s;font-family:var(--font-body);">◈ BIF</a>
@@ -5526,8 +5596,17 @@ function openRelatorio(){
   renderRelatorioTabela();
   refreshRelatorioLogoPreviews();
 }
+function openRelatorioAtividade(){
+  openRelatorio();
+  setTimeout(() => {
+    const sel = $('relTipo');
+    if(sel){ sel.value = 'atividade'; renderRelatorioTabela(); }
+  }, 0);
+}
 function relatorioHtml(){
-  const atOpts = getAllActivities().map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  const atList = getAllActivities();
+  if(S.empresas.some(e => !safe(e.atividade).trim()) && !atList.includes('Sem atividade informada')) atList.push('Sem atividade informada');
+  const atOpts = atList.sort((a,b)=>a.localeCompare(b,'pt-BR')).map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
   const colabOpts = getAllColaboradores().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   return `<div class="rel-options">
     <select id="relTipo" onchange="renderRelatorioTabela()">
@@ -5551,6 +5630,9 @@ function relatorioHtml(){
         <option value="sped_ecd">📁 Empresas com SPED ECD</option>
         <option value="sped_ecf">📁 Empresas com SPED ECF</option>
       </optgroup>
+      <optgroup label="Por Atividade Econômica">
+        <option value="atividade">🏭 Empresas por atividade econômica</option>
+      </optgroup>
       <optgroup label="Por Colaborador">
         <option value="colaborador">👤 Empresas por colaborador</option>
       </optgroup>
@@ -5566,7 +5648,6 @@ function relatorioHtml(){
         <option value="obrigacoes_produtor">🌾 Obrigações — produtores rurais</option>
         <option value="obrigacoes_demais">🏢 Obrigações — demais empresas</option>
         <option value="regime">📂 Por regime tributário</option>
-        <option value="atividade">🏭 Por atividade econômica</option>
       </optgroup>
     </select>
     <select id="relColaborador" onchange="renderRelatorioTabela()" style="display:none"><option value="">Todos os colaboradores</option>${colabOpts}</select>
@@ -5589,6 +5670,35 @@ function getAllColaboradores(){
   const set = new Set();
   S.empresas.forEach(e => { if(safe(e.colaborador).trim()) set.add(e.colaborador.trim()); });
   return Array.from(set).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+
+function atividadeEmpresaLabel(e){
+  return safe(e && e.atividade).trim() || 'Sem atividade informada';
+}
+function getAtividadeGroups(empresas){
+  const map = new Map();
+  (empresas || []).forEach(e => {
+    const key = atividadeEmpresaLabel(e);
+    if(!map.has(key)) map.set(key, []);
+    map.get(key).push(e);
+  });
+  return Array.from(map.entries()).map(([atividade, empresas]) => ({
+    atividade,
+    empresas: empresas.slice().sort((a,b)=>safe(a.nome).localeCompare(safe(b.nome),'pt-BR')),
+    total: empresas.length,
+    abertas: empresas.filter(e=>!e.fechada && !e.semMovimento).length,
+    semMovimento: empresas.filter(e=>!!e.semMovimento).length,
+    fechadas: empresas.filter(e=>!!e.fechada).length,
+    apuradas: empresas.filter(e=>(e.statusApuracao||'nao_apurada')==='apurada').length,
+    colaboradores: Array.from(new Set(empresas.map(e=>safe(e.colaborador).trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pt-BR')),
+    regimes: empresas.reduce((acc,e)=>{ const r=e.regime||'outros'; acc[r]=(acc[r]||0)+1; return acc; }, {})
+  })).sort((a,b)=> b.total - a.total || a.atividade.localeCompare(b.atividade,'pt-BR'));
+}
+function regimeMiniResumo(regimes){
+  return ['simples','presumido','real','outros']
+    .filter(r => regimes && regimes[r])
+    .map(r => `${regimeLabel(r)}: ${regimes[r]}`)
+    .join(' • ') || 'Sem regime';
 }
 
 function apuracaoLabel(v){ return {apurada:'✅ Apurada',nao_apurada:'⏳ Não apurada',pendente_info:'🔴 Aguard. info'}[v||'nao_apurada']||'⏳ Não apurada'; }
@@ -5641,6 +5751,52 @@ function renderRelatorioTabela(){
         ${resumoRegimes}
       </div>
       ${emps.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime</th><th>Colaborador</th><th>Atividade</th><th>Impostos</th></tr></thead><tbody>${emps.map(e=>`<tr><td>${esc(e.nome)}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td>${esc(e.atividade||'-')}</td><td>${esc(impostosToText(e))}</td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Nenhuma empresa com movimento encontrada.</p></div>'}
+    </div>`;
+    return;
+  }
+
+
+  // ── POR ATIVIDADE ECONÔMICA ───────────────────────────────────
+  if(type === 'atividade'){
+    const filtroAtividade = $('relAtividade')?.value || '';
+    const empsBase = filtroAtividade ? base.filter(e => atividadeEmpresaLabel(e) === filtroAtividade) : base;
+    const groups = getAtividadeGroups(empsBase);
+    const totalEmpresas = empsBase.length;
+    const abertas = empsBase.filter(e=>!e.fechada && !e.semMovimento).length;
+    const semMovimento = empsBase.filter(e=>!!e.semMovimento).length;
+    const semAtividade = base.filter(e=>!safe(e.atividade).trim()).length;
+    const cardsHtml = groups.map(g => {
+      const colaboradores = g.colaboradores.length ? g.colaboradores.join(', ') : 'Sem responsável';
+      return `<article class="activity-report-card">
+        <h4>🏭 ${esc(g.atividade)}</h4>
+        <div class="activity-report-meta">
+          <span class="activity-report-pill">${g.total} empresa${g.total!==1?'s':''}</span>
+          <span class="activity-report-pill">${g.abertas} aberta${g.abertas!==1?'s':''}</span>
+          ${g.semMovimento ? `<span class="activity-report-pill">${g.semMovimento} sem mov.</span>` : ''}
+          ${g.fechadas ? `<span class="activity-report-pill">${g.fechadas} fechada${g.fechadas!==1?'s':''}</span>` : ''}
+          <span class="activity-report-pill">${esc(regimeMiniResumo(g.regimes))}</span>
+          <span class="activity-report-pill">Resp.: ${esc(colaboradores)}</span>
+        </div>
+      </article>`;
+    }).join('');
+    const gruposHtml = groups.map(g => {
+      const colaboradores = g.colaboradores.length ? g.colaboradores.join(', ') : 'Sem responsável';
+      return `<div class="activity-section-header"><strong>🏭 ${esc(g.atividade)}</strong><small>${g.total} empresa${g.total!==1?'s':''} • ${esc(regimeMiniResumo(g.regimes))} • ${esc(colaboradores)}</small></div>
+      <table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Categoria</th><th>Regime</th><th>Colaborador</th><th>Status apuração</th><th>Status empresa</th><th>Obrigações</th></tr></thead><tbody>
+        ${g.empresas.map(e => `<tr><td>${esc(e.nome||'-')}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${categoriaPillHtml(e)}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.colaborador||'-')}</td><td><span class="rel-badge ${apuracaoClass(e.statusApuracao)}">${apuracaoLabel(e.statusApuracao)}</span></td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'}</span></td><td>${esc((e.obrigacoes||[]).map(o=>o.nome).join(' | ') || '-')}</td></tr>`).join('')}
+      </tbody></table>`;
+    }).join('');
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>Empresas por Atividade Econômica — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${groups.length}</div><div class="lbl">Atividades</div></div>
+        <div class="rel-sum-card"><div class="num">${totalEmpresas}</div><div class="lbl">Empresas</div></div>
+        <div class="rel-sum-card"><div class="num">${abertas}</div><div class="lbl">Abertas</div></div>
+        <div class="rel-sum-card"><div class="num">${semMovimento}</div><div class="lbl">Sem movimento</div></div>
+        <div class="rel-sum-card"><div class="num">${semAtividade}</div><div class="lbl">Sem atividade</div></div>
+      </div>
+      ${cardsHtml ? `<div class="activity-report-grid">${cardsHtml}</div>` : ''}
+      ${gruposHtml || '<div class="empty-state"><p>Nenhuma empresa encontrada para a atividade selecionada.</p></div>'}
     </div>`;
     return;
   }
@@ -5972,8 +6128,16 @@ function getRelatorioPrintRows(){
     if(type==='colaborador'){ const cv=$('relColaborador')?.value || ''; if(cv) emps=base.filter(e=>e.colaborador===cv); }
     return emps.map(e => ({empresa:e.nome||'', cnpj:e.cnpj||'—', regime:regimeLabel(e.regime), colaborador:e.colaborador||'—', atividade:e.atividade||'—', impostos:impostosToText(e), status:apuracaoLabel(e.statusApuracao), categoria:categoriaEmpresaLabel(e)}));
   }
+  if(type === 'atividade'){
+    const at = $('relAtividade')?.value || '';
+    let emps = base.slice();
+    if(at) emps = emps.filter(e => atividadeEmpresaLabel(e) === at);
+    emps.sort((a,b)=> atividadeEmpresaLabel(a).localeCompare(atividadeEmpresaLabel(b),'pt-BR') || safe(a.nome).localeCompare(safe(b.nome),'pt-BR'));
+    return emps.map(e => ({
+      empresa:e.nome||'', cnpj:e.cnpj||'—', regime:regimeLabel(e.regime), colaborador:e.colaborador||'—', atividade:atividadeEmpresaLabel(e), impostos:(e.obrigacoes||[]).map(o=>o.nome).join(' | ') || '—', status:e.fechada?'Fechada':e.semMovimento?'Sem movimento':apuracaoLabel(e.statusApuracao), categoria:categoriaEmpresaLabel(e)
+    }));
+  }
   let rows = allObrigRows(base);
-  if(type==='atividade'){ const at=$('relAtividade')?.value || ''; if(at) rows=rows.filter(r=>r.empresa.atividade===at); }
   if(type==='regime'){ const rg=$('relRegime')?.value || ''; if(rg) rows=rows.filter(r=>r.empresa.regime===rg); }
   if(type==='obrigacoes_produtor') rows = rows.filter(r=>isProdutorRural(r.empresa));
   if(type==='obrigacoes_demais') rows = rows.filter(r=>!isProdutorRural(r.empresa));
@@ -6095,6 +6259,15 @@ function exportRelatorioCSV(){
     const emps = base.filter(e => !!e[campo]);
     headers = ['Empresa','CNPJ','Categoria','Regime','Colaborador','Status Empresa'];
     data = emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),e.colaborador||'',e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta']);
+  } else if(type==='atividade'){
+    const at = $('relAtividade')?.value || '';
+    let emps = base.slice();
+    if(at) emps = emps.filter(e => atividadeEmpresaLabel(e) === at);
+    emps.sort((a,b)=> atividadeEmpresaLabel(a).localeCompare(atividadeEmpresaLabel(b),'pt-BR') || safe(a.nome).localeCompare(safe(b.nome),'pt-BR'));
+    headers = ['Atividade Econômica','Empresa','CNPJ','Categoria','Regime','Colaborador','Status Apuração','Status Empresa','Obrigações'];
+    data = emps.map(e=>[
+      atividadeEmpresaLabel(e), e.nome||'', e.cnpj||'', categoriaEmpresaLabel(e), regimeLabel(e.regime), e.colaborador||'', apuracaoLabel(e.statusApuracao), e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta', (e.obrigacoes||[]).map(o=>o.nome).join(' | ')
+    ]);
   } else {
     let rows = allObrigRows(base);
     if(type==='obrigacoes_produtor') rows = rows.filter(r=>isProdutorRural(r.empresa));
