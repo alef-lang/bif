@@ -211,7 +211,7 @@ select option{background:#1b2e42;color:#e8eaf0}
   </div>
 </section>
 
-<section class="dashboard">
+<section class="dashboard" style="display:none" aria-hidden="true">
   <div class="kpi"><div class="label">Recebimentos</div><div class="num" id="kpiTotal">0</div><div class="hint" id="kpiTotalHint">Criados na competência</div></div>
   <div class="kpi warn"><div class="label">Caixa de entrada</div><div class="num" id="kpiAguardando">0</div><div class="hint">Ainda sem solicitação</div></div>
   <div class="kpi blue"><div class="label">Em andamento</div><div class="num" id="kpiAndamento">0</div><div class="hint">Solicitado ou parcial</div></div>
@@ -220,7 +220,7 @@ select option{background:#1b2e42;color:#e8eaf0}
   <div class="kpi danger"><div class="label">Atrasados</div><div class="num" id="kpiAtrasado">0</div><div class="hint">Prazo vencido</div></div>
 </section>
 
-<section class="suggestions">
+<section class="suggestions" style="display:none" aria-hidden="true">
   <div class="panel">
     <div class="panel-head"><div><h2>Fluxo sugerido de recebimento</h2><p>Use a competência como unidade de controle; cada empresa tem sua própria trilha.</p></div></div>
     <div class="panel-body">
@@ -236,7 +236,7 @@ select option{background:#1b2e42;color:#e8eaf0}
   <div class="panel">
     <div class="panel-head"><div><h2>Regras de uso</h2><p>Evita retrabalho e perda de contexto.</p></div></div>
     <div class="panel-body mini-list">
-      <div class="mini-item">☁️ <span><strong>Firebase primeiro:</strong> a janela de novo recebimento lê empresas do caminho <em>painel/empresas</em> e salva controles por competência.</span></div>
+      <div class="mini-item">☁️ <span><strong>Painel primeiro:</strong> a janela de novo recebimento combina Index, Firebase e cache local para montar a lista completa do Alef.</span></div>
       <div class="mini-item">🧩 <span><strong>Sem sobrescrever lista:</strong> o Painel/Index só alimenta a escolha da empresa; o card aparece quando o recebimento é criado ou salvo.</span></div>
       <div class="mini-item">📌 <span><strong>Próximo passo obrigatório:</strong> sempre deixe claro quem cobra, o que falta e qual prazo.</span></div>
     </div>
@@ -266,7 +266,7 @@ select option{background:#1b2e42;color:#e8eaf0}
         <div class="field"><label>Prazo</label><input id="newPrazo" type="date" /></div>
       </div>
       <div id="newEmpresaPreview" class="company-preview">Carregando empresas do Painel/Index...</div>
-      <p class="new-helper">A empresa é puxada automaticamente do Firebase em <strong>painel/empresas</strong>. Se o Firebase estiver indisponível, a página usa o cache local do index e, por último, a base de segurança.</p>
+      <p class="new-helper">A empresa é puxada automaticamente do Painel/Index e do Firebase em <strong>painel/empresas</strong>. Se o Firebase/cache trouxer só parte da lista, a página completa com a base do Painel embarcada e nunca reduz a lista para uma empresa só.</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn ghost" id="btnCancelNew">Cancelar</button>
@@ -320,6 +320,160 @@ const COLABORADOR_ALVO = 'ALEF';
 const CONTROLES_PATH = 'bif_controle_recebimento_movimentos';
 const CACHE_KEY = 'bif_controle_recebimento_movimentos_v1';
 const PAINEL_CACHE_KEY = 'gestao_v3';
+
+// Base extraída do Painel/Index enviado: usada para completar a lista quando o Firebase/cache traz só parte das empresas.
+const PAINEL_INDEX_ALEF_EMBARCADO = [
+  {
+    "nome": "ACEP EMPREENDIMENTOS IMOB LTDA",
+    "cnpj": "65731707000113",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "DANIEL MARTINS SIQUEIRA",
+    "cnpj": "03872871000193",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "DPF EMPRE. E PARTIC. EIRELI",
+    "cnpj": "37350182000130",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FBF EMPREENDIMENTOS IMOB",
+    "cnpj": "22484605000138",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FOM ASSESSORIA LTDA",
+    "cnpj": "57207428000127",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FOM LEILOES LTDA",
+    "cnpj": "61853316000110",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FREFER OCCHIALINI AGROPECUARIA LTDA",
+    "cnpj": "66776097000137",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - CASTELLABATE",
+    "cnpj": "19174834000141",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - GDO PRE MOLDADOS",
+    "cnpj": "43640489000179",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - GRANDINO PRE MOLDADOS",
+    "cnpj": "65413486000135",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - GRANDINO PRE MOLDADOS - FILIAL 2",
+    "cnpj": "65413486000216",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "HOTEL DEL FIOL",
+    "cnpj": "00229295000172",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "J. SÁ HOLDING",
+    "cnpj": "56174480000161",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "JUVENAL 430 LTDA",
+    "cnpj": "65054506000129",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Lidiane - C CAMARGO E POLASTRI",
+    "cnpj": "18011915000168",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Lidiane - DUARTE METAIS",
+    "cnpj": "42059706000179",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "M.S. ROMAGNOLO EMPREEND.",
+    "cnpj": "11490868000133",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "cnpj": "63789312000146",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "MFJ CAMPOS",
+    "cnpj": "64277948000171",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "NELSON - NOVA QUADRA",
+    "cnpj": "45196536000162",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA",
+    "cnpj": "58138259000183",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "NSC NOVESETE COMUNICAÇÃO LTDA",
+    "cnpj": "03009199000107",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "OCCHIALINI EMPREEND. IMOBI LTDA",
+    "cnpj": "35783871000103",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "OCCHIALINI FREIRE HOLDING LTDA",
+    "cnpj": "64736056000191",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "R. J. SAMPAIO DE ALMEIDA LTDA",
+    "cnpj": "66652630000159",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "RIBEIRO BRANCO EMPREENDIMENTOS",
+    "cnpj": "49507538000186",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA",
+    "cnpj": "54581448000175",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "TATIANA LOPES TREINAMENTOS",
+    "cnpj": "65202077000190",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "TL EMPREENDIMENTOS",
+    "cnpj": "51074518000100",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "WB",
+    "cnpj": "50780808000107",
+    "colaborador": "ALEF"
+  }
+];
 
 const FALLBACK_ALEF_EMPRESAS = [
   {
@@ -688,7 +842,10 @@ const state = {
   movimentosUnsub: null,
   empresasUnsub: null,
   authUser: null,
-  dataSource: 'inicial'
+  dataSource: 'inicial',
+  firebaseEmpresas: [],
+  indexEmpresas: [],
+  indexFetchDone: false
 };
 
 function qs(id) { return document.getElementById(id); }
@@ -781,10 +938,10 @@ function loadPainelCacheEmpresas() {
   } catch(e) { return []; }
 }
 
-function mergeEmpresas(primary, fallback) {
+function mergeEmpresas(...sources) {
   const out = [];
   const seen = new Set();
-  [...(primary||[]), ...(fallback||[])].forEach(x => {
+  sources.flat().filter(Boolean).forEach(x => {
     const e = normalizeEmpresa(x);
     const key = recordKeyEmpresa(e);
     if(!key || seen.has(key) || !isAlef(e)) return;
@@ -794,14 +951,86 @@ function mergeEmpresas(primary, fallback) {
   return out.sort((a,b) => String(a.nome).localeCompare(String(b.nome), 'pt-BR'));
 }
 
-function useFallbackEmpresas(reason) {
-  state.movimentos = loadLocalForCompetencia(state.competencia);
+function setEmpresasCompletas(reason, preferCloudStatus=true) {
   const fromLocal = loadPainelCacheEmpresas();
-  state.empresas = mergeEmpresas(fromLocal, FALLBACK_ALEF_EMPRESAS);
-  state.dataSource = fromLocal.length ? 'cache do Painel/Index' : 'base de segurança embarcada';
-  setCloudStatus(fromLocal.length ? 'offline' : 'error', `${reason} • ${state.empresas.length} empresas Alef`);
+  const merged = mergeEmpresas(
+    state.firebaseEmpresas,
+    state.indexEmpresas,
+    fromLocal,
+    PAINEL_INDEX_ALEF_EMBARCADO,
+    FALLBACK_ALEF_EMPRESAS
+  );
+  state.empresas = merged;
+  const fontes = [];
+  if((state.firebaseEmpresas || []).length) fontes.push(`Firebase ${state.firebaseEmpresas.length}`);
+  if((state.indexEmpresas || []).length) fontes.push(`Index ${state.indexEmpresas.length}`);
+  if(fromLocal.length) fontes.push(`cache ${fromLocal.length}`);
+  fontes.push(`base painel ${PAINEL_INDEX_ALEF_EMBARCADO.length}`);
+  state.dataSource = fontes.join(' + ');
+  if(preferCloudStatus) {
+    const kind = (state.firebaseEmpresas || []).length ? 'ok' : ((state.indexEmpresas || []).length || fromLocal.length ? 'offline' : 'error');
+    setCloudStatus(kind, `${reason} • ${state.empresas.length} empresas Alef`);
+  }
+  try {
+    if(merged.length) {
+      const old = JSON.parse(localStorage.getItem(PAINEL_CACHE_KEY) || '{}') || {};
+      const atual = Array.isArray(old.empresas) ? old.empresas : [];
+      const atualAlef = atual.map(normalizeEmpresa).filter(isAlef);
+      // Nunca reduz o cache principal e não apaga empresas de outros colaboradores.
+      if(merged.length > atualAlef.length) {
+        const naoAlef = atual.filter(x => !isAlef(normalizeEmpresa(x)));
+        old.empresas = [...naoAlef, ...mergeEmpresas(atualAlef, merged)];
+        localStorage.setItem(PAINEL_CACHE_KEY, JSON.stringify(old));
+      }
+    }
+  } catch(e) {}
   renderAll();
   if(qs('newOverlay')?.classList.contains('open')) renderNewEmpresaOptions();
+}
+
+function extractEmpresasFromIndexHtml(html) {
+  const patterns = [
+    /const\s+BASE_EMPRESAS_PASTA1\s*=\s*(\[[\s\S]*?\]);/,
+    /let\s+BASE_EMPRESAS_PASTA1\s*=\s*(\[[\s\S]*?\]);/,
+    /var\s+BASE_EMPRESAS_PASTA1\s*=\s*(\[[\s\S]*?\]);/
+  ];
+  for(const rx of patterns) {
+    const m = String(html || '').match(rx);
+    if(m && m[1]) {
+      try { return JSON.parse(m[1]).map(normalizeEmpresa).filter(isAlef); } catch(e) {}
+    }
+  }
+  return [];
+}
+
+async function carregarEmpresasDoIndexHtml() {
+  if(state.indexFetchDone) return;
+  state.indexFetchDone = true;
+  const caminhos = [
+    './index.html', 'index.html', '../index.html', '../../index.html',
+    './painel.html', '../painel.html', './painel/index.html', '../painel/index.html'
+  ];
+  for(const url of caminhos) {
+    try {
+      const resp = await fetch(url, {cache:'no-store'});
+      if(!resp.ok) continue;
+      const html = await resp.text();
+      const lista = extractEmpresasFromIndexHtml(html);
+      if(lista.length) {
+        state.indexEmpresas = lista;
+        setEmpresasCompletas(`Painel/Index lido automaticamente`, true);
+        return;
+      }
+    } catch(e) {}
+  }
+  // Mesmo quando o fetch do index não funciona no navegador/local, a base embarcada do Painel garante a lista completa.
+  setEmpresasCompletas('Index não acessível por fetch; usando base do Painel embarcada', true);
+}
+
+function useFallbackEmpresas(reason) {
+  state.movimentos = loadLocalForCompetencia(state.competencia);
+  setEmpresasCompletas(reason, true);
+  carregarEmpresasDoIndexHtml();
 }
 function getEmpresaByKey(key) {
   const found = state.empresas.find(e => recordKeyEmpresa(e) === key);
@@ -1207,32 +1436,31 @@ function attachEmpresasFirebase() {
   if(!state.firebaseReady || !state.database) { useFallbackEmpresas('Firebase indisponível'); return; }
   const { ref, onValue } = window.__firebaseFns;
   setCloudStatus('loading', 'Lendo empresas do Painel...');
+  carregarEmpresasDoIndexHtml();
   let received = false;
   state.empresasUnsub = onValue(ref(state.database, 'painel/empresas'), snap => {
     received = true;
     const list = [];
     if(snap.exists()) snap.forEach(child => list.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() })));
-    const alef = list.filter(isAlef);
-    if(alef.length) {
-      state.empresas = mergeEmpresas(alef, []);
-      state.dataSource = 'Firebase / painel/empresas';
-      try {
-        const old = JSON.parse(localStorage.getItem(PAINEL_CACHE_KEY) || '{}');
-        old.empresas = Array.isArray(old.empresas) && old.empresas.length ? old.empresas : list;
-        localStorage.setItem(PAINEL_CACHE_KEY, JSON.stringify(old));
-      } catch(e) {}
-      setCloudStatus('ok', `Nuvem sincronizada • ${state.empresas.length} empresas Alef`);
+    state.firebaseEmpresas = list.filter(isAlef);
+    if(state.firebaseEmpresas.length) {
+      setEmpresasCompletas('Nuvem + Painel/Index sincronizados', true);
     } else {
-      useFallbackEmpresas('Nenhuma empresa Alef no Firebase');
+      setEmpresasCompletas('Nenhuma empresa Alef no Firebase; completando pelo Index', true);
+      carregarEmpresasDoIndexHtml();
     }
-    renderAll();
-    if(qs('newOverlay')?.classList.contains('open')) renderNewEmpresaOptions();
   }, err => {
     received = true;
     console.error(err);
+    state.firebaseEmpresas = [];
     useFallbackEmpresas('Erro ao ler Painel');
   });
-  setTimeout(() => { if(!received && !state.empresas.length) useFallbackEmpresas('Aguardando login/conexão'); }, 3500);
+  setTimeout(() => {
+    if(!received) {
+      state.firebaseEmpresas = [];
+      useFallbackEmpresas('Aguardando login/conexão');
+    }
+  }, 3500);
 }
 
 async function bootFirebase() {
@@ -1276,6 +1504,7 @@ function init() {
   bindEvents();
   renderStatusOptions();
   renderAll();
+  carregarEmpresasDoIndexHtml();
   bootFirebase();
 }
 
