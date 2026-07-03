@@ -142,14 +142,15 @@
     .search{height:35px;border-radius:12px;width:min(290px,25vw);}
     select{height:35px;border-radius:12px;min-width:122px;font-size:11px;}
     .card-size-btn{border-color:rgba(201,168,76,.26);background:rgba(201,168,76,.08);color:var(--gold-soft);}
-    .workspace{overflow:auto;cursor:default;border-radius:18px;min-height:0;border:1px solid var(--receipt-line);background:rgba(13,27,42,.38);box-shadow:0 12px 34px rgba(0,0,0,.34);scrollbar-color:var(--gold-soft) rgba(255,255,255,.05);}
+    .workspace{overflow-y:auto;overflow-x:hidden;cursor:default;border-radius:18px;min-height:0;border:1px solid var(--receipt-line);background:rgba(13,27,42,.38);box-shadow:0 12px 34px rgba(0,0,0,.34);scrollbar-color:var(--gold-soft) rgba(255,255,255,.05);}
     .workspace.dragging{cursor:default;}
     .workspace:before{background-size:56px 56px;opacity:.42;mask-image:none;}
-    .workspace::-webkit-scrollbar{height:0;width:9px;}
+    .workspace::-webkit-scrollbar{width:9px;height:0;}
+    .workspace::-webkit-scrollbar:horizontal{display:none;}
     .workspace::-webkit-scrollbar-thumb{background:rgba(201,168,76,.42);border-radius:999px;border:2px solid rgba(13,27,42,.75);}
-    .boards-track{width:100%;min-height:100%;height:auto;padding:12px;display:grid;grid-template-columns:repeat(3,var(--card-size));grid-auto-rows:var(--card-size);gap:12px;justify-content:center;align-content:start;align-items:stretch;}
+    .boards-track{width:100%;min-height:100%;height:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(var(--card-size),100%),1fr));grid-auto-rows:auto;gap:12px;justify-content:stretch;align-content:start;align-items:start;overflow-x:hidden;}
     .company-card{
-      width:var(--card-size);height:var(--card-size);min-width:0;min-height:0;max-width:none;max-height:none;aspect-ratio:1/1;
+      width:100%;height:auto;min-width:0;min-height:0;max-width:none;max-height:none;aspect-ratio:1/1;
       background:var(--card2);border:1.5px solid rgba(255,255,255,.07);border-radius:15px;padding:0;transition:.18s;cursor:pointer;
       display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;box-shadow:0 8px 24px rgba(0,0,0,.22);overflow:hidden;position:relative;
     }
@@ -306,13 +307,13 @@
         <div class="title-wrap">
           <div class="kicker"><span class="spark">✦</span> Mesa criativa</div>
           <h1>Mesa Criativa do Alef</h1>
-          <p class="subtitle">Quadros quadrados, grandes e ajustáveis para pensar, anotar e concluir.</p>
+          <p class="subtitle">Todos os quadros em uma única tela, com rolagem vertical e ajuste global de tamanho.</p>
         </div>
         <div class="hero-actions">
           <span class="sync warn" id="syncStatus"><span class="sync-dot"></span><span id="syncText">Carregando nuvem</span></span>
           <div class="action-stack">
-            <button type="button" class="btn neon" id="btnResizePreset">▦ Encaixar 3x3</button>
-            <span class="helper">Cards quadrados no estilo Recebimento, com ajuste global.</span>
+            <button type="button" class="btn neon" id="btnResizePreset">▦ Organizar grade</button>
+            <span class="helper">Cards quadrados no estilo Recebimento, todos na mesma tela com scroll vertical.</span>
           </div>
           <button type="button" class="btn primary" id="btnNewNote">＋ Nova anotação</button>
         </div>
@@ -329,7 +330,7 @@
       <section class="work-top">
         <div class="section-title">
           <h2>✦ Quadros de Empresas</h2>
-          <div class="drag-hint"><span>Cards quadrados • ajuste global • anotações sem rolagem interna</span></div>
+          <div class="drag-hint"><span>Todos na mesma tela • scroll vertical somente • anotações sem rolagem interna</span></div>
         </div>
         <div class="tool-row">
           <label class="search" aria-label="Buscar"><span>⌕</span><input id="searchInput" placeholder="Buscar empresa, CNPJ ou anotação..." autocomplete="off"></label>
@@ -341,17 +342,15 @@
           </select>
           <button type="button" class="btn small card-size-btn" id="btnCardMinus">− Card</button>
           <button type="button" class="btn small card-size-btn" id="btnCardPlus">＋ Card</button>
-          <button type="button" class="btn small card-size-btn" id="btnFitGrid">▦ 3x3</button>
-          <button type="button" class="btn small" id="btnPrevPage">‹ 9</button>
-          <span class="page-meta" id="pageMeta">1/1</span>
-          <button type="button" class="btn small" id="btnNextPage">9 ›</button>
+          <button type="button" class="btn small card-size-btn" id="btnFitGrid">▦ Grade</button>
+          <span class="page-meta" id="pageMeta">0 cards</span>
           <button type="button" class="btn small" id="btnFontMinus">A−</button>
           <button type="button" class="btn small" id="btnFontPlus">A＋</button>
           <button type="button" class="btn small" id="btnReload">↻</button>
         </div>
       </section>
 
-      <section class="workspace" id="workspace" aria-label="Grade 3x3 de quadros">
+      <section class="workspace" id="workspace" aria-label="Grade vertical de quadros">
         <div class="boards-track" id="boardsTrack"></div>
       </section>
     </main>
@@ -578,8 +577,6 @@
     const $ = id => document.getElementById(id);
     const track = $('boardsTrack');
     const workspace = $('workspace');
-    const PAGE_SIZE = 9;
-    let currentPage = 0;
 
     function esc(v){return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
     function norm(v){return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
@@ -836,13 +833,10 @@
       return Math.max(170, Math.min(360, byWidth, byHeight));
     }
     function effectiveCardSize(){
-      const fit = calcFitCardSize();
-      const requested = Number(state.settings.cardSize) || fit;
-      const gap = window.matchMedia('(max-height:740px)').matches ? 8 : 12;
-      const pad = window.matchMedia('(max-height:740px)').matches ? 16 : 24;
-      const w = workspace?.clientWidth || (window.innerWidth - 120);
-      const maxNoHorizontal = Math.floor((w - pad - (gap * 2)) / 3);
-      return Math.max(170, Math.min(520, requested, maxNoHorizontal));
+      const requested = Number(state.settings.cardSize) || 260;
+      const workspaceW = workspace?.clientWidth || (window.innerWidth - 120);
+      const maxSafe = Math.max(190, workspaceW - 28);
+      return Math.max(190, Math.min(520, requested, maxSafe));
     }
     function applySettingsToDom(){
       const size = effectiveCardSize();
@@ -867,13 +861,8 @@
       if(keep) sel.value = keep;
     }
     function updatePageControls(total){
-      const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-      currentPage = Math.max(0, Math.min(currentPage, pages - 1));
       const meta = $('pageMeta');
-      if(meta) meta.textContent = `${currentPage + 1}/${pages} • ${Math.min(PAGE_SIZE,total)} por tela`;
-      const prev = $('btnPrevPage'), next = $('btnNextPage');
-      if(prev) prev.disabled = currentPage <= 0;
-      if(next) next.disabled = currentPage >= pages - 1;
+      if(meta) meta.textContent = `${total} card${total === 1 ? '' : 's'} • scroll vertical`;
     }
     function render(){
       applySettingsToDom();
@@ -886,8 +875,7 @@
         track.innerHTML = `<div class="empty-board"><h3>Nenhuma empresa nessa visualização</h3><p>Revise a busca, o filtro ou recarregue as empresas do Painel.</p></div>`;
         return;
       }
-      const start = currentPage * PAGE_SIZE;
-      const list = all.slice(start, start + PAGE_SIZE);
+      const list = all;
       track.innerHTML = list.map(cardHtml).join('');
       bindCards();
     }
@@ -1082,7 +1070,6 @@
         if(!down) return;
         const dx = ev.clientX - startX, dy = ev.clientY - startY;
         if(Math.abs(dx)+Math.abs(dy) > 4) moved=true;
-        workspace.scrollLeft = left - dx;
         workspace.scrollTop = top - dy;
       });
       const stop = ev => { if(!down) return; down=false; workspace.classList.remove('dragging'); try{workspace.releasePointerCapture(ev.pointerId)}catch(e){}; };
@@ -1090,11 +1077,11 @@
       workspace.addEventListener('pointercancel', stop);
     }
     function fitGrid3x3(){
-      state.settings.cardSize = 0;
+      state.settings.cardSize = 260;
       state.settings.noteFont = 10;
       render();
-      scheduleSave('encaixar 3x3');
-      toast('Cards encaixados em 3x3');
+      scheduleSave('organizar grade vertical');
+      toast('Grade vertical organizada');
     }
     function changeCardSize(delta){
       const current = effectiveCardSize();
@@ -1128,10 +1115,8 @@
     $('btnCardPlus').addEventListener('click', () => changeCardSize(26));
     $('btnFitGrid').addEventListener('click', fitGrid3x3);
     $('btnReload').addEventListener('click', async () => { setSync('warn','Recarregando...'); state.companies = await loadCompanies(); await loadTasks(); ensureOrder(); render(); setSync(state.firebaseOk?'ok':'warn', state.firebaseOk?'Nuvem sincronizada':'Pronto/cache'); toast('Dados recarregados'); });
-    $('searchInput').addEventListener('input', () => { currentPage = 0; render(); });
-    $('filterMode').addEventListener('change', () => { currentPage = 0; render(); });
-    $('btnPrevPage').addEventListener('click', () => { currentPage = Math.max(0, currentPage - 1); render(); });
-    $('btnNextPage').addEventListener('click', () => { currentPage += 1; render(); });
+    $('searchInput').addEventListener('input', () => { render(); });
+    $('filterMode').addEventListener('change', () => { render(); });
     $('btnFontPlus').addEventListener('click', () => { state.settings.noteFont = Math.min(12, state.settings.noteFont + 1); applySettingsToDom(); scheduleSave('fonte'); toast('Fonte maior'); });
     $('btnFontMinus').addEventListener('click', () => { state.settings.noteFont = Math.max(9, state.settings.noteFont - 1); applySettingsToDom(); scheduleSave('fonte'); toast('Fonte menor'); });
     $('btnCancel').addEventListener('click', () => { state.editing = null; $('noteDialog').close(); });
@@ -1144,7 +1129,7 @@
         saveNoteFromDialog({keepOpen:!!ev.shiftKey});
       }
     });
-    // Grade 3x3 fixa: sem arraste/scroll horizontal.
+    // Grade única: sem paginação e sem scroll horizontal; navegação somente vertical.
     window.addEventListener('resize', () => applySettingsToDom());
     window.addEventListener('beforeunload', () => saveLocal());
     boot();
