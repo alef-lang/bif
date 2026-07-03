@@ -1,787 +1,1153 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Kanban Fiscal — Visual de Empresas e Dependências</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#0d1b2a;--card:#1b2e42;--card2:#162438;--card3:#102035;
-  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,.22);--gold-border:rgba(201,168,76,.32);--gold-glow:rgba(201,168,76,.12);
-  --text:#e8edf3;--muted:#8ba0b8;--muted2:#5f7690;
-  --green:#86efac;--red:#f87171;--blue:#93c5fd;--amber:#fbbf24;--cyan:#5eead4;--purple:#c4b5fd;--orange:#fb923c;
-  --radius:16px;--rsm:10px;--font-title:'Poppins',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
-  --shadow:0 18px 42px rgba(0,0,0,.38);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:var(--font-body);background:var(--bg);background-image:radial-gradient(ellipse at 15% 8%,rgba(201,168,76,.07),transparent 55%),radial-gradient(ellipse at 88% 82%,rgba(74,158,218,.08),transparent 52%);color:var(--text);overflow:hidden}
-button,input,select,textarea{font-family:inherit}
-.hidden{display:none!important}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIF • Mesa Criativa do Alef</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0d1b2a;
+      --bg-deep:#071321;
+      --panel:#12243a;
+      --card:#1b2e42;
+      --card-soft:#203750;
+      --gold:#c9a84c;
+      --gold-soft:#e8c97a;
+      --text:#f6f1e6;
+      --muted:#9fb2c7;
+      --muted-2:#6f859d;
+      --line:rgba(232,201,122,.18);
+      --line-strong:rgba(232,201,122,.38);
+      --blue:#66a8ff;
+      --blue-2:#8fd0ff;
+      --green:#33d69f;
+      --red:#ff6b6b;
+      --orange:#ff9f43;
+      --purple:#b994ff;
+      --shadow:0 24px 70px rgba(0,0,0,.36);
+      --card-w:340px;
+      --card-h:420px;
+      --note-font:14px;
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 14% 5%, rgba(232,201,122,.20), transparent 27%),
+        radial-gradient(circle at 82% 2%, rgba(102,168,255,.11), transparent 29%),
+        radial-gradient(circle at 48% 105%, rgba(201,168,76,.10), transparent 34%),
+        linear-gradient(135deg,#071321 0%, #0d1b2a 44%, #102239 100%);
+      font-family:'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow:hidden;
+    }
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{height:100vh;display:grid;grid-template-columns:96px minmax(0,1fr);overflow:hidden}
+    .side{
+      border-right:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(8,20,34,.95),rgba(6,15,27,.88));
+      display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 12px;box-shadow:18px 0 60px rgba(0,0,0,.18);z-index:10;
+    }
+    .logo{width:72px;height:56px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;line-height:.82;color:var(--gold-soft);font-family:'Poppins',sans-serif;font-weight:900;font-size:31px;letter-spacing:-.075em;text-shadow:0 0 22px rgba(232,201,122,.46);background:linear-gradient(180deg,#fff1b3 0%,#e8c97a 42%,#b4892e 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .logo small{display:block;font-size:9px;letter-spacing:.01em;color:#93a6bd;font-weight:700;margin-top:6px;text-shadow:none;background:none;-webkit-background-clip:initial;background-clip:initial;color:#93a6bd}
+    .nav{display:grid;gap:9px;margin-top:2px}.nav-btn{width:52px;height:52px;border-radius:16px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:22px;display:grid;place-items:center;transition:.18s ease}.nav-btn.active{color:var(--gold-soft);border-color:rgba(232,201,122,.64);background:radial-gradient(circle,rgba(232,201,122,.20),rgba(201,168,76,.07));box-shadow:0 0 24px rgba(232,201,122,.18)}.nav-btn:hover{color:#fff;border-color:var(--line-strong);background:rgba(255,255,255,.04)}
+    .profile{margin-top:auto;width:72px;border:1px solid var(--line);border-radius:18px;background:rgba(27,46,66,.72);padding:10px 8px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px}.avatar{width:32px;height:32px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#102136;font-family:'Poppins';font-weight:900;font-size:17px}.profile strong{display:block;color:#fff;font-family:'DM Sans';font-size:13px}.logout{width:72px;height:40px;border-radius:14px;border:1px solid var(--line);background:rgba(27,46,66,.50);color:var(--muted);font-size:19px}
+    .main{min-width:0;height:100vh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:10px;padding:20px 24px 16px;overflow:hidden}
+    .hero{display:grid;grid-template-columns:minmax(320px,1fr) auto;gap:14px;align-items:start}.title-wrap{min-width:0}.kicker{display:inline-flex;align-items:center;gap:8px;color:var(--gold-soft);font-family:'DM Mono';font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.spark{width:26px;height:26px;border-radius:10px;display:grid;place-items:center;background:rgba(232,201,122,.12);border:1px solid var(--line)}
+    h1{margin:0;font-family:'Poppins',sans-serif;font-size:clamp(28px,2.7vw,42px);line-height:1.02;letter-spacing:-.055em;font-weight:900;color:var(--gold-soft);text-shadow:0 0 14px rgba(232,201,122,.32), 0 2px 0 rgba(0,0,0,.12)}
+    .subtitle{margin:6px 0 0;color:var(--muted);font-size:14px;max-width:720px}.hero-actions{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;justify-content:flex-end}.action-stack{display:grid;gap:7px;justify-items:end}.helper{font-family:'DM Mono';font-size:11px;color:var(--muted);max-width:330px;text-align:right}.sync{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(13,27,42,.72);border-radius:999px;padding:8px 10px;font-family:'DM Mono';font-size:11px;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--muted-2);box-shadow:0 0 0 3px rgba(159,178,199,.12)}.sync.ok .sync-dot{background:var(--green);box-shadow:0 0 18px rgba(51,214,159,.76)}.sync.warn .sync-dot{background:var(--gold-soft);box-shadow:0 0 18px rgba(232,201,122,.68)}.sync.error .sync-dot{background:var(--red);box-shadow:0 0 18px rgba(255,107,107,.72)}
+    .btn{border:1px solid var(--line);border-radius:13px;background:rgba(27,46,66,.74);color:var(--text);padding:9px 12px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.17s ease;white-space:nowrap}.btn:hover{transform:translateY(-1px);border-color:var(--gold-soft);box-shadow:0 0 0 3px rgba(232,201,122,.08)}.btn.primary{background:linear-gradient(135deg,#c9a84c,#f2cf70);color:#101725;border-color:rgba(232,201,122,.84);box-shadow:0 12px 28px rgba(201,168,76,.18)}.btn.ghost{background:rgba(6,18,31,.18)}.btn.small{padding:8px 10px;border-radius:12px;font-size:12px}.btn.icon{width:42px;height:42px;padding:0}.btn.neon{border-color:rgba(102,168,255,.42);box-shadow:0 0 24px rgba(102,168,255,.10)}
+    .stats{display:grid;grid-template-columns:repeat(5,minmax(132px,1fr));gap:10px}.stat{position:relative;min-height:78px;border:1px solid var(--line);border-radius:16px;padding:11px 13px;background:linear-gradient(180deg,rgba(27,46,66,.83),rgba(18,36,58,.58));box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);overflow:hidden}.stat:before{content:"";position:absolute;inset:auto 14px 0 14px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.32}.stat .label{font-family:'DM Mono';font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#a8bbd0;font-weight:800}.stat .num{font-family:'Poppins';font-size:26px;letter-spacing:-.06em;line-height:1;color:var(--gold-soft);font-weight:900;margin-top:4px}.stat .desc{font-family:'DM Mono';font-size:10px;color:var(--muted);margin-top:6px}.stat .ico{position:absolute;right:15px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;color:var(--gold-soft);font-size:22px;background:rgba(7,19,33,.38)}
+    .work-top{display:grid;grid-template-columns:minmax(260px,1fr) auto;gap:12px;align-items:center;border-top:1px solid rgba(232,201,122,.12);padding-top:10px}.section-title{display:flex;align-items:center;gap:12px;min-width:0}.section-title h2{font-family:'Poppins';font-size:16px;letter-spacing:-.04em;margin:0}.drag-hint{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;justify-content:center;font-family:'DM Sans'}.drag-hint .arrows{font-family:'DM Mono';font-size:22px;color:#a8bbd0}.tool-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.search{width:min(320px,28vw);height:38px;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:14px;background:rgba(6,18,31,.50);padding:0 12px;color:var(--gold-soft)}.search input{min-width:0;width:100%;background:transparent;border:0;outline:0;color:#fff;font-weight:800}.search input::placeholder{color:#7890aa}select{height:38px;min-width:134px;border:1px solid var(--line);border-radius:14px;background:#102136;color:#fff;padding:0 11px;font-weight:800;outline:none}
+    .workspace{min-height:0;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(6,18,31,.68),rgba(13,27,42,.40));box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.02);overflow:auto;cursor:grab;position:relative;scrollbar-color:var(--gold-soft) rgba(255,255,255,.06);scrollbar-width:thin}.workspace.dragging{cursor:grabbing;user-select:none}.workspace:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(232,201,122,.055) 1px, transparent 1px),linear-gradient(90deg, rgba(232,201,122,.055) 1px, transparent 1px);background-size:72px 72px;mask-image:linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,.95) 8%,rgba(0,0,0,.95) 92%,rgba(0,0,0,.45))}.workspace::-webkit-scrollbar{height:13px;width:13px}.workspace::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px}.workspace::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--gold),var(--gold-soft));border-radius:999px;border:3px solid rgba(8,20,34,.95)}
+    .boards-track{position:relative;z-index:1;display:flex;gap:16px;width:max-content;min-height:100%;padding:16px 18px 28px;align-items:flex-start}.company-card{width:var(--card-w);height:var(--card-h);min-width:280px;max-width:780px;min-height:320px;max-height:720px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;flex:0 0 auto;border:1px solid var(--line-strong);border-radius:20px;background:linear-gradient(180deg,rgba(21,41,64,.98),rgba(16,33,54,.98));box-shadow:0 18px 50px rgba(0,0,0,.34);overflow:hidden;transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease}.company-card:hover{border-color:rgba(232,201,122,.65);box-shadow:0 28px 70px rgba(0,0,0,.42),0 0 0 3px rgba(232,201,122,.06)}.company-card.selected{border-color:rgba(232,201,122,.88);box-shadow:0 26px 76px rgba(0,0,0,.44),0 0 0 2px rgba(232,201,122,.18),0 0 32px rgba(232,201,122,.22)}.company-card.drag-over{outline:2px dashed var(--gold-soft);outline-offset:4px}.card-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:9px;align-items:start;padding:14px 16px 10px;background:linear-gradient(180deg,rgba(13,27,42,.42),rgba(13,27,42,.08));border-bottom:1px solid rgba(232,201,122,.12)}.card-handle{border:0;background:transparent;color:inherit;text-align:left;padding:0;min-width:0;cursor:grab}.card-handle:active{cursor:grabbing}.company-name{font-family:'Poppins';font-weight:900;font-size:13px;line-height:1.08;letter-spacing:-.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cnpj{font-family:'DM Mono';font-size:11px;color:#b5c3d4;margin-top:6px}.alef-badge{font-family:'DM Mono';font-weight:900;color:var(--gold-soft);border:1px solid rgba(232,201,122,.55);border-radius:11px;padding:6px 9px;background:rgba(201,168,76,.10);box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}.more{width:28px;height:36px;border:0;background:transparent;color:var(--muted);font-size:22px}.mini-info{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 16px 9px}.chip{font-family:'DM Mono';font-size:11px;font-weight:800;color:#b8c7d8;border:1px solid rgba(159,178,199,.18);border-radius:999px;background:rgba(5,16,28,.34);padding:6px 9px}.chip.gold{color:var(--gold-soft);border-color:rgba(232,201,122,.32);background:rgba(232,201,122,.08)}.chip.green{color:var(--green);border-color:rgba(51,214,159,.30);background:rgba(51,214,159,.08)}.note-panel{margin:0 12px 10px;border:1px solid rgba(159,178,199,.18);border-radius:18px;background:rgba(5,16,28,.28);display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;overflow:hidden}.note-head{height:44px;padding:0 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(159,178,199,.12)}.note-title{display:flex;align-items:center;gap:8px;font-family:'DM Mono';font-weight:900;color:#a9c7f2;text-transform:uppercase;letter-spacing:.04em}.selected-count{font-family:'DM Mono';font-size:11px;color:#b6c8dd;border:1px solid rgba(102,168,255,.28);background:rgba(102,168,255,.08);border-radius:999px;padding:6px 8px}.note-head-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}.note-add-inline{width:28px;height:28px;border-radius:10px;border:1px solid rgba(232,201,122,.42);background:rgba(232,201,122,.12);color:var(--gold-soft);font-family:'Poppins';font-weight:900;font-size:16px;display:grid;place-items:center;box-shadow:0 0 14px rgba(232,201,122,.10);cursor:pointer;transition:.16s}.note-add-inline:hover{border-color:var(--gold-soft);background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#071321;box-shadow:0 0 22px rgba(232,201,122,.35);transform:translateY(-1px)}.notes{min-height:0;overflow:auto;padding:9px;display:flex;flex-direction:column;gap:8px}.notes::-webkit-scrollbar{width:9px}.notes::-webkit-scrollbar-thumb{background:rgba(232,201,122,.36);border-radius:999px}.empty-notes{height:100%;min-height:160px;border:1px dashed rgba(232,201,122,.30);border-radius:15px;display:grid;place-items:center;text-align:center;color:#9fb2c7;padding:20px;background:rgba(6,18,31,.22)}.empty-notes strong{display:block;font-family:'Poppins';font-size:15px;color:#b9c7d9;margin-bottom:6px}.empty-notes span{display:block;font-size:13px}.note-item{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;border:1px solid rgba(159,178,199,.28);border-radius:13px;background:linear-gradient(180deg,rgba(37,58,82,.72),rgba(21,41,64,.56));padding:9px 9px;color:#e8f0fb;text-align:left;transition:.17s ease;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);font-size:var(--note-font);line-height:1.22}.note-item:hover{border-color:rgba(102,168,255,.55);transform:translateX(2px)}.note-item.active{border-color:rgba(102,168,255,.95);background:linear-gradient(180deg,rgba(45,92,153,.92),rgba(23,56,97,.78));box-shadow:0 0 0 2px rgba(102,168,255,.20),0 0 24px rgba(102,168,255,.76),0 0 54px rgba(143,208,255,.18);text-shadow:0 0 12px rgba(255,255,255,.36)}.note-item.active .check{background:#b9dcff;color:#09213d;border-color:#d5ebff;box-shadow:0 0 18px rgba(102,168,255,.85)}.note-item[data-kind="pendencia"]{border-left:3px solid var(--red)}.note-item[data-kind="aguardando"]{border-left:3px solid var(--orange)}.note-item[data-kind="calculando"]{border-left:3px solid var(--purple)}.note-item[data-kind="ideia"]{border-left:3px solid var(--gold-soft)}.note-item[data-kind="atividade"]{border-left:3px solid var(--blue)}.check{width:20px;height:20px;border-radius:7px;border:1px solid rgba(159,178,199,.42);display:grid;place-items:center;font-size:13px;color:#98aac0;background:rgba(7,19,33,.52);font-weight:900}.note-text{font-weight:800;word-break:break-word;min-width:0}.note-actions{display:flex;gap:5px;opacity:.30;transition:.16s}.note-item:hover .note-actions{opacity:1}.mini-btn{width:28px;height:28px;border-radius:9px;border:1px solid rgba(159,178,199,.22);background:rgba(6,18,31,.42);color:#c4d3e5;display:grid;place-items:center;font-size:13px}.mini-btn:hover{border-color:var(--gold-soft);color:#fff}.card-foot{padding:0 14px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.date-meta{font-family:'DM Mono';font-size:12px;color:#9fb2c7;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resize-all{position:absolute;right:10px;bottom:10px;width:22px;height:22px;border-right:3px solid rgba(232,201,122,.72);border-bottom:3px solid rgba(232,201,122,.72);border-radius:3px;cursor:nwse-resize;opacity:.72}.resize-all:hover{opacity:1;filter:drop-shadow(0 0 8px rgba(232,201,122,.8))}.empty-board{width:min(640px,90vw);margin:80px auto;border:1px solid var(--line);border-radius:26px;background:rgba(27,46,66,.82);box-shadow:var(--shadow);padding:32px;text-align:center}.empty-board h3{font-family:'Poppins';font-size:25px;margin:0 0 10px;color:var(--gold-soft)}.empty-board p{color:var(--muted);margin:0}
 
-/* Header */
-.app-header{height:auto;min-height:68px;background:linear-gradient(135deg,#0d1b2a,#1b2e42);border-bottom:1px solid var(--gold-dim);box-shadow:0 4px 24px rgba(0,0,0,.45);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
-.brand{display:flex;align-items:center;gap:12px;min-width:260px}
-.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;display:flex;align-items:center;justify-content:center;font:800 18px var(--font-title)}
-.title h1{font:700 17px var(--font-title);color:var(--gold-light);letter-spacing:.01em}
-.title p{font:500 11px var(--font-mono);color:var(--muted);margin-top:1px}
-.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.cloud{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 11px;color:var(--muted);font:600 11px var(--font-mono)}
-.cloud.ok{color:var(--green);border-color:rgba(134,239,172,.28);background:rgba(134,239,172,.08)}
-.cloud.saving{color:var(--gold-light);border-color:var(--gold-dim);background:rgba(201,168,76,.08)}
-.cloud.error{color:#fca5a5;border-color:rgba(248,113,113,.32);background:rgba(248,113,113,.08)}
-.btn{border:1px solid var(--gold-dim);background:rgba(255,255,255,.045);color:var(--gold-light);border-radius:999px;padding:8px 14px;font:700 12px var(--font-body);cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn:hover{border-color:var(--gold);background:rgba(201,168,76,.15);transform:translateY(-1px)}
-.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;border-color:transparent}
-.btn.red{border-color:rgba(248,113,113,.28);color:#fca5a5;background:rgba(248,113,113,.08)}
-.btn.small{padding:5px 10px;font-size:11px}
-.portal-back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted);border:1px solid var(--gold-dim);border-radius:999px;padding:8px 12px;font:600 12px var(--font-body);background:rgba(255,255,255,.03)}
-.portal-back:hover{color:var(--gold-light);background:rgba(201,168,76,.12)}
+    .logo::first-letter{letter-spacing:-.09em}
+    .fit-note{font-family:'DM Mono';font-size:10px;color:var(--muted);margin-left:8px}
+    @media(min-width:1280px){.main{padding-left:22px;padding-right:22px}.stats{grid-template-columns:repeat(5,minmax(120px,1fr))}.company-card{min-width:300px}.boards-track{gap:14px}}
+    @media(min-width:1500px){:root{--card-w:360px}}
+    dialog{border:0;padding:0;width:min(650px,92vw);border-radius:26px;background:#12243a;color:var(--text);box-shadow:0 36px 100px rgba(0,0,0,.60)}dialog::backdrop{background:rgba(2,8,16,.74);backdrop-filter:blur(10px)}.modal{border:1px solid var(--line-strong);border-radius:26px;overflow:hidden;background:linear-gradient(180deg,#132943,#102136)}.modal-head{padding:20px 22px;border-bottom:1px solid var(--line);background:radial-gradient(circle at 0% 0%,rgba(232,201,122,.18),transparent 34%),rgba(13,27,42,.52)}.modal-head h3{font-family:'Poppins';font-size:25px;letter-spacing:-.05em;margin:0;color:var(--gold-soft)}.modal-head p{margin:5px 0 0;color:var(--muted)}.modal-body{padding:20px 22px;display:grid;gap:14px}.field{display:grid;gap:7px}.field span{font-family:'DM Mono';font-size:12px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:.06em;font-weight:900}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:#0d1b2a;color:#fff;padding:12px 13px;outline:0}.field textarea{min-height:128px;resize:vertical;font-size:18px;font-weight:800;line-height:1.35}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(102,168,255,.12)}.modal-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 22px 20px;border-top:1px solid var(--line);background:rgba(7,19,33,.36)}.modal-actions .right{display:flex;gap:10px}.toast{position:fixed;right:22px;bottom:22px;z-index:99;border:1px solid var(--line-strong);background:rgba(27,46,66,.96);box-shadow:var(--shadow);padding:13px 15px;border-radius:16px;font-weight:900;opacity:0;transform:translateY(12px);transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
+    @media(max-width:1180px){.app{grid-template-columns:88px minmax(0,1fr)}.side{padding:18px 10px}.logo{font-size:28px}.nav-btn{width:52px;height:52px}.profile,.logout{width:66px}.main{padding:24px 20px 18px}.stats{grid-template-columns:repeat(3,minmax(150px,1fr))}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}.action-stack{justify-items:start}.helper{text-align:left}.work-top{grid-template-columns:1fr}.tool-row{justify-content:flex-start}.search{width:100%}}
+    @media(max-width:760px){body{overflow:auto}.app{display:block;height:auto;min-height:100vh}.side{height:auto;flex-direction:row;justify-content:flex-start;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}.nav{display:flex}.profile,.logout{display:none}.main{height:auto;min-height:calc(100vh - 96px);grid-template-rows:auto auto auto 70vh}.stats{grid-template-columns:1fr 1fr}.work-top{gap:12px}.tool-row{display:grid;grid-template-columns:1fr 1fr;width:100%}.tool-row .search{grid-column:1/-1}.boards-track{padding:18px}.company-card{min-width:310px}.section-title{align-items:flex-start;flex-direction:column}h1{font-size:36px}.subtitle{font-size:14px}}
 
-/* App layout */
-.app{height:calc(100vh - 68px);display:grid;grid-template-rows:auto auto 1fr;overflow:hidden}
-.filters{padding:12px 18px;border-bottom:1px solid rgba(201,168,76,.16);background:rgba(13,27,42,.72);display:grid;grid-template-columns:1.2fr repeat(4,minmax(130px,.55fr)) auto;gap:8px;align-items:end}
-.field label{display:block;color:var(--gold);font:700 9px var(--font-mono);text-transform:uppercase;letter-spacing:.07em;margin:0 0 5px}
-.input,.select,.textarea{width:100%;background:rgba(255,255,255,.045);border:1px solid rgba(201,168,76,.18);border-radius:10px;color:var(--text);padding:9px 10px;font:600 12px var(--font-body);outline:none}
-.input:focus,.select:focus,.textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
-select option{background:#1b2e42;color:#e8edf3}
-.toggle-line{display:flex;align-items:center;gap:8px;color:var(--muted);font:600 11px var(--font-mono);padding-bottom:8px}
-.toggle-line input{accent-color:var(--gold);width:16px;height:16px}
 
-/* KPIs */
-.radar{padding:10px 18px;border-bottom:1px solid rgba(201,168,76,.16);background:rgba(27,46,66,.62);display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:9px}
-.kpi{border:1px solid rgba(201,168,76,.18);background:rgba(255,255,255,.032);border-radius:14px;padding:10px 12px;min-width:0;position:relative;overflow:hidden}
-.kpi::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.35}
-.kpi-label{font:700 9px var(--font-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi-val{font:800 22px var(--font-title);line-height:1.1;margin-top:2px;color:var(--gold-light)}
-.kpi-sub{font:600 10px var(--font-mono);color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.collab-strip{display:flex;gap:6px;align-items:center;overflow:auto;grid-column:1/-1;padding-top:4px}
-.collab-chip{border:1px solid rgba(201,168,76,.18);background:rgba(255,255,255,.035);color:var(--muted);border-radius:999px;padding:5px 10px;font:700 10px var(--font-mono);cursor:pointer;white-space:nowrap}
-.collab-chip:hover,.collab-chip.active{border-color:var(--gold);color:var(--gold-light);background:rgba(201,168,76,.12)}
+    /* v4 — grade 3x3 compacta, título padrão e sem rolagens internas */
+    :root{--note-font:11px;--card-w:100%;--card-h:100%;}
+    body{overflow:hidden;}
+    .app{grid-template-columns:74px minmax(0,1fr);}
+    .side{padding:10px 7px;gap:8px;}
+    .logo{width:58px;height:44px;font-size:24px;letter-spacing:-.08em;filter:saturate(.95);}
+    .logo small{font-size:7px;margin-top:4px;}
+    .nav{gap:5px}.nav-btn{width:42px;height:42px;border-radius:13px;font-size:18px;}
+    .profile{width:58px;padding:7px 4px;border-radius:14px;font-size:8px}.avatar{width:25px;height:25px;font-size:13px}.profile strong{font-size:11px}.logout{width:58px;height:33px;border-radius:12px;font-size:16px}
+    .main{grid-template-rows:auto auto auto minmax(0,1fr);gap:7px;padding:10px 12px 10px;}
+    .hero{grid-template-columns:minmax(260px,1fr) auto;gap:10px;align-items:center;}
+    .kicker{font-size:9px;margin-bottom:2px;letter-spacing:.08em;color:#e8c97a;opacity:.92}.spark{width:20px;height:20px;border-radius:8px}
+    h1{font-family:'Poppins',sans-serif;font-size:22px;line-height:1.05;letter-spacing:-.035em;font-weight:800;color:#f6f1e6;text-shadow:none;}
+    .subtitle{margin-top:3px;font-size:11px;line-height:1.25;color:#9fb2c7;}
+    .hero-actions{gap:7px;align-items:center}.sync{padding:6px 8px;font-size:9px}.action-stack{gap:3px}.helper{font-size:9px;max-width:210px}.btn{min-height:32px;padding:7px 10px;border-radius:11px;font-size:11px}.btn.primary{box-shadow:0 8px 18px rgba(201,168,76,.12)}.btn.small{height:32px;min-height:32px;padding:6px 9px;font-size:10px}.btn.neon{border-color:rgba(232,201,122,.32);box-shadow:none;}
+    .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.stat{min-height:48px;padding:7px 9px;border-radius:13px}.stat .label{font-size:8px;letter-spacing:.055em}.stat .num{font-size:19px;margin-top:1px}.stat .desc{font-size:8px;margin-top:2px}.stat .ico{display:none}
+    .work-top{grid-template-columns:minmax(250px,1fr) auto;gap:8px;padding-top:6px}.section-title{gap:8px}.section-title h2{font-size:13px;font-weight:800}.drag-hint{font-size:10px;color:#8fa4bb}.drag-hint .arrows{display:none}.tool-row{gap:6px}.search{height:32px;width:min(250px,22vw);border-radius:11px;padding:0 9px}.search input{font-size:11px}select{height:32px;min-width:112px;border-radius:11px;padding:0 8px;font-size:10px}.page-meta{height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(232,201,122,.22);border-radius:11px;background:rgba(6,18,31,.38);padding:0 8px;font-family:'DM Mono',monospace;font-size:10px;color:#e8c97a;white-space:nowrap;}
+    .workspace{overflow:hidden;cursor:default;border-radius:18px;min-height:0}.workspace.dragging{cursor:default}.workspace:before{background-size:48px 48px;mask-image:none;opacity:.68}.workspace::-webkit-scrollbar{display:none}.workspace{scrollbar-width:none;}
+    .boards-track{width:100%;height:100%;min-height:0;padding:8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch;}
+    .company-card{width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;border-radius:15px;grid-template-rows:auto auto minmax(0,1fr) auto;box-shadow:0 10px 28px rgba(0,0,0,.24);overflow:hidden;}
+    .company-card:hover{transform:none;box-shadow:0 14px 34px rgba(0,0,0,.30),0 0 0 2px rgba(232,201,122,.05)}.company-card.selected{box-shadow:0 14px 34px rgba(0,0,0,.30),0 0 0 2px rgba(232,201,122,.13)}
+    .card-head{padding:8px 10px 5px;grid-template-columns:minmax(0,1fr) auto auto;gap:6px}.company-name{font-size:11px;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.03em}.cnpj{font-size:9px;margin-top:2px}.alef-badge{font-size:9px;padding:4px 7px;border-radius:9px}.more{width:24px;height:24px;font-size:15px}.mini-info{min-height:18px;padding:0 10px 5px;gap:4px}.chip{font-size:8px;padding:3px 6px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.note-panel{margin:0 8px 6px;border-radius:13px;overflow:hidden}.note-head{height:28px;padding:0 8px}.note-title{font-size:10px;gap:5px}.selected-count{font-size:8px;padding:3px 6px}.notes{overflow:hidden;padding:6px;gap:5px;display:flex;flex-direction:column;min-height:0}.notes::-webkit-scrollbar{display:none}.note-item{grid-template-columns:18px minmax(0,1fr) auto;gap:5px;border-radius:10px;padding:5px 6px;font-size:var(--note-font);line-height:1.08;min-height:28px}.note-item:hover{transform:none}.note-item.active{box-shadow:0 0 0 1px rgba(102,168,255,.34),0 0 15px rgba(102,168,255,.56),0 0 28px rgba(143,208,255,.12)}.check{width:16px;height:16px;border-radius:5px;font-size:10px}.note-actions{display:none}.note-text{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .empty-notes{min-height:0;height:100%;border-radius:11px;padding:8px}.empty-notes strong{font-size:11px;margin-bottom:3px}.empty-notes span{font-size:9px;line-height:1.2}.card-foot{padding:0 8px 7px}.date-meta{font-size:8px}.add-note{font-size:9px!important;padding:5px 7px!important;min-height:26px!important}.resize-all{display:none}.empty-board{grid-column:1/-1;align-self:center;margin:0 auto;padding:22px;}
+    @media(max-width:1180px){.app{grid-template-columns:68px minmax(0,1fr)}.main{padding:8px}.stats{grid-template-columns:repeat(5,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}.action-stack{display:none}.work-top{grid-template-columns:1fr}.tool-row{justify-content:flex-start}.search{width:100%}.boards-track{gap:6px;padding:6px}.company-name{font-size:10px}.note-item{font-size:10px;padding:4px 5px;min-height:25px}.stat .desc{display:none}}
+    @media(max-height:740px){.subtitle{display:none}.stats{gap:6px}.stat{min-height:42px;padding:6px 8px}.stat .desc{display:none}.work-top{padding-top:4px}.main{gap:5px}.boards-track{gap:6px;padding:6px}.card-head{padding-top:6px}.mini-info{display:none}.note-head{height:25px}.note-item{min-height:24px;padding:4px 5px;font-size:10px}.card-foot{padding-bottom:5px}.date-meta{display:none}}
+    @media(max-height:660px){.stats{display:none}.main{grid-template-rows:auto auto minmax(0,1fr)}.note-item{font-size:9px}.btn.primary{display:none}.sync{display:none}.hero{gap:4px}h1{font-size:20px}.work-top{padding-top:2px}.card-foot{display:none}}
+    @media(max-width:760px){body{overflow:auto}.app{display:block;height:auto;min-height:100vh}.side{display:none}.main{height:auto;min-height:100vh;grid-template-rows:auto auto auto auto;overflow:visible}.stats{grid-template-columns:repeat(2,minmax(0,1fr));display:grid}.boards-track{grid-template-columns:1fr;grid-auto-rows:minmax(250px,auto);grid-template-rows:none;height:auto}.workspace{overflow:visible}.company-card{min-height:250px}.tool-row{display:grid;grid-template-columns:1fr 1fr;width:100%}.tool-row .search{grid-column:1/-1}h1{font-size:22px}}
 
-/* Board */
-.board-wrap{min-height:0;overflow:auto;padding:14px 18px 18px}
-.board{display:grid;grid-template-columns:repeat(9,minmax(275px,1fr));gap:12px;min-width:2600px;align-items:start}
-.lane{background:rgba(27,46,66,.82);border:1px solid rgba(201,168,76,.18);border-radius:16px;min-height:360px;max-height:calc(100vh - 265px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.18)}
-.lane.drop{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
-.lane-head{padding:10px 11px;border-bottom:1px solid rgba(201,168,76,.15);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;background:rgba(0,0,0,.12)}
-.lane-title{font:800 12px var(--font-title);color:var(--text);line-height:1.15;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.02em}
-.lane-title .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(201,168,76,.5);flex-shrink:0}
-.lane-sub{font:600 10px var(--font-mono);color:var(--muted);margin-top:3px;line-height:1.3}
-.lane-count{font:800 11px var(--font-mono);padding:3px 8px;border-radius:999px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.20);color:var(--gold-light)}
-.lane-body{padding:9px;display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0;flex:1}
-.empty-lane{border:1px dashed rgba(201,168,76,.20);border-radius:12px;color:var(--muted2);font:600 11px var(--font-mono);line-height:1.45;text-align:center;padding:18px 10px;background:rgba(255,255,255,.02)}
 
-/* Card */
-.company-card{background:#15263b;border:1px solid rgba(255,255,255,.08);border-left:4px solid var(--gold);border-radius:14px;padding:10px;cursor:pointer;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.18);position:relative;min-width:0}
-.company-card:hover{border-color:rgba(201,168,76,.42);background:#1a2d45;transform:translateY(-1px)}
-.company-card.dragging{opacity:.45;transform:scale(.98)}
-.company-card.critical{border-left-color:var(--red)}
-.company-card.high{border-left-color:var(--amber)}
-.company-card.done{opacity:.62}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:7px}
-.card-name{font:800 12px var(--font-body);line-height:1.25;color:var(--text);overflow-wrap:anywhere}
-.drag-hint{font:900 14px var(--font-mono);color:var(--muted2);cursor:grab;padding:0 2px}
-.drag-hint:active{cursor:grabbing}
-.card-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
-.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 7px;font:800 9px var(--font-mono);border:1px solid rgba(201,168,76,.18);background:rgba(201,168,76,.08);color:var(--gold-light);max-width:100%}
-.badge.muted{color:var(--muted);background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.07)}
-.badge.green{color:var(--green);background:rgba(134,239,172,.08);border-color:rgba(134,239,172,.25)}
-.badge.red{color:#fca5a5;background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.28)}
-.badge.blue{color:var(--blue);background:rgba(147,197,253,.08);border-color:rgba(147,197,253,.25)}
-.badge.amber{color:var(--amber);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.24)}
-.missing-line{margin-top:8px;display:flex;gap:4px;flex-wrap:wrap}
-.dep-chip{display:inline-flex;align-items:center;gap:4px;border-radius:8px;padding:4px 6px;font:800 9px var(--font-mono);border:1px solid rgba(248,113,113,.24);background:rgba(248,113,113,.08);color:#fca5a5}
-.dep-chip.ok{border-color:rgba(134,239,172,.24);background:rgba(134,239,172,.07);color:var(--green)}
-.dep-chip.na{border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.035);color:var(--muted2)}
-.next-box{margin-top:8px;border:1px solid rgba(201,168,76,.14);background:rgba(201,168,76,.05);border-radius:10px;padding:7px 8px}
-.next-label{font:800 8px var(--font-mono);color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
-.next-text{font:600 11px/1.35 var(--font-body);color:var(--text);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.note-preview{margin-top:6px;font:500 10px/1.4 var(--font-body);color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
-.task-list-mini{margin-top:8px;display:flex;flex-direction:column;gap:4px}
-.task-mini{border:1px solid rgba(147,197,253,.16);background:rgba(147,197,253,.06);border-radius:8px;padding:5px 6px;color:var(--blue);font:700 10px/1.25 var(--font-body);overflow-wrap:anywhere}
-.card-footer{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:6px}
-.move-select{min-width:120px;max-width:160px;background:rgba(255,255,255,.045);border:1px solid rgba(201,168,76,.18);color:var(--muted);border-radius:999px;padding:5px 8px;font:700 10px var(--font-mono);outline:none}
-.updated{font:700 9px var(--font-mono);color:var(--muted2);white-space:nowrap}
+    /* v5 — cards quadrados inspirados no módulo Recebimento */
+    :root{
+      --card-size:220px;
+      --card2:#162438;
+      --receipt-line:rgba(201,168,76,.18);
+      --receipt-muted:#8899aa;
+      --receipt-blue:#74b9ff;
+      --receipt-ok:#00cec9;
+      --receipt-warn:#fdcb6e;
+      --receipt-danger:#ff7675;
+    }
+    body{overflow:hidden;}
+    .main{gap:8px;padding:12px 16px 12px;grid-template-rows:auto auto auto minmax(0,1fr);}
+    .hero{grid-template-columns:minmax(280px,1fr) auto;gap:10px;align-items:center;}
+    .kicker{font-size:10px;margin-bottom:2px;letter-spacing:.07em;color:#a8bbd0;}
+    .spark{width:22px;height:22px;border-radius:8px;}
+    h1{font-size:21px;line-height:1.12;letter-spacing:-.035em;font-weight:800;color:var(--gold-soft);text-shadow:none;background:none;-webkit-text-fill-color:currentColor;}
+    .subtitle{font-size:12px;margin-top:3px;max-width:650px;}
+    .sync{padding:6px 9px;font-size:10px;}
+    .action-stack{gap:5px;}
+    .helper{font-size:10px;max-width:260px;}
+    .btn{border-radius:11px;padding:8px 10px;font-size:12px;}
+    .btn.small{padding:7px 9px;font-size:11px;border-radius:10px;}
+    .stats{gap:8px;}
+    .stat{min-height:56px;border-radius:14px;padding:8px 10px;background:var(--card);border:1px solid var(--receipt-line);box-shadow:0 6px 22px rgba(0,0,0,.20);}
+    .stat .label{font-size:9px;color:var(--receipt-muted);}
+    .stat .num{font-size:23px;margin-top:2px;color:var(--gold-soft);}
+    .stat .desc{font-size:9px;margin-top:2px;}
+    .stat .ico{display:none;}
+    .work-top{padding-top:6px;grid-template-columns:minmax(220px,1fr) auto;}
+    .section-title h2{font-size:14px;letter-spacing:-.025em;}
+    .drag-hint{font-size:11px;color:#9fb2c7;}
+    .tool-row{gap:7px;}
+    .search{height:35px;border-radius:12px;width:min(290px,25vw);}
+    select{height:35px;border-radius:12px;min-width:122px;font-size:11px;}
+    .card-size-btn{border-color:rgba(201,168,76,.26);background:rgba(201,168,76,.08);color:var(--gold-soft);}
+    .workspace{overflow:auto;cursor:default;border-radius:18px;min-height:0;border:1px solid var(--receipt-line);background:rgba(13,27,42,.38);box-shadow:0 12px 34px rgba(0,0,0,.34);scrollbar-color:var(--gold-soft) rgba(255,255,255,.05);}
+    .workspace.dragging{cursor:default;}
+    .workspace:before{background-size:56px 56px;opacity:.42;mask-image:none;}
+    .workspace::-webkit-scrollbar{height:0;width:9px;}
+    .workspace::-webkit-scrollbar-thumb{background:rgba(201,168,76,.42);border-radius:999px;border:2px solid rgba(13,27,42,.75);}
+    .boards-track{width:100%;min-height:100%;height:auto;padding:12px;display:grid;grid-template-columns:repeat(3,var(--card-size));grid-auto-rows:var(--card-size);gap:12px;justify-content:center;align-content:start;align-items:stretch;}
+    .company-card{
+      width:var(--card-size);height:var(--card-size);min-width:0;min-height:0;max-width:none;max-height:none;aspect-ratio:1/1;
+      background:var(--card2);border:1.5px solid rgba(255,255,255,.07);border-radius:15px;padding:0;transition:.18s;cursor:pointer;
+      display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;box-shadow:0 8px 24px rgba(0,0,0,.22);overflow:hidden;position:relative;
+    }
+    .company-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.28);}
+    .company-card.selected{border-color:rgba(201,168,76,.78);box-shadow:0 12px 30px rgba(0,0,0,.32),0 0 0 2px rgba(201,168,76,.14);}
+    .card-head{padding:10px 11px 7px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:flex-start;background:transparent;border-bottom:0;}
+    .card-handle{cursor:grab;}
+    .company-name{font-family:'Poppins',sans-serif;font-size:12px;line-height:1.2;font-weight:800;letter-spacing:-.035em;text-transform:uppercase;color:var(--text);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .cnpj{font-family:'DM Mono',monospace;color:#9fb2c7;font-size:9.5px;margin-top:4px;letter-spacing:-.02em;}
+    .alef-badge{font-family:'DM Mono';font-size:9px;border-radius:999px;padding:4px 7px;font-weight:800;color:var(--gold-soft);background:rgba(201,168,76,.10);border-color:rgba(201,168,76,.35);box-shadow:none;}
+    .more{display:none;}
+    .mini-info{padding:0 11px 7px;gap:4px;min-height:0;display:flex;flex-wrap:wrap;align-items:center;}
+    .chip{font-family:'DM Mono';font-size:8.5px;border:1px solid rgba(201,168,76,.20);background:rgba(201,168,76,.07);color:var(--gold-soft);padding:2px 6px;border-radius:999px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .chip.green{color:var(--receipt-ok);border-color:rgba(0,206,201,.25);background:rgba(0,206,201,.08);}
+    .note-panel{margin:0 10px 8px;border:1px solid rgba(201,168,76,.14);border-radius:14px;background:rgba(255,255,255,.03);display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;overflow:hidden;}
+    .note-head{height:30px;padding:0 8px;border-bottom:1px solid rgba(201,168,76,.12);}
+    .note-title{font-family:'DM Mono';font-size:9.5px;color:#a9c7f2;letter-spacing:.05em;font-weight:800;}
+    .selected-count{font-family:'DM Mono';font-size:8px;color:var(--gold-soft);border:1px solid rgba(201,168,76,.25);background:rgba(201,168,76,.08);border-radius:999px;padding:3px 6px;}
+    .notes{overflow:visible!important;padding:7px;display:flex;flex-direction:column;gap:5px;min-height:0;}
+    .notes::-webkit-scrollbar{display:none!important;}
+    .note-item{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:6px;align-items:center;width:100%;border:1px solid rgba(159,178,199,.22);background:rgba(255,255,255,.035);border-radius:11px;padding:5px 7px;color:#e8eaf0;font-size:var(--note-font);font-weight:700;line-height:1.12;min-height:26px;box-shadow:none;transition:.16s;}
+    .note-item:hover{border-color:var(--gold);transform:none;box-shadow:0 6px 16px rgba(0,0,0,.18);}
+    .note-item.active{border-color:rgba(116,185,255,.92);background:rgba(116,185,255,.16);box-shadow:0 0 0 1px rgba(116,185,255,.32),0 0 15px rgba(116,185,255,.58),0 0 30px rgba(116,185,255,.16);text-shadow:none;}
+    .check{width:16px;height:16px;border-radius:5px;font-size:10px;border:1px solid rgba(159,178,199,.32);background:rgba(13,27,42,.50);}
+    .note-item.active .check{background:#b9dcff;color:#09213d;border-color:#d5ebff;box-shadow:0 0 14px rgba(116,185,255,.72);}
+    .note-text{font-weight:700;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;}
+    .note-actions{display:flex;gap:4px;opacity:.20;}
+    .note-item:hover .note-actions{opacity:1;}
+    .mini-btn{width:23px;height:23px;border-radius:8px;font-size:11px;border-color:rgba(201,168,76,.18);}
+    .empty-notes{min-height:0;height:100%;border:1px dashed rgba(201,168,76,.25);border-radius:12px;padding:10px;background:rgba(13,27,42,.25);color:#9fb2c7;}
+    .empty-notes strong{font-family:'Poppins';font-size:12px;margin-bottom:3px;color:#b9c7d9;}
+    .empty-notes span{font-size:10px;line-height:1.25;}
+    .card-foot{padding:0 10px 9px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .date-meta{font-family:'DM Mono';font-size:8.5px;color:#8899aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .add-note{font-size:9.5px!important;padding:5px 7px!important;border-radius:9px!important;min-height:26px!important;}.note-add-inline{width:24px!important;height:24px!important;border-radius:8px!important;font-size:14px!important;}
+    .resize-all{display:none!important;}
+    .empty-board{grid-column:1/-1;align-self:center;margin:0 auto;padding:22px;}
+    .page-meta{font-family:'DM Mono';font-size:10px;color:#9fb2c7;min-width:70px;text-align:center;}
+    @media(max-width:1180px){
+      .app{grid-template-columns:68px minmax(0,1fr)}.main{padding:8px}.stats{grid-template-columns:repeat(5,minmax(0,1fr))}.hero{grid-template-columns:1fr}.action-stack{display:none}.work-top{grid-template-columns:1fr}.tool-row{justify-content:flex-start}.search{width:100%}.boards-track{gap:8px;padding:8px}.company-name{font-size:10.5px}.note-item{font-size:10px;padding:4px 5px;min-height:24px}.stat .desc{display:none}
+    }
+    @media(max-height:740px){
+      .subtitle{display:none}.stats{gap:6px}.stat{min-height:42px;padding:6px 8px}.stat .desc{display:none}.work-top{padding-top:4px}.main{gap:5px}.boards-track{gap:8px;padding:8px}.card-head{padding-top:7px}.mini-info{display:none}.note-head{height:25px}.selected-count{display:none}.note-add-inline{width:22px!important;height:22px!important;font-size:13px!important}.note-item{min-height:22px;padding:4px 5px;font-size:9.5px}.card-foot{padding-bottom:6px}.date-meta{display:none}.add-note{min-height:24px!important;padding:4px 6px!important;}
+    }
+    @media(max-height:660px){
+      .stats{display:none}.main{grid-template-rows:auto auto minmax(0,1fr)}.note-item{font-size:9px}.sync{display:none}.hero{gap:4px}h1{font-size:18px}.work-top{padding-top:2px}.card-foot{display:none}.note-head{height:24px;}
+    }
+    @media(max-width:760px){
+      body{overflow:auto}.app{display:block;height:auto;min-height:100vh}.side{display:none}.main{height:auto;min-height:100vh;grid-template-rows:auto auto auto auto;overflow:visible}.stats{grid-template-columns:repeat(2,minmax(0,1fr));display:grid}.workspace{overflow:visible}.boards-track{display:grid;grid-template-columns:1fr;grid-auto-rows:auto;height:auto}.company-card{width:100%;height:auto;min-height:260px;aspect-ratio:auto}.tool-row{display:grid;grid-template-columns:1fr 1fr;width:100%}.tool-row .search{grid-column:1/-1}h1{font-size:22px}
+    }
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(5,12,22,.76);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:18px}
-.modal-overlay.open{display:flex}
-.modal{width:min(1020px,100%);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--gold-dim);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.58)}
-.modal-head{padding:16px 20px;border-bottom:1px solid rgba(201,168,76,.18);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.modal-title h2{font:800 16px var(--font-title);color:var(--gold-light);line-height:1.25}
-.modal-title p{font:600 11px var(--font-mono);color:var(--muted);margin-top:3px}
-.modal-body{padding:16px 20px;overflow:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:14px}
-.modal-footer{padding:12px 20px;border-top:1px solid rgba(201,168,76,.18);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.panel{border:1px solid rgba(201,168,76,.16);background:rgba(0,0,0,.12);border-radius:14px;padding:13px}
-.panel-title{font:800 11px var(--font-title);color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.form-grid .full{grid-column:1/-1}
-.textarea{min-height:84px;resize:vertical;line-height:1.45;font-weight:500}
-.dep-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.dep-row{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);border-radius:10px;padding:8px}
-.dep-row label{display:block;font:800 10px var(--font-body);color:var(--text);margin-bottom:6px}
-.task-full-list{display:flex;flex-direction:column;gap:7px;max-height:350px;overflow:auto}
-.task-full{border:1px solid rgba(147,197,253,.18);background:rgba(147,197,253,.055);border-radius:11px;padding:8px 9px}
-.task-full-name{font:800 12px var(--font-body);color:var(--text);line-height:1.3}
-.task-full-meta{margin-top:5px;display:flex;gap:5px;flex-wrap:wrap}
-.empty-small{border:1px dashed rgba(201,168,76,.18);border-radius:12px;padding:14px;text-align:center;color:var(--muted);font:600 11px var(--font-mono);line-height:1.45}
-.toast{position:fixed;right:20px;bottom:20px;z-index:400;background:var(--card);border:1px solid var(--gold-dim);border-radius:12px;color:var(--text);box-shadow:var(--shadow);padding:11px 14px;display:none;font:800 12px var(--font-body);max-width:360px}
-.toast.show{display:block;animation:pop .2s ease}
-@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* Scroll */
-*::-webkit-scrollbar{width:10px;height:10px}
-*::-webkit-scrollbar-track{background:rgba(0,0,0,.18);border-radius:999px}
-*::-webkit-scrollbar-thumb{background:rgba(201,168,76,.35);border-radius:999px;border:2px solid rgba(13,27,42,.8)}
-*::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,.55)}
+    /* v6 — correção do diálogo e inclusão contínua de anotações */
+    dialog#noteDialog{
+      width:min(560px,96vw)!important;
+      max-height:min(92vh,720px)!important;
+      overflow:hidden!important;
+      border-radius:22px!important;
+      margin:auto!important;
+    }
+    dialog#noteDialog .modal{
+      max-height:min(92vh,720px)!important;
+      display:flex!important;
+      flex-direction:column!important;
+      overflow:hidden!important;
+      border-radius:22px!important;
+    }
+    dialog#noteDialog .modal-head{
+      flex:0 0 auto;
+      padding:14px 18px!important;
+    }
+    dialog#noteDialog .modal-head h3{
+      font-size:18px!important;
+      letter-spacing:-.03em!important;
+    }
+    dialog#noteDialog .modal-head p{
+      font-size:12px!important;
+      line-height:1.35!important;
+    }
+    dialog#noteDialog .modal-body{
+      flex:1 1 auto;
+      min-height:0!important;
+      overflow-y:auto!important;
+      padding:14px 18px!important;
+      gap:10px!important;
+      max-height:none!important;
+    }
+    dialog#noteDialog .modal-actions{
+      flex:0 0 auto;
+      position:sticky!important;
+      bottom:0!important;
+      z-index:2;
+      padding:12px 18px!important;
+      flex-wrap:wrap!important;
+      background:rgba(7,19,33,.94)!important;
+      backdrop-filter:blur(8px);
+    }
+    dialog#noteDialog .modal-actions .right{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:8px!important;
+    }
+    dialog#noteDialog .field{gap:5px!important;}
+    dialog#noteDialog .field span{font-size:11px!important;}
+    dialog#noteDialog .field input,
+    dialog#noteDialog .field select,
+    dialog#noteDialog .field textarea{
+      min-height:40px!important;
+      padding:10px 12px!important;
+      border-radius:13px!important;
+    }
+    dialog#noteDialog .field textarea{
+      min-height:92px!important;
+      max-height:24vh!important;
+      font-size:15px!important;
+      font-weight:800!important;
+      line-height:1.32!important;
+    }
+    @media(max-height:680px){
+      dialog#noteDialog{max-height:96vh!important;}
+      dialog#noteDialog .modal{max-height:96vh!important;}
+      dialog#noteDialog .modal-head p{display:none;}
+      dialog#noteDialog .modal-body{padding:10px 14px!important;gap:8px!important;}
+      dialog#noteDialog .modal-actions{padding:10px 14px!important;}
+      dialog#noteDialog .field textarea{min-height:72px!important;max-height:18vh!important;}
+    }
+    @media(max-width:560px){
+      dialog#noteDialog .modal-actions,
+      dialog#noteDialog .modal-actions .right{justify-content:stretch;width:100%;}
+      dialog#noteDialog .modal-actions .btn{flex:1 1 auto;}
+    }
 
-@media(max-width:980px){
-  body{overflow:auto}
-  .app{height:auto;min-height:calc(100vh - 68px);overflow:visible}
-  .filters{grid-template-columns:1fr 1fr}
-  .radar{grid-template-columns:repeat(2,1fr)}
-  .board-wrap{overflow:auto;min-height:600px}
-  .lane{max-height:620px}
-  .modal-body{grid-template-columns:1fr}
-}
-@media(max-width:640px){
-  .app-header{padding:12px}
-  .actions{width:100%}
-  .btn,.portal-back{flex:1;justify-content:center}
-  .filters{grid-template-columns:1fr}
-  .radar{grid-template-columns:1fr 1fr}
-  .modal-body{padding:12px}
-  .form-grid,.dep-grid{grid-template-columns:1fr}
-}
-@media print{
-  body{overflow:visible;background:#fff;color:#111}
-  .app-header,.filters,.actions,.modal-overlay,.toast{display:none!important}
-  .app{display:block;height:auto}
-  .board-wrap{overflow:visible;padding:0}
-  .board{display:block;min-width:0}
-  .lane{break-inside:avoid;max-height:none;margin-bottom:12px;border:1px solid #ccc}
-}
-</style>
+  </style>
 </head>
 <body>
-<header class="app-header">
-  <div class="brand">
-    <div class="logo">K</div>
-    <div class="title">
-      <h1>Kanban Fiscal — Alef</h1>
-      <p>Empresas do Painel · responsável fixo: Alef · Caixa de Entrada e fluxo fiscal</p>
-    </div>
-  </div>
-  <div class="actions">
-    <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
-    <button type="button" class="btn gold" onclick="refreshAll()">↻ Atualizar</button>
-    <button type="button" class="btn" onclick="exportKanban()">⬇ Backup</button>
-    <button type="button" class="btn" onclick="document.getElementById('importFile').click()">⬆ Importar</button>
-    <input id="importFile" type="file" accept="application/json" hidden onchange="importKanban(event)">
-    <a href="#" onclick="history.back();return false" class="portal-back">← BIF</a>
-  </div>
-</header>
+  <div class="app">
+    <aside class="side" aria-label="Navegação BIF">
+      <div class="logo">BIF<small>By Fluignos</small></div>
+      <nav class="nav" aria-label="Módulos">
+        <button type="button" class="nav-btn active" title="Mesa Criativa">✦</button>
+        <button type="button" class="nav-btn" title="Painel">▦</button>
+        <button type="button" class="nav-btn" title="Tarefas">▤</button>
+        <button type="button" class="nav-btn" title="Equipes">♙</button>
+        <button type="button" class="nav-btn" title="Relatórios">▥</button>
+        <button type="button" class="nav-btn" title="Configurações">⚙</button>
+      </nav>
+      <div class="profile"><div class="avatar">A</div><strong>Alef</strong>Colaborador</div>
+      <button type="button" class="logout" id="btnPortal" title="Voltar ao portal">↩</button>
+    </aside>
 
-<main class="app">
-  <section class="filters">
-    <div class="field">
-      <label>Busca rápida</label>
-      <input class="input" id="searchInput" placeholder="Buscar empresa, CNPJ, tarefa, pendência..." oninput="setFilter('search',this.value)">
-    </div>
-    <div class="field">
-      <label>Colaborador Responsável</label>
-      <select class="select" id="collabFilter" disabled title="Visual travado para Alef"></select>
-    </div>
-    <div class="field">
-      <label>Regime</label>
-      <select class="select" id="regimeFilter" onchange="setFilter('regime',this.value)">
-        <option value="">Todos</option><option value="simples">Simples</option><option value="presumido">Lucro Presumido</option><option value="real">Lucro Real</option><option value="outros">Outros</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Status do card</label>
-      <select class="select" id="laneFilter" onchange="setFilter('lane',this.value)">
-        <option value="">Todas as colunas</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Dependência</label>
-      <select class="select" id="depFilter" onchange="setFilter('dep',this.value)">
-        <option value="">Todas</option>
-      </select>
-    </div>
-    <label class="toggle-line" title="Mostra apenas empresas com tarefas abertas ou dependências marcadas">
-      <input type="checkbox" id="onlyActive" onchange="setFilter('onlyActive',this.checked)"> Só com ação
-    </label>
-  </section>
-
-  <section class="radar" id="radar">
-    <div class="kpi"><div class="kpi-label">Empresas do Alef</div><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-sub">puxadas do Painel</div></div>
-    <div class="kpi"><div class="kpi-label">Tarefas abertas</div><div class="kpi-val" id="kpiTasks">0</div><div class="kpi-sub">puxadas do Tarefas</div></div>
-    <div class="kpi"><div class="kpi-label">Com pendência</div><div class="kpi-val" id="kpiDeps">0</div><div class="kpi-sub">falta info/documento</div></div>
-    <div class="kpi"><div class="kpi-label">Aguardando cliente</div><div class="kpi-val" id="kpiWaiting">0</div><div class="kpi-sub">bloqueio externo</div></div>
-    <div class="kpi"><div class="kpi-label">Calculando</div><div class="kpi-val" id="kpiCalc">0</div><div class="kpi-sub">em apuração</div></div>
-    <div class="kpi"><div class="kpi-label">Parqueadas</div><div class="kpi-val" id="kpiPark">0</div><div class="kpi-sub">não é pra atacar agora</div></div>
-    <div class="collab-strip" id="collabStrip"></div>
-  </section>
-
-  <section class="board-wrap">
-    <div class="board" id="board"></div>
-  </section>
-</main>
-
-<div class="modal-overlay" id="cardModal" onclick="if(event.target.id==='cardModal')closeCardModal()">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">
-        <h2 id="modalCompanyName">Empresa</h2>
-        <p id="modalCompanyMeta">Vínculo com Painel de Gestão</p>
-      </div>
-      <button type="button" class="btn red small" onclick="closeCardModal()">✕ Fechar</button>
-    </div>
-    <div class="modal-body">
-      <div class="panel">
-        <div class="panel-title">Fluxo e dependências</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Status visual</label>
-            <select class="select" id="modalLane"></select>
-          </div>
-          <div class="field">
-            <label>Urgência</label>
-            <select class="select" id="modalPriority">
-              <option value="normal">Normal — entra na fila</option>
-              <option value="alta">Alta — atenção hoje</option>
-              <option value="critica">Crítica — bloqueando cliente/saída</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Prazo interno</label>
-            <input class="input" id="modalDue" type="date">
-          </div>
-          <div class="field">
-            <label>Parqueamento</label>
-            <input class="input" id="modalParkReason" placeholder="Ex.: aguardar XML / sem retorno / baixa prioridade">
-          </div>
-          <div class="field full">
-            <label>Próximo passo — bater o olho e executar</label>
-            <input class="input" id="modalNext" placeholder="Ex.: cobrar envelope + XML pelo WhatsApp">
-          </div>
-          <div class="field full">
-            <label>Texto livre do card</label>
-            <textarea class="textarea" id="modalNote" placeholder="Escreva aqui o contexto: o que aconteceu, quem falou, risco, observações rápidas..."></textarea>
-          </div>
+    <main class="main">
+      <header class="hero">
+        <div class="title-wrap">
+          <div class="kicker"><span class="spark">✦</span> Mesa criativa</div>
+          <h1>Mesa Criativa do Alef</h1>
+          <p class="subtitle">Quadros quadrados, grandes e ajustáveis para pensar, anotar e concluir.</p>
         </div>
-        <div style="height:12px"></div>
-        <div class="panel-title">O que falta?</div>
-        <div class="dep-grid" id="modalDeps"></div>
-      </div>
+        <div class="hero-actions">
+          <span class="sync warn" id="syncStatus"><span class="sync-dot"></span><span id="syncText">Carregando nuvem</span></span>
+          <div class="action-stack">
+            <button type="button" class="btn neon" id="btnResizePreset">▦ Encaixar 3x3</button>
+            <span class="helper">Cards quadrados no estilo Recebimento, com ajuste global.</span>
+          </div>
+          <button type="button" class="btn primary" id="btnNewNote">＋ Nova anotação</button>
+        </div>
+      </header>
 
-      <div class="panel">
-        <div class="panel-title">Tarefas dessa empresa</div>
-        <div id="modalTasks" class="task-full-list"></div>
-        <div style="height:12px"></div>
-        <button type="button" class="btn gold" onclick="createTaskFromCurrentCard()">+ Gerar tarefa no Painel de Tarefas</button>
-        <div style="font:600 10px var(--font-mono);color:var(--muted);line-height:1.45;margin-top:8px">
-          A tarefa é criada em <b>bif_tarefas_fiscal</b>, vinculada a esta empresa, com o próximo passo e as dependências do card.
+      <section class="stats" aria-label="Resumo da mesa criativa">
+        <article class="stat"><div class="label">Empresas do Alef</div><div class="num" id="statCompanies">0</div><div class="desc">puxadas do Painel</div><div class="ico">▥</div></article>
+        <article class="stat"><div class="label">Tarefas abertas</div><div class="num" id="statTasks">0</div><div class="desc">puxadas do Tarefas</div><div class="ico">▤</div></article>
+        <article class="stat"><div class="label">Com pendência</div><div class="num" id="statPending">0</div><div class="desc">falta info/documento</div><div class="ico">⚠</div></article>
+        <article class="stat"><div class="label">Aguardando cliente</div><div class="num" id="statWaiting">0</div><div class="desc">bloqueio externo</div><div class="ico">♙</div></article>
+        <article class="stat"><div class="label">Calculando</div><div class="num" id="statCalc">0</div><div class="desc">em apuração</div><div class="ico">▣</div></article>
+      </section>
+
+      <section class="work-top">
+        <div class="section-title">
+          <h2>✦ Quadros de Empresas</h2>
+          <div class="drag-hint"><span>Cards quadrados • ajuste global • anotações sem rolagem interna</span></div>
+        </div>
+        <div class="tool-row">
+          <label class="search" aria-label="Buscar"><span>⌕</span><input id="searchInput" placeholder="Buscar empresa, CNPJ ou anotação..." autocomplete="off"></label>
+          <select id="filterMode" aria-label="Filtro">
+            <option value="all">Todas</option>
+            <option value="withNotes">Com anotações</option>
+            <option value="withoutNotes">Sem anotações</option>
+            <option value="active">Concluídas/neon</option>
+          </select>
+          <button type="button" class="btn small card-size-btn" id="btnCardMinus">− Card</button>
+          <button type="button" class="btn small card-size-btn" id="btnCardPlus">＋ Card</button>
+          <button type="button" class="btn small card-size-btn" id="btnFitGrid">▦ 3x3</button>
+          <button type="button" class="btn small" id="btnPrevPage">‹ 9</button>
+          <span class="page-meta" id="pageMeta">1/1</span>
+          <button type="button" class="btn small" id="btnNextPage">9 ›</button>
+          <button type="button" class="btn small" id="btnFontMinus">A−</button>
+          <button type="button" class="btn small" id="btnFontPlus">A＋</button>
+          <button type="button" class="btn small" id="btnReload">↻</button>
+        </div>
+      </section>
+
+      <section class="workspace" id="workspace" aria-label="Grade 3x3 de quadros">
+        <div class="boards-track" id="boardsTrack"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="noteDialog">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="dialogTitle">Nova anotação</h3>
+        <p>A anotação vira uma tag clicável. Pode marcar várias tags em neon ao mesmo tempo.</p>
+      </div>
+      <div class="modal-body">
+        <label class="field"><span>Empresa</span><select id="modalCompany"></select></label>
+        <label class="field"><span>Tipo</span>
+          <select id="modalKind">
+            <option value="atividade">Atividade / conferência</option>
+            <option value="pendencia">Pendência</option>
+            <option value="aguardando">Aguardando cliente</option>
+            <option value="calculando">Calculando</option>
+            <option value="ideia">Ideia livre</option>
+            <option value="livre">Anotação livre</option>
+          </select>
+        </label>
+        <label class="field"><span>Texto da anotação</span><textarea id="modalText" placeholder="Ex.: Conferir notas de entrada"></textarea></label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="btnCancel">Cancelar</button>
+        <div class="right">
+          <button type="button" class="btn ghost" id="btnDeleteNote" style="display:none">Excluir</button>
+          <button type="button" class="btn" id="btnSaveAddNote">Salvar + nova</button>
+          <button type="button" class="btn primary" id="btnSaveNote">Salvar anotação</button>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn" onclick="resetCardState()">↩ Limpar card</button>
-      <button type="button" class="btn gold" onclick="saveCardModal()">💾 Salvar card</button>
-    </div>
-  </div>
-</div>
+  </dialog>
 
-<div class="toast" id="toast"></div>
+  <div class="toast" id="toast">Salvo</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-const firebaseConfig={apiKey:"AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",authDomain:"portal-treinamentos-lang.firebaseapp.com",databaseURL:"https://portal-treinamentos-lang-default-rtdb.firebaseio.com",projectId:"portal-treinamentos-lang",storageBucket:"portal-treinamentos-lang.firebasestorage.app",messagingSenderId:"1049839891406",appId:"1:1049839891406:web:c5874166bdbee74139f19f"};
-const fbApp=initializeApp(firebaseConfig);
-const db=getDatabase(fbApp);
-const auth=getAuth(fbApp);
-
-window.fb = {
-  ref, get, set, update, onValue, db,
-  empresasRef: ref(db,'painel/empresas'),
-  tarefasRef: ref(db,'bif_tarefas_fiscal'),
-  kanbanRef: ref(db,'kanban_empresas_fiscal')
-};
-window.dispatchEvent(new Event('fbReady'));
-
-onAuthStateChanged(auth, () => {
-  if(window.__kanbanStarted)return;
-  window.__kanbanStarted=true;
-  window.startKanban();
-});
-</script>
-
-<script>
-const LANE_ORDER=['caixa_entrada','aguardando_notas','importando','conferindo','calculando','aguardando_cliente','guias_envio','parqueado','concluido'];
-const LANES={
-  caixa_entrada:{label:'Caixa de Entrada',sub:'todas as empresas do Alef para triagem inicial',icon:'📦'},
-  aguardando_notas:{label:'Aguardando notas',sub:'falta envelope, XML ou movimento',icon:'📥'},
-  importando:{label:'Importando notas',sub:'XML, planilha, entradas/saídas',icon:'⬆️'},
-  conferindo:{label:'Conferindo',sub:'pendências, divergências, documentos',icon:'🔎'},
-  calculando:{label:'Calculando',sub:'apuração/impostos em andamento',icon:'🧮'},
-  aguardando_cliente:{label:'Aguardando cliente',sub:'retorno externo ou confirmação',icon:'⏳'},
-  guias_envio:{label:'Guias / envio',sub:'guia, conferência, comunicação',icon:'📤'},
-  parqueado:{label:'Parqueado',sub:'não atacar agora; revisar depois',icon:'🅿️'},
-  concluido:{label:'Concluído',sub:'fechado neste ciclo',icon:'✅'}
-};
-const DEPS=[
-  {id:'envelope',label:'Envelope físico',short:'Envelope'},
-  {id:'xml',label:'Arquivos XML',short:'XML'},
-  {id:'movimento',label:'Movimento do mês',short:'Movimento'},
-  {id:'recibos',label:'Recibos de aluguel',short:'Recibos'},
-  {id:'produto',label:'Tributação/produto',short:'Produto'},
-  {id:'retorno_cliente',label:'Retorno do cliente',short:'Cliente'}
+  <script>
+    const COLLABORATOR = 'ALEF';
+    const ALEF_FALLBACK = [
+  {
+    "nome": "ACEP EMPREENDIMENTOS IMOB LTDA",
+    "cnpj": "65731707000113",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "DANIEL MARTINS SIQUEIRA",
+    "cnpj": "03872871000193",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "DPF EMPRE. E PARTIC. EIRELI",
+    "cnpj": "37350182000130",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FBF EMPREENDIMENTOS IMOB",
+    "cnpj": "22484605000138",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FOM ASSESSORIA LTDA",
+    "cnpj": "57207428000127",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FOM LEILOES LTDA",
+    "cnpj": "61853316000110",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "FREFER OCCHIALINI AGROPECUARIA LTDA",
+    "cnpj": "66776097000137",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - CASTELLABATE",
+    "cnpj": "19174834000141",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - GDO PRE MOLDADOS",
+    "cnpj": "43640489000179",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - GRANDINO PRE MOLDADOS",
+    "cnpj": "65413486000135",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Grandino - GRANDINO PRE MOLDADOS - FILIAL 2",
+    "cnpj": "65413486000216",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "HOTEL DEL FIOL",
+    "cnpj": "00229295000172",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "J. SÁ HOLDING",
+    "cnpj": "56174480000161",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "JUVENAL 430 LTDA",
+    "cnpj": "65054506000129",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Lidiane - C CAMARGO E POLASTRI",
+    "cnpj": "18011915000168",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "Lidiane - DUARTE METAIS",
+    "cnpj": "42059706000179",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "M.S. ROMAGNOLO EMPREEND.",
+    "cnpj": "11490868000133",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "cnpj": "63789312000146",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "MFJ CAMPOS",
+    "cnpj": "64277948000171",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "NELSON - NOVA QUADRA",
+    "cnpj": "45196536000162",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA",
+    "cnpj": "58138259000183",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "NSC NOVESETE COMUNICAÇÃO LTDA",
+    "cnpj": "03009199000107",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "OCCHIALINI EMPREEND. IMOBI LTDA",
+    "cnpj": "35783871000103",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "OCCHIALINI FREIRE HOLDING LTDA",
+    "cnpj": "64736056000191",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "R. J. SAMPAIO DE ALMEIDA LTDA",
+    "cnpj": "66652630000159",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "RIBEIRO BRANCO EMPREENDIMENTOS",
+    "cnpj": "49507538000186",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA",
+    "cnpj": "54581448000175",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "TATIANA LOPES TREINAMENTOS",
+    "cnpj": "65202077000190",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "TL EMPREENDIMENTOS",
+    "cnpj": "51074518000100",
+    "colaborador": "ALEF"
+  },
+  {
+    "nome": "WB",
+    "cnpj": "50780808000107",
+    "colaborador": "ALEF"
+  }
 ];
-const DEP_STATUS={pendente:'Falta',ok:'Recebido',na:'N/A'};
-const TARGET_COLLAB='Alef';
-const TARGET_COLLAB_NORM=norm(TARGET_COLLAB);
-const PAINEL_ALEF_FALLBACK=[{"nome":"ACEP EMPREENDIMENTOS IMOB LTDA","cnpj":"65731707000113","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"DANIEL MARTINS SIQUEIRA","cnpj":"03872871000193","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"DPF EMPRE. E PARTIC. EIRELI","cnpj":"37350182000130","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FBF EMPREENDIMENTOS IMOB","cnpj":"22484605000138","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FOM ASSESSORIA LTDA","cnpj":"57207428000127","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FOM LEILOES LTDA","cnpj":"61853316000110","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"FREFER OCCHIALINI AGROPECUARIA LTDA","cnpj":"66776097000137","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - CASTELLABATE","cnpj":"19174834000141","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - GDO PRE MOLDADOS","cnpj":"43640489000179","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - GRANDINO PRE MOLDADOS","cnpj":"65413486000135","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Grandino - GRANDINO PRE MOLDADOS - FILIAL 2","cnpj":"65413486000216","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"HOTEL DEL FIOL","cnpj":"00229295000172","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"J. SÁ HOLDING","cnpj":"56174480000161","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"JUVENAL 430 LTDA","cnpj":"65054506000129","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Lidiane - C CAMARGO E POLASTRI","cnpj":"18011915000168","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"Lidiane - DUARTE METAIS","cnpj":"42059706000179","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"M.S. ROMAGNOLO EMPREEND.","cnpj":"11490868000133","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA","cnpj":"63789312000146","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"MFJ CAMPOS","cnpj":"64277948000171","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"NELSON - NOVA QUADRA","cnpj":"45196536000162","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA","cnpj":"58138259000183","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"NSC NOVESETE COMUNICAÇÃO LTDA","cnpj":"03009199000107","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"OCCHIALINI EMPREEND. IMOBI LTDA","cnpj":"35783871000103","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"OCCHIALINI FREIRE HOLDING LTDA","cnpj":"64736056000191","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"R. J. SAMPAIO DE ALMEIDA LTDA","cnpj":"66652630000159","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"RIBEIRO BRANCO EMPREENDIMENTOS","cnpj":"49507538000186","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA","cnpj":"54581448000175","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"TATIANA LOPES TREINAMENTOS","cnpj":"65202077000190","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"TL EMPREENDIMENTOS","cnpj":"51074518000100","colaborador":"ALEF","regime":"outros","atividade":""},{"nome":"WB","cnpj":"50780808000107","colaborador":"ALEF","regime":"outros","atividade":""}];
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+      authDomain: "portal-treinamentos-lang.firebaseapp.com",
+      databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+      projectId: "portal-treinamentos-lang",
+      storageBucket: "portal-treinamentos-lang.firebasestorage.app",
+      messagingSenderId: "1049839891406",
+      appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+    };
+    const BOARD_PATH = 'bif_criatividade/alef';
+    const COMPANY_PATH = 'painel/empresas';
+    const TASK_PATH = 'bif_tarefas_fiscal';
+    const STORAGE_STATE = 'bif_criatividade_alef_state_v1';
+    const STORAGE_COMPANIES = 'bif_criatividade_alef_empresas_cache_v1';
+    const PAINEL_STORAGE = 'gestao_v3';
+    const TASKS_STORAGE = 'fiscal_tasks';
 
-let empresas=[],tarefas=[],kanban={cards:{}},filters={search:'',collab:TARGET_COLLAB,regime:'',lane:'',dep:'',onlyActive:false};
-let currentCardId=null,dragId=null,dragWasMoved=false,saveTimer=null;
-const $=id=>document.getElementById(id);
+    const DEFAULT_SETTINGS = { cardW:340, cardH:420, cardSize:0, noteFont:10, order:[], sizePreset:0 };
+    const state = {
+      companies: [],
+      tasks: [],
+      notes: {},
+      settings: {...DEFAULT_SETTINGS},
+      selectedCompany: null,
+      editing: null,
+      loadedCloud:false,
+      firebaseOk:false,
+      isSaving:false
+    };
+    const firebase = { ready:false, db:null, ref:null, get:null, update:null, user:null };
 
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-function onlyDigits(v){return String(v??'').replace(/\D+/g,'');}
-function norm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
-function todayISO(){return new Date().toISOString().slice(0,10);}
-function formatDate(d){if(!d)return ''; const [y,m,day]=String(d).split('-'); return day&&m?`${day}/${m}/${y}`:d;}
-function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2700);}
-function setCloudStatus(cls,msg){const el=$('cloudStatus');el.className='cloud '+(cls||'');el.textContent=msg;}
-function debounceSave(){clearTimeout(saveTimer);setCloudStatus('saving','💾 Salvando...');saveTimer=setTimeout(saveKanban,450);}
+    const $ = id => document.getElementById(id);
+    const track = $('boardsTrack');
+    const workspace = $('workspace');
+    const PAGE_SIZE = 9;
+    let currentPage = 0;
 
-function normalizeEmpresa(e,idx=0){
-  if(!e||typeof e!=='object')return null;
-  const nome=String(e.nome||e.razaoSocial||e.razao_social||e.razao||e.name||e.fantasia||e.nomeFantasia||'').trim();
-  if(!nome)return null;
-  const cnpj=e.cnpj||e.CNPJ||e.cnpjFormatado||'';
-  const cnpjDigits=onlyDigits(cnpj);
-  const id=String(e.id||e._id||e.codigo||e.cod||e._fbKey||cnpjDigits||nome||`empresa_${idx}`).trim();
-  const colaborador=String(e.colaborador||e.responsavel||e.responsavelFiscal||'').trim();
-  return {...e,id,nome,cnpj:String(cnpj||''),cnpjDigits,regime:e.regime||e.regimeTributario||e.tipoRegime||'outros',atividade:e.atividade||e.atividadeEconomica||e.cnae||'',colaborador,fechada:!!e.fechada,semMovimento:!!e.semMovimento};
-}
-function empresaKey(e){return String(e?.cnpjDigits||onlyDigits(e?.cnpj)||e?.id||e?.nome||'').trim();}
-function mergeEmpresas(list){
-  const map=new Map();
-  (list||[]).forEach((raw,idx)=>{const e=normalizeEmpresa(raw,idx); if(!e)return; const key=empresaKey(e)||norm(e.nome); map.set(key,{...(map.get(key)||{}),...e});});
-  return [...map.values()].sort((a,b)=>norm(a.nome).localeCompare(norm(b.nome)));
-}
-function asTaskArray(raw){
-  if(Array.isArray(raw))return raw;
-  if(raw&&typeof raw==='object'){
-    if(Array.isArray(raw.tasks))return raw.tasks;
-    if(raw.tasks&&typeof raw.tasks==='object')return Object.values(raw.tasks);
-    return Object.values(raw).filter(x=>x&&typeof x==='object'&&x.name);
-  }
-  return [];
-}
-function taskLane(t){if(t.done)return 'concluido'; return t.tdahLane||t.lane||'inbox';}
-function taskOpen(t){return !t.done && taskLane(t)!=='done' && taskLane(t)!=='concluido';}
-function taskPriorityLabel(p){return ['','Baixa','Moderada','Média','Alta','Urgente'][Number(p)||3]||'Média';}
-
-function getTaskEmpresaIds(t){
-  const ids=[];
-  if(Array.isArray(t.empresasVinculadas))ids.push(...t.empresasVinculadas);
-  if(Array.isArray(t.empresaIds))ids.push(...t.empresaIds);
-  if(t.companyId)ids.push(t.companyId);
-  if(t.companyCnpj)ids.push(onlyDigits(t.companyCnpj));
-  if(Array.isArray(t.empresaRefs))t.empresaRefs.forEach(r=>{ids.push(r.id,r.cnpjDigits,onlyDigits(r.cnpj),r.nome)});
-  return [...new Set(ids.map(x=>String(x||'').trim()).filter(Boolean))];
-}
-function tasksForEmpresa(e){
-  const key=empresaKey(e), cnpj=onlyDigits(e.cnpj), n=norm(e.nome);
-  return tarefas.filter(t=>{
-    const ids=getTaskEmpresaIds(t);
-    if(ids.some(id=>id===key || (!!cnpj && onlyDigits(id)===cnpj) || norm(id)===n))return true;
-    if(norm(t.companyName)===n)return true;
-    return false;
-  });
-}
-function cardState(id,e){
-  const c=kanban.cards?.[id]||{};
-  return {
-    lane:c.lane || 'caixa_entrada',
-    deps:c.deps||{},
-    note:c.note||'',
-    next:c.next||'',
-    priority:c.priority||'normal',
-    due:c.due||'',
-    parkReason:c.parkReason||'',
-    order:Number.isFinite(c.order)?c.order:0,
-    updatedAt:c.updatedAt||''
-  };
-}
-function getCard(id){return kanban.cards?.[id]||{};}
-function setCard(id,data){
-  kanban.cards=kanban.cards||{};
-  kanban.cards[id]={...(kanban.cards[id]||{}),...data,updatedAt:new Date().toISOString()};
-  debounceSave();
-}
-function missingDeps(card){
-  return DEPS.filter(d=>card.deps?.[d.id]==='pendente');
-}
-function hasAnyDep(card){
-  return DEPS.some(d=>card.deps?.[d.id]==='pendente');
-}
-function findEmpresaById(id){return empresas.find(e=>empresaKey(e)===id || e.id===id || norm(e.nome)===norm(id));}
-function isTargetCollaborator(e){return norm(e?.colaborador||'')===TARGET_COLLAB_NORM;}
-function targetCompanies(){return empresas.filter(isTargetCollaborator);}
-
-function getVisibleCompanies(){
-  const s=norm(filters.search), dep=filters.dep;
-  return targetCompanies().filter(e=>{
-    const id=empresaKey(e), c=cardState(id,e), ts=tasksForEmpresa(e), openTs=ts.filter(taskOpen);
-    if(filters.regime && String(e.regime||'outros')!==filters.regime)return false;
-    if(filters.lane && c.lane!==filters.lane)return false;
-    if(dep && c.deps?.[dep]!=='pendente')return false;
-    if(filters.onlyActive && !openTs.length && !hasAnyDep(c) && !c.next && ['caixa_entrada','aguardando_notas'].includes(c.lane))return false;
-    if(s){
-      const hay=[e.nome,e.cnpj,e.colaborador,e.regime,e.atividade,c.note,c.next,LANES[c.lane]?.label,...missingDeps(c).map(d=>d.label),...ts.map(t=>t.name)].join(' ');
-      if(!norm(hay).includes(s))return false;
+    function esc(v){return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+    function norm(v){return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
+    function digits(v){return String(v || '').replace(/\D/g,'');}
+    function cnpjMask(v){const s=digits(v); if(s.length!==14) return v || '—'; return s.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');}
+    function slug(v){return norm(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'empresa';}
+    function nowIso(){return new Date().toISOString();}
+    function todayBR(){return new Date().toLocaleDateString('pt-BR');}
+    function getResponsavel(raw){return raw?.colaborador || raw?.colaboradorResponsavel || raw?.colaborador_responsavel || raw?.responsavelFiscal || raw?.responsavel || raw?.owner || raw?.colab || '';}
+    function companyKey(c){return String(c.id || c._fbKey || digits(c.cnpj) || slug(c.nome));}
+    function normalizeCompany(raw={}, key=''){
+      return {
+        id: raw.id || raw._fbKey || key || digits(raw.cnpj) || slug(raw.nome || raw.razaoSocial || raw.empresa),
+        _fbKey: raw._fbKey || key || '',
+        nome: raw.nome || raw.razaoSocial || raw.razao || raw.empresa || raw.nomeEmpresa || 'Empresa sem nome',
+        cnpj: raw.cnpj || raw.CNPJ || raw.documento || '',
+        colaborador: getResponsavel(raw),
+        regime: raw.regime || raw.regimeTributario || raw.tributacao || '',
+        atividade: raw.atividade || raw.atividadeEconomica || raw.cnaeDescricao || '',
+        statusApuracao: raw.statusApuracao || raw.status || ''
+      };
     }
-    return true;
-  });
-}
+    function snapshotToArray(val){
+      if(!val) return [];
+      if(Array.isArray(val)) return val.filter(Boolean).map((item,i)=>normalizeCompany(item,String(i)));
+      if(typeof val === 'object') return Object.entries(val).map(([k,item]) => normalizeCompany(item || {}, k));
+      return [];
+    }
+    function alefOnly(list){
+      return (list || []).map((item,i)=>normalizeCompany(item,String(i))).filter(c => norm(c.colaborador) === COLLABORATOR || norm(c.colaborador).includes(COLLABORATOR));
+    }
+    function getNotes(key){return Array.isArray(state.notes[key]) ? state.notes[key] : [];}
+    function getCompanyByKey(key){return state.companies.find(c => companyKey(c) === key) || null;}
+    function noteCount(){return Object.values(state.notes || {}).reduce((acc,arr)=>acc + (Array.isArray(arr) ? arr.length : 0),0);}
+    function activeCountFor(key){return getNotes(key).filter(n => !!n.active).length;}
+    function setSync(cls, text){const el=$('syncStatus'); el.className='sync '+cls; $('syncText').textContent=text;}
+    function toast(text){const t=$('toast'); t.textContent=text; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),1700);}
 
-function renderFilters(){
-  filters.collab=TARGET_COLLAB;
-  $('collabFilter').innerHTML=`<option value="${esc(TARGET_COLLAB)}">${esc(TARGET_COLLAB)}</option>`;
-  $('collabFilter').value=TARGET_COLLAB;
-  $('laneFilter').innerHTML='<option value="">Todas as colunas</option>'+LANE_ORDER.map(l=>`<option value="${l}">${LANES[l].icon} ${LANES[l].label}</option>`).join('');
-  $('laneFilter').value=filters.lane||'';
-  $('depFilter').innerHTML='<option value="">Todas</option>'+DEPS.map(d=>`<option value="${d.id}">${d.label}</option>`).join('');
-  $('depFilter').value=filters.dep||'';
-}
-function renderCollabStrip(visible){
-  const total=visible.length;
-  $('collabStrip').innerHTML=`<button type="button" class="collab-chip active">${esc(TARGET_COLLAB)} · ${total}</button>`;
-}
-function renderKpis(visible){
-  const allTasks=visible.flatMap(e=>tasksForEmpresa(e).filter(taskOpen));
-  const withDeps=visible.filter(e=>hasAnyDep(cardState(empresaKey(e),e))).length;
-  $('kpiTotal').textContent=visible.length;
-  $('kpiTasks').textContent=allTasks.length;
-  $('kpiDeps').textContent=withDeps;
-  $('kpiWaiting').textContent=visible.filter(e=>cardState(empresaKey(e),e).lane==='aguardando_cliente').length;
-  $('kpiCalc').textContent=visible.filter(e=>cardState(empresaKey(e),e).lane==='calculando').length;
-  $('kpiPark').textContent=visible.filter(e=>cardState(empresaKey(e),e).lane==='parqueado').length;
-  renderCollabStrip(visible);
-}
-function renderBoard(){
-  const visible=getVisibleCompanies();
-  renderKpis(visible);
-  const byLane=Object.fromEntries(LANE_ORDER.map(l=>[l,[]]));
-  visible.forEach(e=>{
-    const id=empresaKey(e), c=cardState(id,e);
-    if(!byLane[c.lane])byLane[c.lane]=[];
-    byLane[c.lane].push(e);
-  });
-  Object.keys(byLane).forEach(l=>{
-    byLane[l].sort((a,b)=>{
-      const ca=cardState(empresaKey(a),a), cb=cardState(empresaKey(b),b);
-      const pa={critica:0,alta:1,normal:2};
-      return (pa[ca.priority]??2)-(pa[cb.priority]??2) || (ca.order||0)-(cb.order||0) || norm(a.nome).localeCompare(norm(b.nome));
+    function loadLocalState(){
+      try{const raw=localStorage.getItem(STORAGE_STATE); return raw ? JSON.parse(raw) : null;}catch(e){return null;}
+    }
+    function migrateState(data){
+      if(!data || typeof data !== 'object') return null;
+      const result = {notes:{}, settings:{...DEFAULT_SETTINGS}, selectedCompany:null};
+      result.notes = data.notes && typeof data.notes === 'object' ? data.notes : {};
+      Object.keys(result.notes).forEach(key => {
+        result.notes[key] = Array.isArray(result.notes[key]) ? result.notes[key].map((n,i)=>({
+          id: n.id || ('n_' + i + '_' + Date.now().toString(36)),
+          text: n.text || n.titulo || n.title || '',
+          kind: n.kind || n.tipo || 'atividade',
+          active: !!n.active,
+          createdAt: n.createdAt || Date.now(),
+          updatedAt: n.updatedAt || n.createdAt || Date.now()
+        })).filter(n => n.text.trim()) : [];
+      });
+      if(data.active && data.active.companyKey && data.active.noteId && result.notes[data.active.companyKey]){
+        result.notes[data.active.companyKey].forEach(n => { if(n.id === data.active.noteId) n.active = true; });
+      }
+      if(data.settings && typeof data.settings === 'object') result.settings = {...result.settings, ...data.settings};
+      if(data.fontSize) result.settings.noteFont = Number(data.fontSize) || result.settings.noteFont;
+      if(data.layout && typeof data.layout === 'object'){
+        const first = Object.values(data.layout).find(x => x && x.w && x.h);
+        if(first){ result.settings.cardW = Math.max(280, Math.min(780, Number(first.w) || result.settings.cardW)); result.settings.cardH = Math.max(320, Math.min(720, Number(first.h) || result.settings.cardH)); }
+      }
+      result.selectedCompany = data.selectedCompany || data.selectedKey || null;
+      result.settings.cardW = Math.max(280, Math.min(780, Number(result.settings.cardW) || 340));
+      result.settings.cardH = Math.max(320, Math.min(720, Number(result.settings.cardH) || 420));
+      result.settings.cardSize = Math.max(0, Math.min(520, Number(result.settings.cardSize) || 0));
+      result.settings.noteFont = Math.max(9, Math.min(12, Number(result.settings.noteFont) || 10));
+      result.settings.order = Array.isArray(result.settings.order) ? result.settings.order : [];
+      return result;
+    }
+    function applyLoadedState(data){
+      const migrated = migrateState(data);
+      if(!migrated) return;
+      state.notes = migrated.notes;
+      state.settings = {...DEFAULT_SETTINGS, ...migrated.settings};
+      state.selectedCompany = migrated.selectedCompany || state.selectedCompany;
+      applySettingsToDom();
+    }
+    function serializeState(){
+      return { version:2, notes:state.notes, settings:state.settings, selectedCompany:state.selectedCompany, updatedAt:Date.now(), updatedAtIso:nowIso(), updatedBy:firebase.user?.email || 'sem-login' };
+    }
+    function hasMesaContent(payload=serializeState()){
+      return noteCount() > 0 || !!payload.selectedCompany || JSON.stringify(payload.settings || {}) !== JSON.stringify(DEFAULT_SETTINGS);
+    }
+    function saveLocal(){
+      const payload = serializeState();
+      try{localStorage.setItem(STORAGE_STATE, JSON.stringify(payload));}catch(e){console.warn('Falha localStorage', e);}
+      return payload;
+    }
+    let saveTimer=null;
+    function scheduleSave(reason='alteração'){
+      saveLocal();
+      setSync(firebase.ready ? 'warn' : 'error', firebase.ready ? 'Salvando...' : 'Cache local');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(()=>saveCloud(reason),650);
+    }
+    async function saveCloud(reason='alteração'){
+      const payload = saveLocal();
+      if(!hasMesaContent(payload)){ setSync('warn','Nada para salvar'); return; }
+      if(!firebase.ready || !firebase.db){ setSync('error','Offline/cache local'); return; }
+      try{
+        await firebase.update(firebase.ref(firebase.db, BOARD_PATH), payload);
+        state.firebaseOk = true;
+        setSync('ok','Nuvem sincronizada');
+      }catch(err){
+        console.warn('Falha ao salvar Firebase', err);
+        state.firebaseOk = false;
+        setSync('error','Offline/cache local');
+      }
+    }
+
+    async function initFirebase(){
+      try{
+        const [appMod, dbMod, authMod] = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js')
+        ]);
+        const app = appMod.initializeApp(FIREBASE_CONFIG);
+        firebase.db = dbMod.getDatabase(app);
+        firebase.ref = dbMod.ref;
+        firebase.get = dbMod.get;
+        firebase.update = dbMod.update;
+        firebase.auth = authMod.getAuth(app);
+        firebase.ready = true;
+        await new Promise(resolve => {
+          let done=false;
+          const timer=setTimeout(()=>{ if(!done){done=true; resolve();}},900);
+          authMod.onAuthStateChanged(firebase.auth, user => { if(done) return; done=true; clearTimeout(timer); firebase.user = user || null; resolve(); });
+        });
+        return true;
+      }catch(err){
+        console.warn('Firebase indisponível', err);
+        firebase.ready = false;
+        return false;
+      }
+    }
+    async function loadBoardState(){
+      if(firebase.ready){
+        try{
+          const snap = await firebase.get(firebase.ref(firebase.db, BOARD_PATH));
+          const val = snap.val();
+          if(val && (val.notes || val.settings || val.layout || val.active || val.fontSize)){
+            state.loadedCloud = true;
+            state.firebaseOk = true;
+            setSync('ok','Nuvem carregada');
+            return val;
+          }
+          setSync('warn','Nuvem vazia');
+        }catch(err){
+          console.warn('Falha ao carregar mesa', err);
+          setSync('error','Cache local');
+        }
+      }
+      return loadLocalState();
+    }
+    async function loadCompanies(){
+      if(firebase.ready){
+        try{
+          const snap = await firebase.get(firebase.ref(firebase.db, COMPANY_PATH));
+          const arr = alefOnly(snapshotToArray(snap.val()));
+          if(arr.length){
+            localStorage.setItem(STORAGE_COMPANIES, JSON.stringify(arr));
+            return arr;
+          }
+        }catch(err){console.warn('Falha ao carregar empresas do painel', err);}
+      }
+      try{
+        const localPainel = JSON.parse(localStorage.getItem(PAINEL_STORAGE) || '{}');
+        const arr = alefOnly(localPainel.empresas || []);
+        if(arr.length) return arr;
+      }catch(e){}
+      try{
+        const cache = JSON.parse(localStorage.getItem(STORAGE_COMPANIES) || '[]');
+        const arr = alefOnly(cache);
+        if(arr.length) return arr;
+      }catch(e){}
+      return alefOnly(ALEF_FALLBACK);
+    }
+    async function loadTasks(){
+      let arr = [];
+      if(firebase.ready){
+        try{
+          const snap = await firebase.get(firebase.ref(firebase.db, TASK_PATH));
+          const val = snap.val();
+          if(Array.isArray(val)) arr = val;
+          else if(val && Array.isArray(val.tasks)) arr = val.tasks;
+          else if(val && typeof val === 'object') arr = Object.values(val).flatMap(x => Array.isArray(x) ? x : (x && Array.isArray(x.tasks) ? x.tasks : []));
+        }catch(err){console.warn('Falha ao carregar tarefas', err);}
+      }
+      if(!arr.length){
+        try{ arr = JSON.parse(localStorage.getItem(TASKS_STORAGE) || '[]'); }catch(e){ arr=[]; }
+      }
+      state.tasks = Array.isArray(arr) ? arr : [];
+    }
+
+    function taskMatchesAlef(t){
+      const responsible = norm(t.responsavel || t.colaborador || t.owner || t.responsavelFiscal || '');
+      if(responsible.includes(COLLABORATOR)) return true;
+      const cnpjs = new Set(state.companies.map(c => digits(c.cnpj)).filter(Boolean));
+      const names = state.companies.map(c => norm(c.nome));
+      const taskCnpj = digits(t.cnpj || t.empresaCnpj || t.companyCnpj || '');
+      if(taskCnpj && cnpjs.has(taskCnpj)) return true;
+      const taskEmpresa = norm(t.empresa || t.company || t.nomeEmpresa || t.cliente || '');
+      if(taskEmpresa && names.some(n => n && (n.includes(taskEmpresa) || taskEmpresa.includes(n)))) return true;
+      return false;
+    }
+    function taskOpen(t){
+      const st = norm(t.status || t.coluna || t.column || t.fila || '');
+      return !(t.done || t.concluida || t.concluido || st.includes('CONCLUID') || st.includes('FINALIZ'));
+    }
+    function orderedCompanies(){
+      const order = state.settings.order || [];
+      const idx = new Map(order.map((id,i)=>[id,i]));
+      return state.companies.slice().sort((a,b)=>{
+        const ka=companyKey(a), kb=companyKey(b);
+        const ia = idx.has(ka) ? idx.get(ka) : 99999;
+        const ib = idx.has(kb) ? idx.get(kb) : 99999;
+        if(ia !== ib) return ia - ib;
+        return norm(a.nome).localeCompare(norm(b.nome),'pt-BR');
+      });
+    }
+    function ensureOrder(){
+      const current = new Set(state.settings.order || []);
+      const all = state.companies.map(companyKey);
+      state.settings.order = [...(state.settings.order || []).filter(id => all.includes(id)), ...all.filter(id => !current.has(id))];
+    }
+    function visibleCompanies(){
+      const q = norm($('searchInput').value);
+      const mode = $('filterMode').value;
+      return orderedCompanies().filter(c => {
+        const key = companyKey(c);
+        const notes = getNotes(key);
+        const hay = norm([c.nome,c.cnpj,c.regime,c.atividade,...notes.map(n=>n.text)].join(' '));
+        if(q && !hay.includes(q)) return false;
+        if(mode === 'withNotes' && !notes.length) return false;
+        if(mode === 'withoutNotes' && notes.length) return false;
+        if(mode === 'active' && !notes.some(n => n.active)) return false;
+        return true;
+      });
+    }
+    function calcFitCardSize(){
+      const gap = window.matchMedia('(max-height:740px)').matches ? 8 : 12;
+      const pad = window.matchMedia('(max-height:740px)').matches ? 16 : 24;
+      const sideReserve = window.matchMedia('(max-width:760px)').matches ? 0 : (window.matchMedia('(max-width:1180px)').matches ? 68 : 96);
+      const fallbackW = Math.max(320, window.innerWidth - sideReserve - 40);
+      const fallbackH = Math.max(420, window.innerHeight - 190);
+      const w = workspace?.clientWidth || fallbackW;
+      const h = workspace?.clientHeight || fallbackH;
+      const byWidth = Math.floor((w - pad - (gap * 2)) / 3);
+      const byHeight = Math.floor((h - pad - (gap * 2)) / 3);
+      return Math.max(170, Math.min(360, byWidth, byHeight));
+    }
+    function effectiveCardSize(){
+      const fit = calcFitCardSize();
+      const requested = Number(state.settings.cardSize) || fit;
+      const gap = window.matchMedia('(max-height:740px)').matches ? 8 : 12;
+      const pad = window.matchMedia('(max-height:740px)').matches ? 16 : 24;
+      const w = workspace?.clientWidth || (window.innerWidth - 120);
+      const maxNoHorizontal = Math.floor((w - pad - (gap * 2)) / 3);
+      return Math.max(170, Math.min(520, requested, maxNoHorizontal));
+    }
+    function applySettingsToDom(){
+      const size = effectiveCardSize();
+      document.documentElement.style.setProperty('--card-w', size + 'px');
+      document.documentElement.style.setProperty('--card-h', size + 'px');
+      document.documentElement.style.setProperty('--card-size', size + 'px');
+      document.documentElement.style.setProperty('--note-font', state.settings.noteFont + 'px');
+    }
+    function updateStats(){
+      const allNotes = Object.values(state.notes).flatMap(arr => Array.isArray(arr) ? arr : []);
+      const alefTasks = state.tasks.filter(taskMatchesAlef).filter(taskOpen);
+      $('statCompanies').textContent = String(state.companies.length);
+      $('statTasks').textContent = String(alefTasks.length);
+      $('statPending').textContent = String(allNotes.filter(n => n.kind === 'pendencia' && !n.active).length);
+      $('statWaiting').textContent = String(allNotes.filter(n => n.kind === 'aguardando' && !n.active).length);
+      $('statCalc').textContent = String(allNotes.filter(n => n.kind === 'calculando' && !n.active).length);
+    }
+    function updateCompanySelect(){
+      const sel = $('modalCompany');
+      const keep = sel.value || state.selectedCompany;
+      sel.innerHTML = orderedCompanies().map(c => `<option value="${esc(companyKey(c))}">${esc(c.nome)}</option>`).join('');
+      if(keep) sel.value = keep;
+    }
+    function updatePageControls(total){
+      const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      currentPage = Math.max(0, Math.min(currentPage, pages - 1));
+      const meta = $('pageMeta');
+      if(meta) meta.textContent = `${currentPage + 1}/${pages} • ${Math.min(PAGE_SIZE,total)} por tela`;
+      const prev = $('btnPrevPage'), next = $('btnNextPage');
+      if(prev) prev.disabled = currentPage <= 0;
+      if(next) next.disabled = currentPage >= pages - 1;
+    }
+    function render(){
+      applySettingsToDom();
+      ensureOrder();
+      updateStats();
+      updateCompanySelect();
+      const all = visibleCompanies();
+      updatePageControls(all.length);
+      if(!all.length){
+        track.innerHTML = `<div class="empty-board"><h3>Nenhuma empresa nessa visualização</h3><p>Revise a busca, o filtro ou recarregue as empresas do Painel.</p></div>`;
+        return;
+      }
+      const start = currentPage * PAGE_SIZE;
+      const list = all.slice(start, start + PAGE_SIZE);
+      track.innerHTML = list.map(cardHtml).join('');
+      bindCards();
+    }
+    function regimeLabel(v){
+      const n=norm(v);
+      if(n.includes('SIMPLES')) return 'Simples';
+      if(n.includes('PRESUM')) return 'Presumido';
+      if(n.includes('REAL')) return 'Real';
+      return v || 'Sem regime';
+    }
+    function kindIcon(kind){return ({atividade:'▤', pendencia:'⚠', aguardando:'◷', calculando:'▣', ideia:'✦', livre:'□'})[kind] || '□';}
+    function cardHtml(c){
+      const key = companyKey(c);
+      const notes = getNotes(key);
+      const activeCount = notes.filter(n=>n.active).length;
+      const isSelected = state.selectedCompany === key;
+      const notesHtml = notes.length ? notes.map(n => `
+        <div class="note-item ${n.active ? 'active' : ''}" data-kind="${esc(n.kind || 'livre')}" data-note-id="${esc(n.id)}" role="button" tabindex="0" aria-pressed="${n.active?'true':'false'}" title="Clique para marcar/desmarcar concluída em neon">
+          <span class="check">${n.active ? '✓' : kindIcon(n.kind)}</span>
+          <span class="note-text">${esc(n.text)}</span>
+          <span class="note-actions">
+            <button type="button" class="mini-btn edit-note" title="Editar">✎</button>
+            <button type="button" class="mini-btn del-note" title="Excluir">×</button>
+          </span>
+        </div>`).join('') : `<button type="button" class="empty-notes" data-empty-note="1"><span><strong>Nenhuma anotação ainda</strong><span>Clique aqui para criar a primeira tag.</span></span></button>`;
+      return `<article class="company-card ${isSelected?'selected':''}" data-key="${esc(key)}" draggable="false">
+        <header class="card-head">
+          <button type="button" class="card-handle" draggable="true" title="Arraste para reorganizar os quadros">
+            <div class="company-name">${esc(c.nome)}</div>
+            <div class="cnpj">${esc(cnpjMask(c.cnpj))}</div>
+          </button>
+          <span class="alef-badge">ALEF</span>
+          <button type="button" class="more" title="Selecionar quadro">⋮</button>
+        </header>
+        <div class="mini-info">
+          <span class="chip gold">${esc(regimeLabel(c.regime))}</span>
+          ${c.statusApuracao ? `<span class="chip green">${esc(c.statusApuracao)}</span>` : ''}
+          ${c.atividade ? `<span class="chip">${esc(c.atividade)}</span>` : ''}
+        </div>
+        <section class="note-panel">
+          <div class="note-head"><div class="note-title">▤ Anotações</div><div class="note-head-actions"><span class="selected-count">${activeCount} concluída${activeCount===1?'':'s'}</span><button type="button" class="note-add-inline add-note" title="Adicionar anotação neste card" aria-label="Adicionar anotação neste card">＋</button></div></div>
+          <div class="notes ${notes.length > 4 ? 'compact-notes' : ''}">${notesHtml}</div>
+        </section>
+        <footer class="card-foot">
+          <span class="date-meta">Última edição: ${esc(lastEditFor(notes))}</span>
+          <button type="button" class="btn small add-note">＋ Nova anotação</button>
+        </footer>
+        <span class="resize-all" title="Redimensionar todos os quadros"></span>
+      </article>`;
+    }
+    function lastEditFor(notes){
+      const times = notes.map(n => Number(n.updatedAt || n.createdAt || 0)).filter(Boolean);
+      if(!times.length) return '--/--/----';
+      return new Date(Math.max(...times)).toLocaleDateString('pt-BR');
+    }
+    function selectCompany(key, rerender=false){state.selectedCompany = key; saveLocal(); if(rerender) render();}
+    function openNoteDialog(key, noteId=null){
+      state.selectedCompany = key || state.selectedCompany || (orderedCompanies()[0] && companyKey(orderedCompanies()[0]));
+      state.editing = noteId ? {companyKey:state.selectedCompany, noteId} : null;
+      updateCompanySelect();
+      $('modalCompany').value = state.selectedCompany || '';
+      const note = noteId ? getNotes(state.selectedCompany).find(n => n.id === noteId) : null;
+      $('dialogTitle').textContent = note ? 'Editar anotação' : 'Nova anotação';
+      $('modalKind').value = note?.kind || 'atividade';
+      $('modalText').value = note?.text || '';
+      $('btnDeleteNote').style.display = note ? 'inline-flex' : 'none';
+      const dialog = $('noteDialog');
+      if(dialog.open) dialog.close();
+      dialog.showModal();
+      setTimeout(()=>$('modalText').focus(),50);
+    }
+    function saveNoteFromDialog(options={}){
+      const keepOpen = !!(options && options.keepOpen);
+      const key = $('modalCompany').value;
+      const text = $('modalText').value.trim();
+      const kind = $('modalKind').value;
+      if(!key || !text){ toast('Digite a anotação'); return; }
+      if(!state.notes[key]) state.notes[key] = [];
+      if(state.editing && state.editing.noteId){
+        const arr = getNotes(state.editing.companyKey);
+        const idx = arr.findIndex(n => n.id === state.editing.noteId);
+        if(idx >= 0){
+          const note = arr[idx];
+          arr.splice(idx,1);
+          state.notes[key].push({...note, text, kind, updatedAt:Date.now()});
+        }
+        toast('Anotação atualizada');
+      }else{
+        state.notes[key].push({id:'n_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7), text, kind, active:false, createdAt:Date.now(), updatedAt:Date.now()});
+        toast(keepOpen ? 'Anotação criada. Pode inserir outra.' : 'Anotação criada');
+      }
+      state.selectedCompany = key;
+      state.editing = null;
+      render();
+      scheduleSave('salvar anotação');
+      if(keepOpen){
+        updateCompanySelect();
+        $('modalCompany').value = key;
+        $('dialogTitle').textContent = 'Nova anotação';
+        $('modalText').value = '';
+        $('modalKind').value = kind || 'atividade';
+        $('btnDeleteNote').style.display = 'none';
+        setTimeout(()=>$('modalText').focus(),30);
+      }else{
+        $('noteDialog').close();
+      }
+    }
+    function deleteNote(companyKeyArg, noteId){
+      const key = companyKeyArg || state.editing?.companyKey;
+      const id = noteId || state.editing?.noteId;
+      if(!key || !id) return;
+      state.notes[key] = getNotes(key).filter(n => n.id !== id);
+      state.editing = null;
+      render();
+      scheduleSave('excluir anotação');
+      toast('Anotação excluída');
+    }
+    function toggleNote(key, noteId){
+      const note = getNotes(key).find(n => n.id === noteId);
+      if(!note) return;
+      note.active = !note.active;
+      note.updatedAt = Date.now();
+      state.selectedCompany = key;
+      render();
+      scheduleSave(note.active ? 'marcar concluída' : 'desmarcar concluída');
+      toast(note.active ? 'Marcada em neon' : 'Desmarcada');
+    }
+    function moveOrder(fromKey, toKey){
+      if(!fromKey || !toKey || fromKey === toKey) return;
+      ensureOrder();
+      const order = state.settings.order.slice();
+      const from = order.indexOf(fromKey);
+      const to = order.indexOf(toKey);
+      if(from < 0 || to < 0) return;
+      order.splice(to,0,order.splice(from,1)[0]);
+      state.settings.order = order;
+      render();
+      scheduleSave('reordenar quadros');
+    }
+    function bindCards(){
+      track.querySelectorAll('.company-card').forEach(card => {
+        const key = card.dataset.key;
+        card.addEventListener('click', ev => { if(!ev.target.closest('button,.note-item,.resize-all')) selectCompany(key, true); });
+        card.querySelector('.more').addEventListener('click', ev => { ev.stopPropagation(); selectCompany(key, true); });
+        card.querySelector('.add-note').addEventListener('click', ev => { ev.stopPropagation(); openNoteDialog(key); });
+        const empty = card.querySelector('[data-empty-note]');
+        if(empty) empty.addEventListener('click', ev => { ev.stopPropagation(); openNoteDialog(key); });
+        card.querySelectorAll('.note-item').forEach(item => {
+          const noteId = item.dataset.noteId;
+          item.addEventListener('click', ev => { if(ev.target.closest('button')) return; toggleNote(key,noteId); });
+          item.addEventListener('keydown', ev => { if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); toggleNote(key,noteId); }});
+          item.querySelector('.edit-note').addEventListener('click', ev => { ev.stopPropagation(); openNoteDialog(key,noteId); });
+          item.querySelector('.del-note').addEventListener('click', ev => { ev.stopPropagation(); if(confirm('Excluir esta anotação?')) deleteNote(key,noteId); });
+        });
+        const handle = card.querySelector('.card-handle');
+        handle.addEventListener('dragstart', ev => { ev.dataTransfer.setData('text/plain', key); ev.dataTransfer.effectAllowed='move'; card.classList.add('dragging'); });
+        handle.addEventListener('dragend', () => card.classList.remove('dragging'));
+        card.addEventListener('dragover', ev => { ev.preventDefault(); card.classList.add('drag-over'); });
+        card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+        card.addEventListener('drop', ev => { ev.preventDefault(); card.classList.remove('drag-over'); const from = ev.dataTransfer.getData('text/plain'); moveOrder(from,key); });
+        bindGlobalResize(card.querySelector('.resize-all'));
+      });
+    }
+    function bindGlobalResize(handle){
+      let sx=0, sy=0, sw=0, sh=0, active=false;
+      handle.addEventListener('pointerdown', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        sx=ev.clientX; sy=ev.clientY; sw=state.settings.cardW; sh=state.settings.cardH; active=true;
+        handle.setPointerCapture(ev.pointerId);
+        document.body.style.userSelect='none';
+      });
+      handle.addEventListener('pointermove', ev => {
+        if(!active) return;
+        state.settings.cardW = Math.max(280, Math.min(780, sw + (ev.clientX - sx)));
+        state.settings.cardH = Math.max(320, Math.min(720, sh + (ev.clientY - sy)));
+        applySettingsToDom();
+      });
+      const finish = () => { if(!active) return; active=false; document.body.style.userSelect=''; scheduleSave('redimensionar todos'); toast('Tamanho aplicado a todos'); };
+      handle.addEventListener('pointerup', finish);
+      handle.addEventListener('pointercancel', finish);
+    }
+    function bindWorkspacePan(){
+      let down=false, startX=0, startY=0, left=0, top=0, moved=false;
+      workspace.addEventListener('pointerdown', ev => {
+        if(ev.button !== 0) return;
+        if(ev.target.closest('button,input,select,textarea,.resize-all,.note-item,.card-handle')) return;
+        down=true; moved=false; startX=ev.clientX; startY=ev.clientY; left=workspace.scrollLeft; top=workspace.scrollTop;
+        workspace.classList.add('dragging');
+        workspace.setPointerCapture(ev.pointerId);
+      });
+      workspace.addEventListener('pointermove', ev => {
+        if(!down) return;
+        const dx = ev.clientX - startX, dy = ev.clientY - startY;
+        if(Math.abs(dx)+Math.abs(dy) > 4) moved=true;
+        workspace.scrollLeft = left - dx;
+        workspace.scrollTop = top - dy;
+      });
+      const stop = ev => { if(!down) return; down=false; workspace.classList.remove('dragging'); try{workspace.releasePointerCapture(ev.pointerId)}catch(e){}; };
+      workspace.addEventListener('pointerup', stop);
+      workspace.addEventListener('pointercancel', stop);
+    }
+    function fitGrid3x3(){
+      state.settings.cardSize = 0;
+      state.settings.noteFont = 10;
+      render();
+      scheduleSave('encaixar 3x3');
+      toast('Cards encaixados em 3x3');
+    }
+    function changeCardSize(delta){
+      const current = effectiveCardSize();
+      const next = Math.max(170, Math.min(520, current + delta));
+      state.settings.cardSize = next;
+      applySettingsToDom();
+      scheduleSave(delta > 0 ? 'aumentar cards' : 'diminuir cards');
+      toast(delta > 0 ? 'Cards maiores' : 'Cards menores');
+    }
+    function cycleSizePreset(){ fitGrid3x3(); }
+
+    async function boot(){
+      setSync('warn','Conectando...');
+      await initFirebase();
+      const cloudOrLocal = await loadBoardState();
+      applyLoadedState(cloudOrLocal);
+      state.companies = await loadCompanies();
+      await loadTasks();
+      ensureOrder();
+      if(!state.selectedCompany && state.companies[0]) state.selectedCompany = companyKey(orderedCompanies()[0]);
+      applySettingsToDom();
+      render();
+      saveLocal();
+      setSync(state.firebaseOk ? 'ok' : (firebase.ready ? 'warn' : 'error'), state.firebaseOk ? 'Nuvem sincronizada' : (firebase.ready ? 'Pronto/cache' : 'Offline/cache local'));
+    }
+
+    $('btnPortal').addEventListener('click', () => { window.location.href = '../index.html'; });
+    $('btnNewNote').addEventListener('click', () => openNoteDialog(state.selectedCompany));
+    $('btnResizePreset').addEventListener('click', cycleSizePreset);
+    $('btnCardMinus').addEventListener('click', () => changeCardSize(-26));
+    $('btnCardPlus').addEventListener('click', () => changeCardSize(26));
+    $('btnFitGrid').addEventListener('click', fitGrid3x3);
+    $('btnReload').addEventListener('click', async () => { setSync('warn','Recarregando...'); state.companies = await loadCompanies(); await loadTasks(); ensureOrder(); render(); setSync(state.firebaseOk?'ok':'warn', state.firebaseOk?'Nuvem sincronizada':'Pronto/cache'); toast('Dados recarregados'); });
+    $('searchInput').addEventListener('input', () => { currentPage = 0; render(); });
+    $('filterMode').addEventListener('change', () => { currentPage = 0; render(); });
+    $('btnPrevPage').addEventListener('click', () => { currentPage = Math.max(0, currentPage - 1); render(); });
+    $('btnNextPage').addEventListener('click', () => { currentPage += 1; render(); });
+    $('btnFontPlus').addEventListener('click', () => { state.settings.noteFont = Math.min(12, state.settings.noteFont + 1); applySettingsToDom(); scheduleSave('fonte'); toast('Fonte maior'); });
+    $('btnFontMinus').addEventListener('click', () => { state.settings.noteFont = Math.max(9, state.settings.noteFont - 1); applySettingsToDom(); scheduleSave('fonte'); toast('Fonte menor'); });
+    $('btnCancel').addEventListener('click', () => { state.editing = null; $('noteDialog').close(); });
+    $('btnSaveNote').addEventListener('click', saveNoteFromDialog);
+    $('btnSaveAddNote').addEventListener('click', () => saveNoteFromDialog({keepOpen:true}));
+    $('btnDeleteNote').addEventListener('click', () => { if(confirm('Excluir esta anotação?')) { deleteNote(); $('noteDialog').close(); } });
+    $('modalText').addEventListener('keydown', ev => {
+      if((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+        ev.preventDefault();
+        saveNoteFromDialog({keepOpen:!!ev.shiftKey});
+      }
     });
-  });
-  $('board').innerHTML=LANE_ORDER.map(l=>renderLane(l,byLane[l]||[])).join('');
-}
-function renderLane(lane, list){
-  const meta=LANES[lane];
-  return `<section class="lane" data-lane="${lane}" ondragover="onLaneDragOver(event)" ondragleave="onLaneDragLeave(event)" ondrop="onLaneDrop(event)">
-    <div class="lane-head">
-      <div><div class="lane-title"><span class="dot"></span>${meta.icon} ${esc(meta.label)}</div><div class="lane-sub">${esc(meta.sub)}</div></div>
-      <div class="lane-count">${list.length}</div>
-    </div>
-    <div class="lane-body">${list.length?list.map(renderCompanyCard).join(''):`<div class="empty-lane">Nenhuma empresa do Alef<br>nesta coluna.</div>`}</div>
-  </section>`;
-}
-function renderCompanyCard(e){
-  const id=empresaKey(e), c=cardState(id,e), ts=tasksForEmpresa(e).filter(taskOpen);
-  const urgent=ts.filter(t=>(Number(t.priority)||0)>=4 || t.blocking || t.clientWaiting).length;
-  const deps=DEPS.filter(d=>c.deps?.[d.id]).slice(0,5);
-  const missing=missingDeps(c);
-  const cls=c.priority==='critica'?'critical':c.priority==='alta'?'high':c.lane==='concluido'?'done':'';
-  const taskMini=ts.slice().sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)).slice(0,2).map(t=>`<div class="task-mini">${esc(t.name||'Tarefa')} ${t.deadline?`· ${formatDate(t.deadline)}`:''}</div>`).join('');
-  const updated=c.updatedAt?new Date(c.updatedAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
-  return `<article class="company-card ${cls}" draggable="true" data-id="${esc(id)}" onclick="onCardClick(event,'${esc(id)}')" ondragstart="onCardDragStart(event,'${esc(id)}')" ondragend="onCardDragEnd(event)">
-    <div class="card-top">
-      <div class="card-name">${esc(e.nome)}</div>
-      <div class="drag-hint" title="Arraste para outra coluna">☰</div>
-    </div>
-    <div class="card-meta">
-      <span class="badge muted">👤 ${esc(e.colaborador||'Sem resp.')}</span>
-      <span class="badge">${esc(regimeLabel(e.regime))}</span>
-      ${ts.length?`<span class="badge blue">📌 ${ts.length} tarefa(s)</span>`:''}
-      ${urgent?`<span class="badge red">⚠️ ${urgent} urgente(s)</span>`:''}
-      ${c.due?`<span class="badge amber">⏱ ${formatDate(c.due)}</span>`:''}
-    </div>
-    <div class="missing-line">
-      ${missing.length?missing.map(d=>`<span class="dep-chip">Falta ${esc(d.short)}</span>`).join(''):(deps.length?deps.map(d=>`<span class="dep-chip ${c.deps[d.id]==='ok'?'ok':'na'}">${esc(d.short)}: ${esc(DEP_STATUS[c.deps[d.id]])}</span>`).join(''):'<span class="badge muted">Sem falta marcada</span>')}
-    </div>
-    ${c.next?`<div class="next-box"><div class="next-label">Próximo passo</div><div class="next-text">${esc(c.next)}</div></div>`:''}
-    ${c.note?`<div class="note-preview">${esc(c.note)}</div>`:''}
-    ${taskMini?`<div class="task-list-mini">${taskMini}</div>`:''}
-    <div class="card-footer">
-      <select class="move-select" onclick="event.stopPropagation()" onchange="moveCard('${esc(id)}',this.value,true)">
-        ${LANE_ORDER.map(l=>`<option value="${l}" ${l===c.lane?'selected':''}>${LANES[l].icon} ${LANES[l].label}</option>`).join('')}
-      </select>
-      <span class="updated">${updated?`edit. ${updated}`:'novo'}</span>
-    </div>
-  </article>`;
-}
-function regimeLabel(r){return ({simples:'Simples',presumido:'Presumido',real:'Real',outros:'Outros'})[r]||String(r||'Outros');}
-function setFilter(key,val){
-  if(key==='collab'){
-    filters.collab=TARGET_COLLAB;
-    $('collabFilter').value=TARGET_COLLAB;
-  }else{
-    filters[key]=val;
-  }
-  renderBoard();
-}
-
-function onCardClick(ev,id){
-  if(dragWasMoved){ev.preventDefault();ev.stopPropagation();return}
-  if(ev.target.closest('select'))return;
-  openCardModal(id);
-}
-window.onCardClick=onCardClick;
-window.onCardDragStart=function(ev,id){dragId=id;dragWasMoved=false;ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain',id);ev.currentTarget.classList.add('dragging');}
-window.onCardDragEnd=function(ev){ev.currentTarget.classList.remove('dragging');document.querySelectorAll('.lane.drop').forEach(x=>x.classList.remove('drop'));setTimeout(()=>dragWasMoved=false,200);}
-window.onLaneDragOver=function(ev){ev.preventDefault();ev.currentTarget.classList.add('drop');}
-window.onLaneDragLeave=function(ev){ev.currentTarget.classList.remove('drop');}
-window.onLaneDrop=function(ev){
-  ev.preventDefault();const lane=ev.currentTarget.dataset.lane;ev.currentTarget.classList.remove('drop');
-  const id=ev.dataTransfer.getData('text/plain')||dragId;if(!id||!lane)return;
-  dragWasMoved=true;moveCard(id,lane,false);
-}
-function moveCard(id,lane,fromSelect=false){
-  if(!LANES[lane])return;
-  const e=findEmpresaById(id); if(!e)return;
-  const old=cardState(id,e);
-  const maxOrder=Math.max(0,...Object.entries(kanban.cards||{}).filter(([k,c])=>c.lane===lane).map(([k,c])=>Number(c.order)||0));
-  setCard(id,{lane,order:maxOrder+1});
-  renderBoard();
-  toast(`${e.nome} movida para: ${LANES[lane].label}`);
-}
-window.moveCard=moveCard;
-
-function openCardModal(id){
-  currentCardId=id;
-  const e=findEmpresaById(id); if(!e)return;
-  const c=cardState(id,e);
-  $('modalCompanyName').textContent=e.nome;
-  $('modalCompanyMeta').textContent=[e.cnpj,e.colaborador,regimeLabel(e.regime)].filter(Boolean).join(' · ');
-  $('modalLane').innerHTML=LANE_ORDER.map(l=>`<option value="${l}">${LANES[l].icon} ${LANES[l].label}</option>`).join('');
-  $('modalLane').value=c.lane;
-  $('modalPriority').value=c.priority;
-  $('modalDue').value=c.due||'';
-  $('modalParkReason').value=c.parkReason||'';
-  $('modalNext').value=c.next||'';
-  $('modalNote').value=c.note||'';
-  $('modalDeps').innerHTML=DEPS.map(d=>`<div class="dep-row">
-    <label>${esc(d.label)}</label>
-    <select class="select" data-dep="${d.id}">
-      <option value="">Não marcado</option>
-      <option value="pendente" ${c.deps?.[d.id]==='pendente'?'selected':''}>Falta</option>
-      <option value="ok" ${c.deps?.[d.id]==='ok'?'selected':''}>Recebido / OK</option>
-      <option value="na" ${c.deps?.[d.id]==='na'?'selected':''}>Não se aplica</option>
-    </select>
-  </div>`).join('');
-  renderModalTasks(e);
-  $('cardModal').classList.add('open');
-}
-function renderModalTasks(e){
-  const list=tasksForEmpresa(e).filter(taskOpen);
-  $('modalTasks').innerHTML=list.length?list.sort((a,b)=>(Number(b.priority)||0)-(Number(a.priority)||0)).map(t=>`<div class="task-full">
-    <div class="task-full-name">${esc(t.name||'Tarefa')}</div>
-    <div class="task-full-meta">
-      <span class="badge blue">Fila: ${esc(taskLane(t))}</span>
-      <span class="badge ${Number(t.priority)>=4?'red':'muted'}">Prioridade: ${esc(taskPriorityLabel(t.priority))}</span>
-      ${t.assigneeName?`<span class="badge muted">👤 ${esc(t.assigneeName)}</span>`:''}
-      ${t.deadline?`<span class="badge amber">⏱ ${formatDate(t.deadline)}</span>`:''}
-    </div>
-    ${t.nextAction?`<div class="note-preview"><b>Próxima ação:</b> ${esc(t.nextAction)}</div>`:''}
-  </div>`).join(''):`<div class="empty-small">Nenhuma tarefa aberta vinculada a esta empresa.</div>`;
-}
-function saveCardModal(){
-  const id=currentCardId; if(!id)return;
-  const deps={};
-  document.querySelectorAll('#modalDeps select[data-dep]').forEach(sel=>{if(sel.value)deps[sel.dataset.dep]=sel.value;});
-  setCard(id,{lane:$('modalLane').value,priority:$('modalPriority').value,due:$('modalDue').value,parkReason:$('modalParkReason').value.trim(),next:$('modalNext').value.trim(),note:$('modalNote').value.trim(),deps});
-  closeCardModal(); renderBoard(); toast('Card salvo.');
-}
-function closeCardModal(){currentCardId=null;$('cardModal').classList.remove('open');}
-function resetCardState(){
-  if(!currentCardId)return;
-  if(!confirm('Limpar texto, dependências e status manual deste card?'))return;
-  delete kanban.cards[currentCardId];debounceSave();closeCardModal();renderBoard();toast('Card limpo.');
-}
-async function createTaskFromCurrentCard(){
-  const id=currentCardId, e=findEmpresaById(id); if(!id||!e)return;
-  const c=cardState(id,e);
-  const missing=missingDeps(c).map(d=>d.short).join(', ');
-  const name=(c.next?c.next:`Resolver pendências — ${e.nome}`).slice(0,140);
-  const desc=`Origem: Kanban Fiscal\nEmpresa: ${e.nome}\n${e.cnpj?`CNPJ: ${e.cnpj}\n`:''}${missing?`Faltando: ${missing}\n`:''}${c.note?`\nContexto:\n${c.note}`:''}`.replace(/\n/g,'<br>');
-  const newTask={
-    id:Date.now(),
-    name,
-    desc,
-    priority:c.priority==='critica'?5:c.priority==='alta'?4:3,
-    reward:'',
-    interaction:true,
-    assigneeName:e.colaborador||'',
-    assigneeEmail:'',
-    deadline:c.due||'',
-    attachments:[],
-    taskType:'Kanban Fiscal',
-    workLevel:'acao',
-    taskLevel:'acao',
-    parentMacroId:'',
-    parentActionId:'',
-    risk:c.priority==='critica'?'alto':c.priority==='alta'?'medio':'baixo',
-    energy:'media',
-    nextAction:c.next||'Atualizar card no Kanban e resolver a próxima pendência.',
-    doneCriteria:'Pendência resolvida e card atualizado no Kanban Fiscal.',
-    clientWaiting:c.lane==='aguardando_cliente',
-    blocking:c.priority==='critica',
-    tdahLane:c.priority==='critica'?'agora':'proximo',
-    done:false,
-    subtasks:missingDeps(c).map(d=>({id:Date.now()+Math.random(),name:`Obter/validar: ${d.label}`,done:false})),
-    parqueado:false,
-    parqueLocal:'',
-    parqueMotive:'',
-    parqueRetorno:'',
-    empresasVinculadas:[empresaKey(e)],
-    empresaIds:[empresaKey(e)],
-    empresaRefs:[{id:empresaKey(e),painelId:e.id||'',nome:e.nome,cnpj:e.cnpj||'',cnpjDigits:e.cnpjDigits||onlyDigits(e.cnpj),regime:e.regime||'outros',colaborador:e.colaborador||''}],
-    companyId:empresaKey(e),
-    companyName:e.nome,
-    companyCnpj:e.cnpj||'',
-    companyRegime:e.regime||'outros',
-    createdAt:new Date().toISOString(),
-    origem:'Kanban Fiscal'
-  };
-  try{
-    setCloudStatus('saving','Criando tarefa...');
-    let current={tasks:[],points:0};
-    const snap=await fb.get(fb.tarefasRef);
-    if(snap.exists()){
-      const d=snap.val();
-      current={...d,tasks:asTaskArray(d.tasks)};
-    }else{
-      try{current.tasks=asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'));}catch(e){}
-    }
-    current.tasks.push(newTask);
-    await fb.update(fb.tarefasRef,{...current,tasks:current.tasks});
-    tarefas=current.tasks;
-    try{localStorage.setItem('fiscal_tasks',JSON.stringify(tarefas));}catch(e){}
-    setCloudStatus('ok','Nuvem sincronizada');
-    renderModalTasks(e);renderBoard();
-    toast('Tarefa criada no Painel de Tarefas.');
-  }catch(err){
-    console.error(err);
-    tarefas.push(newTask);
-    try{localStorage.setItem('fiscal_tasks',JSON.stringify(tarefas));}catch(e){}
-    setCloudStatus('error','Offline — tarefa salva local');
-    renderModalTasks(e);renderBoard();
-    toast('Sem nuvem. Tarefa salva no backup local.');
-  }
-}
-window.openCardModal=openCardModal;window.closeCardModal=closeCardModal;window.saveCardModal=saveCardModal;window.resetCardState=resetCardState;window.createTaskFromCurrentCard=createTaskFromCurrentCard;
-
-async function loadKanban(){
-  try{
-    const snap=await fb.get(fb.kanbanRef);
-    if(snap.exists())kanban={cards:{},...snap.val()};
-    else{
-      const local=localStorage.getItem('kanban_empresas_fiscal');
-      if(local)kanban={cards:{},...JSON.parse(local)};
-    }
-  }catch(e){
-    try{kanban={cards:{},...JSON.parse(localStorage.getItem('kanban_empresas_fiscal')||'{"cards":{}}')};}catch(err){kanban={cards:{}}}
-  }
-  kanban.cards=kanban.cards||{};
-}
-async function saveKanban(){
-  kanban.savedAt=new Date().toISOString();
-  localStorage.setItem('kanban_empresas_fiscal',JSON.stringify(kanban));
-  try{await fb.set(fb.kanbanRef,kanban);setCloudStatus('ok','Nuvem sincronizada');}
-  catch(e){console.error(e);setCloudStatus('error','Offline — salvo local');}
-}
-function localEmpresasFromStorage(){
-  const keys=['gestao_v3','painel_gestao_empresas','fiscal_painel_empresas_cache'];
-  const list=[];
-  for(const k of keys){
-    try{
-      const d=JSON.parse(localStorage.getItem(k)||'null');
-      const arr=Array.isArray(d)?d:(d?.empresas||d?.S?.empresas||d?.state?.empresas||[]);
-      if(arr&&arr.length)list.push(...arr);
-    }catch(e){}
-  }
-  return list;
-}
-function loadLocalEmpresas(){
-  const local=localEmpresasFromStorage();
-  return mergeEmpresas([...(PAINEL_ALEF_FALLBACK||[]),...local]);
-}
-function setupFirebaseListeners(){
-  try{
-    fb.onValue(fb.empresasRef,snap=>{
-      const list=[]; if(snap.exists())snap.forEach(ch=>list.push({_fbKey:ch.key,...ch.val()}));
-      empresas=mergeEmpresas([...(PAINEL_ALEF_FALLBACK||[]),...localEmpresasFromStorage(),...list]);
-      renderFilters();renderBoard();setCloudStatus('ok','Nuvem sincronizada');
-    },err=>{console.error(err);empresas=loadLocalEmpresas();renderFilters();renderBoard();setCloudStatus('error','Empresas locais');});
-  }catch(e){empresas=loadLocalEmpresas();}
-  try{
-    fb.onValue(fb.tarefasRef,snap=>{
-      tarefas=snap.exists()?asTaskArray(snap.val().tasks||snap.val()):asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'));
-      renderBoard(); if(currentCardId){const e=findEmpresaById(currentCardId);if(e)renderModalTasks(e);}
-    },err=>{console.error(err);try{tarefas=asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]'));}catch(e){} renderBoard();});
-  }catch(e){}
-  try{
-    fb.onValue(fb.kanbanRef,snap=>{
-      if(snap.exists()){kanban={cards:{},...snap.val()}; renderBoard();}
-    });
-  }catch(e){}
-}
-async function startKanban(){
-  setCloudStatus('saving','Conectando...');
-  await loadKanban();
-  empresas=loadLocalEmpresas();
-  renderFilters();renderBoard();
-  setupFirebaseListeners();
-  setCloudStatus('ok','Pronto');
-}
-window.startKanban=startKanban;
-window.refreshAll=function(){empresas=mergeEmpresas([...(PAINEL_ALEF_FALLBACK||[]),...localEmpresasFromStorage(),...empresas]);renderFilters();renderBoard();toast('Empresas do Alef atualizadas na Caixa de Entrada.');}
-window.exportKanban=function(){
-  const data={version:1,exportedAt:new Date().toISOString(),kanban};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kanban-fiscal-backup.json';a.click();URL.revokeObjectURL(a.href);toast('Backup exportado.');
-}
-window.importKanban=function(ev){
-  const f=ev.target.files?.[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);kanban=d.kanban||d;kanban.cards=kanban.cards||{};saveKanban();renderBoard();toast('Backup importado.')}catch(e){toast('Arquivo inválido.')}};
-  r.readAsText(f);ev.target.value='';
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCardModal();});
-if(document.readyState!=='loading' && !window.__kanbanStarted){setTimeout(()=>{if(!window.__kanbanStarted){window.__kanbanStarted=true;startKanban();}},500)}
-else document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{if(!window.__kanbanStarted){window.__kanbanStarted=true;startKanban();}},700));
-</script>
+    // Grade 3x3 fixa: sem arraste/scroll horizontal.
+    window.addEventListener('resize', () => applySettingsToDom());
+    window.addEventListener('beforeunload', () => saveLocal());
+    boot();
+  </script>
 </body>
 </html>
