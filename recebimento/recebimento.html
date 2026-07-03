@@ -117,30 +117,6 @@ select option{background:#1b2e42;color:#e8eaf0}
 .toast.ok{color:var(--ok);border-color:rgba(0,206,201,.32);background:rgba(0,206,201,.10)}
 .toast.err{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10)}
 .toast.warn{color:var(--warn);border-color:rgba(253,203,110,.32);background:rgba(253,203,110,.10)}
-
-/* AJUSTE DE LAYOUT — fluxo recolhível + caixa de entrada horizontal dedicada */
-.suggestions.compact{padding:10px 22px 0;display:block}
-.suggestions-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(27,46,66,.78);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px}
-.suggestions-toggle h2{font-family:var(--font-title);font-size:14px;color:var(--gold2);line-height:1.15}
-.suggestions-toggle p{font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:2px;line-height:1.35}
-.suggestions-inner{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:10px}
-.suggestions.collapsed .suggestions-inner{display:none}
-.suggestions.collapsed #btnToggleFluxo::before{content:'▾ '}
-.suggestions:not(.collapsed) #btnToggleFluxo::before{content:'▴ '}
-.content{display:flex;flex-direction:column;gap:14px}
-.inbox-zone{width:100%;background:rgba(27,46,66,.82);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.inbox-head,.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line)}
-.inbox-head h2,.section-head h2{font-family:var(--font-title);font-size:15px;color:var(--gold2);line-height:1.2}
-.inbox-head p,.section-head p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
-.inbox-scroll{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:12px;scroll-snap-type:x proximity;min-height:210px}
-.inbox-scroll .card{flex:0 0 305px;max-width:305px;scroll-snap-align:start}
-.inbox-scroll .empty{min-width:260px;width:100%;display:grid;place-items:center}
-.kanban-zone{width:100%}
-.kanban{grid-template-columns:repeat(6,minmax(250px,1fr))}
-.kanban .cards{max-height:calc(100vh - 360px)}
-@media(max-width:1180px){.suggestions-inner{grid-template-columns:1fr}.kanban{grid-template-columns:repeat(6,minmax(250px,1fr))}}
-@media(max-width:760px){.suggestions.compact{padding-left:12px;padding-right:12px}.suggestions-toggle{align-items:flex-start;flex-direction:column}.inbox-scroll .card{flex-basis:82vw;max-width:82vw}.kanban{grid-template-columns:repeat(6,82vw)}}
-
 @media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:repeat(7,82vw)}}
 @media print{
@@ -164,7 +140,7 @@ select option{background:#1b2e42;color:#e8eaf0}
     <div class="logo">BIF</div>
     <div class="title">
       <h1>Controle de Recebimento de Movimento / Documentos</h1>
-      <p>Empresas do colaborador Alef • Firebase + complemento do Painel • cache local como fallback</p>
+      <p>Empresas do colaborador Alef • fonte principal: Painel/Firebase • cache local como fallback</p>
     </div>
   </div>
   <div class="header-actions">
@@ -235,59 +211,31 @@ select option{background:#1b2e42;color:#e8eaf0}
   <div class="kpi danger"><div class="label">Atrasados</div><div class="num" id="kpiAtrasado">0</div><div class="hint">Prazo vencido</div></div>
 </section>
 
-<section class="suggestions compact collapsed" id="suggestionsBox">
-  <div class="suggestions-toggle">
-    <div>
-      <h2>Fluxo sugerido e regras de uso</h2>
-      <p>Recolhido para liberar espaço. Expanda quando precisar consultar o método de recebimento.</p>
+<section class="suggestions">
+  <div class="panel">
+    <div class="panel-head"><div><h2>Fluxo sugerido de recebimento</h2><p>Use a competência como unidade de controle; cada empresa tem sua própria trilha.</p></div></div>
+    <div class="panel-body">
+      <div class="flow">
+        <div class="flow-step"><b>1. Caixa de entrada</b><span>Empresa puxada do Painel, aguardando contato inicial.</span></div>
+        <div class="flow-step"><b>2. Solicitado</b><span>Cliente foi cobrado. Preencher data e prazo.</span></div>
+        <div class="flow-step"><b>3. Parcial</b><span>Chegou parte do movimento; marcar o que falta.</span></div>
+        <div class="flow-step"><b>4. Completo</b><span>Documentos suficientes para fechar a competência.</span></div>
+        <div class="flow-step"><b>5. Conferido</b><span>Material validado e pronto para apuração/arquivo.</span></div>
+      </div>
     </div>
-    <button type="button" class="btn ghost" id="btnToggleFluxo">Expandir</button>
   </div>
-  <div class="suggestions-inner">
-    <div class="panel">
-      <div class="panel-head"><div><h2>Fluxo sugerido de recebimento</h2><p>Use a competência como unidade de controle; cada empresa tem sua própria trilha.</p></div></div>
-      <div class="panel-body">
-        <div class="flow">
-          <div class="flow-step"><b>1. Caixa de entrada</b><span>Empresa puxada do Painel, aguardando contato inicial.</span></div>
-          <div class="flow-step"><b>2. Solicitado</b><span>Cliente foi cobrado. Preencher data e prazo.</span></div>
-          <div class="flow-step"><b>3. Parcial</b><span>Chegou parte do movimento; marcar o que falta.</span></div>
-          <div class="flow-step"><b>4. Completo</b><span>Documentos suficientes para fechar a competência.</span></div>
-          <div class="flow-step"><b>5. Conferido</b><span>Material validado e pronto para apuração/arquivo.</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><div><h2>Regras de uso</h2><p>Evita retrabalho e perda de contexto.</p></div></div>
-      <div class="panel-body mini-list">
-        <div class="mini-item">☁️ <span><strong>Firebase primeiro:</strong> a página lê empresas do caminho <em>painel/empresas</em> e salva controles por competência.</span></div>
-        <div class="mini-item">🧩 <span><strong>Sem sobrescrever lista:</strong> os cards são criados visualmente a partir do Painel; só o controle editado é salvo.</span></div>
-        <div class="mini-item">📌 <span><strong>Próximo passo obrigatório:</strong> sempre deixe claro quem cobra, o que falta e qual prazo.</span></div>
-      </div>
+  <div class="panel">
+    <div class="panel-head"><div><h2>Regras de uso</h2><p>Evita retrabalho e perda de contexto.</p></div></div>
+    <div class="panel-body mini-list">
+      <div class="mini-item">☁️ <span><strong>Firebase primeiro:</strong> a página lê empresas do caminho <em>painel/empresas</em> e salva controles por competência.</span></div>
+      <div class="mini-item">🧩 <span><strong>Sem sobrescrever lista:</strong> os cards são criados visualmente a partir do Painel; só o controle editado é salvo.</span></div>
+      <div class="mini-item">📌 <span><strong>Próximo passo obrigatório:</strong> sempre deixe claro quem cobra, o que falta e qual prazo.</span></div>
     </div>
   </div>
 </section>
 
 <main class="content">
-  <section class="inbox-zone" aria-label="Caixa de entrada">
-    <div class="inbox-head">
-      <div>
-        <h2>Caixa de entrada</h2>
-        <p>Empresas ainda sem solicitação. Área horizontal dedicada, com scroll lateral quando ultrapassar a largura da tela.</p>
-      </div>
-      <span class="count" id="inboxCount">0</span>
-    </div>
-    <div class="inbox-scroll" id="inboxCards"></div>
-  </section>
-
-  <section class="kanban-zone" aria-label="Status de recebimento">
-    <div class="section-head">
-      <div>
-        <h2>Status de recebimento</h2>
-        <p>Depois do primeiro contato, mova a empresa para solicitado, parcial, pendência, completo, sem movimento ou conferido.</p>
-      </div>
-    </div>
-    <div class="kanban" id="kanban"></div>
-  </section>
+  <div class="kanban" id="kanban"></div>
 </main>
 
 <section class="print-list" id="printList"></section>
@@ -734,16 +682,14 @@ function toast(msg, type='ok') {
 }
 
 function normalizeEmpresa(e) {
-  e = e || {};
-  const colaborador = e.colaborador || e.colaboradorResponsavel || e.responsavelFiscal || e.responsavel || e.responsavelResponsavel || e.usuarioResponsavel || e.owner || '';
   return {
     ...e,
-    nome: e.nome || e.razaoSocial || e.razao_social || e.empresa || e.nomeEmpresa || 'Empresa sem nome',
-    cnpj: digits(e.cnpj || e.CNPJ || e.cnpjCpf || e.documento || ''),
-    colaborador,
-    regime: e.regime || e.regimeTributario || 'outros',
-    atividade: e.atividade || e.atividadeEconomica || e.atividade_economica || e.cnaeDescricao || e.cnae || '',
-    fechada: !!e.fechada || !!e.baixada || String(e.statusEmpresa || e.status || '').toLowerCase().includes('fechada') || String(e.nome || '').toLowerCase().includes('baixada'),
+    nome: e.nome || e.razaoSocial || e.empresa || 'Empresa sem nome',
+    cnpj: digits(e.cnpj || e.CNPJ || ''),
+    colaborador: e.colaborador || e.responsavelFiscal || e.responsavel || '',
+    regime: e.regime || 'outros',
+    atividade: e.atividade || e.atividadeEconomica || e.cnaeDescricao || '',
+    fechada: !!e.fechada || String(e.statusEmpresa || '').toLowerCase().includes('fechada'),
     obrigacoes: Array.isArray(e.obrigacoes) ? e.obrigacoes : []
   };
 }
@@ -799,10 +745,10 @@ function loadPainelCacheEmpresas() {
   } catch(e) { return []; }
 }
 
-function mergeEmpresas(...fontes) {
+function mergeEmpresas(primary, fallback) {
   const out = [];
   const seen = new Set();
-  fontes.flat().filter(Boolean).forEach(x => {
+  [...(primary||[]), ...(fallback||[])].forEach(x => {
     const e = normalizeEmpresa(x);
     const key = recordKeyEmpresa(e);
     if(!key || seen.has(key) || !isAlef(e)) return;
@@ -868,17 +814,8 @@ function renderKpis() {
 
 function renderKanban() {
   const host = qs('kanban');
-  const inboxHost = qs('inboxCards');
-  const inboxCount = qs('inboxCount');
   const items = filteredItems();
-
-  const inboxItems = items.filter(x => x.rec.status === 'aguardando');
-  if(inboxCount) inboxCount.textContent = inboxItems.length;
-  if(inboxHost) {
-    inboxHost.innerHTML = inboxItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">Nenhuma empresa na caixa de entrada pelo filtro atual.</div>`;
-  }
-
-  host.innerHTML = STATUS.filter(st => st.id !== 'aguardando').map(st => {
+  host.innerHTML = STATUS.map(st => {
     const colItems = items.filter(x => x.rec.status === st.id);
     const cards = colItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">Nenhuma empresa nesta coluna.</div>`;
     return `<section class="column" data-status="${st.id}">
@@ -1068,12 +1005,6 @@ function bindEvents() {
   qs('btnBackup').addEventListener('click', backupJSON);
   qs('btnReload').addEventListener('click', () => location.reload());
   qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
-  qs('btnToggleFluxo').addEventListener('click', () => {
-    const box = qs('suggestionsBox');
-    const btn = qs('btnToggleFluxo');
-    box.classList.toggle('collapsed');
-    btn.textContent = box.classList.contains('collapsed') ? 'Expandir' : 'Recolher';
-  });
   qs('btnCloseModal').addEventListener('click', closeModal);
   qs('modalOverlay').addEventListener('click', e => { if(e.target.id === 'modalOverlay') closeModal(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
@@ -1122,33 +1053,18 @@ function attachEmpresasFirebase() {
     received = true;
     const list = [];
     if(snap.exists()) snap.forEach(child => list.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() })));
-    const alefFirebase = list.filter(isAlef);
-    const alefCache = loadPainelCacheEmpresas();
-
-    // Correção importante:
-    // antes, se o Firebase retornasse 1 empresa do Alef, a página usava só essa 1 e ignorava o cache/base do Painel.
-    // agora a tela junta Firebase + cache local do Painel + base de segurança embutida, deduplicando por CNPJ.
-    state.empresas = mergeEmpresas(alefFirebase, alefCache, FALLBACK_ALEF_EMPRESAS);
-
-    if(state.empresas.length) {
-      state.dataSource = alefFirebase.length
-        ? `Firebase / painel/empresas + complemento do Painel (${alefFirebase.length} na nuvem)`
-        : 'cache/base do Painel';
+    const alef = list.filter(isAlef);
+    if(alef.length) {
+      state.empresas = mergeEmpresas(alef, []);
+      state.dataSource = 'Firebase / painel/empresas';
       try {
         const old = JSON.parse(localStorage.getItem(PAINEL_CACHE_KEY) || '{}');
-        // Não grava uma leitura parcial por cima do cache completo do Painel.
-        // Se o Firebase trouxe menos empresas que o cache já existente, preserva o cache antigo.
-        if(Array.isArray(list) && list.length && (!Array.isArray(old.empresas) || list.length >= old.empresas.length)) {
-          old.empresas = list;
-          localStorage.setItem(PAINEL_CACHE_KEY, JSON.stringify(old));
-        }
+        old.empresas = Array.isArray(old.empresas) && old.empresas.length ? old.empresas : list;
+        localStorage.setItem(PAINEL_CACHE_KEY, JSON.stringify(old));
       } catch(e) {}
-      const aviso = alefFirebase.length && alefFirebase.length < state.empresas.length
-        ? `Nuvem parcial: ${alefFirebase.length} • tela complementada para ${state.empresas.length} empresas Alef`
-        : `Nuvem sincronizada • ${state.empresas.length} empresas Alef`;
-      setCloudStatus('ok', aviso);
+      setCloudStatus('ok', `Nuvem sincronizada • ${state.empresas.length} empresas Alef`);
     } else {
-      useFallbackEmpresas('Nenhuma empresa Alef encontrada');
+      useFallbackEmpresas('Nenhuma empresa Alef no Firebase');
     }
     renderAll();
   }, err => {
