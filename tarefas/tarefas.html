@@ -426,6 +426,26 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
 .task-mini-pill.task-mini-park{border-color:rgba(245,158,11,.34);color:var(--amber);background:rgba(245,158,11,.08)}
 @media(max-width:600px){.work-parent-row{grid-template-columns:1fr}.work-tree-line.micro{margin-left:10px}.work-tree-line.action{margin-left:4px}}
 
+/* RESUMO SUPERIOR RECOLHÍVEL — libera a área de trabalho */
+.top-summary-card{overflow:hidden}
+.top-summary-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border:0;background:linear-gradient(135deg,rgba(201,168,76,.10),rgba(255,255,255,.025));color:var(--white);cursor:pointer;text-align:left;font-family:var(--sans)}
+.top-summary-toggle:hover{background:linear-gradient(135deg,rgba(201,168,76,.16),rgba(255,255,255,.04))}
+.top-summary-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.top-summary-title{display:flex;align-items:center;gap:9px;font-family:var(--serif);font-weight:800;color:var(--gold-light);font-size:.96rem;white-space:nowrap}
+.top-summary-title::before{content:'';width:4px;height:18px;border-radius:999px;background:var(--gold);display:inline-block;flex-shrink:0}
+.top-summary-mini{font-family:var(--mono);font-size:.68rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.top-summary-mini strong{color:var(--gold-light);font-weight:800}
+.top-summary-action{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);border:1px solid var(--gold-dim);border-radius:999px;padding:5px 10px;background:rgba(201,168,76,.08);white-space:nowrap}
+.top-summary-arrow{font-size:12px;color:var(--text-dim);transition:transform .2s;flex-shrink:0}
+.top-summary-body{display:none;border-top:1px solid rgba(255,255,255,.06);padding:14px 18px 18px;background:rgba(13,27,42,.16)}
+.top-summary-body.open{display:block}
+.top-summary-section{border:1px solid rgba(201,168,76,.18);border-radius:14px;background:rgba(255,255,255,.025);padding:14px 16px;margin-bottom:12px}
+.top-summary-section:last-child{margin-bottom:0}
+.top-overview-section{padding-top:14px}
+.top-summary-section .overview{margin-bottom:8px}
+@media(max-width:760px){.top-summary-toggle{align-items:flex-start}.top-summary-main{flex-direction:column;align-items:flex-start;gap:5px}.top-summary-title{white-space:normal}.top-summary-mini{white-space:normal}.top-summary-action{display:none}}
+@media print{.top-summary-body{display:block!important}.top-summary-toggle{display:none!important}.top-summary-section{border:0!important;background:#fff!important}}
+
 </style>
 </head>
 <body>
@@ -514,37 +534,49 @@ body{padding:0;background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168
   </div>
 
 
-  <div class="card prioritization-guide">
-    <div class="section-title">Sistema 3 Filas — Priorização Visual</div>
-    <div class="rule-grid">
-      <div class="rule-card"><div class="rule-kicker">Captura</div><div class="rule-title">Caixa de Entrada</div><div class="rule-text">Primeiro registra sem decidir. Depois classifica pelo risco, prazo e desbloqueio.</div></div>
-      <div class="rule-card"><div class="rule-kicker">Foco</div><div class="rule-title">Agora = 1 tarefa</div><div class="rule-text">O dia começa por uma execução visível, não pela lista inteira.</div></div>
-      <div class="rule-card"><div class="rule-kicker">Sequência</div><div class="rule-title">Próximo = até 3</div><div class="rule-text">Só entram as tarefas que vêm logo depois ou desbloqueiam alguém.</div></div>
-      <div class="rule-card"><div class="rule-kicker">Proteção</div><div class="rule-title">Parqueamento</div><div class="rule-text">Parqueada é uma classificação separada: a tarefa continua na fila dela, mas marcada como adiada conscientemente.</div></div>
-    </div>
-  </div>
-
-  <div class="card" id="priorityHelpCard" style="padding:0">
-    <div class="priority-help-toggle" onclick="togglePriorityHelp()">
-      <div class="priority-help-toggle-title"><span>🧭</span><span>Como usar este sistema de priorização</span></div>
-      <span id="priorityHelpArrow" style="font-size:12px;color:var(--text-dim);transition:transform 0.2s">&#9662;</span>
-    </div>
-    <div id="priorityHelpBody" class="priority-help-body">
-      <div class="priority-help-grid">
-        <div class="rule-card"><div class="rule-kicker">1</div><div class="rule-title">Comece pela Caixa de Entrada</div><div class="rule-text">Jogue a tarefa ali sem pensar demais. A ideia é capturar rápido para não perder o foco do que já está em andamento.</div></div>
-        <div class="rule-card"><div class="rule-kicker">2</div><div class="rule-title">Escolha o que vai para Agora</div><div class="rule-text">A coluna Agora aceita só uma tarefa ativa. Isso reduz sobrecarga visual e ajuda a deixar claro qual é o foco do momento.</div></div>
-        <div class="rule-card"><div class="rule-kicker">3</div><div class="rule-title">Use Próximo como fila curta</div><div class="rule-text">No máximo três tarefas. Entram aqui as próximas do fluxo, as mais urgentes ou as que destravam alguém.</div></div>
-        <div class="rule-card"><div class="rule-kicker">4</div><div class="rule-title">Separe fila de parqueamento</div><div class="rule-text">Mover para Agora, Próximo ou Semana define prioridade visual. Marcar como Parqueada é outra camada: motivo, local e retorno.</div></div>
+  <div class="card top-summary-card" id="topSummaryCard" style="padding:0">
+    <button type="button" class="top-summary-toggle" onclick="toggleTopSummary()">
+      <div class="top-summary-main">
+        <div class="top-summary-title">Priorização e indicadores</div>
+        <div class="top-summary-mini" id="topSummaryMini">Resumo recolhido — clique para abrir regras, tutorial e métricas.</div>
       </div>
-      <div class="priority-help-note">
-        <strong style="color:var(--white)">Dica prática:</strong> você pode mover as tarefas arrastando entre as colunas ou usando o campo <strong style="color:var(--gold-light)">“Mover”</strong> dentro de cada card. Isso muda só a fila visual. O <strong style="color:var(--amber)">Parqueamento</strong> fica separado, no formulário da tarefa, para registrar motivo, local e janela de retorno.
+      <span class="top-summary-action" id="topSummaryAction">Abrir</span>
+      <span class="top-summary-arrow" id="topSummaryArrow">&#9662;</span>
+    </button>
+    <div id="topSummaryBody" class="top-summary-body">
+      <div class="top-summary-section prioritization-guide">
+        <div class="section-title">Sistema 3 Filas — Priorização Visual</div>
+        <div class="rule-grid">
+          <div class="rule-card"><div class="rule-kicker">Captura</div><div class="rule-title">Caixa de Entrada</div><div class="rule-text">Primeiro registra sem decidir. Depois classifica pelo risco, prazo e desbloqueio.</div></div>
+          <div class="rule-card"><div class="rule-kicker">Foco</div><div class="rule-title">Agora = 1 tarefa</div><div class="rule-text">O dia começa por uma execução visível, não pela lista inteira.</div></div>
+          <div class="rule-card"><div class="rule-kicker">Sequência</div><div class="rule-title">Próximo = até 3</div><div class="rule-text">Só entram as tarefas que vêm logo depois ou desbloqueiam alguém.</div></div>
+          <div class="rule-card"><div class="rule-kicker">Proteção</div><div class="rule-title">Parqueamento</div><div class="rule-text">Parqueada é uma classificação separada: a tarefa continua na fila dela, mas marcada como adiada conscientemente.</div></div>
+        </div>
+      </div>
+
+      <div class="top-summary-section" id="priorityHelpCard" style="padding:0">
+        <div class="priority-help-toggle" onclick="togglePriorityHelp()">
+          <div class="priority-help-toggle-title"><span>🧭</span><span>Como usar este sistema de priorização</span></div>
+          <span id="priorityHelpArrow" style="font-size:12px;color:var(--text-dim);transition:transform 0.2s">&#9662;</span>
+        </div>
+        <div id="priorityHelpBody" class="priority-help-body">
+          <div class="priority-help-grid">
+            <div class="rule-card"><div class="rule-kicker">1</div><div class="rule-title">Comece pela Caixa de Entrada</div><div class="rule-text">Jogue a tarefa ali sem pensar demais. A ideia é capturar rápido para não perder o foco do que já está em andamento.</div></div>
+            <div class="rule-card"><div class="rule-kicker">2</div><div class="rule-title">Escolha o que vai para Agora</div><div class="rule-text">A coluna Agora aceita só uma tarefa ativa. Isso reduz sobrecarga visual e ajuda a deixar claro qual é o foco do momento.</div></div>
+            <div class="rule-card"><div class="rule-kicker">3</div><div class="rule-title">Use Próximo como fila curta</div><div class="rule-text">No máximo três tarefas. Entram aqui as próximas do fluxo, as mais urgentes ou as que destravam alguém.</div></div>
+            <div class="rule-card"><div class="rule-kicker">4</div><div class="rule-title">Separe fila de parqueamento</div><div class="rule-text">Mover para Agora, Próximo ou Semana define prioridade visual. Marcar como Parqueada é outra camada: motivo, local e retorno.</div></div>
+          </div>
+          <div class="priority-help-note">
+            <strong style="color:var(--white)">Dica prática:</strong> você pode mover as tarefas arrastando entre as colunas ou usando o campo <strong style="color:var(--gold-light)">“Mover”</strong> dentro de cada card. Isso muda só a fila visual. O <strong style="color:var(--amber)">Parqueamento</strong> fica separado, no formulário da tarefa, para registrar motivo, local e janela de retorno.
+          </div>
+        </div>
+      </div>
+
+      <div class="top-summary-section top-overview-section">
+        <div class="overview" id="overview"></div>
+        <div class="gp" id="gp"></div>
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="overview" id="overview"></div>
-    <div class="gp" id="gp"></div>
   </div>
 
   <div class="card">
@@ -1497,6 +1529,11 @@ function renderOverview(){
   document.getElementById('gp').innerHTML=`
     <div class="gp-track"><div class="gp-fill" style="width:${pct}%"></div></div>
     <div class="gp-text"><span>${done} de ${total} concluídas</span><span>${pct}%</span></div>`;
+
+  const mini=document.getElementById('topSummaryMini');
+  if(mini){
+    mini.innerHTML=`Hoje <strong style="color:var(--red)">${today}</strong> · Cliente <strong style="color:var(--coral)">${waiting}</strong> · Agora <strong style="color:${agora>1?'var(--amber)':'var(--green)'}">${agora}/1</strong> · Próximo <strong>${proximo}/3</strong> · Parqueadas <strong style="color:var(--amber)">${parqueadas}</strong>`;
+  }
 }
 
 function renderFilters(){
@@ -2419,6 +2456,22 @@ function manualSave(){
   toast('Salvo manualmente','success');
 }
 
+// ---- RESUMO SUPERIOR RECOLHÍVEL ----
+function setTopSummaryOpen(open,silent){
+  const body=document.getElementById('topSummaryBody');
+  const arrow=document.getElementById('topSummaryArrow');
+  const action=document.getElementById('topSummaryAction');
+  if(!body)return;
+  body.classList.toggle('open',!!open);
+  if(arrow)arrow.style.transform=open?'rotate(180deg)':'';
+  if(action)action.textContent=open?'Recolher':'Abrir';
+  if(!silent)localStorage.setItem('bif_top_summary_open',open?'1':'0');
+}
+function toggleTopSummary(){
+  const body=document.getElementById('topSummaryBody');
+  setTopSummaryOpen(!(body&&body.classList.contains('open')));
+}
+
 // ---- TUTORIAL ----
 function toggleTutorial(){
   const body=document.getElementById('tutorialBody');
@@ -2429,6 +2482,9 @@ function toggleTutorial(){
   localStorage.setItem('bif_tutorial_open',open?'0':'1');
 }
 function initTutorial(){
+  const topPref=localStorage.getItem('bif_top_summary_open');
+  setTopSummaryOpen(topPref==='1',true);
+
   const pref=localStorage.getItem('bif_tutorial_open');
   if(pref==='1'){
     const body=document.getElementById('tutorialBody');
@@ -2507,7 +2563,7 @@ window.handleTaskAttachmentInput=handleTaskAttachmentInput; window.removeTaskAtt
 window.allowDrop=allowDrop; window.enterLane=enterLane; window.leaveLane=leaveLane; window.dropOnLane=dropOnLane;
 window.openTaskDetails=openTaskDetails; window.closeTaskDetails=closeTaskDetails; window.refreshTaskDetailsModal=refreshTaskDetailsModal;
 window.printTaskDetails=printTaskDetails;
-window.togglePriorityHelp=togglePriorityHelp;
+window.togglePriorityHelp=togglePriorityHelp; window.toggleTopSummary=toggleTopSummary;
 window.handleWorkLevelChange=handleWorkLevelChange; window.handleParentMacroChange=handleParentMacroChange; window.handleParentActionChange=handleParentActionChange; window.openTaskFromTree=openTaskFromTree;
 
 bindDraftAutosave();
