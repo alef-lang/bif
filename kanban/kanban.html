@@ -284,6 +284,145 @@
       dialog#noteDialog .modal-actions .btn{flex:1 1 auto;}
     }
 
+  
+
+    /* v12 — cards vazios mais limpos e anotações reais com leitura rápida */
+    .company-card.is-empty{
+      border-color:rgba(255,255,255,.055)!important;
+      box-shadow:0 8px 22px rgba(0,0,0,.20)!important;
+    }
+    .company-card.is-empty:hover{
+      border-color:rgba(201,168,76,.22)!important;
+      box-shadow:0 10px 24px rgba(0,0,0,.24)!important;
+      transform:none!important;
+    }
+    .company-card.has-notes{
+      border-color:rgba(232,201,122,.42)!important;
+      box-shadow:0 14px 34px rgba(0,0,0,.30),0 0 0 1px rgba(232,201,122,.08)!important;
+    }
+    .company-card.has-notes:before{
+      content:"";
+      position:absolute;
+      left:0;top:0;bottom:0;
+      width:3px;
+      background:linear-gradient(180deg,var(--gold-soft),rgba(102,168,255,.82),transparent);
+      opacity:.95;
+    }
+    .company-card.has-notes:hover{
+      border-color:rgba(232,201,122,.75)!important;
+      box-shadow:0 16px 38px rgba(0,0,0,.34),0 0 22px rgba(232,201,122,.12)!important;
+    }
+    .note-panel.is-empty{
+      border-color:rgba(159,178,199,.08)!important;
+      background:rgba(255,255,255,.012)!important;
+      box-shadow:none!important;
+    }
+    .note-panel.is-empty .note-head{
+      border-bottom-color:rgba(159,178,199,.055)!important;
+      background:transparent!important;
+    }
+    .note-panel.is-empty .note-title{
+      color:rgba(169,199,242,.58)!important;
+    }
+    .selected-count.is-empty{
+      color:rgba(159,178,199,.42)!important;
+      border-color:rgba(159,178,199,.10)!important;
+      background:transparent!important;
+    }
+    .note-panel.is-empty .note-add-inline{
+      opacity:.44!important;
+      background:transparent!important;
+      border-color:rgba(232,201,122,.24)!important;
+      box-shadow:none!important;
+    }
+    .note-panel.is-empty .note-add-inline:hover{
+      opacity:1!important;
+      background:rgba(232,201,122,.13)!important;
+      color:var(--gold-soft)!important;
+      transform:none!important;
+    }
+    .empty-notes{
+      border:0!important;
+      background:transparent!important;
+      min-height:44px!important;
+      height:auto!important;
+      padding:8px 4px!important;
+      color:rgba(159,178,199,.48)!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      opacity:.72!important;
+    }
+    .empty-notes strong{
+      font-family:'DM Mono',monospace!important;
+      font-size:10px!important;
+      text-transform:uppercase!important;
+      letter-spacing:.05em!important;
+      color:rgba(159,178,199,.52)!important;
+      margin:0!important;
+      font-weight:800!important;
+    }
+    .empty-notes small{
+      display:block;
+      margin-top:3px;
+      font-family:'DM Mono',monospace;
+      font-size:9px;
+      color:rgba(232,201,122,.48);
+      font-weight:800;
+    }
+    .note-panel.has-notes{
+      border-color:rgba(232,201,122,.26)!important;
+      background:linear-gradient(180deg,rgba(201,168,76,.065),rgba(116,185,255,.045))!important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02),0 0 18px rgba(201,168,76,.055)!important;
+    }
+    .note-panel.has-notes .note-head{
+      background:linear-gradient(90deg,rgba(232,201,122,.08),rgba(116,185,255,.045))!important;
+      border-bottom-color:rgba(232,201,122,.18)!important;
+    }
+    .note-panel.has-notes .note-title{
+      color:#d9e8ff!important;
+    }
+    .selected-count.has-notes{
+      color:#102136!important;
+      border-color:rgba(232,201,122,.40)!important;
+      background:linear-gradient(135deg,var(--gold),var(--gold-soft))!important;
+      font-weight:900!important;
+    }
+    .note-panel.has-notes .note-add-inline{
+      opacity:.78!important;
+    }
+    .note-panel.has-notes .note-item{
+      border-color:rgba(232,201,122,.34)!important;
+      background:linear-gradient(180deg,rgba(33,54,79,.92),rgba(19,38,62,.78))!important;
+      box-shadow:0 6px 16px rgba(0,0,0,.18),inset 3px 0 0 rgba(232,201,122,.78)!important;
+    }
+    .note-panel.has-notes .note-item:not(.active) .note-text{
+      color:#fff6dc!important;
+      font-weight:900!important;
+    }
+    .note-panel.has-notes .note-item:not(.active) .check{
+      border-color:rgba(232,201,122,.48)!important;
+      color:var(--gold-soft)!important;
+      background:rgba(201,168,76,.10)!important;
+    }
+    .note-panel.has-notes .note-item.active{
+      border-color:rgba(116,185,255,.98)!important;
+      background:linear-gradient(180deg,rgba(55,104,164,.95),rgba(25,64,113,.84))!important;
+      box-shadow:0 0 0 1px rgba(116,185,255,.36),0 0 18px rgba(116,185,255,.68),0 0 34px rgba(143,208,255,.16),inset 3px 0 0 #b9dcff!important;
+    }
+    .card-foot .add-note{
+      opacity:.70;
+    }
+    .company-card.is-empty .card-foot .add-note{
+      opacity:.48;
+      background:transparent!important;
+    }
+    .company-card.has-notes .card-foot .add-note{
+      opacity:1;
+      border-color:rgba(232,201,122,.30)!important;
+      background:rgba(201,168,76,.10)!important;
+    }
+
   </style>
 </head>
 <body>
@@ -892,6 +1031,9 @@
       const notes = getNotes(key);
       const activeCount = notes.filter(n=>n.active).length;
       const isSelected = state.selectedCompany === key;
+      const noteCountLabel = notes.length
+        ? `${notes.length} anotação${notes.length===1?'':'ões'}${activeCount ? ' • '+activeCount+' ok' : ''}`
+        : 'sem anotação';
       const notesHtml = notes.length ? notes.map(n => `
         <div class="note-item ${n.active ? 'active' : ''}" data-kind="${esc(n.kind || 'livre')}" data-note-id="${esc(n.id)}" role="button" tabindex="0" aria-pressed="${n.active?'true':'false'}" title="Clique para marcar/desmarcar concluída em neon">
           <span class="check">${n.active ? '✓' : kindIcon(n.kind)}</span>
@@ -900,8 +1042,8 @@
             <button type="button" class="mini-btn edit-note" title="Editar">✎</button>
             <button type="button" class="mini-btn del-note" title="Excluir">×</button>
           </span>
-        </div>`).join('') : `<button type="button" class="empty-notes" data-empty-note="1"><span><strong>Nenhuma anotação ainda</strong><span>Clique aqui para criar a primeira tag.</span></span></button>`;
-      return `<article class="company-card ${isSelected?'selected':''}" data-key="${esc(key)}" draggable="false">
+        </div>`).join('') : `<button type="button" class="empty-notes" data-empty-note="1" title="Adicionar primeira anotação"><span><strong>Sem anotações</strong><small>＋ adicionar</small></span></button>`;
+      return `<article class="company-card ${isSelected?'selected':''} ${notes.length ? 'has-notes' : 'is-empty'}" data-key="${esc(key)}" draggable="false">
         <header class="card-head">
           <button type="button" class="card-handle" draggable="true" title="Arraste para reorganizar os quadros">
             <div class="company-name">${esc(c.nome)}</div>
@@ -915,8 +1057,8 @@
           ${c.statusApuracao ? `<span class="chip green">${esc(c.statusApuracao)}</span>` : ''}
           ${c.atividade ? `<span class="chip">${esc(c.atividade)}</span>` : ''}
         </div>
-        <section class="note-panel">
-          <div class="note-head"><div class="note-title">▤ Anotações</div><div class="note-head-actions"><span class="selected-count">${activeCount} concluída${activeCount===1?'':'s'}</span><button type="button" class="note-add-inline add-note" title="Adicionar anotação neste card" aria-label="Adicionar anotação neste card">＋</button></div></div>
+        <section class="note-panel ${notes.length ? 'has-notes' : 'is-empty'}">
+          <div class="note-head"><div class="note-title">▤ Anotações</div><div class="note-head-actions"><span class="selected-count ${notes.length ? 'has-notes' : 'is-empty'}">${noteCountLabel}</span><button type="button" class="note-add-inline add-note" title="Adicionar anotação neste card" aria-label="Adicionar anotação neste card">＋</button></div></div>
           <div class="notes ${notes.length > 4 ? 'compact-notes' : ''}">${notesHtml}</div>
         </section>
         <footer class="card-foot">
