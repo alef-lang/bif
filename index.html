@@ -521,6 +521,16 @@
             <span class="btn-open">Abrir →</span>
           </div>
         </div>
+        <div class="tool-card ready" data-tool="kanban" onclick="openTool('kanban')">
+          <div class="tool-icon">🧩</div>
+          <h3>Kanban de Empresas</h3>
+          <p>Quadro operacional por empresa, responsável, status e caixa de entrada para organizar o fluxo fiscal.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
 
         <div class="tool-card ready" data-tool="anotacoes" onclick="openTool('anotacoes')">
           <div class="tool-icon">📝</div>
@@ -646,6 +656,36 @@
             <span class="btn-open">Abrir →</span>
           </div>
         </div>
+        <div class="tool-card ready" data-tool="obrigacoes" onclick="openTool('obrigacoes')">
+          <div class="tool-icon">📅</div>
+          <h3>Obrigações Fiscais</h3>
+          <p>Controle visual de obrigações, vencimentos, anexos, recibos e status de entrega por competência.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="antena-fiscal" onclick="openTool('antena-fiscal')">
+          <div class="tool-icon">📡</div>
+          <h3>Antena Fiscal</h3>
+          <p>Radar de normas, notícias e impactos fiscais com registro de ações, status e observações.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="calculadora-ibs-cbs" onclick="openTool('calculadora-ibs-cbs')">
+          <div class="tool-icon">🧾</div>
+          <h3>Calculadora IBS/CBS</h3>
+          <p>Simulação e orientação de IBS/CBS, CST, cClassTrib e benefícios para apoio à emissão fiscal.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
 
       </div>
     </div>
@@ -663,6 +703,26 @@
             <span class="btn-open">Abrir →</span>
           </div>
         </div>
+        <div class="tool-card ready" data-tool="acesso-sistemas" onclick="openTool('acesso-sistemas')">
+          <div class="tool-icon">🔐</div>
+          <h3>Acesso a Sistemas</h3>
+          <p>Cofre criptografado para logins, senhas, URLs, 2FA e observações de sistemas usados na rotina.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="catalogo-contatos" onclick="openTool('catalogo-contatos')">
+          <div class="tool-icon">📇</div>
+          <h3>Catálogo de Contatos</h3>
+          <p>Lista central de contatos por empresa, canal, papel, assunto e responsável principal.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
 
         <div class="tool-card locked">
           <div class="tool-icon">🏢</div>
@@ -1089,7 +1149,7 @@
         const tool = card.dataset.tool;
         // O Mapa da Agenda é complemento direto de Tarefas.
         // Quem tem acesso a Tarefas também consegue abrir o Mapa, mesmo que a permissão nova ainda não exista no Firebase.
-        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true))) {
+        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true)) {
           unlockCard(card, tool);
         } else {
           lockCard(card);
@@ -1108,7 +1168,7 @@
       'portal-treinamentos': './portal/portal.html',
       'tarefas': './tarefas/tarefas.html',
       'mapa-agenda': './tarefas/mapa.html',
-      'gestao-equipes': './equipes/gestao.html',
+      'gestao-equipes': './equipes/equipes.html',
       'atendimento-cliente': './atendimento/atendimento.html',
       'anotacoes': './anotacoes/anotacoes.html',
       'checklist': './checklist/checklist.html',
@@ -1124,7 +1184,13 @@
       'colaboradores': './colaboradores/colaboradores.html',
       'manuais-externos': './manuaisext/manuais.html',
       'calculadora-simples': './ferramentas/calculadora-simples.html',
-      'comunicacao': './comunicacao/comunicacao.html'
+      'comunicacao': './comunicacao/comunicacao.html',
+      'obrigacoes': './obrigacoes/obrigacoes.html',
+      'kanban': './kanban/kanban.html',
+      'antena-fiscal': './antena/antena-fiscal.html',
+      'calculadora-ibs-cbs': './ferramentas/calculadora_ibs_cbs_v2.html',
+      'acesso-sistemas': './acesso/acesso_sistemas.html',
+      'catalogo-contatos': './catalogo/contatos.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
