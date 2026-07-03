@@ -87,6 +87,62 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .search-box input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-glow);}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:12px;pointer-events:none;}
 
+/* BUSCA FIXA */
+.fixed-search-strip{
+  position:sticky;
+  top:var(--header-offset,72px);
+  z-index:195;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 24px;
+  background:linear-gradient(135deg,rgba(13,27,42,0.98),rgba(22,36,56,0.98));
+  border-bottom:1px solid var(--gold-dim);
+  box-shadow:0 8px 24px rgba(0,0,0,0.28);
+  backdrop-filter:blur(10px);
+}
+.fixed-search-strip .fixed-search-label{color:var(--gold-light);}
+.fixed-search-strip .search-box{
+  flex:1 1 520px;
+  min-width:260px;
+  max-width:760px;
+}
+.fixed-search-strip .search-box input{
+  height:34px;
+  border-color:rgba(201,168,76,0.34);
+  background:rgba(13,27,42,0.72);
+}
+.fixed-search-strip .search-box input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,168,76,0.15);
+}
+.fixed-search-clear{
+  padding:7px 12px;
+  border-radius:20px;
+  border:1px solid var(--gold-dim);
+  background:rgba(201,168,76,0.08);
+  color:var(--gold-light);
+  cursor:pointer;
+  font-size:11px;
+  font-weight:700;
+  font-family:var(--font-body);
+  white-space:nowrap;
+  transition:all 0.18s;
+}
+.fixed-search-clear:hover{background:rgba(201,168,76,0.18);border-color:var(--gold);}
+.fixed-search-meta{
+  color:var(--text-light);
+  font-size:10px;
+  font-family:var(--font-mono);
+  white-space:nowrap;
+}
+@media(max-width:760px){
+  .fixed-search-strip{padding:8px 14px;gap:7px;}
+  .fixed-search-strip .search-box{min-width:0;max-width:none;}
+  .fixed-search-strip .fixed-search-label,.fixed-search-meta{display:none;}
+  .fixed-search-clear{padding:7px 9px;font-size:10px;}
+}
+
 /* STATS — estilo KPI (do Controle de Guias) */
 .stats-bar{padding:14px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;background:var(--bg-card2);border-bottom:1px solid var(--border);}
 .stat-card{background:var(--bg-card);border:1px solid rgba(201,168,76,0.28);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;flex:unset;box-shadow:var(--shadow);}
@@ -1595,16 +1651,27 @@ th.col-dragging{opacity:0.45;}
   </div>
   <div class="header-right">
     <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
-    <button class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
-    <button class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
-    <button class="btn-header" onclick="sincronizarProdutoresRurais()">🌾 Produtores</button>
+    <button type="button" class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
+    <button type="button" class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
+    <button type="button" class="btn-header" onclick="sincronizarProdutoresRurais()">🌾 Produtores</button>
     <button class="btn-header export" onclick="openRelatorio()">📊 Relatórios</button>
     <button type="button" class="btn-header" onclick="openRelatorioAtividade()">🏭 Atividades</button>
-    <button class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
-    <button class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
+    <button type="button" class="btn-header" id="btnBackupJSON" onclick="exportarBackupJSON()" title="Exportar backup JSON de todas as empresas">💾 Backup</button>
+    <button type="button" class="btn-header" onclick="openConfigModal()">⚙️ Configurações</button>
     <a href="#" onclick="history.back();return false;" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);border-radius:8px;padding:7px 14px;background:rgba(201,168,76,0.08);transition:background 0.2s;font-family:var(--font-body);">◈ BIF</a>
   </div>
 </header>
+
+<!-- BUSCA FIXA -->
+<div class="fixed-search-strip" id="fixedSearchStrip">
+  <span class="filter-label fixed-search-label">🔎 Busca fixa</span>
+  <div class="search-box fixed-search-box">
+    <span class="search-icon">🔎</span>
+    <input type="search" autocomplete="off" placeholder="Buscar empresa, CNPJ, colaborador ou atividade..." oninput="doSearch(this.value)" id="searchInput">
+  </div>
+  <button type="button" class="fixed-search-clear" onclick="clearSearchFixed()">Limpar busca</button>
+  <span class="fixed-search-meta">Visível durante a rolagem</span>
+</div>
 
 <!-- FILTROS — colapsável -->
 <div class="filter-panel" id="filterPanel">
@@ -1656,10 +1723,6 @@ th.col-dragging{opacity:0.45;}
       <select class="select-filter" id="filterColaborador" onchange="renderAll()">
         <option value="">Todos os colaboradores</option>
       </select>
-      <div class="search-box">
-        <span class="search-icon">🔎</span>
-        <input type="text" placeholder="Buscar empresa, CNPJ, colaborador, atividade..." oninput="doSearch(this.value)" id="searchInput">
-      </div>
     </div>
   </div>
 </div>
@@ -2435,6 +2498,7 @@ async function init(){
     : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
 
   updateHeaderName();
+  updateStickyHeaderOffset();
   renderFilterTags();
   renderTagFilterChips();
   renderCfgObrigList();
@@ -2713,6 +2777,23 @@ function clearFilters(){
 }
 
 function doSearch(v){ S.searchTerm = v || ''; renderAll(); }
+
+function clearSearchFixed(){
+  S.searchTerm = '';
+  const input = $('searchInput');
+  if(input) input.value = '';
+  renderAll();
+}
+
+function updateStickyHeaderOffset(){
+  const header = document.querySelector('.header');
+  if(!header) return;
+  document.documentElement.style.setProperty('--header-offset', `${header.offsetHeight}px`);
+}
+window.addEventListener('resize', updateStickyHeaderOffset);
+window.addEventListener('load', updateStickyHeaderOffset);
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateStickyHeaderOffset);
+else updateStickyHeaderOffset();
 
 function passesFilters(e){
   const fr = $('filterRegime')?.value || '';
