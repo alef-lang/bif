@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Controle de Recebimento de Movimento — Alef</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Cpath d='M8 9h16v3H8zM8 15h16v3H8zM8 21h10v3H8z' fill='%23c9a84c'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:#0d1b2a; --card:#1b2e42; --card2:#162438; --line:rgba(201,168,76,.18);
+  --gold:#c9a84c; --gold2:#e8c97a; --text:#e8eaf0; --muted:#8899aa;
+  --ok:#00cec9; --blue:#74b9ff; --purple:#a29bfe; --warn:#fdcb6e; --danger:#ff7675; --gray:#b2bec3;
+  --shadow:0 12px 34px rgba(0,0,0,.34); --radius:18px; --radius-sm:12px;
+  --font-title:'Poppins',sans-serif; --font-body:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);background-image:radial-gradient(circle at 10% 0%,rgba(201,168,76,.10),transparent 34%),radial-gradient(circle at 80% 80%,rgba(116,185,255,.08),transparent 28%);}
+button,input,select,textarea{font-family:inherit}
+button{type:button}
+.header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;gap:14px;align-items:center;padding:16px 22px;background:linear-gradient(135deg,rgba(13,27,42,.98),rgba(27,46,66,.97));border-bottom:1px solid var(--line);box-shadow:0 5px 24px rgba(0,0,0,.35);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:grid;place-items:center;color:#0d1b2a;font-family:var(--font-title);font-weight:800;box-shadow:0 8px 22px rgba(201,168,76,.26);flex:0 0 auto}
+.title{min-width:0}
+.title h1{font-family:var(--font-title);font-size:17px;line-height:1.15;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.cloud{font-family:var(--font-mono);font-size:11px;border:1px solid var(--line);padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.035);color:var(--gold2);white-space:nowrap}
+.btn{border:1px solid var(--line);background:rgba(201,168,76,.10);color:var(--gold2);border-radius:11px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:.18s;display:inline-flex;gap:6px;align-items:center;justify-content:center;white-space:nowrap}
+.btn:hover{border-color:var(--gold);background:rgba(201,168,76,.18);transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d1b2a;border-color:transparent}
+.btn.ok{background:rgba(0,206,201,.12);border-color:rgba(0,206,201,.3);color:var(--ok)}
+.btn.warn{background:rgba(253,203,110,.13);border-color:rgba(253,203,110,.35);color:var(--warn)}
+.btn.danger{background:rgba(255,118,117,.11);border-color:rgba(255,118,117,.28);color:var(--danger)}
+.btn.ghost{background:transparent}
+.toolbar{padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(22,36,56,.78);display:grid;grid-template-columns:160px minmax(170px,1fr) 170px 170px 170px auto;gap:10px;align-items:center}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid rgba(201,168,76,.22);background:rgba(255,255,255,.045);color:var(--text);border-radius:12px;padding:9px 11px;font-size:12px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+select option{background:#1b2e42;color:#e8eaf0}
+.dashboard{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:15px 22px;background:rgba(13,27,42,.24);border-bottom:1px solid var(--line)}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px;box-shadow:0 6px 22px rgba(0,0,0,.20);position:relative;overflow:hidden}
+.kpi:after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.35}
+.kpi .label{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi .num{font-family:var(--font-title);font-size:28px;font-weight:800;line-height:1;color:var(--gold2);margin-top:6px}
+.kpi .hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.25}
+.kpi.ok .num{color:var(--ok)} .kpi.warn .num{color:var(--warn)} .kpi.danger .num{color:var(--danger)} .kpi.blue .num{color:var(--blue)}
+.suggestions{padding:12px 22px 0;display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+.panel{background:rgba(27,46,66,.78);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-head h2{font-family:var(--font-title);font-size:14px;color:var(--gold2)}
+.panel-head p{font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:1px}
+.panel-body{padding:13px 15px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.flow-step{border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.035);border-radius:13px;padding:10px;min-height:74px}
+.flow-step b{display:block;color:var(--gold2);font-size:12px;margin-bottom:4px}
+.flow-step span{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+.mini-list{display:grid;gap:8px}
+.mini-item{display:flex;gap:8px;align-items:flex-start;border:1px solid rgba(201,168,76,.14);background:rgba(255,255,255,.03);border-radius:12px;padding:9px 10px;color:var(--muted);font-size:12px;line-height:1.35}
+.mini-item strong{color:var(--text)}
+.content{padding:16px 22px 28px}
+.kanban{display:grid;grid-template-columns:repeat(7,minmax(250px,1fr));gap:12px;align-items:start;overflow-x:auto;padding-bottom:8px}
+.column{background:rgba(27,46,66,.82);border:1px solid var(--line);border-radius:var(--radius);min-height:430px;display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden}
+.col-head{padding:12px 13px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.col-title b{display:block;font-family:var(--font-title);font-size:13px;color:var(--text);line-height:1.15}
+.col-title span{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.count{font-family:var(--font-mono);font-size:11px;color:var(--gold2);border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:rgba(201,168,76,.08)}
+.cards{display:flex;flex-direction:column;gap:9px;padding:10px;overflow-y:auto;max-height:calc(100vh - 390px);min-height:350px}
+.card{background:var(--card2);border:1.5px solid rgba(255,255,255,.07);border-radius:15px;padding:10px 11px;transition:.18s;cursor:pointer}
+.card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.card-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}
+.card h3{font-size:12.3px;line-height:1.25;font-weight:800;color:var(--text)}
+.badge{font-family:var(--font-mono);font-size:9px;border-radius:999px;padding:3px 7px;font-weight:700;border:1px solid;white-space:nowrap}
+.badge.aguardando{color:var(--gold2);background:rgba(201,168,76,.10);border-color:rgba(201,168,76,.26)}
+.badge.solicitado{color:var(--blue);background:rgba(116,185,255,.11);border-color:rgba(116,185,255,.28)}
+.badge.parcial{color:var(--warn);background:rgba(253,203,110,.12);border-color:rgba(253,203,110,.28)}
+.badge.completo,.badge.conferido{color:var(--ok);background:rgba(0,206,201,.12);border-color:rgba(0,206,201,.28)}
+.badge.pendencia{color:var(--danger);background:rgba(255,118,117,.11);border-color:rgba(255,118,117,.28)}
+.badge.sem_movimento{color:var(--gray);background:rgba(178,190,195,.11);border-color:rgba(178,190,195,.25)}
+.meta{display:grid;gap:4px;color:var(--muted);font-size:10.5px;font-family:var(--font-mono);line-height:1.35}
+.meta div{display:grid;grid-template-columns:17px minmax(0,1fr);gap:4px;min-width:0}
+.meta span:last-child{overflow-wrap:anywhere}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.chip{font-family:var(--font-mono);font-size:9px;border:1px solid rgba(201,168,76,.20);background:rgba(201,168,76,.07);color:var(--gold2);padding:2px 6px;border-radius:999px}
+.chip.missing{color:var(--warn);border-color:rgba(253,203,110,.25);background:rgba(253,203,110,.08)}
+.chip.ok{color:var(--ok);border-color:rgba(0,206,201,.25);background:rgba(0,206,201,.08)}
+.chip.danger{color:var(--danger);border-color:rgba(255,118,117,.25);background:rgba(255,118,117,.08)}
+.card-actions{display:flex;gap:6px;margin-top:8px}
+.card-actions .btn{padding:6px 8px;font-size:10.5px;border-radius:9px;flex:1}
+.empty{text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:11px;padding:28px 8px;line-height:1.45}
+.table-panel{margin-top:14px;display:none}
+.print-list{display:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 28px 90px rgba(0,0,0,.62);width:min(930px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.modal-head h2{font-family:var(--font-title);font-size:16px;color:var(--gold2);line-height:1.2}
+.modal-head p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px}
+.modal-body{padding:17px 20px;overflow-y:auto}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px}
+.form-grid.two{grid-template-columns:repeat(2,1fr)}
+.form-grid.one{grid-template-columns:1fr}
+.field.full{grid-column:1/-1}
+.docs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.doc-item{display:flex;gap:8px;align-items:flex-start;border:1px solid rgba(201,168,76,.18);background:rgba(255,255,255,.035);border-radius:12px;padding:9px 10px;cursor:pointer;min-height:52px}
+.doc-item input{accent-color:var(--gold);margin-top:2px}
+.doc-item b{display:block;font-size:12px;color:var(--text);line-height:1.2}
+.doc-item span{display:block;font-size:10px;color:var(--muted);line-height:1.2;margin-top:2px}
+.section-title{font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;font-weight:800;border-bottom:1px solid var(--line);padding-bottom:6px}
+.toast{position:fixed;right:20px;bottom:20px;z-index:200;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow);color:var(--text);font-size:12px;font-weight:700;transform:translateY(90px);opacity:0;transition:.22s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{color:var(--ok);border-color:rgba(0,206,201,.32);background:rgba(0,206,201,.10)}
+.toast.err{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10)}
+.toast.warn{color:var(--warn);border-color:rgba(253,203,110,.32);background:rgba(253,203,110,.10)}
+@media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:repeat(7,82vw)}}
+@media print{
+  @page{size:A4 portrait;margin:12mm}
+  body{background:#fff!important;color:#111!important;font-family:Arial,sans-serif}
+  .header,.toolbar,.dashboard,.suggestions,.content,.modal-overlay,.toast{display:none!important}
+  .print-list{display:block!important}
+  .print-head{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px}
+  .print-head h1{font-size:18px;margin:0 0 3px}
+  .print-head p{font-size:11px;color:#333;margin:0}
+  table{width:100%;border-collapse:collapse;font-size:9.2px}
+  th{background:#eee;border:1px solid #aaa;padding:4px;text-align:left}
+  td{border:1px solid #bbb;padding:4px;vertical-align:top}
+  .print-small{font-size:9px;color:#444}
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="brand">
+    <div class="logo">BIF</div>
+    <div class="title">
+      <h1>Controle de Recebimento de Movimento / Documentos</h1>
+      <p>Empresas do colaborador Alef • Firebase + complemento do Painel • cache local como fallback</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
+    <button type="button" class="btn ghost" id="btnReload">↻ Recarregar</button>
+    <button type="button" class="btn" id="btnExport">⬇ CSV</button>
+    <button type="button" class="btn" id="btnBackup">🧾 Backup</button>
+    <button type="button" class="btn primary" id="btnPrint">🖨️ Imprimir</button>
+  </div>
+</header>
+
+<section class="toolbar">
+  <div class="field">
+    <label>Competência</label>
+    <input id="competencia" type="month" />
+  </div>
+  <div class="field">
+    <label>Busca</label>
+    <input id="search" type="search" placeholder="Empresa, CNPJ, atividade, pendência..." />
+  </div>
+  <div class="field">
+    <label>Status</label>
+    <select id="statusFilter">
+      <option value="">Todos</option>
+      <option value="aguardando">Caixa de entrada</option>
+      <option value="solicitado">Solicitado</option>
+      <option value="parcial">Recebido parcial</option>
+      <option value="completo">Recebido completo</option>
+      <option value="pendencia">Pendência</option>
+      <option value="sem_movimento">Sem movimento</option>
+      <option value="conferido">Conferido</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Documento</label>
+    <select id="docFilter">
+      <option value="">Todos</option>
+      <option value="faltando">Com documento faltando</option>
+      <option value="xmlEntrada">Falta XML/NF-e entradas</option>
+      <option value="xmlSaida">Falta XML/NF-e saídas</option>
+      <option value="nfse">Falta NFS-e</option>
+      <option value="extrato">Falta extrato</option>
+      <option value="cartoes">Falta cartões/marketplaces</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Prazo</label>
+    <select id="prazoFilter">
+      <option value="">Todos</option>
+      <option value="atrasado">Atrasados</option>
+      <option value="hoje">Vence hoje</option>
+      <option value="7dias">Próximos 7 dias</option>
+      <option value="sem_prazo">Sem prazo</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Ação rápida</label>
+    <button type="button" class="btn ok" id="btnCobrancaLote">📋 Copiar cobrança geral</button>
+  </div>
+</section>
+
+<section class="dashboard">
+  <div class="kpi"><div class="label">Empresas Alef</div><div class="num" id="kpiTotal">0</div><div class="hint">Puxadas do Painel</div></div>
+  <div class="kpi warn"><div class="label">Caixa de entrada</div><div class="num" id="kpiAguardando">0</div><div class="hint">Ainda sem solicitação</div></div>
+  <div class="kpi blue"><div class="label">Em andamento</div><div class="num" id="kpiAndamento">0</div><div class="hint">Solicitado ou parcial</div></div>
+  <div class="kpi ok"><div class="label">Concluído</div><div class="num" id="kpiConcluido">0</div><div class="hint">Completo, sem movimento ou conferido</div></div>
+  <div class="kpi danger"><div class="label">Pendências</div><div class="num" id="kpiPendencia">0</div><div class="hint">Requer cobrança/ação</div></div>
+  <div class="kpi danger"><div class="label">Atrasados</div><div class="num" id="kpiAtrasado">0</div><div class="hint">Prazo vencido</div></div>
+</section>
+
+<section class="suggestions">
+  <div class="panel">
+    <div class="panel-head"><div><h2>Fluxo sugerido de recebimento</h2><p>Use a competência como unidade de controle; cada empresa tem sua própria trilha.</p></div></div>
+    <div class="panel-body">
+      <div class="flow">
+        <div class="flow-step"><b>1. Caixa de entrada</b><span>Empresa puxada do Painel, aguardando contato inicial.</span></div>
+        <div class="flow-step"><b>2. Solicitado</b><span>Cliente foi cobrado. Preencher data e prazo.</span></div>
+        <div class="flow-step"><b>3. Parcial</b><span>Chegou parte do movimento; marcar o que falta.</span></div>
+        <div class="flow-step"><b>4. Completo</b><span>Documentos suficientes para fechar a competência.</span></div>
+        <div class="flow-step"><b>5. Conferido</b><span>Material validado e pronto para apuração/arquivo.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><div><h2>Regras de uso</h2><p>Evita retrabalho e perda de contexto.</p></div></div>
+    <div class="panel-body mini-list">
+      <div class="mini-item">☁️ <span><strong>Firebase primeiro:</strong> a página lê empresas do caminho <em>painel/empresas</em> e salva controles por competência.</span></div>
+      <div class="mini-item">🧩 <span><strong>Sem sobrescrever lista:</strong> os cards são criados visualmente a partir do Painel; só o controle editado é salvo.</span></div>
+      <div class="mini-item">📌 <span><strong>Próximo passo obrigatório:</strong> sempre deixe claro quem cobra, o que falta e qual prazo.</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="content">
+  <div class="kanban" id="kanban"></div>
+</main>
+
+<section class="print-list" id="printList"></section>
+
+<div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <h2 id="modalTitle">Empresa</h2>
+        <p id="modalSubtitle">Controle de recebimento</p>
+      </div>
+      <button type="button" class="btn ghost" id="btnCloseModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Status</label><select id="mStatus"></select></div>
+        <div class="field"><label>Movimento</label><select id="mMovimento"><option value="nao_informado">Não informado</option><option value="com_movimento">Com movimento</option><option value="sem_movimento">Sem movimento</option></select></div>
+        <div class="field"><label>Prazo</label><input id="mPrazo" type="date" /></div>
+        <div class="field"><label>Data solicitação</label><input id="mSolicitacao" type="date" /></div>
+        <div class="field"><label>Última cobrança</label><input id="mUltimaCobranca" type="date" /></div>
+        <div class="field"><label>Contato do cliente</label><input id="mContato" placeholder="Nome / WhatsApp / e-mail" /></div>
+      </div>
+      <div class="section-title">Documentos recebidos</div>
+      <div class="docs-grid" id="docsGrid"></div>
+      <div class="section-title">Acompanhamento</div>
+      <div class="form-grid one">
+        <div class="field full"><label>Próximo passo</label><textarea id="mProximo" rows="2" placeholder="Ex.: Cobrar extrato e XML de entradas até sexta-feira"></textarea></div>
+        <div class="field full"><label>Pendência</label><textarea id="mPendencia" rows="2" placeholder="O que está travando o fechamento?"></textarea></div>
+        <div class="field full"><label>Observações</label><textarea id="mObs" rows="3" placeholder="Histórico rápido, particularidades, combinados..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="btnCopyWhatsapp">💬 Copiar WhatsApp</button>
+      <button type="button" class="btn" id="btnCopyEmail">✉️ Copiar e-mail</button>
+      <button type="button" class="btn warn" id="btnMarkSolicitado">Marcar solicitado</button>
+      <button type="button" class="btn ok" id="btnMarkCompleto">Marcar completo</button>
+      <button type="button" class="btn ghost" id="btnMarkSemMov">Sem movimento</button>
+      <button type="button" class="btn primary" id="btnSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLABORADOR_ALVO = 'ALEF';
+const CONTROLES_PATH = 'bif_controle_recebimento_movimentos';
+const CACHE_KEY = 'bif_controle_recebimento_movimentos_v1';
+const PAINEL_CACHE_KEY = 'gestao_v3';
+
+const FALLBACK_ALEF_EMPRESAS = [
+  {
+    "nome": "C. CAMARGO & POLASTRI LTDA",
+    "cnpj": "18011915000168",
+    "colaborador": "ALEF",
+    "atividade": "Aluguel de imóveis próprios (6810202)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": [
+      {
+        "nome": "SPED Contribuições",
+        "status": "pendente",
+        "vencimento": ""
+      }
+    ]
+  },
+  {
+    "nome": "MFJ CAMPOS CAMARGO ADMINISTRACAO DE BENS PROPRIOS LTDA",
+    "cnpj": "64277948000171",
+    "colaborador": "ALEF",
+    "atividade": "Aluguel de imóveis próprios (6810202)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "OCCHIALINI FREIRE HOLDING LTDA",
+    "cnpj": "64736056000191",
+    "colaborador": "ALEF",
+    "atividade": "Aluguel de imóveis próprios (6810202)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "R. J. SAMPAIO DE ALMEIDA LTDA",
+    "cnpj": "66652630000159",
+    "colaborador": "ALEF",
+    "atividade": "Atividade médica ambulatorial restrita a consultas (8630503)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "FOM LEILOES LTDA",
+    "cnpj": "61853316000110",
+    "colaborador": "ALEF",
+    "atividade": "Atividades de intermediação e agenciamento de serviços e negócios em geral, exceto imobiliários (7490104)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "GALPAO LC EMBALAGENS LTDA",
+    "cnpj": "26214776000106",
+    "colaborador": "ALEF",
+    "atividade": "Comércio atacadista de embalagens (4686902)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "DANIEL MARTINS DE SIQUEIRA - GUAREI",
+    "cnpj": "03872871000193",
+    "colaborador": "ALEF",
+    "atividade": "Comércio varejista de combustíveis para veículos automotores (4731800)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "ACEP EMPREENDIMENTOS IMOB LTDA",
+    "cnpj": "65731707000113",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "DPF EMPREENDIMENTOS & PARTICIPACOES LTDA",
+    "cnpj": "37350182000130",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "FREFER OCCHIALINI AGROPECUARIA LTDA",
+    "cnpj": "66776097000137",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "M.S. ROMAGNOLO EMPREEND.",
+    "cnpj": "11490868000133",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": [
+      {
+        "nome": "SPED Contribuições",
+        "status": "pendente",
+        "vencimento": ""
+      }
+    ]
+  },
+  {
+    "nome": "MAGGIORE EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "cnpj": "63789312000146",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "NELSON - NOVA QUADRA",
+    "cnpj": "45196536000162",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "NOTIKOS PARTICIPACOES E GESTAO PATRIMONIAL LTDA",
+    "cnpj": "58138259000183",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "OCCHIALINI EMPREEND. IMOBI LTDA",
+    "cnpj": "35783871000103",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "RIBEIRO BRANCO EMPREENDIMENTOS",
+    "cnpj": "49507538000186",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "T R V EMPREENDIMENTOS E PARTICIPAÇÕES LTDA",
+    "cnpj": "54581448000175",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "real",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "TL EMPREENDIMENTOS E PARTICIPACOES LTDA",
+    "cnpj": "51074518000100",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "WB EMPREENDIMENTOS LTDA",
+    "cnpj": "50780808000107",
+    "colaborador": "ALEF",
+    "atividade": "Compra e venda de imóveis próprios (6810201)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "FBF EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "cnpj": "22484605000138",
+    "colaborador": "ALEF",
+    "atividade": "Criação de eqüinos (152102)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "GDO PRE-MOLDADOS LTDA.",
+    "cnpj": "43640489000179",
+    "colaborador": "ALEF",
+    "atividade": "Fabricação de artefatos de cimento para uso na construção (2330302)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "Grandino - GRANDINO PRE MOLDADOS - FILIAL 2",
+    "cnpj": "65413486000216",
+    "colaborador": "ALEF",
+    "atividade": "Fabricação de artefatos de cimento para uso na construção (2330302)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "GRANDINO PRE-MOLDADOS LTDA",
+    "cnpj": "65413486000135",
+    "colaborador": "ALEF",
+    "atividade": "Fabricação de outros artefatos e produtos de concreto, cimento, fibrocimento, gesso e materiais semelhantes (2330399)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "J. SÁ HOLDING",
+    "cnpj": "56174480000161",
+    "colaborador": "ALEF",
+    "atividade": "Holdings de instituições não-financeiras (6462000)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "HOTEL DEL FIOL LTDA",
+    "cnpj": "00229295000172",
+    "colaborador": "ALEF",
+    "atividade": "Hotéis (5510801)",
+    "regime": "real",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": [
+      {
+        "nome": "SPED ICMS/IPI | SPED Contribuições | DCTFWeb",
+        "status": "pendente",
+        "vencimento": ""
+      }
+    ]
+  },
+  {
+    "nome": "LABORATORIO CAMPOS",
+    "cnpj": "46898219000150",
+    "colaborador": "ALEF",
+    "atividade": "Laboratórios clínicos (8640202)",
+    "regime": "real",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "Lidiane - DUARTE METAIS",
+    "cnpj": "42059706000179",
+    "colaborador": "ALEF",
+    "atividade": "Metalurgia dos metais preciosos (2442300)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "JUVENAL 430 LTDA",
+    "cnpj": "65054506000129",
+    "colaborador": "ALEF",
+    "atividade": "Restaurantes e similares (5611201)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "FOM ASSESSORIA LTDA",
+    "cnpj": "57207428000127",
+    "colaborador": "ALEF",
+    "atividade": "Serviços de organização de feiras, congressos, exposições e festas (8230001)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "NSC NOVESETE COMUNICACAO LTDA",
+    "cnpj": "03009199000107",
+    "colaborador": "ALEF",
+    "atividade": "Serviços de organização de feiras, congressos, exposições e festas (8230001)",
+    "regime": "presumido",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  },
+  {
+    "nome": "TATIANA LOPES TREINAMENTOS",
+    "cnpj": "65202077000190",
+    "colaborador": "ALEF",
+    "atividade": "Treinamento em desenvolvimento profissional e gerencial (8599604)",
+    "regime": "simples",
+    "categoriaEmpresa": "empresa",
+    "fechada": false,
+    "obrigacoes": []
+  }
+];
+
+const STATUS = [
+  {id:'aguardando', label:'Caixa de entrada', hint:'Sem solicitação registrada'},
+  {id:'solicitado', label:'Solicitado ao cliente', hint:'Aguardando envio'},
+  {id:'parcial', label:'Recebido parcial', hint:'Ainda falta documento'},
+  {id:'completo', label:'Recebido completo', hint:'Material recebido'},
+  {id:'pendencia', label:'Pendência', hint:'Precisa de ação/cobrança'},
+  {id:'sem_movimento', label:'Sem movimento', hint:'Cliente confirmou ausência'},
+  {id:'conferido', label:'Conferido / pronto', hint:'Validado para fechamento'}
+];
+
+const DOCS = [
+  {id:'xmlEntrada', label:'XML/NF-e entradas', hint:'Compras, CT-e, devoluções'},
+  {id:'xmlSaida', label:'XML/NF-e saídas', hint:'Vendas e devoluções'},
+  {id:'nfse', label:'NFS-e', hint:'Tomadas/prestadas'},
+  {id:'extrato', label:'Extrato bancário', hint:'Conta PJ / conciliação'},
+  {id:'cartoes', label:'Cartões / marketplace', hint:'Stone, Cielo, Mercado Pago etc.'},
+  {id:'comprovantes', label:'Comprovantes / guias', hint:'Pagamentos e impostos'},
+  {id:'folha', label:'Folha / pró-labore', hint:'Eventos e recibos'},
+  {id:'outros', label:'Outros documentos', hint:'Contratos, recibos, relatórios'}
+];
+
+const state = {
+  empresas: [],
+  movimentos: {},
+  competencia: '',
+  search: '',
+  statusFilter: '',
+  docFilter: '',
+  prazoFilter: '',
+  currentKey: null,
+  firebaseReady: false,
+  database: null,
+  movimentosUnsub: null,
+  empresasUnsub: null,
+  authUser: null,
+  dataSource: 'inicial'
+};
+
+function qs(id) { return document.getElementById(id); }
+function digits(v) { return String(v || '').replace(/\D/g,''); }
+function norm(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().trim(); }
+function esc(v) { return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function todayISO() { return new Date().toISOString().slice(0,10); }
+function currentMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function compLabel(v) { if(!v) return ''; const [y,m] = v.split('-'); return `${m}/${y}`; }
+function moneylessDate(v) { if(!v) return ''; const [y,m,d] = String(v).split('-'); return d&&m&&y ? `${d}/${m}/${y}` : v; }
+function cnpjFmt(v) { const n=digits(v); if(n.length!==14) return v||''; return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'); }
+function statusInfo(id) { return STATUS.find(s => s.id === id) || STATUS[0]; }
+function regimeLabel(v) { return ({simples:'Simples Nacional', presumido:'Lucro Presumido', real:'Lucro Real', outros:'Outros'})[v] || v || 'Não informado'; }
+function recordKeyEmpresa(e) { return digits(e.cnpj) || String(e.id || e._fbKey || e.nome || '').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80); }
+function setCloudStatus(kind, msg) {
+  const icons = {ok:'☁️', loading:'⏳', error:'⚠️', offline:'📦', saving:'💾'};
+  const colors = {ok:'#00cec9', loading:'#e8c97a', error:'#ff7675', offline:'#fdcb6e', saving:'#e8c97a'};
+  const el = qs('cloudStatus');
+  if(el) { el.textContent = `${icons[kind] || '☁️'} ${msg}`; el.style.color = colors[kind] || '#e8c97a'; }
+}
+function toast(msg, type='ok') {
+  const el = qs('toast');
+  el.className = `toast ${type} show`;
+  el.textContent = msg;
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function normalizeEmpresa(e) {
+  e = e || {};
+  const colaborador = e.colaborador || e.colaboradorResponsavel || e.responsavelFiscal || e.responsavel || e.responsavelResponsavel || e.usuarioResponsavel || e.owner || '';
+  return {
+    ...e,
+    nome: e.nome || e.razaoSocial || e.razao_social || e.empresa || e.nomeEmpresa || 'Empresa sem nome',
+    cnpj: digits(e.cnpj || e.CNPJ || e.cnpjCpf || e.documento || ''),
+    colaborador,
+    regime: e.regime || e.regimeTributario || 'outros',
+    atividade: e.atividade || e.atividadeEconomica || e.atividade_economica || e.cnaeDescricao || e.cnae || '',
+    fechada: !!e.fechada || !!e.baixada || String(e.statusEmpresa || e.status || '').toLowerCase().includes('fechada') || String(e.nome || '').toLowerCase().includes('baixada'),
+    obrigacoes: Array.isArray(e.obrigacoes) ? e.obrigacoes : []
+  };
+}
+
+function isAlef(e) { return norm(e.colaborador).includes('ALEF'); }
+
+function normalizeRecord(r, empresa) {
+  const docs = {};
+  DOCS.forEach(d => docs[d.id] = !!(r && r.docs && r.docs[d.id]));
+  return {
+    empresaKey: recordKeyEmpresa(empresa),
+    empresaNome: empresa.nome || '',
+    cnpj: digits(empresa.cnpj || ''),
+    regime: empresa.regime || 'outros',
+    atividade: empresa.atividade || '',
+    colaborador: empresa.colaborador || COLABORADOR_ALVO,
+    competencia: state.competencia,
+    status: (r && r.status) || 'aguardando',
+    movimento: (r && r.movimento) || 'nao_informado',
+    docs,
+    prazo: (r && r.prazo) || '',
+    dataSolicitacao: (r && r.dataSolicitacao) || '',
+    ultimaCobranca: (r && r.ultimaCobranca) || '',
+    contato: (r && r.contato) || '',
+    proximoPasso: (r && r.proximoPasso) || '',
+    pendencia: (r && r.pendencia) || '',
+    observacoes: (r && r.observacoes) || '',
+    updatedAt: (r && r.updatedAt) || ''
+  };
+}
+
+function localRead() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}') || {}; } catch(e) { return {}; }
+}
+function localWrite() {
+  const old = localRead();
+  old.lastCompetencia = state.competencia;
+  old.movimentos = old.movimentos || {};
+  old.movimentos[state.competencia] = state.movimentos || {};
+  old.savedAt = new Date().toISOString();
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(old)); } catch(e) { console.warn('Cache local cheio/indisponível', e); }
+}
+function loadLocalForCompetencia(comp) {
+  const cache = localRead();
+  return cache.movimentos && cache.movimentos[comp] ? cache.movimentos[comp] : {};
+}
+function loadPainelCacheEmpresas() {
+  try {
+    const raw = localStorage.getItem(PAINEL_CACHE_KEY);
+    if(!raw) return [];
+    const d = JSON.parse(raw);
+    return Array.isArray(d.empresas) ? d.empresas.map(normalizeEmpresa).filter(isAlef) : [];
+  } catch(e) { return []; }
+}
+
+function mergeEmpresas(...fontes) {
+  const out = [];
+  const seen = new Set();
+  fontes.flat().filter(Boolean).forEach(x => {
+    const e = normalizeEmpresa(x);
+    const key = recordKeyEmpresa(e);
+    if(!key || seen.has(key) || !isAlef(e)) return;
+    seen.add(key);
+    out.push(e);
+  });
+  return out.sort((a,b) => String(a.nome).localeCompare(String(b.nome), 'pt-BR'));
+}
+
+function useFallbackEmpresas(reason) {
+  state.movimentos = loadLocalForCompetencia(state.competencia);
+  const fromLocal = loadPainelCacheEmpresas();
+  state.empresas = mergeEmpresas(fromLocal, FALLBACK_ALEF_EMPRESAS);
+  state.dataSource = fromLocal.length ? 'cache do Painel' : 'base de segurança embutida';
+  setCloudStatus('offline', `${reason} • ${state.empresas.length} empresas Alef em cache`);
+  renderAll();
+}
+
+function getEmpresaByKey(key) { return state.empresas.find(e => recordKeyEmpresa(e) === key); }
+function getRecord(key) {
+  const emp = getEmpresaByKey(key) || {};
+  return normalizeRecord(state.movimentos[key] || {}, emp);
+}
+function missingDocs(rec) { return DOCS.filter(d => !rec.docs[d.id]); }
+function isConcluido(rec) { return ['completo','sem_movimento','conferido'].includes(rec.status); }
+function isAtrasado(rec) { return !!rec.prazo && !isConcluido(rec) && rec.prazo < todayISO(); }
+function prazoBucket(rec) {
+  if(!rec.prazo) return 'sem_prazo';
+  if(rec.prazo < todayISO()) return 'atrasado';
+  if(rec.prazo === todayISO()) return 'hoje';
+  const d = new Date(todayISO()); d.setDate(d.getDate()+7);
+  if(rec.prazo <= d.toISOString().slice(0,10)) return '7dias';
+  return 'futuro';
+}
+
+function filteredItems() {
+  const q = norm(state.search);
+  return state.empresas.map(e => { const key = recordKeyEmpresa(e); return { empresa:e, key, rec:getRecord(key) }; })
+    .filter(item => {
+      const {empresa:e, rec} = item;
+      if(state.statusFilter && rec.status !== state.statusFilter) return false;
+      if(state.docFilter === 'faltando' && (missingDocs(rec).length === 0 || isConcluido(rec))) return false;
+      if(state.docFilter && state.docFilter !== 'faltando' && rec.docs[state.docFilter]) return false;
+      if(state.prazoFilter && prazoBucket(rec) !== state.prazoFilter) return false;
+      if(q) {
+        const blob = norm([e.nome,e.cnpj,e.atividade,e.regime,e.colaborador,rec.status,rec.proximoPasso,rec.pendencia,rec.observacoes,rec.contato].join(' '));
+        if(!blob.includes(q)) return false;
+      }
+      return true;
+    });
+}
+
+function renderAll() { renderKpis(); renderKanban(); renderPrintList(); }
+function renderKpis() {
+  const items = state.empresas.map(e => getRecord(recordKeyEmpresa(e)));
+  qs('kpiTotal').textContent = state.empresas.length;
+  qs('kpiAguardando').textContent = items.filter(r => r.status === 'aguardando').length;
+  qs('kpiAndamento').textContent = items.filter(r => ['solicitado','parcial'].includes(r.status)).length;
+  qs('kpiConcluido').textContent = items.filter(isConcluido).length;
+  qs('kpiPendencia').textContent = items.filter(r => r.status === 'pendencia' || r.pendencia.trim()).length;
+  qs('kpiAtrasado').textContent = items.filter(isAtrasado).length;
+}
+
+function renderKanban() {
+  const host = qs('kanban');
+  const items = filteredItems();
+  host.innerHTML = STATUS.map(st => {
+    const colItems = items.filter(x => x.rec.status === st.id);
+    const cards = colItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">Nenhuma empresa nesta coluna.</div>`;
+    return `<section class="column" data-status="${st.id}">
+      <div class="col-head"><div class="col-title"><b>${esc(st.label)}</b><span>${esc(st.hint)}</span></div><span class="count">${colItems.length}</span></div>
+      <div class="cards">${cards}</div>
+    </section>`;
+  }).join('');
+}
+
+function renderCard(e, key, rec) {
+  const miss = missingDocs(rec);
+  const missChips = rec.status === 'sem_movimento' ? '<span class="chip ok">Sem movimento</span>' : (miss.slice(0,3).map(d => `<span class="chip missing">${esc(d.label)}</span>`).join('') + (miss.length>3 ? `<span class="chip missing">+${miss.length-3}</span>` : ''));
+  const prazoClass = isAtrasado(rec) ? 'danger' : (rec.prazo ? '' : 'missing');
+  const proximo = rec.proximoPasso || (rec.status === 'aguardando' ? 'Solicitar movimento/documentos da competência' : 'Sem próximo passo informado');
+  return `<article class="card" data-key="${esc(key)}" onclick="openModal('${esc(key)}')">
+    <div class="card-top"><h3>${esc(e.nome)}</h3><span class="badge ${rec.status}">${esc(statusInfo(rec.status).label)}</span></div>
+    <div class="meta">
+      <div><span>🏷️</span><span>${esc(cnpjFmt(e.cnpj) || 'CNPJ não informado')}</span></div>
+      <div><span>📌</span><span>${esc(e.atividade || 'Atividade não informada')}</span></div>
+      <div><span>🧾</span><span>${esc(regimeLabel(e.regime))}</span></div>
+      <div><span>⏱️</span><span class="${prazoClass}">Prazo: ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span></div>
+      <div><span>➡️</span><span>${esc(proximo)}</span></div>
+      ${rec.pendencia ? `<div><span>⚠️</span><span>${esc(rec.pendencia)}</span></div>` : ''}
+    </div>
+    <div class="chips">${missChips || '<span class="chip ok">Documentos marcados</span>'}${isAtrasado(rec) ? '<span class="chip danger">Atrasado</span>' : ''}</div>
+    <div class="card-actions">
+      <button type="button" class="btn" onclick="event.stopPropagation(); openModal('${esc(key)}')">Abrir</button>
+      <button type="button" class="btn ok" onclick="event.stopPropagation(); quickCopy('${esc(key)}')">Copiar cobrança</button>
+    </div>
+  </article>`;
+}
+
+function renderPrintList() {
+  const items = filteredItems();
+  const rows = items.map((x,i) => {
+    const r=x.rec, e=x.empresa; const miss=missingDocs(r).map(d=>d.label).join(', ');
+    return `<tr><td>${i+1}</td><td><b>${esc(e.nome)}</b><br><span class="print-small">${esc(cnpjFmt(e.cnpj))}</span></td><td>${esc(e.atividade||'')}</td><td>${esc(statusInfo(r.status).label)}</td><td>${esc(moneylessDate(r.prazo)||'')}</td><td>${esc(miss || 'OK / não aplicável')}</td><td>${esc(r.proximoPasso||'')}</td><td>${esc(r.pendencia||'')}</td></tr>`;
+  }).join('');
+  qs('printList').innerHTML = `<div class="print-head"><h1>Controle de recebimento de movimento/documentos — Alef</h1><p>Competência: ${esc(compLabel(state.competencia))} • Total listado: ${items.length} • Gerado em ${new Date().toLocaleString('pt-BR')}</p></div><table><thead><tr><th>#</th><th>Empresa</th><th>Atividade</th><th>Status</th><th>Prazo</th><th>Documentos faltantes</th><th>Próximo passo</th><th>Pendência</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderDocsGrid(rec) {
+  qs('docsGrid').innerHTML = DOCS.map(d => `<label class="doc-item"><input type="checkbox" id="doc_${d.id}" ${rec.docs[d.id] ? 'checked' : ''} /><span><b>${esc(d.label)}</b><span>${esc(d.hint)}</span></span></label>`).join('');
+}
+
+function renderStatusOptions() {
+  qs('mStatus').innerHTML = STATUS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
+}
+
+function openModal(key) {
+  state.currentKey = key;
+  const e = getEmpresaByKey(key);
+  if(!e) return toast('Empresa não encontrada no Painel.', 'err');
+  const rec = getRecord(key);
+  renderStatusOptions();
+  qs('modalTitle').textContent = e.nome || 'Empresa';
+  qs('modalSubtitle').textContent = `${cnpjFmt(e.cnpj)} • ${e.atividade || 'atividade não informada'} • ${regimeLabel(e.regime)}`;
+  qs('mStatus').value = rec.status;
+  qs('mMovimento').value = rec.movimento;
+  qs('mPrazo').value = rec.prazo;
+  qs('mSolicitacao').value = rec.dataSolicitacao;
+  qs('mUltimaCobranca').value = rec.ultimaCobranca;
+  qs('mContato').value = rec.contato;
+  qs('mProximo').value = rec.proximoPasso;
+  qs('mPendencia').value = rec.pendencia;
+  qs('mObs').value = rec.observacoes;
+  renderDocsGrid(rec);
+  qs('modalOverlay').classList.add('open');
+  qs('modalOverlay').setAttribute('aria-hidden','false');
+}
+window.openModal = openModal;
+
+function closeModal() {
+  qs('modalOverlay').classList.remove('open');
+  qs('modalOverlay').setAttribute('aria-hidden','true');
+  state.currentKey = null;
+}
+
+function collectModalRecord(extra={}) {
+  const key = state.currentKey;
+  const emp = getEmpresaByKey(key);
+  const old = getRecord(key);
+  const docs = {}; DOCS.forEach(d => docs[d.id] = !!qs(`doc_${d.id}`)?.checked);
+  return normalizeRecord({
+    ...old,
+    status: qs('mStatus').value,
+    movimento: qs('mMovimento').value,
+    docs,
+    prazo: qs('mPrazo').value,
+    dataSolicitacao: qs('mSolicitacao').value,
+    ultimaCobranca: qs('mUltimaCobranca').value,
+    contato: qs('mContato').value.trim(),
+    proximoPasso: qs('mProximo').value.trim(),
+    pendencia: qs('mPendencia').value.trim(),
+    observacoes: qs('mObs').value.trim(),
+    ...extra,
+    updatedAt: new Date().toISOString()
+  }, emp);
+}
+
+async function saveRecord(key, record) {
+  if(!key || !record || !record.empresaNome) return toast('Registro inválido: não foi salvo.', 'err');
+  state.movimentos[key] = record;
+  localWrite();
+  renderAll();
+  if(state.firebaseReady && state.database) {
+    setCloudStatus('saving', 'Salvando controle...');
+    try {
+      const { ref, update } = window.__firebaseFns;
+      await update(ref(state.database, `${CONTROLES_PATH}/${state.competencia}/${key}`), record);
+      localWrite();
+      setCloudStatus('ok', `Nuvem sincronizada • ${state.empresas.length} empresas Alef`);
+      return true;
+    } catch(e) {
+      console.error(e);
+      setCloudStatus('error', 'Falha ao salvar no Firebase • cache local preservado');
+      toast('Salvei no cache local, mas não consegui enviar à nuvem.', 'warn');
+      return false;
+    }
+  } else {
+    setCloudStatus('offline', 'Firebase indisponível • salvo no cache local');
+    return false;
+  }
+}
+
+async function saveFromModal(extra={}) {
+  if(!state.currentKey) return;
+  const rec = collectModalRecord(extra);
+  await saveRecord(state.currentKey, rec);
+  toast('Controle salvo.', 'ok');
+}
+
+function buildMessage(key, mode='whatsapp') {
+  const e = getEmpresaByKey(key); const rec = getRecord(key);
+  const faltando = missingDocs(rec).map(d => d.label);
+  const comp = compLabel(state.competencia);
+  const prazo = rec.prazo ? ` até ${moneylessDate(rec.prazo)}` : '';
+  const pend = faltando.length ? faltando.join('; ') : 'confirmação do movimento da competência';
+  if(mode === 'email') {
+    return `Assunto: Solicitação de movimento e documentos — competência ${comp} — ${e.nome}\n\nOlá, tudo bem?\n\nPara darmos andamento ao fechamento da competência ${comp} da empresa ${e.nome}, pedimos o envio ou confirmação dos seguintes itens${prazo}:\n\n- ${pend.replace(/; /g, '\n- ')}\n\nCaso a empresa esteja sem movimento na competência, por favor confirme expressamente por esta mensagem.\n\nFicamos à disposição.\nObrigado.`;
+  }
+  return `Olá! Tudo bem?\n\nPara fecharmos a competência ${comp} da empresa *${e.nome}*, poderia enviar ou confirmar os itens abaixo${prazo}?\n\n• ${pend.replace(/; /g, '\n• ')}\n\nSe a empresa ficou sem movimento, pode responder confirmando “sem movimento” para esta competência. Obrigado!`;
+}
+async function copyText(txt) {
+  try { await navigator.clipboard.writeText(txt); toast('Texto copiado.', 'ok'); }
+  catch(e) {
+    const ta = document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Texto copiado.', 'ok');
+  }
+}
+function quickCopy(key) { copyText(buildMessage(key, 'whatsapp')); }
+window.quickCopy = quickCopy;
+
+function exportCSV() {
+  const items = filteredItems();
+  const head = ['Competência','Empresa','CNPJ','Atividade','Regime','Status','Movimento','Prazo','Data solicitação','Última cobrança','Contato','Docs faltantes','Próximo passo','Pendência','Observações'];
+  const rows = items.map(x => {
+    const e=x.empresa,r=x.rec;
+    return [compLabel(state.competencia),e.nome,cnpjFmt(e.cnpj),e.atividade,regimeLabel(e.regime),statusInfo(r.status).label,r.movimento,moneylessDate(r.prazo),moneylessDate(r.dataSolicitacao),moneylessDate(r.ultimaCobranca),r.contato,missingDocs(r).map(d=>d.label).join(' | '),r.proximoPasso,r.pendencia,r.observacoes];
+  });
+  const csv = [head, ...rows].map(row => row.map(v => `"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\n');
+  downloadBlob(csv, `controle_movimento_alef_${state.competencia}.csv`, 'text/csv;charset=utf-8');
+}
+function backupJSON() {
+  const payload = { competencia: state.competencia, empresas: state.empresas, movimentos: state.movimentos, generatedAt: new Date().toISOString() };
+  downloadBlob(JSON.stringify(payload,null,2), `backup_controle_movimento_alef_${state.competencia}.json`, 'application/json;charset=utf-8');
+}
+function downloadBlob(content, name, type) {
+  const blob = new Blob([content], {type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),500);
+}
+
+function cobrancaGeral() {
+  const items = filteredItems().filter(x => !isConcluido(x.rec));
+  const linhas = items.slice(0,25).map(x => `• ${x.empresa.nome} — ${statusInfo(x.rec.status).label}${x.rec.prazo ? ' — prazo '+moneylessDate(x.rec.prazo) : ''}${x.rec.pendencia ? ' — pendência: '+x.rec.pendencia : ''}`).join('\n');
+  const more = items.length > 25 ? `\n• ... +${items.length-25} empresa(s)` : '';
+  copyText(`Controle de recebimento — Alef — competência ${compLabel(state.competencia)}\n\nEmpresas que ainda precisam de ação:\n${linhas || 'Nenhuma pendência no filtro atual.'}${more}`);
+}
+
+function bindEvents() {
+  qs('competencia').value = state.competencia;
+  qs('competencia').addEventListener('change', () => { state.competencia = qs('competencia').value || currentMonth(); localWrite(); watchMovimentos(); renderAll(); });
+  qs('search').addEventListener('input', e => { state.search = e.target.value; renderAll(); });
+  qs('statusFilter').addEventListener('change', e => { state.statusFilter = e.target.value; renderAll(); });
+  qs('docFilter').addEventListener('change', e => { state.docFilter = e.target.value; renderAll(); });
+  qs('prazoFilter').addEventListener('change', e => { state.prazoFilter = e.target.value; renderAll(); });
+  qs('btnPrint').addEventListener('click', () => { renderPrintList(); window.print(); });
+  qs('btnExport').addEventListener('click', exportCSV);
+  qs('btnBackup').addEventListener('click', backupJSON);
+  qs('btnReload').addEventListener('click', () => location.reload());
+  qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
+  qs('btnCloseModal').addEventListener('click', closeModal);
+  qs('modalOverlay').addEventListener('click', e => { if(e.target.id === 'modalOverlay') closeModal(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+  qs('btnSave').addEventListener('click', () => saveFromModal());
+  qs('btnMarkSolicitado').addEventListener('click', async () => { qs('mStatus').value='solicitado'; if(!qs('mSolicitacao').value) qs('mSolicitacao').value=todayISO(); await saveFromModal(); });
+  qs('btnMarkCompleto').addEventListener('click', async () => { qs('mStatus').value='completo'; DOCS.forEach(d => { const el=qs(`doc_${d.id}`); if(el) el.checked=true; }); await saveFromModal({pendencia:''}); });
+  qs('btnMarkSemMov').addEventListener('click', async () => { qs('mStatus').value='sem_movimento'; qs('mMovimento').value='sem_movimento'; await saveFromModal({pendencia:'', proximoPasso:'Confirmar/arquivar declaração de sem movimento da competência.'}); });
+  qs('btnCopyWhatsapp').addEventListener('click', () => { if(state.currentKey) copyText(buildMessage(state.currentKey, 'whatsapp')); });
+  qs('btnCopyEmail').addEventListener('click', () => { if(state.currentKey) copyText(buildMessage(state.currentKey, 'email')); });
+}
+
+function watchMovimentos() {
+  if(state.movimentosUnsub) { try { state.movimentosUnsub(); } catch(e) {} state.movimentosUnsub = null; }
+  if(!state.firebaseReady || !state.database) {
+    state.movimentos = loadLocalForCompetencia(state.competencia);
+    renderAll();
+    return;
+  }
+  const { ref, onValue } = window.__firebaseFns;
+  setCloudStatus('loading', `Carregando controles ${compLabel(state.competencia)}...`);
+  state.movimentosUnsub = onValue(ref(state.database, `${CONTROLES_PATH}/${state.competencia}`), snap => {
+    const data = snap.exists() ? (snap.val() || {}) : {};
+    const hasCloudData = data && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length > 0;
+    if(hasCloudData) {
+      state.movimentos = data;
+      localWrite();
+    } else {
+      state.movimentos = loadLocalForCompetencia(state.competencia);
+    }
+    setCloudStatus('ok', `Nuvem sincronizada • ${state.empresas.length} empresas Alef`);
+    renderAll();
+  }, err => {
+    console.error(err);
+    state.movimentos = loadLocalForCompetencia(state.competencia);
+    setCloudStatus('error', 'Erro nos controles • usando cache local');
+    renderAll();
+  });
+}
+
+function attachEmpresasFirebase() {
+  if(!state.firebaseReady || !state.database) { useFallbackEmpresas('Firebase indisponível'); return; }
+  const { ref, onValue } = window.__firebaseFns;
+  setCloudStatus('loading', 'Lendo empresas do Painel...');
+  let received = false;
+  state.empresasUnsub = onValue(ref(state.database, 'painel/empresas'), snap => {
+    received = true;
+    const list = [];
+    if(snap.exists()) snap.forEach(child => list.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() })));
+    const alefFirebase = list.filter(isAlef);
+    const alefCache = loadPainelCacheEmpresas();
+
+    // Correção importante:
+    // antes, se o Firebase retornasse 1 empresa do Alef, a página usava só essa 1 e ignorava o cache/base do Painel.
+    // agora a tela junta Firebase + cache local do Painel + base de segurança embutida, deduplicando por CNPJ.
+    state.empresas = mergeEmpresas(alefFirebase, alefCache, FALLBACK_ALEF_EMPRESAS);
+
+    if(state.empresas.length) {
+      state.dataSource = alefFirebase.length
+        ? `Firebase / painel/empresas + complemento do Painel (${alefFirebase.length} na nuvem)`
+        : 'cache/base do Painel';
+      try {
+        const old = JSON.parse(localStorage.getItem(PAINEL_CACHE_KEY) || '{}');
+        // Não grava uma leitura parcial por cima do cache completo do Painel.
+        // Se o Firebase trouxe menos empresas que o cache já existente, preserva o cache antigo.
+        if(Array.isArray(list) && list.length && (!Array.isArray(old.empresas) || list.length >= old.empresas.length)) {
+          old.empresas = list;
+          localStorage.setItem(PAINEL_CACHE_KEY, JSON.stringify(old));
+        }
+      } catch(e) {}
+      const aviso = alefFirebase.length && alefFirebase.length < state.empresas.length
+        ? `Nuvem parcial: ${alefFirebase.length} • tela complementada para ${state.empresas.length} empresas Alef`
+        : `Nuvem sincronizada • ${state.empresas.length} empresas Alef`;
+      setCloudStatus('ok', aviso);
+    } else {
+      useFallbackEmpresas('Nenhuma empresa Alef encontrada');
+    }
+    renderAll();
+  }, err => {
+    received = true;
+    console.error(err);
+    useFallbackEmpresas('Erro ao ler Painel');
+  });
+  setTimeout(() => { if(!received && !state.empresas.length) useFallbackEmpresas('Aguardando login/conexão'); }, 3500);
+}
+
+async function bootFirebase() {
+  try {
+    const appMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const dbMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    window.__firebaseFns = { ref: dbMod.ref, update: dbMod.update, onValue: dbMod.onValue, get: dbMod.get };
+    const firebaseConfig = {
+      apiKey: 'AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0',
+      authDomain: 'portal-treinamentos-lang.firebaseapp.com',
+      databaseURL: 'https://portal-treinamentos-lang-default-rtdb.firebaseio.com',
+      projectId: 'portal-treinamentos-lang',
+      storageBucket: 'portal-treinamentos-lang.firebasestorage.app',
+      messagingSenderId: '1049839891406',
+      appId: '1:1049839891406:web:c5874166bdbee74139f19f'
+    };
+    const app = appMod.initializeApp(firebaseConfig);
+    state.database = dbMod.getDatabase(app);
+    const auth = authMod.getAuth(app);
+    authMod.onAuthStateChanged(auth, user => {
+      state.authUser = user || null;
+      state.firebaseReady = true;
+      if(!user) setCloudStatus('offline', 'Sem login • tentando leitura/cache');
+      attachEmpresasFirebase();
+      watchMovimentos();
+    });
+  } catch(e) {
+    console.error(e);
+    state.firebaseReady = false;
+    useFallbackEmpresas('Firebase não carregou');
+    watchMovimentos();
+  }
+}
+
+function init() {
+  const cache = localRead();
+  state.competencia = cache.lastCompetencia || currentMonth();
+  state.movimentos = {};
+  state.empresas = [];
+  bindEvents();
+  renderStatusOptions();
+  renderAll();
+  bootFirebase();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
