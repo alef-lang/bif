@@ -63,15 +63,18 @@ select option{background:#1b2e42;color:#e8eaf0}
 .mini-item{display:flex;gap:8px;align-items:flex-start;border:1px solid rgba(201,168,76,.14);background:rgba(255,255,255,.03);border-radius:12px;padding:9px 10px;color:var(--muted);font-size:12px;line-height:1.35}
 .mini-item strong{color:var(--text)}
 .content{padding:16px 22px 28px}
-.kanban{display:grid;grid-template-columns:repeat(7,minmax(250px,1fr));gap:12px;align-items:start;overflow-x:auto;padding-bottom:8px}
-.column{background:rgba(27,46,66,.82);border:1px solid var(--line);border-radius:var(--radius);min-height:430px;display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden}
-.col-head{padding:12px 13px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.kanban{display:grid;grid-template-columns:repeat(7,minmax(220px,1fr));gap:12px;align-items:start;padding-bottom:8px}
+.column{background:rgba(27,46,66,.82);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .18s,border-color .18s}
+.column.drag-over{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.35),var(--shadow)}
+.col-head{padding:12px 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .col-title b{display:block;font-family:var(--font-title);font-size:13px;color:var(--text);line-height:1.15}
 .col-title span{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
 .count{font-family:var(--font-mono);font-size:11px;color:var(--gold2);border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:rgba(201,168,76,.08)}
-.cards{display:flex;flex-direction:column;gap:9px;padding:10px;overflow-y:auto;max-height:calc(100vh - 390px);min-height:350px}
-.card{background:var(--card2);border:1.5px solid rgba(255,255,255,.07);border-radius:15px;padding:10px 11px;transition:.18s;cursor:pointer}
-.card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.cards{display:flex;flex-direction:column;gap:10px;padding:10px}
+.card{background:var(--card2);border:1.5px solid rgba(255,255,255,.07);border-radius:15px;padding:11px 12px;transition:.18s;cursor:grab;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box}
+.card:hover{border-color:var(--gold);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.card.dragging{opacity:.35;cursor:grabbing;border-color:var(--gold);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.card-ghost{background:rgba(201,168,76,.07);border:1.5px dashed rgba(201,168,76,.35);border-radius:15px;aspect-ratio:1/1}
 .card-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}
 .card h3{font-size:12.3px;line-height:1.25;font-weight:800;color:var(--text)}
 .badge{font-family:var(--font-mono);font-size:9px;border-radius:999px;padding:3px 7px;font-weight:700;border:1px solid;white-space:nowrap}
@@ -118,14 +121,14 @@ select option{background:#1b2e42;color:#e8eaf0}
 .toast.err{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10)}
 .toast.warn{color:var(--warn);border-color:rgba(253,203,110,.32);background:rgba(253,203,110,.10)}
 @media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:repeat(7,82vw)}}
+@media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:1fr}.card{aspect-ratio:auto;min-height:160px}}
 
 /* NOVO RECEBIMENTO */
 .company-preview{border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.065);border-radius:14px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.45;min-height:54px}
 .company-preview strong{display:block;color:var(--text);font-size:13px;margin-bottom:3px;line-height:1.25}
 .company-preview .preview-meta{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);display:grid;gap:2px}
 .company-preview .already{display:inline-flex;margin-top:7px;border:1px solid rgba(253,203,110,.32);background:rgba(253,203,110,.10);color:var(--warn);border-radius:999px;padding:3px 8px;font-family:var(--font-mono);font-size:10px;font-weight:700}
-.new-helper{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:-4px}
+.new-helper{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
 
 @media print{
   @page{size:A4 portrait;margin:12mm}
@@ -1025,19 +1028,22 @@ function mergeEmpresas(...sources) {
 function setEmpresasCompletas(reason, preferCloudStatus=true) {
   const fromLocal = loadPainelCacheEmpresas();
   // Quando o Firebase tem dados, ele é a fonte autoritativa para as empresas que ele conhece.
-  // O merge só usa o cache local como complemento para empresas que o Firebase não retornou
-  // (ex: offline parcial). Isso evita que dados velhos do cache sobreponham atualizações do Painel.
+  // Quando Firebase tem dados, TODAS as outras fontes têm suas entradas filtradas
+  // para remover CNPJs que o Firebase já retornou — cache local, fetch do index,
+  // bases embarcadas. Isso garante que qualquer mudança feita no Painel
+  // (troca de responsável, renome, etc.) prevaleça sobre qualquer dado estático.
   const firebaseKeys = new Set((state.firebaseEmpresas || []).map(e => recordKeyEmpresa(e)).filter(Boolean));
-  const localSemDuplicataFirebase = firebaseKeys.size > 0
-    ? fromLocal.filter(e => !firebaseKeys.has(recordKeyEmpresa(e)))
-    : fromLocal;
+  function semFirebaseKeys(lista) {
+    if (!firebaseKeys.size) return (lista || []);
+    return (lista || []).filter(e => !firebaseKeys.has(recordKeyEmpresa(e)));
+  }
   const allMerged = mergeEmpresasTodas(
     state.firebaseEmpresas,
-    state.indexEmpresas,
-    localSemDuplicataFirebase,
-    (typeof PAINEL_INDEX_TODAS_EMBARCADO !== 'undefined' ? PAINEL_INDEX_TODAS_EMBARCADO : []),
-    PAINEL_INDEX_ALEF_EMBARCADO,
-    FALLBACK_ALEF_EMPRESAS
+    semFirebaseKeys(state.indexEmpresas),
+    semFirebaseKeys(fromLocal),
+    semFirebaseKeys(typeof PAINEL_INDEX_TODAS_EMBARCADO !== 'undefined' ? PAINEL_INDEX_TODAS_EMBARCADO : []),
+    semFirebaseKeys(PAINEL_INDEX_ALEF_EMBARCADO),
+    semFirebaseKeys(FALLBACK_ALEF_EMPRESAS)
   );
   state.empresasTodas = allMerged;
   state.empresas = allMerged.filter(empresaPassaFiltroColaborador);
@@ -1220,9 +1226,12 @@ function renderKanban() {
   host.innerHTML = STATUS.map(st => {
     const colItems = items.filter(x => x.rec.status === st.id);
     let emptyText = 'Nenhum recebimento nesta coluna.';
-    if(noCreated && st.id === 'aguardando') emptyText = 'Clique em “Novo recebimento” para escolher uma empresa do Painel/Index.';
+    if(noCreated && st.id === 'aguardando') emptyText = 'Clique em "Novo recebimento" para começar.';
     const cards = colItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">${emptyText}</div>`;
-    return `<section class="column" data-status="${st.id}">
+    return `<section class="column" data-status="${st.id}"
+      ondragover="onColDragOver(event)"
+      ondragleave="onColDragLeave(event)"
+      ondrop="onColDrop(event,'${st.id}')">
       <div class="col-head"><div class="col-title"><b>${esc(st.label)}</b><span>${esc(st.hint)}</span></div><span class="count">${colItems.length}</span></div>
       <div class="cards">${cards}</div>
     </section>`;
@@ -1230,23 +1239,31 @@ function renderKanban() {
 }
 function renderCard(e, key, rec) {
   const miss = missingDocs(rec);
-  const missChips = rec.status === 'sem_movimento' ? '<span class="chip ok">Sem movimento</span>' : (miss.slice(0,3).map(d => `<span class="chip missing">${esc(d.label)}</span>`).join('') + (miss.length>3 ? `<span class="chip missing">+${miss.length-3}</span>` : ''));
+  const missChips = rec.status === 'sem_movimento'
+    ? '<span class="chip ok">Sem movimento</span>'
+    : (miss.slice(0,2).map(d => `<span class="chip missing">${esc(d.label)}</span>`).join('')
+       + (miss.length>2 ? `<span class="chip missing">+${miss.length-2}</span>` : ''));
   const prazoClass = isAtrasado(rec) ? 'danger' : (rec.prazo ? '' : 'missing');
-  const proximo = rec.proximoPasso || (rec.status === 'aguardando' ? 'Solicitar movimento/documentos da competência' : 'Sem próximo passo informado');
-  return `<article class="card" data-key="${esc(key)}" onclick="openModal('${esc(key)}')">
-    <div class="card-top"><h3>${esc(e.nome)}</h3><span class="badge ${rec.status}">${esc(statusInfo(rec.status).label)}</span></div>
-    <div class="meta">
-      <div><span>🏷️</span><span>${esc(cnpjFmt(e.cnpj) || 'CNPJ não informado')}</span></div>
-      <div><span>📌</span><span>${esc(e.atividade || 'Atividade não informada')}</span></div>
-      <div><span>🧾</span><span>${esc(regimeLabel(e.regime))}</span></div>
-      <div><span>⏱️</span><span class="${prazoClass}">Prazo: ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span></div>
-      <div><span>➡️</span><span>${esc(proximo)}</span></div>
-      ${rec.pendencia ? `<div><span>⚠️</span><span>${esc(rec.pendencia)}</span></div>` : ''}
+  const proximo = rec.proximoPasso || (rec.status === 'aguardando' ? 'Solicitar documentos' : '—');
+  return `<article class="card" data-key="${esc(key)}" draggable="true"
+    onclick="openModal('${esc(key)}')"
+    ondragstart="onCardDragStart(event,'${esc(key)}')"
+    ondragend="onCardDragEnd(event)">
+    <div>
+      <div class="card-top"><h3>${esc(e.nome)}</h3><span class="badge ${rec.status}">${esc(statusInfo(rec.status).label)}</span></div>
+      <div class="meta" style="margin-top:6px">
+        <div><span>🏷️</span><span>${esc(cnpjFmt(e.cnpj) || 'Sem CNPJ')}</span></div>
+        <div><span>🧾</span><span>${esc(regimeLabel(e.regime))}</span></div>
+        <div><span>⏱️</span><span class="${prazoClass}">Prazo: ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span></div>
+        ${rec.pendencia ? `<div><span>⚠️</span><span>${esc(rec.pendencia)}</span></div>` : ''}
+      </div>
     </div>
-    <div class="chips">${missChips || '<span class="chip ok">Documentos marcados</span>'}${isAtrasado(rec) ? '<span class="chip danger">Atrasado</span>' : ''}</div>
-    <div class="card-actions">
-      <button type="button" class="btn" onclick="event.stopPropagation(); openModal('${esc(key)}')">Abrir</button>
-      <button type="button" class="btn ok" onclick="event.stopPropagation(); quickCopy('${esc(key)}')">Copiar cobrança</button>
+    <div>
+      <div class="chips" style="margin-bottom:7px">${missChips || '<span class="chip ok">Docs marcados</span>'}${isAtrasado(rec) ? '<span class="chip danger">Atrasado</span>' : ''}</div>
+      <div class="card-actions">
+        <button type="button" class="btn" onclick="event.stopPropagation();openModal('${esc(key)}')">Abrir</button>
+        <button type="button" class="btn ok" onclick="event.stopPropagation();quickCopy('${esc(key)}')">Cobrar</button>
+      </div>
     </div>
   </article>`;
 }
@@ -1575,6 +1592,66 @@ function attachEmpresasFirebase() {
       useFallbackEmpresas('Aguardando login/conexão');
     }
   }, 3500);
+}
+
+
+// ── Drag & Drop entre colunas ─────────────────────────────────────────────
+let _dragKey = null;
+
+function onCardDragStart(event, key) {
+  _dragKey = key;
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', key);
+  // adiciona classe com leve delay para não sumir o elemento antes do ghost
+  setTimeout(() => {
+    const el = document.querySelector(`.card[data-key="${key}"]`);
+    if(el) el.classList.add('dragging');
+  }, 0);
+}
+
+function onCardDragEnd(event) {
+  document.querySelectorAll('.card.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.column.drag-over').forEach(el => el.classList.remove('drag-over'));
+  _dragKey = null;
+}
+
+function onColDragOver(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  const col = event.currentTarget;
+  if(!col.classList.contains('drag-over')) col.classList.add('drag-over');
+}
+
+function onColDragLeave(event) {
+  // só remove se saiu da coluna de verdade (não entrou em filho)
+  if(!event.currentTarget.contains(event.relatedTarget)) {
+    event.currentTarget.classList.remove('drag-over');
+  }
+}
+
+async function onColDrop(event, novoStatus) {
+  event.preventDefault();
+  const col = event.currentTarget;
+  col.classList.remove('drag-over');
+  const key = _dragKey || event.dataTransfer.getData('text/plain');
+  if(!key) return;
+  const rec = state.movimentos && state.movimentos[key];
+  if(!rec) return;
+  if(rec.status === novoStatus) return; // sem mudança
+
+  // Atualiza estado local imediatamente (UX responsivo)
+  rec.status = novoStatus;
+  renderAll();
+
+  // Persiste no Firebase
+  try {
+    const { ref, update } = window.__firebaseFns;
+    await update(ref(state.database, `${CONTROLES_PATH}/${state.competencia}/${key}`), { status: novoStatus });
+    setCloudStatus('ok', `Status atualizado → ${statusInfo(novoStatus).label}`);
+  } catch(e) {
+    console.error('Erro ao salvar status drag:', e);
+    setCloudStatus('error', 'Erro ao salvar — tente novamente');
+  }
 }
 
 async function bootFirebase() {
