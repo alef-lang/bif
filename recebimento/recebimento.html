@@ -145,7 +145,7 @@ select option{background:#1b2e42;color:#e8eaf0}
 .kanban{display:grid;grid-template-columns:repeat(var(--feed-cols),minmax(0,1fr));gap:var(--feed-gap);align-items:start;width:100%;max-width:100%;min-width:0;overflow-x:hidden;padding:0 0 36px}
 .feed-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;background:linear-gradient(135deg,rgba(27,46,66,.86),rgba(22,36,56,.74));border:1px solid var(--line);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
 .feed-head h2{font-family:var(--font-title);font-size:16px;color:var(--gold2);line-height:1.15}.feed-head p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}.feed-count{font-family:var(--font-title);font-size:28px;color:var(--gold2);line-height:1}.feed-count span{display:block;font-family:var(--font-mono);font-size:10px;color:var(--muted);font-weight:500;text-align:right;text-transform:uppercase;letter-spacing:.06em}
-body.card-size-compact{--feed-cols:4;--feed-gap:14px}body.card-size-normal{--feed-cols:3;--feed-gap:18px}body.card-size-large{--feed-cols:2;--feed-gap:20px}body.card-size-xlarge{--feed-cols:1;--feed-gap:22px}
+body.card-size-micro{--feed-cols:6;--feed-gap:10px}body.card-size-tiny{--feed-cols:5;--feed-gap:12px}body.card-size-compact{--feed-cols:4;--feed-gap:14px}body.card-size-normal{--feed-cols:3;--feed-gap:18px}body.card-size-large{--feed-cols:2;--feed-gap:20px}body.card-size-xlarge{--feed-cols:1;--feed-gap:22px}
 .column{display:contents}.col-head{display:none}.cards{display:contents;overflow:visible;padding:0}.empty{grid-column:1/-1;min-height:220px;display:grid;place-items:center;border:1px dashed rgba(201,168,76,.24);border-radius:22px;background:rgba(27,46,66,.54);text-align:center;padding:18px;color:var(--muted);font-family:var(--font-mono);font-size:12px;box-shadow:var(--shadow)}
 .card{aspect-ratio:1/1;min-height:0;padding:18px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(22,36,56,.98),rgba(27,46,66,.92));display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-width:0;max-width:100%;box-shadow:0 10px 28px rgba(0,0,0,.26);border:1.5px solid rgba(201,168,76,.16);cursor:pointer;isolation:isolate;transition:.18s}
 .card::before{content:'';position:absolute;inset:auto -22% -34% auto;width:78%;height:78%;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 68%);pointer-events:none;z-index:0}.card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--status-color,var(--gold));opacity:.95;z-index:1}.card:hover{border-color:var(--gold);box-shadow:0 16px 38px rgba(0,0,0,.34);transform:translateY(-2px)}
@@ -154,10 +154,10 @@ body.card-size-compact{--feed-cols:4;--feed-gap:14px}body.card-size-normal{--fee
 .meta{position:relative;z-index:2;font-size:clamp(10px,.82vw,12.5px);gap:5px;line-height:1.28;min-width:0}.meta div{grid-template-columns:19px minmax(0,1fr)}.meta .owner-alert{color:var(--warn)}
 .card-docs{position:relative;z-index:2;display:grid;gap:8px;margin-top:8px;min-width:0}.card-doc-toggle-list{position:relative;z-index:2;display:grid;gap:5px;max-height:clamp(82px,9.5vw,150px);overflow-y:auto;padding-right:3px;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.45) rgba(255,255,255,.04)}.card-doc-toggle{display:grid;grid-template-columns:18px minmax(0,1fr);gap:7px;align-items:center;border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.035);border-radius:11px;padding:6px 7px;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);cursor:pointer;min-width:0}.card-doc-toggle input{position:absolute;opacity:0;pointer-events:none}.card-doc-toggle span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.card-doc-toggle.done{color:var(--ok);border-color:rgba(0,206,201,.34);background:rgba(0,206,201,.11);font-weight:800}.card-doc-toggle.missing{color:var(--gold2)}.card-doc-toggle span.doc-name-wrap{white-space:normal}.doc-toggle-mark{width:18px;height:18px;border-radius:7px;display:grid;place-items:center;border:1px solid rgba(201,168,76,.30);background:rgba(13,27,42,.32);font-weight:900;color:inherit}.card-doc-toggle.done .doc-toggle-mark{border-color:rgba(0,206,201,.52);background:rgba(0,206,201,.16)}.received-ratio{display:block;font-family:var(--font-title);font-size:18px;color:var(--text);line-height:1;margin-top:2px}.doc-card-empty{font-family:var(--font-mono);font-size:10px;color:var(--muted);border:1px dashed rgba(201,168,76,.20);border-radius:12px;padding:8px;text-align:center} .received-highlight{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border:1px solid rgba(0,206,201,.26);background:linear-gradient(135deg,rgba(0,206,201,.14),rgba(0,206,201,.06));border-radius:16px;padding:10px 11px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}.received-number{font-family:var(--font-title);font-size:clamp(26px,2.4vw,44px);font-weight:800;line-height:.9;color:var(--ok);letter-spacing:-.05em}.received-label{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;display:block}.doc-line{min-width:0}.doc-line-title{font-family:var(--font-mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:block}.chips{position:relative;z-index:2;margin-top:0;margin-bottom:0;gap:6px;min-width:0}.chip{font-size:10.5px;padding:5px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chip.received{color:var(--ok);border-color:rgba(0,206,201,.34);background:rgba(0,206,201,.12);font-weight:800}.chip.ok{color:var(--ok);border-color:rgba(0,206,201,.36);background:rgba(0,206,201,.12);font-weight:800}.chip.missing{color:var(--gold2);border-color:rgba(201,168,76,.28);background:rgba(201,168,76,.08)}.chip.danger{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10);font-weight:800}
 .card-actions{position:relative;z-index:2;display:flex;gap:8px;margin-top:auto;min-width:0}.card-actions .btn{padding:9px 10px;font-size:11.5px;border-radius:12px;flex:1;min-width:0}.card-actions .btn.delete-card{flex:0 0 auto;width:42px;padding:9px 8px;color:var(--danger);border-color:rgba(255,118,117,.24);background:rgba(255,118,117,.07)}.card-ghost{aspect-ratio:1/1;border-radius:22px}
-body.card-size-compact .card{padding:13px;border-radius:18px}body.card-size-compact .card h3{font-size:clamp(12px,1.05vw,17px);-webkit-line-clamp:2}body.card-size-compact .card-actions .btn{font-size:10px;padding:7px 6px}body.card-size-compact .meta{font-size:9.5px;gap:3px}body.card-size-compact .chip{font-size:8.8px;padding:3px 5px}body.card-size-compact .received-highlight{padding:8px;gap:7px}body.card-size-compact .received-number{font-size:24px}
+body.card-size-micro .card,body.card-size-tiny .card,body.card-size-compact .card{padding:13px;border-radius:18px}body.card-size-micro .card h3,body.card-size-tiny .card h3,body.card-size-compact .card h3{font-size:clamp(12px,1.05vw,17px);-webkit-line-clamp:2}body.card-size-micro .card-actions .btn,body.card-size-tiny .card-actions .btn,body.card-size-compact .card-actions .btn{font-size:10px;padding:7px 6px}body.card-size-micro .meta,body.card-size-tiny .meta,body.card-size-compact .meta{font-size:9.5px;gap:3px}body.card-size-micro .chip,body.card-size-tiny .chip,body.card-size-compact .chip{font-size:8.8px;padding:3px 5px}body.card-size-micro .received-highlight,body.card-size-tiny .received-highlight,body.card-size-compact .received-highlight{padding:8px;gap:7px}body.card-size-micro .received-number,body.card-size-tiny .received-number,body.card-size-compact .received-number{font-size:24px}
 body.card-size-large .card h3,body.card-size-xlarge .card h3{font-size:clamp(20px,1.9vw,30px)}body.card-size-large .received-number,body.card-size-xlarge .received-number{font-size:clamp(38px,3vw,58px)}
-@media(max-width:1180px){body.card-size-compact,body.card-size-normal{--feed-cols:2}body.card-size-large{--feed-cols:2}body.card-size-xlarge{--feed-cols:1}.toolbar{overflow:hidden}}
-@media(max-width:720px){body.card-size-compact,body.card-size-normal,body.card-size-large,body.card-size-xlarge{--feed-cols:1}.content{padding:14px 12px 26px}.kanban{gap:14px}.card{aspect-ratio:1/1}.header{position:relative}.header-actions{width:100%;justify-content:flex-start}.card-size-controls{width:100%;justify-content:space-between}.btn{min-height:38px}.feed-head{align-items:flex-start;flex-direction:column}.feed-count span{text-align:left}}
+@media(max-width:1180px){body.card-size-micro{--feed-cols:4}body.card-size-tiny{--feed-cols:3}body.card-size-compact,body.card-size-normal{--feed-cols:2}body.card-size-large{--feed-cols:2}body.card-size-xlarge{--feed-cols:1}.toolbar{overflow:hidden}}
+@media(max-width:720px){body.card-size-micro,body.card-size-tiny,body.card-size-compact,body.card-size-normal,body.card-size-large,body.card-size-xlarge{--feed-cols:1}.content{padding:14px 12px 26px}.kanban{gap:14px}.card{aspect-ratio:1/1}.header{position:relative}.header-actions{width:100%;justify-content:flex-start}.card-size-controls{width:100%;justify-content:space-between}.btn{min-height:38px}.feed-head{align-items:flex-start;flex-direction:column}.feed-count span{text-align:left}}
 
 /* NOVO RECEBIMENTO */
 .company-preview{border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.065);border-radius:14px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.45;min-height:54px}
@@ -177,9 +177,25 @@ body.card-size-large .card h3,body.card-size-xlarge .card h3{font-size:clamp(20p
 .card .card-doc-toggle-list{flex:1 1 auto;min-height:44px;max-height:none;overflow-y:auto;padding-right:4px}
 .card-actions{flex:0 0 auto;position:relative;z-index:5;display:flex!important;visibility:visible!important;opacity:1!important;margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,.16);background:linear-gradient(180deg,rgba(13,27,42,0),rgba(13,27,42,.20))}
 .card-actions .btn{min-height:36px;font-weight:800;letter-spacing:.01em}
-body.card-size-compact .card .doc-line{display:none}
-body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
+body.card-size-micro .card .doc-line,body.card-size-tiny .card .doc-line,body.card-size-compact .card .doc-line{display:none}
+body.card-size-micro .card .card-doc-toggle-list,body.card-size-tiny .card .card-doc-toggle-list,body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
 @media(max-width:720px){.card-actions .btn{min-height:40px;font-size:12px}.card .card-doc-toggle-list{min-height:60px}}
+
+
+
+/* Ajustes operacionais: seleção de colaborador, mais tamanhos e fonte dos botões de conferência. */
+.toolbar{grid-template-columns:150px minmax(180px,1.35fr) 150px 150px 150px 150px auto}
+body.doc-font-xs{--doc-btn-font:9px;--doc-btn-pad:5px 6px;--doc-mark-size:16px;--doc-btn-gap:6px}
+body.doc-font-sm{--doc-btn-font:10px;--doc-btn-pad:6px 7px;--doc-mark-size:18px;--doc-btn-gap:7px}
+body.doc-font-md{--doc-btn-font:11.5px;--doc-btn-pad:7px 8px;--doc-mark-size:20px;--doc-btn-gap:8px}
+body.doc-font-lg{--doc-btn-font:13px;--doc-btn-pad:8px 9px;--doc-mark-size:22px;--doc-btn-gap:9px}
+body.doc-font-xl{--doc-btn-font:15px;--doc-btn-pad:9px 10px;--doc-mark-size:24px;--doc-btn-gap:10px}
+.card-doc-toggle{grid-template-columns:var(--doc-mark-size,18px) minmax(0,1fr)!important;gap:var(--doc-btn-gap,7px)!important;padding:var(--doc-btn-pad,6px 7px)!important;font-size:var(--doc-btn-font,10.5px)!important}
+.card-doc-toggle .doc-name-wrap strong{font-size:var(--doc-btn-font,10.5px)!important;line-height:1.12}
+.doc-toggle-mark{width:var(--doc-mark-size,18px)!important;height:var(--doc-mark-size,18px)!important}
+.doc-date-mini{font-size:calc(var(--doc-btn-font,10.5px) - 1.4px)!important}
+.doc-card-empty{font-size:calc(var(--doc-btn-font,10.5px) + .5px);line-height:1.35}
+@media(max-width:980px){.toolbar{grid-template-columns:1fr 1fr}.toolbar .field:last-child{grid-column:1/-1}}
 
 @media print{
   @page{size:A4 portrait;margin:12mm}
@@ -194,6 +210,65 @@ body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
   td{border:1px solid #bbb;padding:4px;vertical-align:top}
   .print-small{font-size:9px;color:#444}
 }
+
+/* Ajuste solicitado: cards proporcionais a 1080 x 2160.
+   Mantém a largura do feed e acrescenta +1080 de altura ao card, sem criar rolagem horizontal. */
+.card,.card-ghost{aspect-ratio:1/2!important;}
+@media(max-width:720px){.card{aspect-ratio:1/2!important;}}
+
+
+
+/* Visão geral com cabeçalho compacto e expansão ao clicar no card */
+.card,.card-ghost{aspect-ratio:auto!important}
+.card.card-collapsible{min-height:unset!important;height:auto!important;padding:14px 14px 12px!important;cursor:pointer;transition:transform .16s ease, border-color .16s ease, box-shadow .2s ease}
+.card.card-collapsible:hover{transform:translateY(-2px);border-color:rgba(201,168,76,.38)}
+.card-shell{display:flex;flex-direction:column;gap:10px;min-height:0;width:100%}
+.card-head-compact{display:grid;gap:10px}
+.card-title-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.card.card-collapsible h3{margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.expand-pill{font-family:var(--font-mono);font-size:10px;color:var(--gold2);border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.08);border-radius:999px;padding:5px 8px;white-space:nowrap}
+.card-summary-box{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:92px;padding:9px 10px;border-radius:14px;border:1px solid rgba(0,206,201,.24);background:linear-gradient(135deg,rgba(0,206,201,.12),rgba(0,206,201,.05))}
+.card-summary-box.is-nomove{border-color:rgba(253,203,110,.28);background:linear-gradient(135deg,rgba(253,203,110,.13),rgba(253,203,110,.05))}
+.card-summary-number{font-family:var(--font-title);font-size:clamp(20px,1.8vw,34px);line-height:.92;color:var(--ok);letter-spacing:-.04em}
+.card-summary-box.is-nomove .card-summary-number{color:var(--warn)}
+.card-summary-box small{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-align:right;line-height:1.2;margin-top:3px}
+.card-summary-strip{display:flex;flex-wrap:wrap;gap:6px}
+.summary-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.035);color:var(--muted);font-family:var(--font-mono);font-size:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.summary-chip.danger{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10)}
+.summary-chip.missing{color:var(--gold2)}
+.card-expand-area{display:none;gap:10px;min-height:0}
+.card.expanded .card-expand-area{display:grid}
+.card.collapsed .card-actions{display:none!important}
+.card.collapsed .meta,.card.collapsed .card-docs{display:none!important}
+.card.collapsed{min-height:188px}
+.card.expanded{min-height:290px}
+.card.expanded .card-head-compact{padding-bottom:4px;border-bottom:1px solid rgba(201,168,76,.12)}
+.card.expanded .card-doc-toggle-list{max-height:320px}
+.card.expanded .card-actions{display:flex!important}
+@media(max-width:900px){
+  .card-title-row{grid-template-columns:1fr}
+  .card-summary-box{align-items:flex-start;text-align:left}
+  .card-summary-box small{text-align:left}
+}
+
+
+
+/* Semáforo do recebimento no placar do card: vermelho = nada recebido, laranja = parcial, verde = completo. */
+.card-summary-box.is-empty{border-color:rgba(201,168,76,.20);background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(255,255,255,.025))}
+.card-summary-box.is-empty .card-summary-number{color:var(--muted)}
+.card-summary-box.is-none{border-color:rgba(255,118,117,.48);background:linear-gradient(135deg,rgba(255,118,117,.24),rgba(255,118,117,.08));box-shadow:inset 0 0 0 1px rgba(255,118,117,.08)}
+.card-summary-box.is-none .card-summary-number{color:var(--danger)}
+.card-summary-box.is-partial{border-color:rgba(253,203,110,.52);background:linear-gradient(135deg,rgba(253,203,110,.24),rgba(253,203,110,.08));box-shadow:inset 0 0 0 1px rgba(253,203,110,.08)}
+.card-summary-box.is-partial .card-summary-number{color:var(--warn)}
+.card-summary-box.is-complete{border-color:rgba(0,206,201,.54);background:linear-gradient(135deg,rgba(0,206,201,.24),rgba(0,206,201,.08));box-shadow:inset 0 0 0 1px rgba(0,206,201,.10)}
+.card-summary-box.is-complete .card-summary-number{color:var(--ok)}
+.received-highlight.is-none{border-color:rgba(255,118,117,.42);background:linear-gradient(135deg,rgba(255,118,117,.18),rgba(255,118,117,.06))}
+.received-highlight.is-none .received-number{color:var(--danger)}
+.received-highlight.is-partial{border-color:rgba(253,203,110,.46);background:linear-gradient(135deg,rgba(253,203,110,.18),rgba(253,203,110,.06))}
+.received-highlight.is-partial .received-number{color:var(--warn)}
+.received-highlight.is-complete{border-color:rgba(0,206,201,.46);background:linear-gradient(135deg,rgba(0,206,201,.18),rgba(0,206,201,.06))}
+.received-highlight.is-complete .received-number{color:var(--ok)}
+
 </style>
 </head>
 <body>
@@ -214,6 +289,11 @@ body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
       <span class="size-label" id="cardSizeLabel">3 colunas</span>
       <button type="button" class="btn ghost" id="btnCardMais" title="Aumentar cards">+ Card</button>
     </div>
+    <div class="card-size-controls" aria-label="Fonte dos botões de conferido">
+      <button type="button" class="btn ghost" id="btnDocFonteMenos" title="Diminuir fonte dos documentos">− Fonte</button>
+      <span class="size-label" id="docFontLabel">Fonte M</span>
+      <button type="button" class="btn ghost" id="btnDocFonteMais" title="Aumentar fonte dos documentos">+ Fonte</button>
+    </div>
     <button type="button" class="btn ghost" id="btnReload">↻ Recarregar</button>
     <button type="button" class="btn" id="btnExport">⬇ CSV</button>
     <button type="button" class="btn" id="btnBackup">🧾 Backup</button>
@@ -229,6 +309,10 @@ body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
   <div class="field">
     <label>Busca</label>
     <input id="search" type="search" placeholder="Empresa, CNPJ, atividade, pendência..." />
+  </div>
+  <div class="field">
+    <label>Colaborador</label>
+    <select id="colaboradorFilter"><option value="ALEF">Alef</option><option value="__todos__">Todos</option></select>
   </div>
   <div class="field">
     <label>Status</label>
@@ -248,11 +332,6 @@ body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
     <select id="docFilter">
       <option value="">Todos</option>
       <option value="faltando">Com documento faltando</option>
-      <option value="xmlEntrada">Falta XML/NF-e entradas</option>
-      <option value="xmlSaida">Falta XML/NF-e saídas</option>
-      <option value="nfse">Falta NFS-e</option>
-      <option value="extrato">Falta extrato</option>
-      <option value="cartoes">Falta cartões/marketplaces</option>
     </select>
   </div>
   <div class="field">
@@ -357,7 +436,7 @@ body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
       </div>
       <div class="section-title with-action"><span>Documentos da empresa / recebidos</span><button type="button" class="btn ok" id="btnAddDoc">➕ Documento</button></div>
       <div class="docs-editor" id="docsGrid"></div>
-      <p class="doc-helper">Edite aqui quais documentos essa empresa costuma enviar. Esses mesmos itens aparecem no card e podem ser marcados como recebidos sem abrir a janela.</p>
+      <p class="doc-helper">Cadastre somente os documentos reais dessa empresa. A página não cria documentos padrão; cada card começa em branco.</p>
       <div class="section-title">Acompanhamento</div>
       <div class="form-grid one">
         <div class="field full"><label>Próximo passo</label><textarea id="mProximo" rows="2" placeholder="Ex.: Cobrar extrato e XML de entradas até sexta-feira"></textarea></div>
@@ -387,12 +466,22 @@ const PAINEL_CACHE_KEY = 'gestao_v3';
 const PAINEL_CACHE_KEYS = ['gestao_v3','gestao_empresas','painel','painel_gestao_empresas'];
 const PAINEL_EMPRESAS_FB_PATH = 'painel/empresas';
 const PAINEL_SYNC_POLL_MS = 30000;
-const CARD_SIZE_KEY = 'bif_recebimento_card_size_v2';
+const CARD_SIZE_KEY = 'bif_recebimento_card_size_v3';
+const DOC_FONT_SIZE_KEY = 'bif_recebimento_doc_font_size_v1';
 const CARD_SIZE_LEVELS = [
+  { cls:'card-size-micro', label:'6 colunas', hint:'máximo de cards' },
+  { cls:'card-size-tiny', label:'5 colunas', hint:'bem compacto' },
   { cls:'card-size-compact', label:'4 colunas', hint:'cards menores' },
   { cls:'card-size-normal', label:'3 colunas', hint:'feed 9x9' },
   { cls:'card-size-large', label:'2 colunas', hint:'cards maiores' },
   { cls:'card-size-xlarge', label:'1 coluna', hint:'máximo' }
+];
+const DOC_FONT_LEVELS = [
+  { cls:'doc-font-xs', label:'Fonte PP' },
+  { cls:'doc-font-sm', label:'Fonte P' },
+  { cls:'doc-font-md', label:'Fonte M' },
+  { cls:'doc-font-lg', label:'Fonte G' },
+  { cls:'doc-font-xl', label:'Fonte GG' }
 ];
 const EMPRESA_OVERRIDES_RECEBIMENTO = {
   // Correção operacional informada: no Painel atual, Laboratório Campos está com Alef.
@@ -934,7 +1023,9 @@ const state = {
   empresasTodas: [],
   colaboradorFiltro: COLABORADOR_ALVO,
   indexFetchDone: false,
-  cardSizeLevel: 1
+  cardSizeLevel: 3,
+  docFontSizeLevel: 2,
+  expandedCards: {}
 };
 
 function qs(id) { return document.getElementById(id); }
@@ -977,6 +1068,15 @@ function askBulkReceiptDate() {
   }
   return date;
 }
+
+function isCardExpanded(key) {
+  return !!(state.expandedCards && state.expandedCards[key]);
+}
+function toggleCardExpand(key) {
+  state.expandedCards = state.expandedCards || {};
+  state.expandedCards[key] = !state.expandedCards[key];
+  renderKanban();
+}
 function confirmUnreceive(docLabel) {
   return confirm(`Remover marcação de recebimento de "${docLabel || 'documento'}"?\n\nA data de recebimento também será removida do relatório.`);
 }
@@ -1011,6 +1111,21 @@ function applyCardSize() {
 function changeCardSize(delta) {
   state.cardSizeLevel = Math.max(0, Math.min(CARD_SIZE_LEVELS.length - 1, state.cardSizeLevel + delta));
   applyCardSize();
+}
+
+function applyDocButtonSize() {
+  const max = DOC_FONT_LEVELS.length - 1;
+  state.docFontSizeLevel = Math.max(0, Math.min(max, Number(state.docFontSizeLevel) || 2));
+  DOC_FONT_LEVELS.forEach(x => document.body.classList.remove(x.cls));
+  const level = DOC_FONT_LEVELS[state.docFontSizeLevel] || DOC_FONT_LEVELS[2];
+  document.body.classList.add(level.cls);
+  const label = qs('docFontLabel');
+  if(label) label.textContent = level.label;
+  try { localStorage.setItem(DOC_FONT_SIZE_KEY, String(state.docFontSizeLevel)); } catch(e) {}
+}
+function changeDocButtonSize(delta) {
+  state.docFontSizeLevel = Math.max(0, Math.min(DOC_FONT_LEVELS.length - 1, state.docFontSizeLevel + delta));
+  applyDocButtonSize();
 }
 
 function getCampoPersonalizado(e, termos) {
@@ -1075,14 +1190,16 @@ function getColaboradoresDisponiveis() {
   return Array.from(set).sort((a,b) => a.localeCompare(b,'pt-BR'));
 }
 function renderColaboradorFilter() {
-  const sel = qs('newColaboradorFilter');
-  if(!sel) return;
   const atual = state.colaboradorFiltro || COLABORADOR_ALVO;
   const colaboradores = getColaboradoresDisponiveis();
   const opts = [`<option value="ALEF">Alef</option>`, `<option value="__todos__">Todos do Painel</option>`]
     .concat(colaboradores.filter(c => norm(c) !== 'ALEF').map(c => `<option value="${esc(c)}">${esc(c)}</option>`));
-  sel.innerHTML = opts.join('');
-  sel.value = colaboradores.some(c => c === atual) || ['ALEF','__todos__'].includes(atual) ? atual : COLABORADOR_ALVO;
+  ['newColaboradorFilter','colaboradorFilter'].forEach(id => {
+    const sel = qs(id);
+    if(!sel) return;
+    sel.innerHTML = opts.join('');
+    sel.value = colaboradores.some(c => c === atual) || ['ALEF','__todos__'].includes(atual) ? atual : COLABORADOR_ALVO;
+  });
 }
 function updateFonteInfo() {
   const el = qs('newFonteInfo');
@@ -1384,12 +1501,30 @@ function slugDocId(label, prefix='doc') {
   const base = norm(label || prefix).toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,42);
   return base || `${prefix}_${Date.now().toString(36)}`;
 }
+function looksLikeSystemDefaultDoc(raw) {
+  if(!raw) return false;
+  const label = norm(raw.label || raw.nome || raw.name || '');
+  const id = String(raw.id || '').trim();
+  return DOCS.some(d => id === d.id && label === norm(d.label));
+}
+function isGeneratedDefaultDocList(arr) {
+  if(!Array.isArray(arr) || !arr.length) return false;
+  const valid = arr.filter(Boolean);
+  if(!valid.length) return false;
+  // Lista criada pela versão antiga: mesmos IDs/nomes do pacote padrão.
+  return valid.every(d => looksLikeSystemDefaultDoc(typeof d === 'string' ? {label:d} : d));
+}
 function normalizeDocDefs(defs, docsObj={}) {
-  const src = Array.isArray(defs) && defs.length ? defs : DOCS;
+  // Regra atual: NÃO existe documentação pré-definida.
+  // Cada empresa só mostra documentos que foram cadastrados manualmente no card.
+  const rawDefs = Array.isArray(defs) ? defs : [];
+  const src = isGeneratedDefaultDocList(rawDefs) ? [] : rawDefs;
   const seen = new Set();
   const out = [];
   src.forEach((d, idx) => {
     const raw = typeof d === 'string' ? {label:d} : (d || {});
+    // Remove itens do pacote antigo se eles vieram junto com registros salvos.
+    if(looksLikeSystemDefaultDoc(raw)) return;
     const label = String(raw.label || raw.nome || raw.name || '').trim();
     if(!label) return;
     let id = String(raw.id || slugDocId(label, `doc_${idx+1}`)).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);
@@ -1402,14 +1537,15 @@ function normalizeDocDefs(defs, docsObj={}) {
   });
   if(docsObj && typeof docsObj === 'object') {
     Object.keys(docsObj).forEach(id => {
+      // Não reconstruir XML/NFS-e/Extrato/etc. do modelo antigo só porque havia chave no docs.
+      if(DOCS.some(d => d.id === id)) return;
       if(seen.has(id)) return;
-      const base = DOCS.find(d => d.id === id);
       const safeId = String(id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64) || `doc_extra_${out.length+1}`;
       seen.add(safeId);
-      out.push({ id:safeId, label: base ? base.label : safeId.replace(/_/g,' '), hint: base ? base.hint : '' });
+      out.push({ id:safeId, label: safeId.replace(/_/g,' '), hint: '' });
     });
   }
-  return out.length ? out : DOCS.map(d => ({...d}));
+  return out;
 }
 function recordDocs(rec) { return normalizeDocDefs(rec && rec.docDefs, rec && rec.docs); }
 function missingDocs(rec) { return recordDocs(rec).filter(d => !(rec.docs && rec.docs[d.id])); }
@@ -1438,15 +1574,23 @@ function prazoBucket(rec) {
 }
 
 function recebimentoKeys() {
-  return Object.keys(state.movimentos || {}).filter(key => {
+  const keys = new Set();
+  // Mostra automaticamente todas as empresas do colaborador selecionado, mesmo sem card salvo ainda.
+  (state.empresas || []).forEach(e => {
+    const key = recordKeyEmpresa(e);
+    if(key && !e.fechada) keys.add(key);
+  });
+  Object.keys(state.movimentos || {}).forEach(key => {
     const rec = state.movimentos[key];
-    if(!rec || typeof rec !== 'object') return false;
+    if(!rec || typeof rec !== 'object') return;
     const emp = getEmpresaByKey(key);
-    if(!emp && !(rec.empresaNome || rec.cnpj)) return false;
-    // Se a empresa mudou de responsável no Painel, o card acompanha o filtro atual.
-    // O registro continua salvo; para localizar algo de outro responsável, use "Todos" no seletor de novo recebimento.
+    if(!emp && !(rec.empresaNome || rec.cnpj)) return;
     const alvo = emp || normalizeEmpresa({ nome: rec.empresaNome, cnpj: rec.cnpj, colaborador: rec.colaborador });
-    return empresaPassaFiltroColaborador(alvo);
+    if(empresaPassaFiltroColaborador(alvo) && !alvo.fechada) keys.add(key);
+  });
+  return Array.from(keys).sort((a,b) => {
+    const ea = getEmpresaByKey(a) || {}, eb = getEmpresaByKey(b) || {};
+    return String(ea.nome || a).localeCompare(String(eb.nome || b), 'pt-BR');
   });
 }
 
@@ -1459,6 +1603,8 @@ function filteredItems() {
     .filter(Boolean)
     .filter(item => {
       const {empresa:e, rec} = item;
+      const semMov = rec.status === 'sem_movimento' || rec.movimento === 'sem_movimento';
+      if(semMov && state.statusFilter !== 'sem_movimento') return false;
       if(state.statusFilter && rec.status !== state.statusFilter) return false;
       if(state.docFilter === 'faltando' && (missingDocs(rec).length === 0 || isConcluido(rec))) return false;
       if(state.docFilter && state.docFilter !== 'faltando' && rec.docs[state.docFilter]) return false;
@@ -1488,14 +1634,14 @@ function renderKanban() {
   const totalRecebimentos = recebimentoKeys().length;
   const subtitulo = state.statusFilter
     ? `Filtro ativo: ${statusInfo(state.statusFilter).label}`
-    : 'Todos os grupos aparecem como indicador dentro do card.';
+    : `Todas as empresas de ${colaboradorLabelAtual()} entram automaticamente; sem movimento fica oculto do quadro.`;
   const head = `<div class="feed-head">
-    <div><h2>Feed de recebimentos 9x9</h2><p>${esc(subtitulo)} Sem rolagem horizontal; use os filtros acima para focar por status, documento ou prazo.</p></div>
+    <div><h2>Feed de recebimentos 9x9</h2><p>${esc(subtitulo)} Sem rolagem horizontal; documentos começam em branco até você configurar.</p></div>
     <div class="feed-count">${items.length}<span>${items.length === 1 ? 'card visível' : 'cards visíveis'}</span></div>
   </div>`;
   if(!items.length) {
     const empty = totalRecebimentos === 0
-      ? 'Clique em "Novo recebimento" para criar o primeiro card da competência.'
+      ? 'Nenhuma empresa encontrada para o colaborador/filtro atual.'
       : 'Nenhum card encontrado com os filtros atuais.';
     host.innerHTML = head + `<div class="empty">${empty}</div>`;
     return;
@@ -1509,6 +1655,27 @@ function renderCard(e, key, rec) {
   const st = statusInfo(rec.status);
   const prazoClass = isAtrasado(rec) ? 'danger' : (rec.prazo ? '' : 'missing');
   const totalDocs = defs.length;
+  const expanded = isCardExpanded(key);
+  const progressClass = rec.status === 'sem_movimento'
+    ? 'is-nomove'
+    : !totalDocs
+      ? 'is-empty'
+      : received.length === 0
+        ? 'is-none'
+        : received.length < totalDocs
+          ? 'is-partial'
+          : 'is-complete';
+  const progressLabel = rec.status === 'sem_movimento'
+    ? 'Sem movimento'
+    : totalDocs
+      ? `${received.length}/${totalDocs}`
+      : '0/0';
+  const summaryHint = rec.status === 'sem_movimento'
+    ? 'Oculta do fluxo normal'
+    : totalDocs
+      ? `${miss.length ? miss.length + ' pendente(s)' : 'Tudo conferido'}`
+      : 'Sem documentos';
+
   const docListHtml = defs.length
     ? defs.map(d => {
         const checked = !!(rec.docs && rec.docs[d.id]);
@@ -1519,31 +1686,53 @@ function renderCard(e, key, rec) {
           <span class="doc-name-wrap"><strong>${esc(d.label)}</strong>${receivedAt ? `<em class="doc-date-mini">${esc(moneylessDate(receivedAt))}</em>` : ''}</span>
         </label>`;
       }).join('')
-    : '<div class="doc-card-empty">Nenhum documento configurado.</div>';
+    : '<div class="doc-card-empty">Sem documentos cadastrados. Clique em Abrir para incluir.</div>';
+
   const docHtml = rec.status === 'sem_movimento'
     ? `<div class="card-docs"><div class="received-highlight"><div class="received-number">✓</div><div><span class="received-label">Movimento</span><strong class="received-ratio">Sem movimento</strong></div></div></div>`
     : `<div class="card-docs">
-        <div class="received-highlight"><div class="received-number">${esc(received.length)}</div><div><span class="received-label">Recebidos</span><strong class="received-ratio">${esc(received.length)}/${esc(totalDocs)}</strong></div></div>
+        <div class="received-highlight ${esc(progressClass)}"><div class="received-number">${esc(received.length)}</div><div><span class="received-label">Recebidos</span><strong class="received-ratio">${esc(received.length)}/${esc(totalDocs)}</strong></div></div>
         <div class="card-doc-toggle-list">${docListHtml}</div>
         <div class="doc-line"><span class="doc-line-title">Ainda falta</span><div class="chips">${miss.length ? docChipsHtml(miss, 'missing', '', 2) : '<span class="chip ok">Nada pendente</span>'}${isAtrasado(rec) ? '<span class="chip danger">Atrasado</span>' : ''}</div></div>
       </div>`;
-  return `<article class="card status-${esc(rec.status)}" data-key="${esc(key)}"
-    onclick="openModal('${esc(key)}')">
-    <div>
-      <div class="card-top"><span class="status-pill"><i class="status-dot"></i><span>${esc(st.label)}</span></span><h3>${esc(e.nome)}</h3></div>
-      <div class="meta" style="margin-top:6px">
-        <div><span>🏷️</span><span>${esc(cnpjFmt(e.cnpj) || 'Sem CNPJ')}</span></div>
-        <div><span>🧾</span><span>${esc(regimeLabel(e.regime))}</span></div>
-        <div><span>👤</span><span class="${isAlef(e) ? '' : 'owner-alert'}">${esc(e.colaborador || rec.colaborador || 'sem responsável')}</span></div>
-        <div><span>⏱️</span><span class="${prazoClass}">Prazo: ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span></div>
-        ${rec.pendencia ? `<div><span>⚠️</span><span>${esc(rec.pendencia)}</span></div>` : ''}
+
+  return `<article class="card card-collapsible ${expanded ? 'expanded' : 'collapsed'} status-${esc(rec.status)}" data-key="${esc(key)}"
+    onclick="toggleCardExpand('${esc(key)}')">
+    <div class="card-shell">
+      <div class="card-head-compact">
+        <div class="card-top">
+          <span class="status-pill"><i class="status-dot"></i><span>${esc(st.label)}</span></span>
+          <span class="expand-pill">${expanded ? '▲ recolher' : '▼ expandir'}</span>
+        </div>
+        <div class="card-title-row">
+          <h3>${esc(e.nome)}</h3>
+          <div class="card-summary-box ${esc(progressClass)}">
+            <span class="card-summary-number">${esc(progressLabel)}</span>
+            <small>${esc(summaryHint)}</small>
+          </div>
+        </div>
+        <div class="card-summary-strip">
+          <span class="summary-chip">👤 ${esc(e.colaborador || rec.colaborador || 'sem responsável')}</span>
+          <span class="summary-chip ${prazoClass}">⏱️ ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span>
+          ${totalDocs ? `<span class="summary-chip">🗂️ ${esc(totalDocs)} doc(s)</span>` : '<span class="summary-chip">🗂️ Em branco</span>'}
+        </div>
       </div>
-      ${docHtml}
-    </div>
-    <div class="card-actions">
-      <button type="button" class="btn" onclick="event.stopPropagation();openModal('${esc(key)}')">📂 Abrir</button>
-      <button type="button" class="btn ok" onclick="event.stopPropagation();quickCopy('${esc(key)}')">💬 Cobrar</button>
-      <button type="button" class="btn delete-card" title="Excluir card" onclick="event.stopPropagation();deleteRecord('${esc(key)}')">🗑️</button>
+
+      <div class="card-expand-area">
+        <div class="meta" style="margin-top:6px">
+          <div><span>🏷️</span><span>${esc(cnpjFmt(e.cnpj) || 'Sem CNPJ')}</span></div>
+          <div><span>🧾</span><span>${esc(regimeLabel(e.regime))}</span></div>
+          <div><span>👤</span><span class="${isAlef(e) ? '' : 'owner-alert'}">${esc(e.colaborador || rec.colaborador || 'sem responsável')}</span></div>
+          <div><span>⏱️</span><span class="${prazoClass}">Prazo: ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span></div>
+          ${rec.pendencia ? `<div><span>⚠️</span><span>${esc(rec.pendencia)}</span></div>` : ''}
+        </div>
+        ${docHtml}
+        <div class="card-actions">
+          <button type="button" class="btn" onclick="event.stopPropagation();openModal('${esc(key)}')">📂 Abrir</button>
+          <button type="button" class="btn ok" onclick="event.stopPropagation();quickCopy('${esc(key)}')">💬 Cobrar</button>
+          <button type="button" class="btn delete-card" title="Excluir card" onclick="event.stopPropagation();deleteRecord('${esc(key)}')">🗑️</button>
+        </div>
+      </div>
     </div>
   </article>`;
 }
@@ -1604,9 +1793,6 @@ function collectDocsFromEditor() {
     const receivedAt = sanitizeDateISO(row.dataset.receivedAt);
     if(checked && receivedAt) docReceivedAt[id] = receivedAt;
   });
-  if(!defs.length) {
-    DOCS.forEach(d => { defs.push({...d}); docs[d.id] = false; });
-  }
   return { docDefs: defs, docs, docReceivedAt };
 }
 
@@ -1953,6 +2139,7 @@ function bindEvents() {
   qs('competencia').value = state.competencia;
   qs('competencia').addEventListener('change', () => { state.competencia = qs('competencia').value || currentMonth(); localWrite(); watchMovimentos(); renderAll(); });
   qs('search').addEventListener('input', e => { state.search = e.target.value; renderAll(); });
+  qs('colaboradorFilter').addEventListener('change', e => { state.colaboradorFiltro = e.target.value || COLABORADOR_ALVO; setEmpresasCompletas('Colaborador selecionado atualizado', true); renderNewEmpresaOptions(); });
   qs('statusFilter').addEventListener('change', e => { state.statusFilter = e.target.value; renderAll(); });
   qs('docFilter').addEventListener('change', e => { state.docFilter = e.target.value; renderAll(); });
   qs('prazoFilter').addEventListener('change', e => { state.prazoFilter = e.target.value; renderAll(); });
@@ -1963,6 +2150,8 @@ function bindEvents() {
   qs('btnAtualizarEmpresas').addEventListener('click', () => atualizarListaEmpresas(false));
   qs('btnCardMenos').addEventListener('click', () => changeCardSize(-1));
   qs('btnCardMais').addEventListener('click', () => changeCardSize(1));
+  qs('btnDocFonteMenos').addEventListener('click', () => changeDocButtonSize(-1));
+  qs('btnDocFonteMais').addEventListener('click', () => changeDocButtonSize(1));
   qs('btnNovoRecebimento').addEventListener('click', openNewRecebimento);
   qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
   qs('btnCloseNew').addEventListener('click', closeNewRecebimento);
@@ -2183,9 +2372,11 @@ function init() {
   state.competencia = cache.lastCompetencia || currentMonth();
   state.movimentos = {};
   state.empresas = []; state.empresasTodas = [];
-  try { state.cardSizeLevel = Number(localStorage.getItem(CARD_SIZE_KEY)); if(!Number.isFinite(state.cardSizeLevel)) state.cardSizeLevel = 1; } catch(e) { state.cardSizeLevel = 1; }
+  try { state.cardSizeLevel = Number(localStorage.getItem(CARD_SIZE_KEY)); if(!Number.isFinite(state.cardSizeLevel)) state.cardSizeLevel = 3; } catch(e) { state.cardSizeLevel = 3; }
+  try { state.docFontSizeLevel = Number(localStorage.getItem(DOC_FONT_SIZE_KEY)); if(!Number.isFinite(state.docFontSizeLevel)) state.docFontSizeLevel = 2; } catch(e) { state.docFontSizeLevel = 2; }
   bindEvents();
   applyCardSize();
+  applyDocButtonSize();
   renderStatusOptions();
   renderAll();
   carregarEmpresasDoIndexHtml();
