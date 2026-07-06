@@ -28,6 +28,9 @@ button{type:button}
 .title h1{font-family:var(--font-title);font-size:17px;line-height:1.15;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .title p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px}
 .header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.card-size-controls{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:14px;padding:4px;background:rgba(255,255,255,.035);white-space:nowrap}
+.card-size-controls .btn{padding:6px 8px;font-size:11px;border-radius:9px}
+.size-label{font-family:var(--font-mono);font-size:10.5px;color:var(--gold2);min-width:64px;text-align:center}
 .cloud{font-family:var(--font-mono);font-size:11px;border:1px solid var(--line);padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.035);color:var(--gold2);white-space:nowrap}
 .btn{border:1px solid var(--line);background:rgba(201,168,76,.10);color:var(--gold2);border-radius:11px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:.18s;display:inline-flex;gap:6px;align-items:center;justify-content:center;white-space:nowrap}
 .btn:hover{border-color:var(--gold);background:rgba(201,168,76,.18);transform:translateY(-1px)}
@@ -114,6 +117,18 @@ select option{background:#1b2e42;color:#e8eaf0}
 .doc-item input{accent-color:var(--gold);margin-top:2px}
 .doc-item b{display:block;font-size:12px;color:var(--text);line-height:1.2}
 .doc-item span{display:block;font-size:10px;color:var(--muted);line-height:1.2;margin-top:2px}
+
+.section-title.with-action{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.section-title.with-action .btn{font-size:10px;padding:6px 9px;border-radius:10px;text-transform:none;letter-spacing:0}
+.docs-editor{display:grid;gap:8px;margin-top:8px}
+.doc-edit-row{display:grid;grid-template-columns:112px minmax(160px,1.2fr) minmax(160px,1fr) 38px;gap:8px;align-items:center;border:1px solid rgba(201,168,76,.18);background:rgba(255,255,255,.035);border-radius:13px;padding:8px}
+.doc-check{display:flex;align-items:center;gap:7px;color:var(--ok);font-size:11px;font-weight:800;white-space:nowrap}
+.doc-check input{accent-color:var(--gold);width:16px;height:16px}
+.doc-label-input,.doc-hint-input{width:100%;border:1.5px solid rgba(201,168,76,.20);background:rgba(13,27,42,.35);color:var(--text);border-radius:10px;padding:8px 9px;font-size:12px;outline:none}
+.doc-label-input:focus,.doc-hint-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.doc-remove{width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,118,117,.28);background:rgba(255,118,117,.08);color:var(--danger);font-weight:900;cursor:pointer}
+.doc-helper{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);line-height:1.35;margin:7px 0 10px}
+.doc-check-wrap{display:flex;flex-direction:column;gap:3px;min-width:0}.doc-date-note{font-family:var(--font-mono);font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.doc-date-note.ok{color:var(--ok);font-weight:800}.card-doc-toggle .doc-name-wrap{display:flex;flex-direction:column;gap:1px;min-width:0;overflow:hidden}.card-doc-toggle .doc-name-wrap strong{font-size:10.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc-date-mini{display:block;font-style:normal;font-size:9px;line-height:1.1;color:var(--ok);font-weight:800;opacity:.95}
 .section-title{font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;font-weight:800;border-bottom:1px solid var(--line);padding-bottom:6px}
 .toast{position:fixed;right:20px;bottom:20px;z-index:200;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow);color:var(--text);font-size:12px;font-weight:700;transform:translateY(90px);opacity:0;transition:.22s}
 .toast.show{transform:translateY(0);opacity:1}
@@ -121,34 +136,28 @@ select option{background:#1b2e42;color:#e8eaf0}
 .toast.err{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10)}
 .toast.warn{color:var(--warn);border-color:rgba(253,203,110,.32);background:rgba(253,203,110,.10)}
 @media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:1fr}.card{aspect-ratio:auto;min-height:160px}}
+@media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.docs-editor{grid-template-columns:1fr}.doc-edit-row{grid-template-columns:1fr}.doc-remove{width:100%}.kanban{grid-template-columns:1fr}.card{aspect-ratio:auto;min-height:160px}}
 
-/* FEED VERTICAL 1:1 — padrão visual tipo grade Instagram, sem rolagem horizontal */
-.content{padding:18px 22px 34px;overflow-x:hidden;width:100%}
-.kanban{display:flex;flex-direction:column;gap:18px;align-items:stretch;width:100%;padding:0 0 30px;overflow:visible}
-.column{width:100%;overflow:hidden;background:rgba(27,46,66,.78);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
-.column.drag-over{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.30),var(--shadow)}
-.col-head{padding:15px 16px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(22,36,56,.96),rgba(27,46,66,.88));display:flex;align-items:center;justify-content:space-between;gap:12px}
-.col-title b{font-family:var(--font-title);font-size:15px;color:var(--text);line-height:1.15}
-.col-title span{font-family:var(--font-mono);font-size:10.5px;color:var(--muted)}
-.count{font-size:12px;padding:4px 10px;background:rgba(201,168,76,.10)}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:14px;align-items:start;min-width:0}
-.card{aspect-ratio:1/1;min-height:0;padding:18px;border-radius:18px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(22,36,56,.98),rgba(27,46,66,.92));display:flex;flex-direction:column;justify-content:space-between;gap:12px}
-.card::before{content:'';position:absolute;inset:auto -28% -36% auto;width:72%;height:72%;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 68%);pointer-events:none}
-.card:hover{border-color:var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.32);transform:translateY(-2px)}
-.card-top{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:10px}
-.card h3{font-family:var(--font-title);font-size:clamp(16px,1.35vw,23px);line-height:1.12;font-weight:800;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:-.02em}
-.badge{font-size:10px;padding:4px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.meta{position:relative;z-index:1;font-size:clamp(11px,.88vw,13px);gap:7px;line-height:1.38}
-.meta div{grid-template-columns:19px minmax(0,1fr)}
-.chips{position:relative;z-index:1;margin-top:10px;margin-bottom:10px;gap:6px}
-.chip{font-size:10px;padding:4px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.card-actions{position:relative;z-index:1;display:flex;gap:8px;margin-top:auto}
-.card-actions .btn{padding:9px 10px;font-size:11.5px;border-radius:11px}
-.card-ghost{aspect-ratio:1/1;border-radius:18px}
-.empty{grid-column:1/-1;min-height:118px;display:grid;place-items:center;border:1px dashed rgba(201,168,76,.18);border-radius:16px;background:rgba(255,255,255,.025)}
-@media(max-width:1180px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:720px){.content{padding:14px 12px 26px}.cards{grid-template-columns:1fr;padding:12px}.card{aspect-ratio:1/1}.toolbar{overflow:hidden}.header{position:relative}.header-actions{width:100%;justify-content:flex-start}.btn{min-height:38px}}
+/* FEED 9x9 — sem colunas Kanban e sem rolagem horizontal.
+   Os status/grupos aparecem como indicador dentro do próprio card. */
+:root{--feed-cols:3;--feed-gap:18px;--feed-card-min:0px}
+.content{padding:18px 22px 34px;max-width:100%;overflow-x:hidden}
+.kanban{display:grid;grid-template-columns:repeat(var(--feed-cols),minmax(0,1fr));gap:var(--feed-gap);align-items:start;width:100%;max-width:100%;min-width:0;overflow-x:hidden;padding:0 0 36px}
+.feed-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;background:linear-gradient(135deg,rgba(27,46,66,.86),rgba(22,36,56,.74));border:1px solid var(--line);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
+.feed-head h2{font-family:var(--font-title);font-size:16px;color:var(--gold2);line-height:1.15}.feed-head p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}.feed-count{font-family:var(--font-title);font-size:28px;color:var(--gold2);line-height:1}.feed-count span{display:block;font-family:var(--font-mono);font-size:10px;color:var(--muted);font-weight:500;text-align:right;text-transform:uppercase;letter-spacing:.06em}
+body.card-size-compact{--feed-cols:4;--feed-gap:14px}body.card-size-normal{--feed-cols:3;--feed-gap:18px}body.card-size-large{--feed-cols:2;--feed-gap:20px}body.card-size-xlarge{--feed-cols:1;--feed-gap:22px}
+.column{display:contents}.col-head{display:none}.cards{display:contents;overflow:visible;padding:0}.empty{grid-column:1/-1;min-height:220px;display:grid;place-items:center;border:1px dashed rgba(201,168,76,.24);border-radius:22px;background:rgba(27,46,66,.54);text-align:center;padding:18px;color:var(--muted);font-family:var(--font-mono);font-size:12px;box-shadow:var(--shadow)}
+.card{aspect-ratio:1/1;min-height:0;padding:18px;border-radius:22px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(22,36,56,.98),rgba(27,46,66,.92));display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-width:0;max-width:100%;box-shadow:0 10px 28px rgba(0,0,0,.26);border:1.5px solid rgba(201,168,76,.16);cursor:pointer;isolation:isolate;transition:.18s}
+.card::before{content:'';position:absolute;inset:auto -22% -34% auto;width:78%;height:78%;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 68%);pointer-events:none;z-index:0}.card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--status-color,var(--gold));opacity:.95;z-index:1}.card:hover{border-color:var(--gold);box-shadow:0 16px 38px rgba(0,0,0,.34);transform:translateY(-2px)}
+.card.status-aguardando{--status-color:var(--gold2)}.card.status-solicitado{--status-color:var(--blue)}.card.status-parcial{--status-color:var(--warn)}.card.status-completo{--status-color:var(--ok)}.card.status-pendencia{--status-color:var(--danger)}.card.status-sem_movimento{--status-color:var(--gray)}.card.status-conferido{--status-color:var(--purple)}
+.card-top{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:6px;min-width:0}.card h3{font-family:var(--font-title);font-size:clamp(16px,1.28vw,24px);line-height:1.08;font-weight:800;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:-.025em;overflow-wrap:anywhere;min-width:0}.status-pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;border:1px solid rgba(201,168,76,.32);background:rgba(201,168,76,.10);color:var(--text);border-radius:999px;padding:7px 10px;font-family:var(--font-title);font-size:11px;font-weight:800;line-height:1;text-transform:uppercase;letter-spacing:.02em;box-shadow:0 6px 18px rgba(0,0,0,.14)}.status-dot{width:9px;height:9px;border-radius:999px;background:var(--status-color);box-shadow:0 0 0 4px rgba(201,168,76,.12);flex:0 0 auto}.status-pill span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{position:relative;z-index:2;font-size:clamp(10px,.82vw,12.5px);gap:5px;line-height:1.28;min-width:0}.meta div{grid-template-columns:19px minmax(0,1fr)}.meta .owner-alert{color:var(--warn)}
+.card-docs{position:relative;z-index:2;display:grid;gap:8px;margin-top:8px;min-width:0}.card-doc-toggle-list{position:relative;z-index:2;display:grid;gap:5px;max-height:clamp(82px,9.5vw,150px);overflow-y:auto;padding-right:3px;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.45) rgba(255,255,255,.04)}.card-doc-toggle{display:grid;grid-template-columns:18px minmax(0,1fr);gap:7px;align-items:center;border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.035);border-radius:11px;padding:6px 7px;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);cursor:pointer;min-width:0}.card-doc-toggle input{position:absolute;opacity:0;pointer-events:none}.card-doc-toggle span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.card-doc-toggle.done{color:var(--ok);border-color:rgba(0,206,201,.34);background:rgba(0,206,201,.11);font-weight:800}.card-doc-toggle.missing{color:var(--gold2)}.card-doc-toggle span.doc-name-wrap{white-space:normal}.doc-toggle-mark{width:18px;height:18px;border-radius:7px;display:grid;place-items:center;border:1px solid rgba(201,168,76,.30);background:rgba(13,27,42,.32);font-weight:900;color:inherit}.card-doc-toggle.done .doc-toggle-mark{border-color:rgba(0,206,201,.52);background:rgba(0,206,201,.16)}.received-ratio{display:block;font-family:var(--font-title);font-size:18px;color:var(--text);line-height:1;margin-top:2px}.doc-card-empty{font-family:var(--font-mono);font-size:10px;color:var(--muted);border:1px dashed rgba(201,168,76,.20);border-radius:12px;padding:8px;text-align:center} .received-highlight{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border:1px solid rgba(0,206,201,.26);background:linear-gradient(135deg,rgba(0,206,201,.14),rgba(0,206,201,.06));border-radius:16px;padding:10px 11px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}.received-number{font-family:var(--font-title);font-size:clamp(26px,2.4vw,44px);font-weight:800;line-height:.9;color:var(--ok);letter-spacing:-.05em}.received-label{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;display:block}.doc-line{min-width:0}.doc-line-title{font-family:var(--font-mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:block}.chips{position:relative;z-index:2;margin-top:0;margin-bottom:0;gap:6px;min-width:0}.chip{font-size:10.5px;padding:5px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chip.received{color:var(--ok);border-color:rgba(0,206,201,.34);background:rgba(0,206,201,.12);font-weight:800}.chip.ok{color:var(--ok);border-color:rgba(0,206,201,.36);background:rgba(0,206,201,.12);font-weight:800}.chip.missing{color:var(--gold2);border-color:rgba(201,168,76,.28);background:rgba(201,168,76,.08)}.chip.danger{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10);font-weight:800}
+.card-actions{position:relative;z-index:2;display:flex;gap:8px;margin-top:auto;min-width:0}.card-actions .btn{padding:9px 10px;font-size:11.5px;border-radius:12px;flex:1;min-width:0}.card-actions .btn.delete-card{flex:0 0 auto;width:42px;padding:9px 8px;color:var(--danger);border-color:rgba(255,118,117,.24);background:rgba(255,118,117,.07)}.card-ghost{aspect-ratio:1/1;border-radius:22px}
+body.card-size-compact .card{padding:13px;border-radius:18px}body.card-size-compact .card h3{font-size:clamp(12px,1.05vw,17px);-webkit-line-clamp:2}body.card-size-compact .card-actions .btn{font-size:10px;padding:7px 6px}body.card-size-compact .meta{font-size:9.5px;gap:3px}body.card-size-compact .chip{font-size:8.8px;padding:3px 5px}body.card-size-compact .received-highlight{padding:8px;gap:7px}body.card-size-compact .received-number{font-size:24px}
+body.card-size-large .card h3,body.card-size-xlarge .card h3{font-size:clamp(20px,1.9vw,30px)}body.card-size-large .received-number,body.card-size-xlarge .received-number{font-size:clamp(38px,3vw,58px)}
+@media(max-width:1180px){body.card-size-compact,body.card-size-normal{--feed-cols:2}body.card-size-large{--feed-cols:2}body.card-size-xlarge{--feed-cols:1}.toolbar{overflow:hidden}}
+@media(max-width:720px){body.card-size-compact,body.card-size-normal,body.card-size-large,body.card-size-xlarge{--feed-cols:1}.content{padding:14px 12px 26px}.kanban{gap:14px}.card{aspect-ratio:1/1}.header{position:relative}.header-actions{width:100%;justify-content:flex-start}.card-size-controls{width:100%;justify-content:space-between}.btn{min-height:38px}.feed-head{align-items:flex-start;flex-direction:column}.feed-count span{text-align:left}}
 
 /* NOVO RECEBIMENTO */
 .company-preview{border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.065);border-radius:14px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.45;min-height:54px}
@@ -156,6 +165,21 @@ select option{background:#1b2e42;color:#e8eaf0}
 .company-preview .preview-meta{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);display:grid;gap:2px}
 .company-preview .already{display:inline-flex;margin-top:7px;border:1px solid rgba(253,203,110,.32);background:rgba(253,203,110,.10);color:var(--warn);border-radius:999px;padding:3px 8px;font-family:var(--font-mono);font-size:10px;font-weight:700}
 .new-helper{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+
+
+
+/* Correção: manter Abrir/Cobrar sempre visíveis no rodapé do card.
+   A lista de documentos rola dentro do próprio card, sem rolagem horizontal. */
+.card{justify-content:flex-start;overflow:hidden}
+.card > div:first-child{position:relative;z-index:2;min-height:0;flex:1 1 auto;overflow:hidden;display:flex;flex-direction:column}
+.card .card-top,.card .meta,.card .received-highlight,.card .doc-line{flex:0 0 auto}
+.card .card-docs{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:8px}
+.card .card-doc-toggle-list{flex:1 1 auto;min-height:44px;max-height:none;overflow-y:auto;padding-right:4px}
+.card-actions{flex:0 0 auto;position:relative;z-index:5;display:flex!important;visibility:visible!important;opacity:1!important;margin-top:8px;padding-top:8px;border-top:1px solid rgba(201,168,76,.16);background:linear-gradient(180deg,rgba(13,27,42,0),rgba(13,27,42,.20))}
+.card-actions .btn{min-height:36px;font-weight:800;letter-spacing:.01em}
+body.card-size-compact .card .doc-line{display:none}
+body.card-size-compact .card .card-doc-toggle-list{min-height:34px}
+@media(max-width:720px){.card-actions .btn{min-height:40px;font-size:12px}.card .card-doc-toggle-list{min-height:60px}}
 
 @media print{
   @page{size:A4 portrait;margin:12mm}
@@ -178,13 +202,18 @@ select option{background:#1b2e42;color:#e8eaf0}
     <div class="logo">BIF</div>
     <div class="title">
       <h1>Controle de Recebimento de Movimento / Documentos</h1>
-      <p>Empresas do Painel/Firebase • padrão Alef • cache local como fallback</p>
+      <p>Empresas do Painel/Firebase • atualização ao vivo • cache local como fallback</p>
     </div>
   </div>
   <div class="header-actions">
     <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
     <button type="button" class="btn primary" id="btnNovoRecebimento">➕ Novo recebimento</button>
     <button type="button" class="btn" id="btnAtualizarEmpresas">🔄 Atualizar empresas</button>
+    <div class="card-size-controls" aria-label="Tamanho dos cards">
+      <button type="button" class="btn ghost" id="btnCardMenos" title="Diminuir cards">− Card</button>
+      <span class="size-label" id="cardSizeLabel">3 colunas</span>
+      <button type="button" class="btn ghost" id="btnCardMais" title="Aumentar cards">+ Card</button>
+    </div>
     <button type="button" class="btn ghost" id="btnReload">↻ Recarregar</button>
     <button type="button" class="btn" id="btnExport">⬇ CSV</button>
     <button type="button" class="btn" id="btnBackup">🧾 Backup</button>
@@ -299,7 +328,7 @@ select option{background:#1b2e42;color:#e8eaf0}
         <div class="field"><label>Prazo</label><input id="newPrazo" type="date" /></div>
       </div>
       <div id="newEmpresaPreview" class="company-preview">Carregando empresas do Painel/Index...</div>
-      <p class="new-helper">A lista vem do Firebase em <strong>painel/empresas</strong>, do cache do Painel e da base embarcada do Index. Use <strong>Atualizar empresas</strong> quando alterar algo no Painel; o seletor mostra quantas empresas foram lidas no total e quantas pertencem ao colaborador escolhido.</p>
+      <p class="new-helper">A lista fica ouvindo o Firebase em <strong>painel/empresas</strong> em tempo real. O cache/localStorage e o Index entram apenas como fallback; se o Painel mudar responsável, cadastro ou nova empresa, esta tela atualiza sozinha.</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn ghost" id="btnCancelNew">Cancelar</button>
@@ -326,8 +355,9 @@ select option{background:#1b2e42;color:#e8eaf0}
         <div class="field"><label>Última cobrança</label><input id="mUltimaCobranca" type="date" /></div>
         <div class="field"><label>Contato do cliente</label><input id="mContato" placeholder="Nome / WhatsApp / e-mail" /></div>
       </div>
-      <div class="section-title">Documentos recebidos</div>
-      <div class="docs-grid" id="docsGrid"></div>
+      <div class="section-title with-action"><span>Documentos da empresa / recebidos</span><button type="button" class="btn ok" id="btnAddDoc">➕ Documento</button></div>
+      <div class="docs-editor" id="docsGrid"></div>
+      <p class="doc-helper">Edite aqui quais documentos essa empresa costuma enviar. Esses mesmos itens aparecem no card e podem ser marcados como recebidos sem abrir a janela.</p>
       <div class="section-title">Acompanhamento</div>
       <div class="form-grid one">
         <div class="field full"><label>Próximo passo</label><textarea id="mProximo" rows="2" placeholder="Ex.: Cobrar extrato e XML de entradas até sexta-feira"></textarea></div>
@@ -341,6 +371,7 @@ select option{background:#1b2e42;color:#e8eaf0}
       <button type="button" class="btn warn" id="btnMarkSolicitado">Marcar solicitado</button>
       <button type="button" class="btn ok" id="btnMarkCompleto">Marcar completo</button>
       <button type="button" class="btn ghost" id="btnMarkSemMov">Sem movimento</button>
+      <button type="button" class="btn danger" id="btnDeleteCurrent">🗑️ Excluir card</button>
       <button type="button" class="btn primary" id="btnSave">Salvar</button>
     </div>
   </div>
@@ -353,6 +384,20 @@ const COLABORADOR_ALVO = 'ALEF';
 const CONTROLES_PATH = 'bif_controle_recebimento_movimentos';
 const CACHE_KEY = 'bif_controle_recebimento_movimentos_v1';
 const PAINEL_CACHE_KEY = 'gestao_v3';
+const PAINEL_CACHE_KEYS = ['gestao_v3','gestao_empresas','painel','painel_gestao_empresas'];
+const PAINEL_EMPRESAS_FB_PATH = 'painel/empresas';
+const PAINEL_SYNC_POLL_MS = 30000;
+const CARD_SIZE_KEY = 'bif_recebimento_card_size_v2';
+const CARD_SIZE_LEVELS = [
+  { cls:'card-size-compact', label:'4 colunas', hint:'cards menores' },
+  { cls:'card-size-normal', label:'3 colunas', hint:'feed 9x9' },
+  { cls:'card-size-large', label:'2 colunas', hint:'cards maiores' },
+  { cls:'card-size-xlarge', label:'1 coluna', hint:'máximo' }
+];
+const EMPRESA_OVERRIDES_RECEBIMENTO = {
+  // Correção operacional informada: no Painel atual, Laboratório Campos está com Alef.
+  '46898219000150': { colaborador:'ALEF', regime:'real', atividade:'Laboratórios clínicos (8640202)' }
+};
 
 // Base extraída do Painel/Index enviado: usada para completar a lista quando o Firebase/cache traz só parte das empresas.
 const PAINEL_INDEX_ALEF_EMBARCADO = [
@@ -878,13 +923,18 @@ const state = {
   database: null,
   movimentosUnsub: null,
   empresasUnsub: null,
+  painelPollTimer: null,
+  painelLocalSignature: '',
+  painelFirebaseSignature: '',
+  anonAttempted: false,
   authUser: null,
   dataSource: 'inicial',
   firebaseEmpresas: [],
   indexEmpresas: [],
   empresasTodas: [],
   colaboradorFiltro: COLABORADOR_ALVO,
-  indexFetchDone: false
+  indexFetchDone: false,
+  cardSizeLevel: 1
 };
 
 function qs(id) { return document.getElementById(id); }
@@ -895,6 +945,41 @@ function todayISO() { return new Date().toISOString().slice(0,10); }
 function currentMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
 function compLabel(v) { if(!v) return ''; const [y,m] = v.split('-'); return `${m}/${y}`; }
 function moneylessDate(v) { if(!v) return ''; const [y,m,d] = String(v).split('-'); return d&&m&&y ? `${d}/${m}/${y}` : v; }
+function sanitizeDateISO(v) {
+  const s = String(v || '').trim();
+  if(!s) return '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const br = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+  if(br) return `${br[3]}-${String(br[2]).padStart(2,'0')}-${String(br[1]).padStart(2,'0')}`;
+  return '';
+}
+function askReceiptDate(docLabel, current='') {
+  const label = docLabel || 'documento';
+  if(!confirm(`Confirma recebimento de "${label}"?`)) return null;
+  const suggestion = sanitizeDateISO(current) || todayISO();
+  const value = prompt(`Informe a data do recebimento de "${label}".\n\nUse AAAA-MM-DD ou DD/MM/AAAA.`, suggestion);
+  if(value === null) return null;
+  const date = sanitizeDateISO(value);
+  if(!date) {
+    alert('Data inválida. Use AAAA-MM-DD ou DD/MM/AAAA.');
+    return null;
+  }
+  return date;
+}
+function askBulkReceiptDate() {
+  if(!confirm('Confirma recebimento completo dos documentos desta empresa?')) return null;
+  const value = prompt('Informe a data de recebimento para todos os documentos.\n\nUse AAAA-MM-DD ou DD/MM/AAAA.', todayISO());
+  if(value === null) return null;
+  const date = sanitizeDateISO(value);
+  if(!date) {
+    alert('Data inválida. Use AAAA-MM-DD ou DD/MM/AAAA.');
+    return null;
+  }
+  return date;
+}
+function confirmUnreceive(docLabel) {
+  return confirm(`Remover marcação de recebimento de "${docLabel || 'documento'}"?\n\nA data de recebimento também será removida do relatório.`);
+}
 function cnpjFmt(v) { const n=digits(v); if(n.length!==14) return v||''; return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'); }
 function statusInfo(id) { return STATUS.find(s => s.id === id) || STATUS[0]; }
 function regimeLabel(v) { return ({simples:'Simples Nacional', presumido:'Lucro Presumido', real:'Lucro Real', outros:'Outros'})[v] || v || 'Não informado'; }
@@ -911,6 +996,21 @@ function toast(msg, type='ok') {
   el.textContent = msg;
   clearTimeout(window.__toastTimer);
   window.__toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function applyCardSize() {
+  const max = CARD_SIZE_LEVELS.length - 1;
+  state.cardSizeLevel = Math.max(0, Math.min(max, Number(state.cardSizeLevel) || 1));
+  CARD_SIZE_LEVELS.forEach(x => document.body.classList.remove(x.cls));
+  const level = CARD_SIZE_LEVELS[state.cardSizeLevel] || CARD_SIZE_LEVELS[1];
+  document.body.classList.add(level.cls);
+  const label = qs('cardSizeLabel');
+  if(label) label.textContent = level.label;
+  try { localStorage.setItem(CARD_SIZE_KEY, String(state.cardSizeLevel)); } catch(e) {}
+}
+function changeCardSize(delta) {
+  state.cardSizeLevel = Math.max(0, Math.min(CARD_SIZE_LEVELS.length - 1, state.cardSizeLevel + delta));
+  applyCardSize();
 }
 
 function getCampoPersonalizado(e, termos) {
@@ -941,14 +1041,17 @@ function colaboradorFromEmpresa(e) {
 
 function normalizeEmpresa(e) {
   e = e || {};
-  const colab = colaboradorFromEmpresa(e);
+  const cnpj = digits(e.cnpj || e.CNPJ || e.cnpjCpf || e.documento || e.companyCnpj || '');
+  const override = EMPRESA_OVERRIDES_RECEBIMENTO[cnpj] || {};
+  const colab = override.colaborador || colaboradorFromEmpresa(e);
   return {
     ...e,
-    nome: e.nome || e.razaoSocial || e.razao_social || e.empresa || e.nomeEmpresa || e.companyName || 'Empresa sem nome',
-    cnpj: digits(e.cnpj || e.CNPJ || e.cnpjCpf || e.documento || e.companyCnpj || ''),
+    ...override,
+    nome: override.nome || e.nome || e.razaoSocial || e.razao_social || e.empresa || e.nomeEmpresa || e.companyName || 'Empresa sem nome',
+    cnpj,
     colaborador: colab,
-    regime: e.regime || e.regimeTributario || e.regime_tributario || 'outros',
-    atividade: e.atividade || e.atividadeEconomica || e.atividade_economica || e.cnaeDescricao || e.cnae_descricao || '',
+    regime: override.regime || e.regime || e.regimeTributario || e.regime_tributario || 'outros',
+    atividade: override.atividade || e.atividade || e.atividadeEconomica || e.atividade_economica || e.cnaeDescricao || e.cnae_descricao || '',
     fechada: !!e.fechada || String(e.statusEmpresa || e.status || '').toLowerCase().includes('fechada'),
     obrigacoes: Array.isArray(e.obrigacoes) ? e.obrigacoes : []
   };
@@ -988,8 +1091,15 @@ function updateFonteInfo() {
 }
 
 function normalizeRecord(r, empresa) {
+  r = r || {};
+  const docDefs = normalizeDocDefs(r.docDefs, r.docs);
   const docs = {};
-  DOCS.forEach(d => docs[d.id] = !!(r && r.docs && r.docs[d.id]));
+  const docReceivedAt = {};
+  docDefs.forEach(d => {
+    docs[d.id] = !!(r.docs && r.docs[d.id]);
+    const receivedDate = sanitizeDateISO(r.docReceivedAt && r.docReceivedAt[d.id]);
+    if(docs[d.id] && receivedDate) docReceivedAt[d.id] = receivedDate;
+  });
   return {
     empresaKey: recordKeyEmpresa(empresa),
     empresaNome: empresa.nome || '',
@@ -998,17 +1108,19 @@ function normalizeRecord(r, empresa) {
     atividade: empresa.atividade || '',
     colaborador: empresa.colaborador || COLABORADOR_ALVO,
     competencia: state.competencia,
-    status: (r && r.status) || 'aguardando',
-    movimento: (r && r.movimento) || 'nao_informado',
+    status: r.status || 'aguardando',
+    movimento: r.movimento || 'nao_informado',
+    docDefs,
     docs,
-    prazo: (r && r.prazo) || '',
-    dataSolicitacao: (r && r.dataSolicitacao) || '',
-    ultimaCobranca: (r && r.ultimaCobranca) || '',
-    contato: (r && r.contato) || '',
-    proximoPasso: (r && r.proximoPasso) || '',
-    pendencia: (r && r.pendencia) || '',
-    observacoes: (r && r.observacoes) || '',
-    updatedAt: (r && r.updatedAt) || ''
+    docReceivedAt,
+    prazo: r.prazo || '',
+    dataSolicitacao: r.dataSolicitacao || '',
+    ultimaCobranca: r.ultimaCobranca || '',
+    contato: r.contato || '',
+    proximoPasso: r.proximoPasso || '',
+    pendencia: r.pendencia || '',
+    observacoes: r.observacoes || '',
+    updatedAt: r.updatedAt || ''
   };
 }
 
@@ -1027,13 +1139,56 @@ function loadLocalForCompetencia(comp) {
   const cache = localRead();
   return cache.movimentos && cache.movimentos[comp] ? cache.movimentos[comp] : {};
 }
+function extrairEmpresasDeObjeto(d) {
+  const arr = [];
+  const push = v => {
+    if(!v) return;
+    if(Array.isArray(v)) arr.push(...v);
+    else if(typeof v === 'object') arr.push(...Object.values(v));
+  };
+  if(!d) return arr;
+  if(Array.isArray(d)) push(d);
+  push(d.empresas);
+  push(d.S && d.S.empresas);
+  push(d.state && d.state.empresas);
+  push(d.painel && d.painel.empresas);
+  push(d.data && d.data.empresas);
+  return arr.map(normalizeEmpresa).filter(e => recordKeyEmpresa(e));
+}
 function loadPainelCacheEmpresas() {
-  try {
-    const raw = localStorage.getItem(PAINEL_CACHE_KEY);
-    if(!raw) return [];
-    const d = JSON.parse(raw);
-    return Array.isArray(d.empresas) ? d.empresas.map(normalizeEmpresa).filter(e => recordKeyEmpresa(e)) : [];
-  } catch(e) { return []; }
+  const listas = [];
+  for(const key of PAINEL_CACHE_KEYS) {
+    try {
+      const raw = localStorage.getItem(key);
+      if(!raw) continue;
+      const d = JSON.parse(raw);
+      const lista = extrairEmpresasDeObjeto(d);
+      if(lista.length) listas.push(lista);
+    } catch(e) {}
+  }
+  return mergeEmpresasTodas(...listas);
+}
+function assinaturaEmpresas(lista) {
+  return (lista || []).map(e => {
+    const n = normalizeEmpresa(e);
+    return [recordKeyEmpresa(n), norm(n.nome), norm(n.colaborador), norm(n.regime), norm(n.atividade), n.fechada ? '1' : '0'].join('|');
+  }).sort().join('§');
+}
+function empresasFromFirebaseSnapshot(snap) {
+  if(!snap || !snap.exists()) return [];
+  const val = snap.val();
+  if(Array.isArray(val)) return val.map(normalizeEmpresa).filter(e => recordKeyEmpresa(e));
+  if(val && typeof val === 'object') {
+    const direta = extrairEmpresasDeObjeto(val);
+    if(direta.length && (Array.isArray(val.empresas) || val.S || val.state || val.painel || val.data)) return direta;
+    const list = [];
+    snap.forEach(child => {
+      const v = child.val();
+      if(v && typeof v === 'object') list.push(normalizeEmpresa({ _fbKey: child.key, ...v }));
+    });
+    return list.filter(e => recordKeyEmpresa(e));
+  }
+  return [];
 }
 
 function mergeEmpresasTodas(...sources) {
@@ -1069,9 +1224,9 @@ function setEmpresasCompletas(reason, preferCloudStatus=true) {
     state.firebaseEmpresas,
     semFirebaseKeys(state.indexEmpresas),
     semFirebaseKeys(fromLocal),
-    semFirebaseKeys(typeof PAINEL_INDEX_TODAS_EMBARCADO !== 'undefined' ? PAINEL_INDEX_TODAS_EMBARCADO : []),
+    semFirebaseKeys(FALLBACK_ALEF_EMPRESAS),
     semFirebaseKeys(PAINEL_INDEX_ALEF_EMBARCADO),
-    semFirebaseKeys(FALLBACK_ALEF_EMPRESAS)
+    semFirebaseKeys(typeof PAINEL_INDEX_TODAS_EMBARCADO !== 'undefined' ? PAINEL_INDEX_TODAS_EMBARCADO : [])
   );
   state.empresasTodas = allMerged;
   state.empresas = allMerged.filter(empresaPassaFiltroColaborador);
@@ -1172,29 +1327,32 @@ async function carregarEmpresasDoIndexHtml(force=false) {
   }
 }
 
-async function atualizarListaEmpresas() {
-  setCloudStatus('loading', 'Atualizando lista de empresas do Painel...');
+async function atualizarListaEmpresas(silent=false) {
+  if(!silent) setCloudStatus('loading', 'Atualizando lista de empresas do Painel...');
   try {
+    let mudouFirebase = false;
     if(state.firebaseReady && state.database && window.__firebaseFns && window.__firebaseFns.get) {
       const { ref, get } = window.__firebaseFns;
-      const snap = await get(ref(state.database, 'painel/empresas'));
-      const list = [];
-      if(snap.exists()) snap.forEach(child => list.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() })));
+      const snap = await get(ref(state.database, PAINEL_EMPRESAS_FB_PATH));
+      const list = empresasFromFirebaseSnapshot(snap);
       if(list.length) {
+        const sig = assinaturaEmpresas(list);
+        mudouFirebase = sig !== state.painelFirebaseSignature;
+        state.painelFirebaseSignature = sig;
         state.firebaseEmpresas = list;
-      } else if((state.firebaseEmpresas || []).length) {
+      } else if((state.firebaseEmpresas || []).length && !silent) {
         toast('Firebase não retornou empresas agora; mantive a lista já carregada.', 'warn');
       }
     }
     state.indexFetchDone = false;
     await carregarEmpresasDoIndexHtml(true);
-    setEmpresasCompletas('Lista de empresas atualizada pelo Painel', true);
+    setEmpresasCompletas(silent ? (mudouFirebase ? 'Painel atualizado automaticamente' : 'Painel conferido automaticamente') : 'Lista de empresas atualizada pelo Painel', true);
     renderNewEmpresaOptions();
-    toast(`Lista atualizada: ${state.empresas.length}/${state.empresasTodas.length || state.empresas.length} empresa(s).`, 'ok');
+    if(!silent) toast(`Lista atualizada: ${state.empresas.length}/${state.empresasTodas.length || state.empresas.length} empresa(s).`, 'ok');
   } catch(e) {
     console.error(e);
     setEmpresasCompletas('Falha parcial na atualização; cache preservado', true);
-    toast('Não consegui atualizar pela nuvem agora. Mantive a lista/cache atual.', 'warn');
+    if(!silent) toast('Não consegui atualizar pela nuvem agora. Mantive a lista/cache atual.', 'warn');
   }
 }
 
@@ -1222,7 +1380,52 @@ function getRecord(key) {
   const emp = getEmpresaByKey(key) || {};
   return normalizeRecord(state.movimentos[key] || {}, emp);
 }
-function missingDocs(rec) { return DOCS.filter(d => !rec.docs[d.id]); }
+function slugDocId(label, prefix='doc') {
+  const base = norm(label || prefix).toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,42);
+  return base || `${prefix}_${Date.now().toString(36)}`;
+}
+function normalizeDocDefs(defs, docsObj={}) {
+  const src = Array.isArray(defs) && defs.length ? defs : DOCS;
+  const seen = new Set();
+  const out = [];
+  src.forEach((d, idx) => {
+    const raw = typeof d === 'string' ? {label:d} : (d || {});
+    const label = String(raw.label || raw.nome || raw.name || '').trim();
+    if(!label) return;
+    let id = String(raw.id || slugDocId(label, `doc_${idx+1}`)).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);
+    if(!id) id = `doc_${idx+1}`;
+    const original = id;
+    let n = 2;
+    while(seen.has(id)) id = `${original}_${n++}`;
+    seen.add(id);
+    out.push({ id, label, hint: String(raw.hint || raw.descricao || raw.description || '').trim() });
+  });
+  if(docsObj && typeof docsObj === 'object') {
+    Object.keys(docsObj).forEach(id => {
+      if(seen.has(id)) return;
+      const base = DOCS.find(d => d.id === id);
+      const safeId = String(id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64) || `doc_extra_${out.length+1}`;
+      seen.add(safeId);
+      out.push({ id:safeId, label: base ? base.label : safeId.replace(/_/g,' '), hint: base ? base.hint : '' });
+    });
+  }
+  return out.length ? out : DOCS.map(d => ({...d}));
+}
+function recordDocs(rec) { return normalizeDocDefs(rec && rec.docDefs, rec && rec.docs); }
+function missingDocs(rec) { return recordDocs(rec).filter(d => !(rec.docs && rec.docs[d.id])); }
+function receivedDocs(rec) { return recordDocs(rec).filter(d => rec.docs && rec.docs[d.id]); }
+function receivedDocsWithDates(rec) {
+  return receivedDocs(rec).map(d => ({...d, receivedAt: (rec.docReceivedAt && rec.docReceivedAt[d.id]) || ''}));
+}
+function receivedReportText(rec) {
+  return receivedDocsWithDates(rec).map(d => `${d.label}${d.receivedAt ? ' — '+moneylessDate(d.receivedAt) : ''}`).join(', ');
+}
+function docChipsHtml(list, cls, emptyText, limit=3) {
+  if(!list.length) return `<span class="chip ${cls || ''}">${esc(emptyText)}</span>`;
+  const shown = list.slice(0, limit).map(d => `<span class="chip ${cls || ''}">${esc(d.label)}</span>`).join('');
+  const more = list.length > limit ? `<span class="chip ${cls || ''}">+${list.length - limit}</span>` : '';
+  return shown + more;
+}
 function isConcluido(rec) { return ['completo','sem_movimento','conferido'].includes(rec.status); }
 function isAtrasado(rec) { return !!rec.prazo && !isConcluido(rec) && rec.prazo < todayISO(); }
 function prazoBucket(rec) {
@@ -1237,7 +1440,13 @@ function prazoBucket(rec) {
 function recebimentoKeys() {
   return Object.keys(state.movimentos || {}).filter(key => {
     const rec = state.movimentos[key];
-    return rec && typeof rec === 'object' && (rec.empresaNome || rec.cnpj || getEmpresaByKey(key));
+    if(!rec || typeof rec !== 'object') return false;
+    const emp = getEmpresaByKey(key);
+    if(!emp && !(rec.empresaNome || rec.cnpj)) return false;
+    // Se a empresa mudou de responsável no Painel, o card acompanha o filtro atual.
+    // O registro continua salvo; para localizar algo de outro responsável, use "Todos" no seletor de novo recebimento.
+    const alvo = emp || normalizeEmpresa({ nome: rec.empresaNome, cnpj: rec.cnpj, colaborador: rec.colaborador });
+    return empresaPassaFiltroColaborador(alvo);
   });
 }
 
@@ -1276,48 +1485,65 @@ function renderKpis() {
 function renderKanban() {
   const host = qs('kanban');
   const items = filteredItems();
-  const noCreated = recebimentoKeys().length === 0;
-  host.innerHTML = STATUS.map(st => {
-    const colItems = items.filter(x => x.rec.status === st.id);
-    let emptyText = 'Nenhum recebimento nesta coluna.';
-    if(noCreated && st.id === 'aguardando') emptyText = 'Clique em "Novo recebimento" para começar.';
-    const cards = colItems.map(x => renderCard(x.empresa, x.key, x.rec)).join('') || `<div class="empty">${emptyText}</div>`;
-    return `<section class="column" data-status="${st.id}"
-      ondragover="onColDragOver(event)"
-      ondragleave="onColDragLeave(event)"
-      ondrop="onColDrop(event,'${st.id}')">
-      <div class="col-head"><div class="col-title"><b>${esc(st.label)}</b><span>${esc(st.hint)}</span></div><span class="count">${colItems.length}</span></div>
-      <div class="cards">${cards}</div>
-    </section>`;
-  }).join('');
+  const totalRecebimentos = recebimentoKeys().length;
+  const subtitulo = state.statusFilter
+    ? `Filtro ativo: ${statusInfo(state.statusFilter).label}`
+    : 'Todos os grupos aparecem como indicador dentro do card.';
+  const head = `<div class="feed-head">
+    <div><h2>Feed de recebimentos 9x9</h2><p>${esc(subtitulo)} Sem rolagem horizontal; use os filtros acima para focar por status, documento ou prazo.</p></div>
+    <div class="feed-count">${items.length}<span>${items.length === 1 ? 'card visível' : 'cards visíveis'}</span></div>
+  </div>`;
+  if(!items.length) {
+    const empty = totalRecebimentos === 0
+      ? 'Clique em "Novo recebimento" para criar o primeiro card da competência.'
+      : 'Nenhum card encontrado com os filtros atuais.';
+    host.innerHTML = head + `<div class="empty">${empty}</div>`;
+    return;
+  }
+  host.innerHTML = head + items.map(x => renderCard(x.empresa, x.key, x.rec)).join('');
 }
 function renderCard(e, key, rec) {
+  const defs = recordDocs(rec);
   const miss = missingDocs(rec);
-  const missChips = rec.status === 'sem_movimento'
-    ? '<span class="chip ok">Sem movimento</span>'
-    : (miss.slice(0,2).map(d => `<span class="chip missing">${esc(d.label)}</span>`).join('')
-       + (miss.length>2 ? `<span class="chip missing">+${miss.length-2}</span>` : ''));
+  const received = receivedDocs(rec);
+  const st = statusInfo(rec.status);
   const prazoClass = isAtrasado(rec) ? 'danger' : (rec.prazo ? '' : 'missing');
-  const proximo = rec.proximoPasso || (rec.status === 'aguardando' ? 'Solicitar documentos' : '—');
-  return `<article class="card" data-key="${esc(key)}" draggable="true"
-    onclick="openModal('${esc(key)}')"
-    ondragstart="onCardDragStart(event,'${esc(key)}')"
-    ondragend="onCardDragEnd(event)">
+  const totalDocs = defs.length;
+  const docListHtml = defs.length
+    ? defs.map(d => {
+        const checked = !!(rec.docs && rec.docs[d.id]);
+        const receivedAt = checked ? ((rec.docReceivedAt && rec.docReceivedAt[d.id]) || '') : '';
+        return `<label class="card-doc-toggle ${checked ? 'done' : 'missing'}" title="${esc(d.label)}" onclick="event.stopPropagation()">
+          <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleDocOnCard(event,'${esc(key)}','${esc(d.id)}')" />
+          <span class="doc-toggle-mark">${checked ? '✓' : '○'}</span>
+          <span class="doc-name-wrap"><strong>${esc(d.label)}</strong>${receivedAt ? `<em class="doc-date-mini">${esc(moneylessDate(receivedAt))}</em>` : ''}</span>
+        </label>`;
+      }).join('')
+    : '<div class="doc-card-empty">Nenhum documento configurado.</div>';
+  const docHtml = rec.status === 'sem_movimento'
+    ? `<div class="card-docs"><div class="received-highlight"><div class="received-number">✓</div><div><span class="received-label">Movimento</span><strong class="received-ratio">Sem movimento</strong></div></div></div>`
+    : `<div class="card-docs">
+        <div class="received-highlight"><div class="received-number">${esc(received.length)}</div><div><span class="received-label">Recebidos</span><strong class="received-ratio">${esc(received.length)}/${esc(totalDocs)}</strong></div></div>
+        <div class="card-doc-toggle-list">${docListHtml}</div>
+        <div class="doc-line"><span class="doc-line-title">Ainda falta</span><div class="chips">${miss.length ? docChipsHtml(miss, 'missing', '', 2) : '<span class="chip ok">Nada pendente</span>'}${isAtrasado(rec) ? '<span class="chip danger">Atrasado</span>' : ''}</div></div>
+      </div>`;
+  return `<article class="card status-${esc(rec.status)}" data-key="${esc(key)}"
+    onclick="openModal('${esc(key)}')">
     <div>
-      <div class="card-top"><h3>${esc(e.nome)}</h3><span class="badge ${rec.status}">${esc(statusInfo(rec.status).label)}</span></div>
+      <div class="card-top"><span class="status-pill"><i class="status-dot"></i><span>${esc(st.label)}</span></span><h3>${esc(e.nome)}</h3></div>
       <div class="meta" style="margin-top:6px">
         <div><span>🏷️</span><span>${esc(cnpjFmt(e.cnpj) || 'Sem CNPJ')}</span></div>
         <div><span>🧾</span><span>${esc(regimeLabel(e.regime))}</span></div>
+        <div><span>👤</span><span class="${isAlef(e) ? '' : 'owner-alert'}">${esc(e.colaborador || rec.colaborador || 'sem responsável')}</span></div>
         <div><span>⏱️</span><span class="${prazoClass}">Prazo: ${esc(moneylessDate(rec.prazo) || 'sem prazo')}</span></div>
         ${rec.pendencia ? `<div><span>⚠️</span><span>${esc(rec.pendencia)}</span></div>` : ''}
       </div>
+      ${docHtml}
     </div>
-    <div>
-      <div class="chips" style="margin-bottom:7px">${missChips || '<span class="chip ok">Docs marcados</span>'}${isAtrasado(rec) ? '<span class="chip danger">Atrasado</span>' : ''}</div>
-      <div class="card-actions">
-        <button type="button" class="btn" onclick="event.stopPropagation();openModal('${esc(key)}')">Abrir</button>
-        <button type="button" class="btn ok" onclick="event.stopPropagation();quickCopy('${esc(key)}')">Cobrar</button>
-      </div>
+    <div class="card-actions">
+      <button type="button" class="btn" onclick="event.stopPropagation();openModal('${esc(key)}')">📂 Abrir</button>
+      <button type="button" class="btn ok" onclick="event.stopPropagation();quickCopy('${esc(key)}')">💬 Cobrar</button>
+      <button type="button" class="btn delete-card" title="Excluir card" onclick="event.stopPropagation();deleteRecord('${esc(key)}')">🗑️</button>
     </div>
   </article>`;
 }
@@ -1325,14 +1551,63 @@ function renderCard(e, key, rec) {
 function renderPrintList() {
   const items = filteredItems();
   const rows = items.map((x,i) => {
-    const r=x.rec, e=x.empresa; const miss=missingDocs(r).map(d=>d.label).join(', ');
-    return `<tr><td>${i+1}</td><td><b>${esc(e.nome)}</b><br><span class="print-small">${esc(cnpjFmt(e.cnpj))}</span></td><td>${esc(e.atividade||'')}</td><td>${esc(statusInfo(r.status).label)}</td><td>${esc(moneylessDate(r.prazo)||'')}</td><td>${esc(miss || 'OK / não aplicável')}</td><td>${esc(r.proximoPasso||'')}</td><td>${esc(r.pendencia||'')}</td></tr>`;
+    const r=x.rec, e=x.empresa;
+    const miss = missingDocs(r).map(d=>d.label).join(', ');
+    const recs = receivedReportText(r);
+    return `<tr><td>${i+1}</td><td><b>${esc(e.nome)}</b><br><span class="print-small">${esc(cnpjFmt(e.cnpj))}</span></td><td>${esc(e.atividade||'')}</td><td>${esc(statusInfo(r.status).label)}</td><td>${esc(moneylessDate(r.prazo)||'')}</td><td>${esc(recs || 'Nenhum')}</td><td>${esc(miss || 'OK / não aplicável')}</td><td>${esc(r.proximoPasso||'')}</td><td>${esc(r.pendencia||'')}</td></tr>`;
   }).join('');
-  qs('printList').innerHTML = `<div class="print-head"><h1>Controle de recebimento de movimento/documentos</h1><p>Competência: ${esc(compLabel(state.competencia))} • Total listado: ${items.length} • Gerado em ${new Date().toLocaleString('pt-BR')}</p></div><table><thead><tr><th>#</th><th>Empresa</th><th>Atividade</th><th>Status</th><th>Prazo</th><th>Documentos faltantes</th><th>Próximo passo</th><th>Pendência</th></tr></thead><tbody>${rows}</tbody></table>`;
+  qs('printList').innerHTML = `<div class="print-head"><h1>Controle de recebimento de movimento/documentos</h1><p>Competência: ${esc(compLabel(state.competencia))} • Total listado: ${items.length} • Gerado em ${new Date().toLocaleString('pt-BR')}</p></div><table><thead><tr><th>#</th><th>Empresa</th><th>Atividade</th><th>Status</th><th>Prazo</th><th>Documentos recebidos / data</th><th>Documentos faltantes</th><th>Próximo passo</th><th>Pendência</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
+function renderDocEditorRow(d, checked=false, receivedAt='') {
+  const date = checked ? sanitizeDateISO(receivedAt) : '';
+  return `<div class="doc-edit-row" data-doc-id="${esc(d.id)}" data-received-at="${esc(date)}">
+    <div class="doc-check-wrap">
+      <label class="doc-check"><input type="checkbox" class="doc-received-check" ${checked ? 'checked' : ''} /><span>Recebido</span></label>
+      <span class="doc-date-note ${date ? 'ok' : ''}">${date ? 'Data: '+esc(moneylessDate(date)) : 'Pendente'}</span>
+    </div>
+    <input class="doc-label-input" value="${esc(d.label)}" placeholder="Nome do documento" />
+    <input class="doc-hint-input" value="${esc(d.hint || '')}" placeholder="Observação curta / exemplo" />
+    <button type="button" class="doc-remove" title="Remover documento">×</button>
+  </div>`;
+}
 function renderDocsGrid(rec) {
-  qs('docsGrid').innerHTML = DOCS.map(d => `<label class="doc-item"><input type="checkbox" id="doc_${d.id}" ${rec.docs[d.id] ? 'checked' : ''} /><span><b>${esc(d.label)}</b><span>${esc(d.hint)}</span></span></label>`).join('');
+  const defs = recordDocs(rec);
+  qs('docsGrid').innerHTML = defs.map(d => renderDocEditorRow(d, !!(rec.docs && rec.docs[d.id]), rec.docReceivedAt && rec.docReceivedAt[d.id])).join('');
+}
+function addDocRow(doc={}) {
+  const label = String(doc.label || '').trim() || 'Novo documento';
+  const id = String(doc.id || `custom_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`).replace(/[^a-zA-Z0-9_-]/g,'_');
+  qs('docsGrid').insertAdjacentHTML('beforeend', renderDocEditorRow({id, label, hint: doc.hint || ''}, !!doc.checked, doc.receivedAt || ''));
+  const rows = qs('docsGrid').querySelectorAll('.doc-edit-row');
+  const last = rows[rows.length - 1];
+  last?.querySelector('.doc-label-input')?.select();
+}
+function collectDocsFromEditor() {
+  const defs = [];
+  const docs = {};
+  const docReceivedAt = {};
+  const seen = new Set();
+  qs('docsGrid').querySelectorAll('.doc-edit-row').forEach((row, idx) => {
+    const label = row.querySelector('.doc-label-input')?.value.trim() || '';
+    if(!label) return;
+    const hint = row.querySelector('.doc-hint-input')?.value.trim() || '';
+    let id = String(row.dataset.docId || slugDocId(label, `doc_${idx+1}`)).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);
+    if(!id) id = `doc_${idx+1}`;
+    const original = id;
+    let n = 2;
+    while(seen.has(id)) id = `${original}_${n++}`;
+    seen.add(id);
+    defs.push({id, label, hint});
+    const checked = !!row.querySelector('.doc-received-check')?.checked;
+    docs[id] = checked;
+    const receivedAt = sanitizeDateISO(row.dataset.receivedAt);
+    if(checked && receivedAt) docReceivedAt[id] = receivedAt;
+  });
+  if(!defs.length) {
+    DOCS.forEach(d => { defs.push({...d}); docs[d.id] = false; });
+  }
+  return { docDefs: defs, docs, docReceivedAt };
 }
 
 function renderStatusOptions() {
@@ -1463,12 +1738,14 @@ function collectModalRecord(extra={}) {
   const key = state.currentKey;
   const emp = getEmpresaByKey(key);
   const old = getRecord(key);
-  const docs = {}; DOCS.forEach(d => docs[d.id] = !!qs(`doc_${d.id}`)?.checked);
+  const { docDefs, docs, docReceivedAt } = collectDocsFromEditor();
   return normalizeRecord({
     ...old,
     status: qs('mStatus').value,
     movimento: qs('mMovimento').value,
+    docDefs,
     docs,
+    docReceivedAt,
     prazo: qs('mPrazo').value,
     dataSolicitacao: qs('mSolicitacao').value,
     ultimaCobranca: qs('mUltimaCobranca').value,
@@ -1506,6 +1783,120 @@ async function saveRecord(key, record) {
   }
 }
 
+function updateDocRowDateUi(row, checked, date='') {
+  if(!row) return;
+  row.dataset.receivedAt = checked ? sanitizeDateISO(date) : '';
+  const note = row.querySelector('.doc-date-note');
+  if(note) {
+    note.textContent = checked && row.dataset.receivedAt ? `Data: ${moneylessDate(row.dataset.receivedAt)}` : (checked ? 'Recebido sem data' : 'Pendente');
+    note.classList.toggle('ok', !!checked);
+  }
+}
+
+async function handleEditorReceivedChange(ev) {
+  const input = ev.target;
+  const row = input.closest('.doc-edit-row');
+  if(!row) return;
+  const label = row.querySelector('.doc-label-input')?.value.trim() || 'documento';
+  if(input.checked) {
+    const date = askReceiptDate(label, row.dataset.receivedAt || '');
+    if(!date) { input.checked = false; updateDocRowDateUi(row, false); return; }
+    updateDocRowDateUi(row, true, date);
+    await saveFromModal();
+    toast(`Recebimento confirmado em ${moneylessDate(date)}.`, 'ok');
+  } else {
+    if(!confirmUnreceive(label)) { input.checked = true; updateDocRowDateUi(row, true, row.dataset.receivedAt || ''); return; }
+    updateDocRowDateUi(row, false);
+    await saveFromModal();
+    toast('Documento voltou para pendente.', 'warn');
+  }
+}
+
+async function markAllDocsCompleteFromModal() {
+  const date = askBulkReceiptDate();
+  if(!date) return;
+  qs('mStatus').value = 'completo';
+  qs('docsGrid').querySelectorAll('.doc-edit-row').forEach(row => {
+    const input = row.querySelector('.doc-received-check');
+    if(input) input.checked = true;
+    updateDocRowDateUi(row, true, date);
+  });
+  await saveFromModal({pendencia:'', proximoPasso:'Documentos recebidos; conferir movimento.'});
+  toast(`Recebimento completo confirmado em ${moneylessDate(date)}.`, 'ok');
+}
+
+
+async function toggleDocOnCard(ev, key, docId) {
+  if(ev) ev.stopPropagation();
+  const rec = getRecord(key);
+  const defs = recordDocs(rec);
+  const doc = defs.find(d => d.id === docId);
+  if(!doc) return toast('Documento não encontrado na lista da empresa.', 'warn');
+  const checked = !!(ev && ev.target && ev.target.checked);
+  rec.docDefs = defs;
+  rec.docs = {...(rec.docs || {})};
+  rec.docReceivedAt = {...(rec.docReceivedAt || {})};
+  if(checked) {
+    const date = askReceiptDate(doc.label, rec.docReceivedAt[docId] || '');
+    if(!date) { if(ev && ev.target) ev.target.checked = false; return; }
+    rec.docs[docId] = true;
+    rec.docReceivedAt[docId] = date;
+  } else {
+    if(!confirmUnreceive(doc.label)) { if(ev && ev.target) ev.target.checked = true; return; }
+    rec.docs[docId] = false;
+    delete rec.docReceivedAt[docId];
+  }
+  if(!['sem_movimento','conferido'].includes(rec.status)) {
+    const total = defs.length;
+    const done = defs.filter(d => rec.docs[d.id]).length;
+    if(total && done === total) {
+      rec.status = 'completo';
+      rec.pendencia = '';
+      rec.proximoPasso = rec.proximoPasso || 'Documentos recebidos; conferir movimento.';
+    } else if(done > 0) {
+      rec.status = 'parcial';
+      rec.proximoPasso = rec.proximoPasso || 'Conferir documentos recebidos e cobrar pendências.';
+    } else if(['completo','parcial'].includes(rec.status)) {
+      rec.status = 'solicitado';
+    }
+  }
+  rec.updatedAt = new Date().toISOString();
+  await saveRecord(key, rec);
+  const dateTxt = rec.docReceivedAt[docId] ? ` em ${moneylessDate(rec.docReceivedAt[docId])}` : '';
+  toast(checked ? `Documento recebido${dateTxt}.` : 'Documento voltou para pendente.', checked ? 'ok' : 'warn');
+}
+window.toggleDocOnCard = toggleDocOnCard;
+
+async function deleteRecord(key=state.currentKey) {
+  if(!key) return;
+  const emp = getEmpresaByKey(key) || {};
+  const nome = emp.nome || (state.movimentos && state.movimentos[key] && state.movimentos[key].empresaNome) || 'esta empresa';
+  const ok = confirm(`Excluir o card de recebimento de "${nome}" nesta competência?\n\nEssa ação remove o controle do mês atual. A empresa continua cadastrada no Painel.`);
+  if(!ok) return;
+  if(state.movimentos && state.movimentos[key]) delete state.movimentos[key];
+  localWrite();
+  renderAll();
+  if(state.currentKey === key) closeModal();
+  if(state.firebaseReady && state.database) {
+    setCloudStatus('saving', 'Excluindo card...');
+    try {
+      const { ref, remove } = window.__firebaseFns;
+      if(remove) await remove(ref(state.database, `${CONTROLES_PATH}/${state.competencia}/${key}`));
+      setCloudStatus('ok', `Card excluído • ${state.empresas.length}/${state.empresasTodas.length || state.empresas.length} empresas (${colaboradorLabelAtual()})`);
+      toast('Card excluído.', 'ok');
+      return;
+    } catch(e) {
+      console.error(e);
+      setCloudStatus('error', 'Falha ao excluir na nuvem • cache local atualizado');
+      toast('Excluí localmente, mas não consegui remover da nuvem agora.', 'warn');
+      return;
+    }
+  }
+  setCloudStatus('offline', 'Card excluído no cache local');
+  toast('Card excluído no cache local.', 'ok');
+}
+window.deleteRecord = deleteRecord;
+
 async function saveFromModal(extra={}) {
   if(!state.currentKey) return;
   const rec = collectModalRecord(extra);
@@ -1535,10 +1926,10 @@ window.quickCopy = quickCopy;
 
 function exportCSV() {
   const items = filteredItems();
-  const head = ['Competência','Empresa','CNPJ','Atividade','Regime','Status','Movimento','Prazo','Data solicitação','Última cobrança','Contato','Docs faltantes','Próximo passo','Pendência','Observações'];
+  const head = ['Competência','Empresa','CNPJ','Atividade','Regime','Status','Movimento','Prazo','Data solicitação','Última cobrança','Contato','Docs recebidos / data','Docs faltantes','Próximo passo','Pendência','Observações'];
   const rows = items.map(x => {
     const e=x.empresa,r=x.rec;
-    return [compLabel(state.competencia),e.nome,cnpjFmt(e.cnpj),e.atividade,regimeLabel(e.regime),statusInfo(r.status).label,r.movimento,moneylessDate(r.prazo),moneylessDate(r.dataSolicitacao),moneylessDate(r.ultimaCobranca),r.contato,missingDocs(r).map(d=>d.label).join(' | '),r.proximoPasso,r.pendencia,r.observacoes];
+    return [compLabel(state.competencia),e.nome,cnpjFmt(e.cnpj),e.atividade,regimeLabel(e.regime),statusInfo(r.status).label,r.movimento,moneylessDate(r.prazo),moneylessDate(r.dataSolicitacao),moneylessDate(r.ultimaCobranca),r.contato,receivedReportText(r),missingDocs(r).map(d=>d.label).join(' | '),r.proximoPasso,r.pendencia,r.observacoes];
   });
   const csv = [head, ...rows].map(row => row.map(v => `"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\n');
   downloadBlob(csv, `controle_movimento_alef_${state.competencia}.csv`, 'text/csv;charset=utf-8');
@@ -1569,7 +1960,9 @@ function bindEvents() {
   qs('btnExport').addEventListener('click', exportCSV);
   qs('btnBackup').addEventListener('click', backupJSON);
   qs('btnReload').addEventListener('click', () => location.reload());
-  qs('btnAtualizarEmpresas').addEventListener('click', atualizarListaEmpresas);
+  qs('btnAtualizarEmpresas').addEventListener('click', () => atualizarListaEmpresas(false));
+  qs('btnCardMenos').addEventListener('click', () => changeCardSize(-1));
+  qs('btnCardMais').addEventListener('click', () => changeCardSize(1));
   qs('btnNovoRecebimento').addEventListener('click', openNewRecebimento);
   qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
   qs('btnCloseNew').addEventListener('click', closeNewRecebimento);
@@ -1583,8 +1976,19 @@ function bindEvents() {
   qs('modalOverlay').addEventListener('click', e => { if(e.target.id === 'modalOverlay') closeModal(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeModal(); closeNewRecebimento(); } });
   qs('btnSave').addEventListener('click', () => saveFromModal());
+  qs('btnDeleteCurrent').addEventListener('click', () => deleteRecord(state.currentKey));
+  qs('btnAddDoc').addEventListener('click', () => addDocRow({label:'Novo documento'}));
+  qs('docsGrid').addEventListener('click', e => {
+    if(!e.target.classList.contains('doc-remove')) return;
+    const row = e.target.closest('.doc-edit-row');
+    const label = row?.querySelector('.doc-label-input')?.value || 'este documento';
+    if(confirm(`Remover "${label}" da lista desta empresa?`)) row?.remove();
+  });
+  qs('docsGrid').addEventListener('change', e => {
+    if(e.target.classList.contains('doc-received-check')) handleEditorReceivedChange(e);
+  });
   qs('btnMarkSolicitado').addEventListener('click', async () => { qs('mStatus').value='solicitado'; if(!qs('mSolicitacao').value) qs('mSolicitacao').value=todayISO(); await saveFromModal(); });
-  qs('btnMarkCompleto').addEventListener('click', async () => { qs('mStatus').value='completo'; DOCS.forEach(d => { const el=qs(`doc_${d.id}`); if(el) el.checked=true; }); await saveFromModal({pendencia:''}); });
+  qs('btnMarkCompleto').addEventListener('click', markAllDocsCompleteFromModal);
   qs('btnMarkSemMov').addEventListener('click', async () => { qs('mStatus').value='sem_movimento'; qs('mMovimento').value='sem_movimento'; await saveFromModal({pendencia:'', proximoPasso:'Confirmar/arquivar declaração de sem movimento da competência.'}); });
   qs('btnCopyWhatsapp').addEventListener('click', () => { if(state.currentKey) copyText(buildMessage(state.currentKey, 'whatsapp')); });
   qs('btnCopyEmail').addEventListener('click', () => { if(state.currentKey) copyText(buildMessage(state.currentKey, 'email')); });
@@ -1619,18 +2023,22 @@ function watchMovimentos() {
 }
 
 function attachEmpresasFirebase() {
+  if(state.empresasUnsub) { try { state.empresasUnsub(); } catch(e) {} state.empresasUnsub = null; }
   if(!state.firebaseReady || !state.database) { useFallbackEmpresas('Firebase indisponível'); return; }
   const { ref, onValue } = window.__firebaseFns;
-  setCloudStatus('loading', 'Lendo empresas do Painel...');
+  setCloudStatus('loading', 'Ouvindo empresas do Painel em tempo real...');
   carregarEmpresasDoIndexHtml();
   let received = false;
-  state.empresasUnsub = onValue(ref(state.database, 'painel/empresas'), snap => {
+  state.empresasUnsub = onValue(ref(state.database, PAINEL_EMPRESAS_FB_PATH), snap => {
     received = true;
-    const list = [];
-    if(snap.exists()) snap.forEach(child => list.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() })));
+    const list = empresasFromFirebaseSnapshot(snap);
+    const novaAssinatura = assinaturaEmpresas(list);
+    const mudou = !!state.painelFirebaseSignature && novaAssinatura !== state.painelFirebaseSignature;
+    state.painelFirebaseSignature = novaAssinatura;
     state.firebaseEmpresas = list;
     if(state.firebaseEmpresas.length) {
-      setEmpresasCompletas('Nuvem + Painel/Index sincronizados', true);
+      setEmpresasCompletas(mudou ? 'Painel atualizado ao vivo' : 'Painel ao vivo sincronizado', true);
+      if(mudou) toast('Lista do Painel atualizada automaticamente.', 'ok');
     } else {
       setEmpresasCompletas('Nenhuma empresa no Firebase; completando pelo Index', true);
       carregarEmpresasDoIndexHtml();
@@ -1643,10 +2051,28 @@ function attachEmpresasFirebase() {
   });
   setTimeout(() => {
     if(!received) {
-      state.firebaseEmpresas = [];
+      // Não apaga a lista existente; apenas usa cache enquanto o evento de tempo real não chega.
       useFallbackEmpresas('Aguardando login/conexão');
     }
   }, 3500);
+}
+
+function startPainelAutoSync() {
+  if(state.painelPollTimer) clearInterval(state.painelPollTimer);
+  state.painelPollTimer = setInterval(() => atualizarListaEmpresas(true), PAINEL_SYNC_POLL_MS);
+  window.addEventListener('storage', ev => {
+    if(!PAINEL_CACHE_KEYS.includes(ev.key)) return;
+    const sig = assinaturaEmpresas(loadPainelCacheEmpresas());
+    if(sig && sig !== state.painelLocalSignature) {
+      state.painelLocalSignature = sig;
+      setEmpresasCompletas('Cache do Painel atualizado em outra aba', true);
+      toast('Alteração do Painel detectada no navegador.', 'ok');
+    }
+  });
+  window.addEventListener('focus', () => atualizarListaEmpresas(true));
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden) atualizarListaEmpresas(true);
+  });
 }
 
 
@@ -1696,12 +2122,15 @@ async function onColDrop(event, novoStatus) {
 
   // Atualiza estado local imediatamente (UX responsivo)
   rec.status = novoStatus;
+  rec.updatedAt = new Date().toISOString();
+  localWrite();
   renderAll();
 
   // Persiste no Firebase
   try {
+    if(!state.firebaseReady || !state.database || !window.__firebaseFns) return;
     const { ref, update } = window.__firebaseFns;
-    await update(ref(state.database, `${CONTROLES_PATH}/${state.competencia}/${key}`), { status: novoStatus });
+    await update(ref(state.database, `${CONTROLES_PATH}/${state.competencia}/${key}`), { status: novoStatus, updatedAt: new Date().toISOString() });
     setCloudStatus('ok', `Status atualizado → ${statusInfo(novoStatus).label}`);
   } catch(e) {
     console.error('Erro ao salvar status drag:', e);
@@ -1714,7 +2143,7 @@ async function bootFirebase() {
     const appMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
     const dbMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    window.__firebaseFns = { ref: dbMod.ref, update: dbMod.update, onValue: dbMod.onValue, get: dbMod.get };
+    window.__firebaseFns = { ref: dbMod.ref, update: dbMod.update, remove: dbMod.remove, onValue: dbMod.onValue, get: dbMod.get };
     const firebaseConfig = {
       apiKey: 'AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0',
       authDomain: 'portal-treinamentos-lang.firebaseapp.com',
@@ -1730,9 +2159,16 @@ async function bootFirebase() {
     authMod.onAuthStateChanged(auth, user => {
       state.authUser = user || null;
       state.firebaseReady = true;
-      if(!user) setCloudStatus('offline', 'Sem login • tentando leitura/cache');
+      if(!user) {
+        setCloudStatus('offline', 'Sem login • tentando leitura/cache');
+        if(!state.anonAttempted && authMod.signInAnonymously) {
+          state.anonAttempted = true;
+          authMod.signInAnonymously(auth).catch(err => console.warn('Login anônimo indisponível:', err));
+        }
+      }
       attachEmpresasFirebase();
       watchMovimentos();
+      atualizarListaEmpresas(true);
     });
   } catch(e) {
     console.error(e);
@@ -1747,10 +2183,13 @@ function init() {
   state.competencia = cache.lastCompetencia || currentMonth();
   state.movimentos = {};
   state.empresas = []; state.empresasTodas = [];
+  try { state.cardSizeLevel = Number(localStorage.getItem(CARD_SIZE_KEY)); if(!Number.isFinite(state.cardSizeLevel)) state.cardSizeLevel = 1; } catch(e) { state.cardSizeLevel = 1; }
   bindEvents();
+  applyCardSize();
   renderStatusOptions();
   renderAll();
   carregarEmpresasDoIndexHtml();
+  startPainelAutoSync();
   bootFirebase();
 }
 
