@@ -17,8 +17,8 @@
   --font-title:'Poppins',sans-serif; --font-body:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);background-image:radial-gradient(circle at 10% 0%,rgba(201,168,76,.10),transparent 34%),radial-gradient(circle at 80% 80%,rgba(116,185,255,.08),transparent 28%);}
+html{scroll-behavior:smooth;max-width:100%;overflow-x:hidden}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);max-width:100%;overflow-x:hidden;background-image:radial-gradient(circle at 10% 0%,rgba(201,168,76,.10),transparent 34%),radial-gradient(circle at 80% 80%,rgba(116,185,255,.08),transparent 28%);}
 button,input,select,textarea{font-family:inherit}
 button{type:button}
 .header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;gap:14px;align-items:center;padding:16px 22px;background:linear-gradient(135deg,rgba(13,27,42,.98),rgba(27,46,66,.97));border-bottom:1px solid var(--line);box-shadow:0 5px 24px rgba(0,0,0,.35);backdrop-filter:blur(10px)}
@@ -123,6 +123,33 @@ select option{background:#1b2e42;color:#e8eaf0}
 @media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.kanban{grid-template-columns:1fr}.card{aspect-ratio:auto;min-height:160px}}
 
+/* FEED VERTICAL 1:1 — padrão visual tipo grade Instagram, sem rolagem horizontal */
+.content{padding:18px 22px 34px;overflow-x:hidden;width:100%}
+.kanban{display:flex;flex-direction:column;gap:18px;align-items:stretch;width:100%;padding:0 0 30px;overflow:visible}
+.column{width:100%;overflow:hidden;background:rgba(27,46,66,.78);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.column.drag-over{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.30),var(--shadow)}
+.col-head{padding:15px 16px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(22,36,56,.96),rgba(27,46,66,.88));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.col-title b{font-family:var(--font-title);font-size:15px;color:var(--text);line-height:1.15}
+.col-title span{font-family:var(--font-mono);font-size:10.5px;color:var(--muted)}
+.count{font-size:12px;padding:4px 10px;background:rgba(201,168,76,.10)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:14px;align-items:start;min-width:0}
+.card{aspect-ratio:1/1;min-height:0;padding:18px;border-radius:18px;position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(22,36,56,.98),rgba(27,46,66,.92));display:flex;flex-direction:column;justify-content:space-between;gap:12px}
+.card::before{content:'';position:absolute;inset:auto -28% -36% auto;width:72%;height:72%;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 68%);pointer-events:none}
+.card:hover{border-color:var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.32);transform:translateY(-2px)}
+.card-top{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:10px}
+.card h3{font-family:var(--font-title);font-size:clamp(16px,1.35vw,23px);line-height:1.12;font-weight:800;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:-.02em}
+.badge{font-size:10px;padding:4px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.meta{position:relative;z-index:1;font-size:clamp(11px,.88vw,13px);gap:7px;line-height:1.38}
+.meta div{grid-template-columns:19px minmax(0,1fr)}
+.chips{position:relative;z-index:1;margin-top:10px;margin-bottom:10px;gap:6px}
+.chip{font-size:10px;padding:4px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.card-actions{position:relative;z-index:1;display:flex;gap:8px;margin-top:auto}
+.card-actions .btn{padding:9px 10px;font-size:11.5px;border-radius:11px}
+.card-ghost{aspect-ratio:1/1;border-radius:18px}
+.empty{grid-column:1/-1;min-height:118px;display:grid;place-items:center;border:1px dashed rgba(201,168,76,.18);border-radius:16px;background:rgba(255,255,255,.025)}
+@media(max-width:1180px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.content{padding:14px 12px 26px}.cards{grid-template-columns:1fr;padding:12px}.card{aspect-ratio:1/1}.toolbar{overflow:hidden}.header{position:relative}.header-actions{width:100%;justify-content:flex-start}.btn{min-height:38px}}
+
 /* NOVO RECEBIMENTO */
 .company-preview{border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.065);border-radius:14px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.45;min-height:54px}
 .company-preview strong{display:block;color:var(--text);font-size:13px;margin-bottom:3px;line-height:1.25}
@@ -157,6 +184,7 @@ select option{background:#1b2e42;color:#e8eaf0}
   <div class="header-actions">
     <span id="cloudStatus" class="cloud">⏳ Conectando...</span>
     <button type="button" class="btn primary" id="btnNovoRecebimento">➕ Novo recebimento</button>
+    <button type="button" class="btn" id="btnAtualizarEmpresas">🔄 Atualizar empresas</button>
     <button type="button" class="btn ghost" id="btnReload">↻ Recarregar</button>
     <button type="button" class="btn" id="btnExport">⬇ CSV</button>
     <button type="button" class="btn" id="btnBackup">🧾 Backup</button>
@@ -271,7 +299,7 @@ select option{background:#1b2e42;color:#e8eaf0}
         <div class="field"><label>Prazo</label><input id="newPrazo" type="date" /></div>
       </div>
       <div id="newEmpresaPreview" class="company-preview">Carregando empresas do Painel/Index...</div>
-      <p class="new-helper">A lista vem do Firebase em <strong>painel/empresas</strong>, do cache do Painel e da base embarcada do Index. O seletor mostra quantas empresas foram lidas no total e quantas pertencem ao colaborador escolhido.</p>
+      <p class="new-helper">A lista vem do Firebase em <strong>painel/empresas</strong>, do cache do Painel e da base embarcada do Index. Use <strong>Atualizar empresas</strong> quando alterar algo no Painel; o seletor mostra quantas empresas foram lidas no total e quantas pertencem ao colaborador escolhido.</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn ghost" id="btnCancelNew">Cancelar</button>
@@ -1122,8 +1150,8 @@ function extractEmpresasFromIndexHtml(html) {
   return mergeEmpresasTodas(encontrados);
 }
 
-async function carregarEmpresasDoIndexHtml() {
-  if(state.indexFetchDone) return;
+async function carregarEmpresasDoIndexHtml(force=false) {
+  if(state.indexFetchDone && !force) return;
   state.indexFetchDone = true;
   const caminhos = [
     './index.html', 'index.html', '../index.html', '../../index.html',
@@ -1141,6 +1169,32 @@ async function carregarEmpresasDoIndexHtml() {
         return;
       }
     } catch(e) {}
+  }
+}
+
+async function atualizarListaEmpresas() {
+  setCloudStatus('loading', 'Atualizando lista de empresas do Painel...');
+  try {
+    if(state.firebaseReady && state.database && window.__firebaseFns && window.__firebaseFns.get) {
+      const { ref, get } = window.__firebaseFns;
+      const snap = await get(ref(state.database, 'painel/empresas'));
+      const list = [];
+      if(snap.exists()) snap.forEach(child => list.push(normalizeEmpresa({ _fbKey: child.key, ...child.val() })));
+      if(list.length) {
+        state.firebaseEmpresas = list;
+      } else if((state.firebaseEmpresas || []).length) {
+        toast('Firebase não retornou empresas agora; mantive a lista já carregada.', 'warn');
+      }
+    }
+    state.indexFetchDone = false;
+    await carregarEmpresasDoIndexHtml(true);
+    setEmpresasCompletas('Lista de empresas atualizada pelo Painel', true);
+    renderNewEmpresaOptions();
+    toast(`Lista atualizada: ${state.empresas.length}/${state.empresasTodas.length || state.empresas.length} empresa(s).`, 'ok');
+  } catch(e) {
+    console.error(e);
+    setEmpresasCompletas('Falha parcial na atualização; cache preservado', true);
+    toast('Não consegui atualizar pela nuvem agora. Mantive a lista/cache atual.', 'warn');
   }
 }
 
@@ -1515,6 +1569,7 @@ function bindEvents() {
   qs('btnExport').addEventListener('click', exportCSV);
   qs('btnBackup').addEventListener('click', backupJSON);
   qs('btnReload').addEventListener('click', () => location.reload());
+  qs('btnAtualizarEmpresas').addEventListener('click', atualizarListaEmpresas);
   qs('btnNovoRecebimento').addEventListener('click', openNewRecebimento);
   qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
   qs('btnCloseNew').addEventListener('click', closeNewRecebimento);
