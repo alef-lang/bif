@@ -1636,6 +1636,25 @@ th.col-dragging{opacity:0.45;}
   .activity-section-header small{white-space:normal;}
 }
 
+
+
+/* Ajuste BIF: fonte padrão de edição dos campos = Poppins */
+.modal .form-group input,
+.modal .form-group select,
+.modal .form-group textarea,
+.modal .rich-field,
+.static-field-body .rich-field,
+.rich-field .plain-paste,
+.rich-toolbar-dock button,
+.rich-toolbar-dock select,
+.floating-format-menu .ff-btn,
+.floating-format-menu .ff-select{
+  font-family:var(--font-title) !important;
+}
+.rich-field,
+.rich-field *:not(.img-resize-wrap):not(.img-resize-handle):not(.img-resize-hint):not(.img-resize-delete):not(.img-resize-toolbar):not(.img-resize-btn):not(.img-size-label):not(img){
+  font-family:inherit;
+}
 </style>
 </head>
 <body>
@@ -2159,9 +2178,9 @@ th.col-dragging{opacity:0.45;}
     <button type="button" class="ff-btn" id="ffFormatPainterBtn" title="Copiar/aplicar formatação">🖌️</button>
     <span class="ff-sep"></span>
     <select class="ff-select" id="ffFont" title="Fonte da tela">
-      <option value="">Fonte</option>
-      <option value="DM Sans">DM Sans</option>
+      <option value="">Fonte: Poppins</option>
       <option value="Poppins">Poppins</option>
+      <option value="DM Sans">DM Sans</option>
       <option value="Arial">Arial</option>
       <option value="Verdana">Verdana</option>
       <option value="Georgia">Georgia</option>
@@ -4081,7 +4100,7 @@ function applyFormatObjectToSelection(format){
     clearInlineFormatStructure(fragment);
 
     const span = document.createElement('span');
-    span.style.fontFamily = format.fontFamily || 'var(--font-body)';
+    span.style.fontFamily = format.fontFamily || 'Poppins, sans-serif';
     span.style.fontSize = format.fontSize || '12px';
     span.style.fontWeight = format.fontWeight || '400';
     span.style.fontStyle = format.fontStyle || 'normal';
