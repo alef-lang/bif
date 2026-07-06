@@ -628,17 +628,6 @@
             <span class="btn-open">Abrir →</span>
           </div>
         </div>
-        <div class="tool-card ready" data-tool="criatividade-alef" onclick="openTool('criatividade-alef')">
-          <div class="tool-icon">✨</div>
-          <h3>Mesa Criativa Alef</h3>
-          <p>Quadros grandes por empresa do Alef, com anotações em tags neon, arraste livre e redimensionamento.</p>
-          <div class="tool-footer">
-            <span class="badge-ready">● Disponível</span>
-            <span class="btn-open">Abrir →</span>
-          </div>
-        </div>
-
-
         <div class="tool-card ready" data-tool="anotacoes" onclick="openTool('anotacoes')">
           <div class="tool-icon">📝</div>
           <h3>Anotações</h3>
@@ -1318,7 +1307,7 @@
         const tool = card.dataset.tool;
         // O Mapa da Agenda é complemento direto de Tarefas.
         // Quem tem acesso a Tarefas também consegue abrir o Mapa, mesmo que a permissão nova ainda não exista no Firebase.
-        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'criatividade-alef' && (permissoes['kanban'] === true || permissoes['painel'] === true || permissoes['anotacoes'] === true)) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true))) {
+        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true))) {
           unlockCard(card, tool);
         } else {
           lockCard(card);
@@ -1358,7 +1347,6 @@
       'comunicacao': './comunicacao/comunicacao.html',
       'obrigacoes': './obrigacoes/obrigacoes.html',
       'kanban': './kanban/kanban.html',
-      'criatividade-alef': './kanban/kanban.html',
       'recebimento': './recebimento/recebimento.html',
       'antena-fiscal': './antena/antena-fiscal.html',
       'calculadora-ibs-cbs': './ferramentas/calculadora_ibs_cbs_v2.html',
