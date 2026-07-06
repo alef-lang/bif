@@ -1024,10 +1024,17 @@ function mergeEmpresas(...sources) {
 
 function setEmpresasCompletas(reason, preferCloudStatus=true) {
   const fromLocal = loadPainelCacheEmpresas();
+  // Quando o Firebase tem dados, ele é a fonte autoritativa para as empresas que ele conhece.
+  // O merge só usa o cache local como complemento para empresas que o Firebase não retornou
+  // (ex: offline parcial). Isso evita que dados velhos do cache sobreponham atualizações do Painel.
+  const firebaseKeys = new Set((state.firebaseEmpresas || []).map(e => recordKeyEmpresa(e)).filter(Boolean));
+  const localSemDuplicataFirebase = firebaseKeys.size > 0
+    ? fromLocal.filter(e => !firebaseKeys.has(recordKeyEmpresa(e)))
+    : fromLocal;
   const allMerged = mergeEmpresasTodas(
     state.firebaseEmpresas,
     state.indexEmpresas,
-    fromLocal,
+    localSemDuplicataFirebase,
     (typeof PAINEL_INDEX_TODAS_EMBARCADO !== 'undefined' ? PAINEL_INDEX_TODAS_EMBARCADO : []),
     PAINEL_INDEX_ALEF_EMBARCADO,
     FALLBACK_ALEF_EMPRESAS
@@ -1047,7 +1054,15 @@ function setEmpresasCompletas(reason, preferCloudStatus=true) {
     setCloudStatus(kind, `${reason} • ${state.empresas.length}/${state.empresasTodas.length} empresas (${colaboradorLabelAtual()})`);
   }
   try {
-    if(allMerged.length) {
+    if((state.firebaseEmpresas || []).length) {
+      // Firebase trouxe dados: atualizar cache com a versão autoritativa do Firebase.
+      // Não mesclar com cache antigo para evitar que responsáveis/dados desatualizados persistam.
+      const old = JSON.parse(localStorage.getItem(PAINEL_CACHE_KEY) || '{}') || {};
+      old.empresas = allMerged;
+      old.cacheAtAt = new Date().toISOString();
+      localStorage.setItem(PAINEL_CACHE_KEY, JSON.stringify(old));
+    } else if(allMerged.length) {
+      // Sem Firebase: apenas complementar cache existente (offline)
       const old = JSON.parse(localStorage.getItem(PAINEL_CACHE_KEY) || '{}') || {};
       const atual = Array.isArray(old.empresas) ? old.empresas.map(normalizeEmpresa) : [];
       if(allMerged.length > atual.length) {
