@@ -293,6 +293,11 @@ body {
 .doc-action-btn:hover { border-color: var(--gold); color: var(--gold-light); background: var(--card); }
 .doc-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
 .doc-action-btn.move:hover { border-color: var(--blue); color: var(--blue); }
+.doc-action-btn.download:hover { border-color: var(--green); color: var(--green); }
+
+@media (hover: none) {
+  .doc-actions { opacity: 1; }
+}
 
 /* ── CARD ADICIONAR ─────────────────────────── */
 .add-card {
@@ -896,9 +901,10 @@ function cardHTML(m) {
   return `
     <div class="doc-card ${filled ? 'filled' : 'empty'}" draggable="true" data-manual-id="${esc(m.id)}" onclick="${clickFn}">
       <div class="doc-actions">
-        <button class="doc-action-btn move" title="Mover para outra seção" onclick="event.stopPropagation(); openMoveModal('${m.id}')">↔</button>
-        <button class="doc-action-btn" title="Editar / substituir" onclick="event.stopPropagation(); openManualModal('${m.id}')">✏️</button>
-        <button class="doc-action-btn danger" title="Excluir" onclick="event.stopPropagation(); confirmDeleteManual('${m.id}')">🗑</button>
+        <button class="doc-action-btn move" title="Mover para outra seção" aria-label="Mover para outra seção" onclick="event.stopPropagation(); openMoveModal('${m.id}')">↔</button>
+        <button class="doc-action-btn download" title="Baixar arquivo" aria-label="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${m.id}')">⬇</button>
+        <button class="doc-action-btn" title="Editar / substituir" aria-label="Editar ou substituir" onclick="event.stopPropagation(); openManualModal('${m.id}')">✏️</button>
+        <button class="doc-action-btn danger" title="Excluir" aria-label="Excluir" onclick="event.stopPropagation(); confirmDeleteManual('${m.id}')">🗑</button>
       </div>
       <div class="doc-icon ${filled ? 'filled-icon' : ''}">${m.icon || '🗃️'}</div>
       <div class="doc-name">${esc(m.name)}</div>
@@ -963,6 +969,33 @@ window.openDoc = function(id) {
   if (!st || !st.content) { toast('Nenhum arquivo carregado.', 'error'); return; }
   const url = URL.createObjectURL(new Blob([st.content], { type: 'text/html' }));
   window.open(url, '_blank');
+};
+
+function safeDownloadName(name) {
+  const clean = normalize(name)
+    .replace(/[^a-z0-9\s_-]/g, '')
+    .trim()
+    .replace(/\s+/g, '_');
+  return clean || 'documento';
+}
+
+window.downloadDoc = function(id) {
+  const st = docState[id];
+  if (!st || !st.content) { toast('Nenhum arquivo carregado para download.', 'error'); return; }
+
+  const m = modules.find(x => x.id === id);
+  const blob = new Blob([st.content], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = url;
+  a.download = `${safeDownloadName(m?.name || id)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('Download iniciado. ✓');
 };
 
 /* ── MANUAL: CRIAR / EDITAR ── */
