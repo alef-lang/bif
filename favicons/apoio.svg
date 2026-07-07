@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>apoio</title>
+  <rect width="64" height="64" rx="16" fill="#65a30d"/>
+  <circle cx="50" cy="14" r="8" fill="rgba(255,255,255,.22)"/>
+  <text x="32" y="41" text-anchor="middle" font-size="34" font-family="Arial, 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif" fill="#fff">🤝</text>
+</svg>
