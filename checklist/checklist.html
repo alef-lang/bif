@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◈%3C/text%3E%3C/svg%3E"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
       --navy:       #0d1b2a;
@@ -1018,6 +1019,75 @@
       }
       h1, .section-title { color: #0c2d5a !important; }
     }
+
+    /* ── MODAL ENVIO DE OBRIGAÇÃO (SPED/EFD) ── */
+    .obr-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5,12,22,0.88);
+      backdrop-filter: blur(5px);
+      z-index: 3100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s;
+    }
+    .obr-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .obr-modal {
+      background: #1b2e42;
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 16px;
+      width: 100%; max-width: 540px;
+      max-height: 92vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+      transform: translateY(12px);
+      transition: transform 0.22s;
+    }
+    .obr-modal-overlay.open .obr-modal { transform: translateY(0); }
+    .obr-modal-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      gap: 10px;
+    }
+    .obr-modal-head h3 { font-family:'Poppins',sans-serif; font-size:1rem; font-weight:600; color:#e8c97a; }
+    .obr-modal-sub { font-size:0.75rem; font-family:'DM Mono',monospace; color:#7a92a8; margin-top:2px; }
+    .obr-modal-badge { font-size:0.68rem; font-family:'DM Mono',monospace; background:rgba(74,158,218,0.15); border:1px solid rgba(74,158,218,0.3); color:#4a9eda; border-radius:20px; padding:2px 10px; white-space:nowrap; }
+    .obr-aviso { margin:12px 22px 0; background:rgba(232,160,58,0.1); border:1px solid rgba(232,160,58,0.28); border-radius:8px; padding:9px 13px; font-size:0.78rem; color:#e8a03a; line-height:1.5; }
+    .obr-modal-body { padding:16px 22px; display:flex; flex-direction:column; gap:13px; }
+    .obr-field { display:flex; flex-direction:column; gap:5px; }
+    .obr-field label { font-size:0.67rem; font-family:'DM Mono',monospace; color:#7a92a8; text-transform:uppercase; letter-spacing:0.06em; }
+    .obr-field input, .obr-field select {
+      background:#0d1b2a; border:1px solid rgba(201,168,76,0.25); border-radius:8px;
+      color:#e8edf2; font-family:'DM Sans',sans-serif; font-size:0.86rem;
+      padding:8px 11px; outline:none; transition:border-color 0.18s; width:100%;
+    }
+    .obr-field input:focus, .obr-field select:focus { border-color:#c9a84c; box-shadow:0 0 0 2px rgba(201,168,76,0.13); }
+    .obr-field input[readonly] { color:#7a92a8; }
+    .obr-field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .obr-field-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    .obr-vals-wrap { border:1px solid rgba(201,168,76,0.2); border-radius:8px; overflow:hidden; }
+    .obr-vals-title { background:rgba(13,27,42,0.8); padding:7px 13px; font-size:0.67rem; font-family:'DM Mono',monospace; color:#e8c97a; text-transform:uppercase; letter-spacing:0.06em; }
+    .obr-vals-body { padding:12px 13px; display:flex; flex-direction:column; gap:11px; }
+    .obr-dropzone {
+      border:2px dashed rgba(201,168,76,0.28); border-radius:8px; background:#0d1b2a;
+      min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:6px; cursor:pointer; transition:border-color 0.2s, background 0.2s;
+      padding:16px; text-align:center;
+    }
+    .obr-dropzone:hover, .obr-dropzone.drag-over { border-color:#c9a84c; background:rgba(201,168,76,0.08); }
+    .obr-dropzone .dz-icon { font-size:1.7rem; }
+    .obr-dropzone .dz-label { font-size:0.78rem; color:#7a92a8; font-family:'DM Mono',monospace; }
+    .obr-dropzone .dz-hint  { font-size:0.68rem; color:#7a92a8; opacity:0.6; }
+    .obr-dropzone.loading .dz-icon { animation: obr-pulse 0.9s infinite; }
+    @keyframes obr-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .obr-parse-ok   { background:rgba(76,175,130,0.08); border:1px solid rgba(76,175,130,0.3); border-radius:8px; padding:8px 12px; font-size:0.76rem; font-family:'DM Mono',monospace; color:#4caf82; display:none; }
+    .obr-parse-warn { background:rgba(232,160,58,0.08); border:1px solid rgba(232,160,58,0.3); border-radius:8px; padding:8px 12px; font-size:0.76rem; font-family:'DM Mono',monospace; color:#e8a03a; display:none; }
+    .obr-modal-footer { padding:12px 22px 18px; border-top:1px solid rgba(201,168,76,0.15); display:flex; gap:10px; justify-content:flex-end; }
+    .obr-btn { display:inline-flex; align-items:center; gap:5px; padding:8px 18px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:500; cursor:pointer; border:none; transition:opacity 0.15s; }
+    .obr-btn:active { transform:scale(0.97); }
+    .obr-btn-gold  { background:linear-gradient(135deg,#c9a84c,#e8c97a); color:#0d1b2a; font-weight:700; }
+    .obr-btn-ghost { background:rgba(201,168,76,0.1); color:#e8c97a; border:1px solid rgba(201,168,76,0.28); }
+    .obr-btn:hover { opacity:0.85; }
 
     /* ── MODAL ENVIO DE GUIA — REFINADO ── */
     .guia-modal-overlay {
@@ -2587,13 +2657,21 @@
       const empresaId  = item?.dataset?.painelId;
       const scopes     = cb.dataset?.scopes || '';
       const ehImposto  = scopes.split(',').some(s => ['impostos','pis_cofins','icms','das','irpj_csll'].includes(s.trim()));
+      const ehSped     = scopes.split(',').some(s => s.trim() === 'sped');
 
-      // Se está marcando (checked) uma subtarefa de IMPOSTO → abre modal bloqueante.
-      // Exceção: quando o próprio modal acabou de confirmar, ele libera 1 passagem
-      // para o fluxo normal salvar a subtarefa sem reabrir o modal.
+      // SPED/EFD → modal de obrigação com upload de recibo
+      const liberadoPeloModalObr  = cb.dataset?.obrConfirmada  === '1';
+      if (cb.checked && ehSped && !liberadoPeloModalObr) {
+        cb.checked = false;
+        window._abrirObrModal(cb, item, mainCb, empresaId);
+        return;
+      }
+      if (liberadoPeloModalObr) delete cb.dataset.obrConfirmada;
+
+      // IMPOSTO → modal de guia bloqueante.
       const liberadoPeloModalGuia = cb.dataset?.guiaConfirmada === '1';
       if (cb.checked && ehImposto && !liberadoPeloModalGuia) {
-        cb.checked = false; // reverte temporariamente até confirmar
+        cb.checked = false;
         window._abrirGuiaModal(cb, item, mainCb, empresaId);
         return;
       }
@@ -2983,9 +3061,441 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') window.cancelarGuiaModal();
+    if (e.key === 'Escape') { window.cancelarGuiaModal(); window.cancelarObrModal(); }
+  });
+
+  // ── MODAL DE OBRIGAÇÃO (SPED/EFD) ──────────────────────────────────────────
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  let _obrCbPendente = null;
+  let _obrItemPend   = null;
+  let _obrPdfAnexo   = null;   // { nome, dataUrl }
+  let _obrExtras     = null;
+
+  // ── parsers (mesma lógica de obrigacoes.html, validada nos recibos reais) ──
+  function _obrExtrairTexto(arrayBuffer) {
+    return pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(async pdf => {
+      let texto = '';
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const tc   = await page.getTextContent();
+        const linhas = [];
+        tc.items.forEach(it => {
+          if (!it.str.trim()) return;
+          const y = it.transform[5], x = it.transform[4];
+          let l = linhas.find(l => Math.abs(l.y - y) <= 3);
+          if (!l) { l = { y, itens:[] }; linhas.push(l); }
+          l.itens.push({ x, str: it.str });
+        });
+        linhas.sort((a,b) => b.y - a.y);
+        linhas.forEach(l => { texto += l.itens.sort((a,b) => a.x - b.x).map(i => i.str).join(' ') + '\n'; });
+        texto += '\n';
+      }
+      return texto;
+    });
+  }
+
+  const _obrParseNum = s => {
+    if (typeof s === 'number') return s;
+    if (!s) return 0;
+    const n = parseFloat(String(s).replace(/\./g,'').replace(',','.'));
+    return isNaN(n) ? 0 : n;
+  };
+  const _obrDataISO = dstr => {
+    const m = dstr?.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+  };
+  const _obrCompetencia = dstr => {
+    const m = dstr?.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    return m ? `${m[3]}-${m[2]}` : '';
+  };
+
+  function _obrDetectarTipo(txt) {
+    if (/EFD-Contribui[çc][õo]es/i.test(txt) || /RECIBO DE ENTREGA[\s\S]{0,120}?CONTRIBUI[ÇC][ÕO]ES/i.test(txt)) return 'efd_contribuicoes';
+    if (/Vers[ãa]o Sped Fiscal/i.test(txt) || /APURA[ÇC][ÃA]O DO ICMS/i.test(txt)) return 'sped_fiscal';
+    return null;
+  }
+
+  function _obrParseComuns(txt) {
+    const contribuinte = txt.match(/Contribuinte:\s*(.+)/i)?.[1]?.replace(/\s*CNPJ.*$/i,'').trim() || '';
+    const cnpj = txt.match(/CNPJ(?:\/CPF)?:\s*([\d][\d.\/\-]{12,18})/i)?.[1] || '';
+    const per  = txt.match(/Per[íi]odo(?:\s*de\s*apura[çc][ãa]o)?:\s*(\d{2}\/\d{2}\/\d{4})\s*a\s*(\d{2}\/\d{2}\/\d{4})/i);
+    const rec  = txt.match(/em\s+(\d{2}\/\d{2}\/\d{4})\s+[àa]s\s+(\d{2}:\d{2}(?::\d{2})?)/i);
+    return {
+      empresa: contribuinte, cnpj,
+      periodoInicio: per?.[1] || '', periodoFim: per?.[2] || '',
+      competencia:   per ? _obrCompetencia(per[1]) : '',
+      dataRecepcao:  rec ? _obrDataISO(rec[1]) : '',
+      horaRecepcao:  rec?.[2] || ''
+    };
+  }
+
+  function _obrParseSpedFiscal(txt) {
+    const b = _obrParseComuns(txt);
+    const v = re => _obrParseNum(txt.match(re)?.[1]);
+    return { ...b, tipo:'sped_fiscal',
+      ie:     txt.match(/Inscri[çc][ãa]o Estadual:\s*([\d.\/\-]+)/i)?.[1] || '',
+      uf:     txt.match(/\bUF:\s*([A-Z]{2})\b/)?.[1] || '',
+      perfil: txt.match(/Perfil:\s*([A-C])\b/i)?.[1] || '',
+      tipoArquivo: /retificad/i.test(txt) ? 'retificadora' : 'original',
+      hash:   txt.match(/Hash do Arquivo:\s*([A-F0-9]{16,})/i)?.[1] || '',
+      icmsDebitos:     v(/d[ée]bitos por sa[íi]das[^\n]*?R\$\s*([\d.,]+)/i),
+      icmsCreditos:    v(/cr[ée]ditos por entradas[^\n]*?R\$\s*([\d.,]+)/i),
+      icmsRecolher:    v(/ICMS a recolher\s*R\$\s*([\d.,]+)/i),
+      icmsSaldoCredor: v(/saldo credor a transportar[^\n]*?R\$\s*([\d.,]+)/i),
+      icmsExtra:       v(/extra-apura[çc][ãa]o\s*R\$\s*([\d.,]+)/i)
+    };
+  }
+
+  function _obrParseEfdContrib(txt) {
+    const b = _obrParseComuns(txt);
+    const secNC = txt.match(/N[ÃA]O-CUMULATIVO([\s\S]*?)REGIME DE APURA[ÇC][ÃA]O CUMULATIVO/i)?.[1] || '';
+    const secC  = txt.match(/REGIME DE APURA[ÇC][ÃA]O CUMULATIVO([\s\S]*?)(?:APURA[ÇC][ÃA]O DA CONTRIBUI[ÇC][ÃA]O PREVIDENCIARIA|$)/i)?.[1] || '';
+    const dois  = (sec, re) => { const m = sec.match(re); return m ? [_obrParseNum(m[1]), _obrParseNum(m[2])] : [0,0]; };
+    const reRec = /Valor da [cC]ontribui[çc][ãa]o Social a Recolher\s*R\$\s*([\d.,]+)\s*R\$\s*([\d.,]+)/i;
+    const reSf  = /Saldo de cr[ée]ditos[^\n]*?R\$\s*([\d.,]+)\s*R\$\s*([\d.,]+)/i;
+    const [pNC,cNC] = dois(secNC, reRec);
+    const [pC, cC]  = dois(secC,  reRec);
+    const [pSF,cSF] = dois(secNC, reSf);
+    const cprb = _obrParseNum(txt.match(/Contribui[çc][ãa]o Previdenci[áa]ria a Recolher\s*R\$\s*([\d.,]+)/i)?.[1]);
+    return { ...b, tipo:'efd_contribuicoes',
+      tipoArquivo: /Tipo:\s*Retificad/i.test(txt) ? 'retificadora' : 'original',
+      hash: txt.match(/Identifica[çc][ãa]o do arquivo:\s*([A-F0-9]{16,})/i)?.[1] || '',
+      pisRecolher: pNC+pC, cofinsRecolher: cNC+cC,
+      pisRecolherNaoCum:pNC, cofinsRecolherNaoCum:cNC,
+      pisRecolherCum:pC,    cofinsRecolherCum:cC,
+      pisSaldoCred:pSF,     cofinsSaldoCred:cSF, cprbRecolher:cprb
+    };
+  }
+
+  // ── UI do modal ─────────────────────────────────────────────────────────────
+  window._abrirObrModal = function(cb, item, mainCb, empresaId) {
+    _obrCbPendente = cb;
+    _obrItemPend   = item;
+    _obrPdfAnexo   = null;
+    _obrExtras     = null;
+    window._obrMainCb    = mainCb;
+    window._obrEmpresaId = empresaId;
+
+    const label   = cb.dataset?.subLabel || cb.dataset?.subNome || 'Obrigação';
+    const scopes  = cb.dataset?.scopes || '';
+    const isEfd   = /efd|contribui/i.test(label);
+    const tipoTag = isEfd ? 'EFD-CONTRIBUIÇÕES' : 'SPED FISCAL';
+    const tipoVal = isEfd ? 'efd_contribuicoes' : 'sped_fiscal';
+
+    document.getElementById('obrModalTitulo').textContent = `Registrar envio — ${label}`;
+    document.getElementById('obrModalBadge').textContent  = tipoTag;
+    document.getElementById('obrModalSub').textContent    =
+      item?.querySelector('.item-title-input')?.value || '';
+
+    // reset campos
+    ['obrEmpresa','obrCnpj','obrCompetencia','obrRecepcao','obrPeriodo',
+     'obrIcmsRec','obrIcmsCred','obrIcmsDeb','obrIcmsSaldo',
+     'obrPisRec','obrCofinsRec','obrPisSaldo','obrCofinsSaldo','obrCprb']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    document.getElementById('obrTipoArquivo').value = 'original';
+    document.getElementById('obrTipo').value        = tipoVal;
+    _obrAlternarSecoes();
+
+    const dz = document.getElementById('obrDropzone');
+    dz.querySelector('.dz-label').textContent = 'Clique ou arraste o recibo PDF aqui';
+    dz.classList.remove('loading','drag-over');
+    document.getElementById('obrParseOk').style.display   = 'none';
+    document.getElementById('obrParseWarn').style.display = 'none';
+
+    // pré-preenche competência e empresa
+    const hoje = new Date();
+    document.getElementById('obrCompetencia').value =
+      `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
+    document.getElementById('obrEmpresa').value =
+      item?.querySelector('.item-title-input')?.value || '';
+
+    document.getElementById('obrModalOverlay').classList.add('open');
+    setTimeout(() => dz.focus?.(), 150);
+  };
+
+  window.cancelarObrModal = function() {
+    document.getElementById('obrModalOverlay').classList.remove('open');
+    _obrCbPendente = null; _obrItemPend = null; _obrPdfAnexo = null;
+  };
+
+  window._obrAlternarSecoes = function() {
+    const t = document.getElementById('obrTipo').value;
+    document.getElementById('obrSecaoSped').style.display = t === 'sped_fiscal'        ? '' : 'none';
+    document.getElementById('obrSecaoEfd').style.display  = t === 'efd_contribuicoes'  ? '' : 'none';
+  };
+
+  window.confirmarObrModal = async function() {
+    const empresa = document.getElementById('obrEmpresa').value.trim();
+    const comp    = document.getElementById('obrCompetencia').value;
+    if (!empresa || !comp) {
+      if (typeof avisoChecklist === 'function') avisoChecklist('Preencha Empresa e Competência antes de confirmar.');
+      else alert('Preencha Empresa e Competência.');
+      return;
+    }
+
+    const ex = _obrExtras || {};
+    const tipo = document.getElementById('obrTipo').value;
+    const dados = {
+      empresa,
+      cnpj:         document.getElementById('obrCnpj').value.trim(),
+      tipo,
+      competencia:  comp,
+      dataRecepcao: document.getElementById('obrRecepcao').value,
+      horaRecepcao: ex.horaRecepcao || '',
+      tipoArquivo:  document.getElementById('obrTipoArquivo').value,
+      periodoInicio: ex.periodoInicio || '',
+      periodoFim:    ex.periodoFim    || '',
+      ie: ex.ie||'', uf: ex.uf||'', perfil: ex.perfil||'', hash: ex.hash||'',
+      temAnexo: !!_obrPdfAnexo,
+      origem: 'checklist',
+      updatedAt: Date.now()
+    };
+
+    if (tipo === 'sped_fiscal') {
+      dados.icmsDebitos     = _obrParseNum(document.getElementById('obrIcmsDeb').value);
+      dados.icmsCreditos    = _obrParseNum(document.getElementById('obrIcmsCred').value);
+      dados.icmsRecolher    = _obrParseNum(document.getElementById('obrIcmsRec').value);
+      dados.icmsSaldoCredor = _obrParseNum(document.getElementById('obrIcmsSaldo').value);
+    } else {
+      dados.pisRecolher    = _obrParseNum(document.getElementById('obrPisRec').value);
+      dados.cofinsRecolher = _obrParseNum(document.getElementById('obrCofinsRec').value);
+      dados.pisSaldoCred   = _obrParseNum(document.getElementById('obrPisSaldo').value);
+      dados.cofinsSaldoCred= _obrParseNum(document.getElementById('obrCofinsSaldo').value);
+      dados.cprbRecolher   = _obrParseNum(document.getElementById('obrCprb').value);
+      dados.pisRecolherNaoCum    = ex.pisRecolherNaoCum    ?? null;
+      dados.cofinsRecolherNaoCum = ex.cofinsRecolherNaoCum ?? null;
+      dados.pisRecolherCum       = ex.pisRecolherCum       ?? null;
+      dados.cofinsRecolherCum    = ex.cofinsRecolherCum    ?? null;
+    }
+
+    // Salva via página de obrigações se estiver aberta, ou direto no Firebase
+    try {
+      if (typeof window._registrarObrigacaoDoChecklist === 'function') {
+        await window._registrarObrigacaoDoChecklist(dados, _obrPdfAnexo);
+      } else {
+        const id = 'o_' + Date.now();
+        await set(ref(db, 'obrigacoes/' + id), dados);
+        if (_obrPdfAnexo) await set(ref(db, 'obrigacoes_anexos/' + id), _obrPdfAnexo);
+      }
+    } catch(e) {
+      console.warn('Falha no Firebase, salvando local:', e);
+      const local = JSON.parse(localStorage.getItem('bifObrigacoes') || '{}');
+      local['o_' + Date.now()] = dados;
+      localStorage.setItem('bifObrigacoes', JSON.stringify(local));
+    }
+
+    // Confirma o checkbox
+    const cb = _obrCbPendente;
+    if (cb) {
+      cb.dataset.obrConfirmada = '1';
+      cb.checked = true;
+      cb.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    document.getElementById('obrModalOverlay').classList.remove('open');
+    _obrCbPendente = null; _obrItemPend = null; _obrPdfAnexo = null;
+    if (typeof avisoChecklist === 'function') avisoChecklist('✓ Envio registrado em Obrigações Acessórias.');
+  };
+
+  // ── processamento do PDF ───────────────────────────────────────────────────
+  async function _obrProcessarPdf(file) {
+    const dz   = document.getElementById('obrDropzone');
+    const okEl = document.getElementById('obrParseOk');
+    const wnEl = document.getElementById('obrParseWarn');
+    okEl.style.display = wnEl.style.display = 'none';
+    dz.classList.add('loading');
+    dz.querySelector('.dz-label').textContent = 'Lendo recibo...';
+
+    try {
+      const buf    = await file.arrayBuffer();
+      const texto  = await _obrExtrairTexto(buf);
+      const tipo   = _obrDetectarTipo(texto);
+
+      // Anexo em base64 (máx 1,5MB)
+      if (file.size <= 1.5 * 1024 * 1024) {
+        _obrPdfAnexo = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res({ nome: file.name, dataUrl: r.result });
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+      } else { _obrPdfAnexo = null; }
+
+      if (!tipo) {
+        wnEl.textContent = '⚠ Tipo não identificado automaticamente. Confira o tipo e preencha os valores.';
+        wnEl.style.display = '';
+        dz.querySelector('.dz-label').textContent = file.name;
+        dz.classList.remove('loading');
+        return;
+      }
+
+      const dados = tipo === 'sped_fiscal' ? _obrParseSpedFiscal(texto) : _obrParseEfdContrib(texto);
+      _obrExtras  = dados;
+
+      // Preenche campos
+      document.getElementById('obrEmpresa').value    = dados.empresa    || document.getElementById('obrEmpresa').value;
+      document.getElementById('obrCnpj').value       = dados.cnpj       || '';
+      document.getElementById('obrCompetencia').value= dados.competencia || document.getElementById('obrCompetencia').value;
+      document.getElementById('obrRecepcao').value   = dados.dataRecepcao || '';
+      document.getElementById('obrPeriodo').value    = dados.periodoInicio ? `${dados.periodoInicio} a ${dados.periodoFim}` : '';
+      document.getElementById('obrTipo').value       = tipo;
+      document.getElementById('obrTipoArquivo').value= dados.tipoArquivo || 'original';
+      _obrAlternarSecoes();
+
+      const n2 = v => (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      if (tipo === 'sped_fiscal') {
+        document.getElementById('obrIcmsDeb').value   = n2(dados.icmsDebitos);
+        document.getElementById('obrIcmsCred').value  = n2(dados.icmsCreditos);
+        document.getElementById('obrIcmsRec').value   = n2(dados.icmsRecolher);
+        document.getElementById('obrIcmsSaldo').value = n2(dados.icmsSaldoCredor);
+      } else {
+        document.getElementById('obrPisRec').value    = n2(dados.pisRecolher);
+        document.getElementById('obrCofinsRec').value = n2(dados.cofinsRecolher);
+        document.getElementById('obrPisSaldo').value  = n2(dados.pisSaldoCred);
+        document.getElementById('obrCofinsSaldo').value = n2(dados.cofinsSaldoCred);
+        document.getElementById('obrCprb').value      = n2(dados.cprbRecolher);
+      }
+
+      const anexoInfo = _obrPdfAnexo ? 'recibo anexado' : 'PDF acima de 1,5MB — sem anexo';
+      okEl.textContent = `✓ ${tipo === 'sped_fiscal' ? 'SPED Fiscal' : 'EFD-Contribuições'} lido com sucesso · ${anexoInfo}. Confira antes de confirmar.`;
+      okEl.style.display = '';
+      dz.querySelector('.dz-label').textContent = file.name;
+    } catch(err) {
+      console.error(err);
+      wnEl.textContent = '⚠ Erro ao ler o PDF. Preencha os valores manualmente.';
+      wnEl.style.display = '';
+      dz.querySelector('.dz-label').textContent = file.name;
+    }
+    dz.classList.remove('loading');
+  }
+
+  window.obrOnPdf = e => { const f = e.target.files[0]; if (f) _obrProcessarPdf(f); };
+  window.obrDzOver  = e => { e.preventDefault(); document.getElementById('obrDropzone').classList.add('drag-over'); };
+  window.obrDzLeave = () => document.getElementById('obrDropzone').classList.remove('drag-over');
+  window.obrDzDrop  = e => {
+    e.preventDefault();
+    document.getElementById('obrDropzone').classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type === 'application/pdf') _obrProcessarPdf(f);
+  };
+
+  document.getElementById('obrModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) window.cancelarObrModal();
   });
 </script>
+
+<!-- ── MODAL ENVIO DE OBRIGAÇÃO (SPED/EFD — bloqueante) ── -->
+<div class="obr-modal-overlay" id="obrModalOverlay">
+  <div class="obr-modal">
+    <div class="obr-modal-head">
+      <div>
+        <div style="font-size:0.68rem;font-family:'DM Mono',monospace;color:#7a92a8;margin-bottom:3px;">Registro bloqueante</div>
+        <h3 id="obrModalTitulo">Registrar envio — SPED</h3>
+        <div class="obr-modal-sub" id="obrModalSub"></div>
+      </div>
+      <span class="obr-modal-badge" id="obrModalBadge">SPED FISCAL</span>
+    </div>
+    <div class="obr-aviso">⚠ Esta subtarefa só será concluída após o upload do recibo. Os valores são lidos automaticamente do PDF.</div>
+    <div class="obr-modal-body">
+
+      <div class="obr-field">
+        <label>Recibo de entrega (PDF)</label>
+        <div class="obr-dropzone" id="obrDropzone"
+             onclick="document.getElementById('obrPdfInput').click()"
+             ondragover="obrDzOver(event)" ondragleave="obrDzLeave()" ondrop="obrDzDrop(event)">
+          <input type="file" id="obrPdfInput" accept="application/pdf" style="display:none" onchange="obrOnPdf(event)"/>
+          <span class="dz-icon">📄</span>
+          <span class="dz-label">Clique ou arraste o recibo PDF aqui</span>
+          <span class="dz-hint">SPED Fiscal ou EFD-Contribuições — valores lidos automaticamente</span>
+        </div>
+        <div class="obr-parse-ok"  id="obrParseOk"></div>
+        <div class="obr-parse-warn" id="obrParseWarn"></div>
+      </div>
+
+      <div class="obr-field-row">
+        <div class="obr-field">
+          <label>Empresa</label>
+          <input type="text" id="obrEmpresa" placeholder="Preenchido pelo recibo..."/>
+        </div>
+        <div class="obr-field">
+          <label>CNPJ</label>
+          <input type="text" id="obrCnpj" placeholder="Preenchido pelo recibo..." readonly/>
+        </div>
+      </div>
+
+      <div class="obr-field-row">
+        <div class="obr-field">
+          <label>Obrigação</label>
+          <select id="obrTipo" onchange="window._obrAlternarSecoes()">
+            <option value="sped_fiscal">SPED Fiscal (ICMS/IPI)</option>
+            <option value="efd_contribuicoes">EFD-Contribuições</option>
+          </select>
+        </div>
+        <div class="obr-field">
+          <label>Arquivo</label>
+          <select id="obrTipoArquivo">
+            <option value="original">Original</option>
+            <option value="retificadora">Retificadora</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="obr-field-row">
+        <div class="obr-field">
+          <label>Competência</label>
+          <input type="month" id="obrCompetencia"/>
+        </div>
+        <div class="obr-field">
+          <label>Recepção SERPRO</label>
+          <input type="date" id="obrRecepcao"/>
+        </div>
+      </div>
+
+      <div class="obr-field">
+        <label>Período</label>
+        <input type="text" id="obrPeriodo" readonly placeholder="Preenchido pelo recibo..."/>
+      </div>
+
+      <!-- Valores SPED -->
+      <div class="obr-vals-wrap" id="obrSecaoSped">
+        <div class="obr-vals-title">Apuração ICMS — Operações Próprias</div>
+        <div class="obr-vals-body">
+          <div class="obr-field-row-3">
+            <div class="obr-field"><label>Débitos (saídas)</label><input type="text" id="obrIcmsDeb" placeholder="0,00"/></div>
+            <div class="obr-field"><label>Créditos (entradas)</label><input type="text" id="obrIcmsCred" placeholder="0,00"/></div>
+            <div class="obr-field"><label>ICMS a recolher</label><input type="text" id="obrIcmsRec" placeholder="0,00"/></div>
+          </div>
+          <div class="obr-field">
+            <label>Saldo credor a transportar</label>
+            <input type="text" id="obrIcmsSaldo" placeholder="0,00"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Valores EFD -->
+      <div class="obr-vals-wrap" id="obrSecaoEfd" style="display:none;">
+        <div class="obr-vals-title">Apuração PIS / COFINS / CPRB</div>
+        <div class="obr-vals-body">
+          <div class="obr-field-row">
+            <div class="obr-field"><label>PIS a recolher</label><input type="text" id="obrPisRec" placeholder="0,00"/></div>
+            <div class="obr-field"><label>COFINS a recolher</label><input type="text" id="obrCofinsRec" placeholder="0,00"/></div>
+          </div>
+          <div class="obr-field-row-3">
+            <div class="obr-field"><label>Saldo créd. PIS</label><input type="text" id="obrPisSaldo" placeholder="0,00"/></div>
+            <div class="obr-field"><label>Saldo créd. COFINS</label><input type="text" id="obrCofinsSaldo" placeholder="0,00"/></div>
+            <div class="obr-field"><label>CPRB</label><input type="text" id="obrCprb" placeholder="0,00"/></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="obr-modal-footer">
+      <button class="obr-btn obr-btn-ghost" onclick="window.cancelarObrModal()">Cancelar</button>
+      <button class="obr-btn obr-btn-gold" onclick="window.confirmarObrModal()">✓ Confirmar envio</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── MODAL ENVIO DE GUIA (bloqueante) ── -->
 <div class="guia-modal-overlay" id="guiaModalOverlay">
