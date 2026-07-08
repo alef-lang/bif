@@ -1,6 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <title>mapa-tarefas</title>
-  <rect width="64" height="64" rx="16" fill="#2563eb"/>
-  <circle cx="50" cy="14" r="8" fill="rgba(255,255,255,.22)"/>
-  <text x="32" y="41" text-anchor="middle" font-size="34" font-family="Arial, 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif" fill="#fff">🧭</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mapa de tarefas — símbolo BIF">
+  <title>Mapa de tarefas — símbolo BIF</title>
+  <defs>
+    <linearGradient id="bg" x1="10" y1="5" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1b2e42"/>
+      <stop offset="0.52" stop-color="#0d1b2a"/>
+      <stop offset="1" stop-color="#162438"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50" cy="12" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f687b3" stop-opacity="0.30"/>
+      <stop offset="0.45" stop-color="#e8c97a" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#e8c97a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="url(#glow)"/>
+  <rect x="2.4" y="2.4" width="59.2" height="59.2" rx="14" fill="none" stroke="#c9a84c" stroke-opacity="0.65" stroke-width="1.7"/>
+  <path d="M16 7h32" stroke="#e8c97a" stroke-opacity="0.9" stroke-width="2" stroke-linecap="round"/>
+  <path d="M50 10l4 4-4 4-4-4z" fill="#e8c97a" fill-opacity="0.9"/>
+  <path d="M10 50c8-3 14-3 22 0s14 3 22 0" fill="none" stroke="#c9a84c" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round"/>
+  <g filter="url(#soft)" stroke-linecap="round" stroke-linejoin="round">
+
+  <circle cx="19" cy="45" r="6" fill="#f687b3"/>
+  <circle cx="45" cy="20" r="6" fill="#c9a84c"/>
+  <circle cx="33" cy="36" r="4" fill="#e8edf3" opacity=".85"/>
+  <path d="M20 39c1-12 13-3 13-3s12 8 12-10" fill="none" stroke="#e8c97a" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 7"/>
+  <path d="M45 10c7 0 11 8 6 14l-6 8-6-8c-5-6-1-14 6-14z" fill="none" stroke="#f687b3" stroke-width="3" stroke-linejoin="round"/>
+  </g>
 </svg>

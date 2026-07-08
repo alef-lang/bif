@@ -1,6 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <title>relacionamento</title>
-  <rect width="64" height="64" rx="16" fill="#f97316"/>
-  <circle cx="50" cy="14" r="8" fill="rgba(255,255,255,.22)"/>
-  <text x="32" y="41" text-anchor="middle" font-size="34" font-family="Arial, 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif" fill="#fff">☎</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Relacionamento — símbolo BIF">
+  <title>Relacionamento — símbolo BIF</title>
+  <defs>
+    <linearGradient id="bg" x1="10" y1="5" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1b2e42"/>
+      <stop offset="0.52" stop-color="#0d1b2a"/>
+      <stop offset="1" stop-color="#162438"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50" cy="12" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#63b3ed" stop-opacity="0.30"/>
+      <stop offset="0.45" stop-color="#e8c97a" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#e8c97a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="url(#glow)"/>
+  <rect x="2.4" y="2.4" width="59.2" height="59.2" rx="14" fill="none" stroke="#c9a84c" stroke-opacity="0.65" stroke-width="1.7"/>
+  <path d="M16 7h32" stroke="#e8c97a" stroke-opacity="0.9" stroke-width="2" stroke-linecap="round"/>
+  <path d="M50 10l4 4-4 4-4-4z" fill="#e8c97a" fill-opacity="0.9"/>
+  <path d="M10 50c8-3 14-3 22 0s14 3 22 0" fill="none" stroke="#c9a84c" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round"/>
+  <g filter="url(#soft)" stroke-linecap="round" stroke-linejoin="round">
+
+  <path d="M16 35l8-8 8 8c2 2 5 2 7 0l2-2" fill="none" stroke="#63b3ed" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 35l-8-8-9 9M23 42l5 5M31 42l5 5M39 40l4 4" fill="none" stroke="#e8c97a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M11 32l9-9M53 32l-9-9" stroke="#e8edf3" stroke-opacity=".7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 16c0-4 7-5 7 1 0 5-7 9-7 9s-7-4-7-9c0-6 7-5 7-1z" fill="#c9a84c" opacity=".95"/>
+  </g>
 </svg>
