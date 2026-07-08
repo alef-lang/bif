@@ -1,30 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FAQ — símbolo BIF">
-  <title>FAQ — símbolo BIF</title>
-  <defs>
-    <linearGradient id="bg" x1="10" y1="5" x2="56" y2="60" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1b2e42"/>
-      <stop offset="0.52" stop-color="#0d1b2a"/>
-      <stop offset="1" stop-color="#162438"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="50" cy="12" r="34" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#f6ad55" stop-opacity="0.30"/>
-      <stop offset="0.45" stop-color="#e8c97a" stop-opacity="0.15"/>
-      <stop offset="1" stop-color="#e8c97a" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000000" flood-opacity="0.35"/>
-    </filter>
-  </defs>
-  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="url(#bg)"/>
-  <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill="url(#glow)"/>
-  <rect x="2.4" y="2.4" width="59.2" height="59.2" rx="14" fill="none" stroke="#c9a84c" stroke-opacity="0.65" stroke-width="1.7"/>
-  <path d="M16 7h32" stroke="#e8c97a" stroke-opacity="0.9" stroke-width="2" stroke-linecap="round"/>
-  <path d="M50 10l4 4-4 4-4-4z" fill="#e8c97a" fill-opacity="0.9"/>
-  <path d="M10 50c8-3 14-3 22 0s14 3 22 0" fill="none" stroke="#c9a84c" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round"/>
-  <g filter="url(#soft)" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="faq">
+<title>faq</title>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#071426"/>
+    <stop offset="0.62" stop-color="#0d2340"/>
+    <stop offset="1" stop-color="#132f57"/>
+  </linearGradient>
+  <radialGradient id="glow" cx="76%" cy="18%" r="55%">
+    <stop offset="0" stop-color="#ffd67a" stop-opacity="0.35"/>
+    <stop offset="1" stop-color="#ffd67a" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#000" flood-opacity="0.34"/>
+  </filter>
+</defs>
+<rect x="2" y="2" width="60" height="60" rx="15" fill="url(#bg)"/>
+<rect x="2.75" y="2.75" width="58.5" height="58.5" rx="14.25" fill="none" stroke="#d6a84e" stroke-width="1.5" opacity="0.92"/>
+<rect x="6" y="6" width="52" height="52" rx="12" fill="url(#glow)"/>
+<circle cx="51" cy="13" r="7" fill="#ffd67a" opacity="0.18"/>
 
-  <path d="M15 14h34c4 0 7 3 7 7v18c0 4-3 7-7 7H34l-10 8 2-8H15c-4 0-7-3-7-7V21c0-4 3-7 7-7z" fill="none" stroke="#f6ad55" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M29 26c0-5 7-8 11-4 4 4 0 9-5 11v3" fill="none" stroke="#e8c97a" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="35" cy="43" r="2.5" fill="#e8edf3" opacity=".85"/>
-  </g>
+<g filter="url(#shadow)">
+
+  <path d="M15 18h34v24H34l-9 8v-8H15z" fill="#4dd0ff"/>
+  <path d="M28 25c1-4 8-5 10-1 3 6-6 6-6 12" fill="none" stroke="#071426" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="32" cy="42" r="2.4" fill="#071426"/>
+
+</g>
 </svg>
