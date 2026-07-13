@@ -209,3 +209,382 @@ html[data-bif-theme] textarea,
 html[data-bif-theme] select {
   transition: background-color .18s ease, color .18s ease, border-color .18s ease;
 }
+
+/* ========================================================================== 
+   TEMA CLARO BIF — REVISÃO UX 2
+   Hierarquia de superfícies, tipografia de alto contraste e dourado acessível.
+   Somente o tema claro é afetado; o tema escuro permanece intacto.
+   ========================================================================== */
+
+html[data-bif-theme="light"] {
+  /* Superfícies */
+  --navy: #f3f5f8 !important;
+  --navy-mid: #eef1f5 !important;
+  --navy-card: #ffffff !important;
+  --navy-light: #e9edf2 !important;
+  --navy-hover: #eef2f6 !important;
+  --navy-soft: #f8fafc !important;
+  --bg: #f3f5f8 !important;
+  --bg-deep: #e9edf2 !important;
+  --bg2: #ffffff !important;
+  --bg3: #f8fafc !important;
+  --bg-card: #ffffff !important;
+  --bg-card2: #f8fafc !important;
+  --bg-input: #ffffff !important;
+  --card: #ffffff !important;
+  --card2: #f8fafc !important;
+  --card3: #eef2f6 !important;
+  --card-2: #f8fafc !important;
+  --card-alt: #f8fafc !important;
+  --card-soft: #f8fafc !important;
+  --card-hover: #f1f4f8 !important;
+  --card-h: #f1f4f8 !important;
+  --panel: #ffffff !important;
+  --input: #ffffff !important;
+  --ui-soft: #f8fafc !important;
+  --ui-soft-2: #eef2f6 !important;
+  --paper: #fffdf8 !important;
+  --paper-ink: #273244 !important;
+  --paper-muted: #5d697b !important;
+
+  /* Texto: cinza-azulado escuro, sem preto puro */
+  --text: #263445 !important;
+  --text2: #344054 !important;
+  --text3: #526071 !important;
+  --text-light: #263445 !important;
+  --text-muted: #526071 !important;
+  --text-dim: #667085 !important;
+  --muted: #526071 !important;
+  --muted2: #667085 !important;
+  --muted-2: #667085 !important;
+  --dim: #667085 !important;
+  --white: #263445 !important;
+
+  /* Dourado: preenchimento preservado; texto dourado escurecido */
+  --gold: #9a6f12 !important;
+  --gold2: #b88a24 !important;
+  --gold-light: #79590f !important;
+  --gold-bright: #8a6310 !important;
+  --gold-soft: rgba(154,111,18,.11) !important;
+  --gold-dim: rgba(154,111,18,.16) !important;
+  --gold-border: rgba(138,99,16,.34) !important;
+  --gold-glow: rgba(154,111,18,.18) !important;
+
+
+  /* Cores semânticas com contraste adequado sobre superfícies claras */
+  --green: #16794f !important;
+  --success: #16794f !important;
+  --red: #b42318 !important;
+  --danger: #b42318 !important;
+  --blue: #175ea8 !important;
+  --info: #175ea8 !important;
+  --amber: #8a5a00 !important;
+  --warn: #8a5a00 !important;
+  --purple: #6d4bb8 !important;
+  --teal: #0f766e !important;
+  --orange: #b45309 !important;
+
+  /* Contornos e elevação */
+  --border: #d7dde5 !important;
+  --border2: #b9c3cf !important;
+  --line: #d7dde5 !important;
+  --line2: #b9c3cf !important;
+  --line-strong: #98a3b2 !important;
+  --shadow: 0 8px 24px rgba(31,41,55,.08), 0 1px 3px rgba(31,41,55,.05) !important;
+  --shadow-hover: 0 14px 34px rgba(31,41,55,.12), 0 2px 6px rgba(31,41,55,.06) !important;
+
+  /* Tokens específicos presentes nos módulos */
+  --bif-navy: #f3f5f8 !important;
+  --bif-navy-2: #eef1f5 !important;
+  --bif-card: #ffffff !important;
+  --bif-panel: #ffffff !important;
+  --bif-ink: #263445 !important;
+  --bif-muted: #526071 !important;
+  --bif-line: #d7dde5 !important;
+  --v10-panel: #ffffff !important;
+  --v10-soft: #f8fafc !important;
+  --v10-line: #d7dde5 !important;
+  --receipt-line: #d7dde5 !important;
+  --receipt-muted: #526071 !important;
+}
+
+html[data-bif-theme="light"] body {
+  background: #f3f5f8 !important;
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(212,173,63,.09), transparent 29%),
+    radial-gradient(circle at 100% 100%, rgba(78,112,150,.06), transparent 34%) !important;
+  color: #263445 !important;
+}
+
+html[data-bif-theme="light"] body::before,
+html[data-bif-theme="light"] body::after {
+  color: rgba(138,99,16,.045) !important;
+}
+
+/* Tipografia e hierarquia */
+html[data-bif-theme="light"] :where(h1,h2,h3,h4,h5,h6,.title,.head-title,.header-title,.card-title,.section-title,.block-title,.column-title,.modal-title,.tool-title,.brand-title) {
+  color: #263445 !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] :where(p,.subtitle,.desc,.description,.hint,.field-hint,.section-desc,.section-sub,.header-sub,.card-preview,.small,.muted,.date-meta,.meta-label,.kpi-label,.stat-label,.metric-label) {
+  color: #526071 !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] :where(.gold,.gold-text,.mono-label,.section-kicker,.focus-kicker,.rule-kicker) {
+  color: #8a6310 !important;
+}
+html[data-bif-theme="light"] a:not(.btn):not(.tool-card) {
+  color: #6e5218;
+}
+
+/* Superfícies principais — branco limpo, borda neutra e sombra discreta */
+html[data-bif-theme="light"] :where(
+  .shell,.app-shell,.container-shell,
+  .topbar,.header,header,.fixed-search-strip,
+  .login-card,.panel,.panel-card,.tool-card,.card,.stat,.stat-card,.kpi,.kpi-card,.kpi-box,
+  .modal,.modal-content,.modal-card,.side-panel,
+  .company-card,.company-box,.company-results,.company-result-list,.company-dropdown,
+  .section-block,.section-card,.config-section,.rule-card,.focus-card,.rhythm-card,.event-card,
+  .task,.dep-card,.alert-item,.method-item,.concorrente-item,.crono-item,.vp-block,.canvas-block,.rich-block,
+  .empty,.empty-state,.empty-notes,.upload-zone,.filter-panel,.filter-card,.metrics-strip,
+  .check-item,.obr-card,.guia-card,.registro-card,.manual-card,.result-card
+) {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #d7dde5 !important;
+  color: #263445 !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Elementos internos, filtros e faixas secundárias */
+html[data-bif-theme="light"] :where(
+  .workspace,.sidebar,.editor-wrap,.dashboard,.nav,.toolbar,.panel-head,.section-header,.block-head,
+  .filter-segments,.checklist-search-wrap,.movement-select-wrap,.variable-box,.personalize-box,
+  .activity-report-pill,.top-summary-body,.company-link-box,.tag-filter-box,.active-field-card,
+  .concorrente-intro,.bif-note,.page-meta,.sync,.focus-strip,.pill,.scope-chip,.filter-pill,
+  .tag-filter,.palette-chip,.doc-toggle-mark,.card.access-card .password-line,.obr-vals-title,
+  .form-section,.form-card,.search-area,.filters,.search-wrap,.cat-filter-bar
+) {
+  background: #f8fafc !important;
+  border-color: #d7dde5 !important;
+  color: #344054 !important;
+  box-shadow: none !important;
+}
+
+/* Cabeçalhos claros com separação visual consistente */
+html[data-bif-theme="light"] :where(.topbar,.header,header,.fixed-search-strip) {
+  background: rgba(255,255,255,.97) !important;
+  border-bottom-color: #d7dde5 !important;
+  box-shadow: 0 3px 14px rgba(31,41,55,.07) !important;
+  backdrop-filter: blur(10px) !important;
+}
+html[data-bif-theme="light"] :where(.header::after,.topbar::after) {
+  opacity: .72 !important;
+}
+
+/* Sidebar e áreas de trabalho não viram blocos escuros */
+html[data-bif-theme="light"] :where(.sidebar,.editor-wrap,.workspace) {
+  background: #f8fafc !important;
+  border-color: #d7dde5 !important;
+}
+html[data-bif-theme="light"] .paper {
+  background: #fffdf8 !important;
+  color: #273244 !important;
+  border: 1px solid #e1ddd2 !important;
+  box-shadow: 0 12px 34px rgba(31,41,55,.10) !important;
+}
+
+/* Campos: contorno perceptível, texto cinza bem escuro, foco inequívoco */
+html[data-bif-theme="light"] :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
+  .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select,
+  .doc-label-input,.doc-hint-input,.rich-select,.tag-input
+) {
+  background: #ffffff !important;
+  color: #263445 !important;
+  border-color: #98a3b2 !important;
+  box-shadow: inset 0 1px 1px rgba(31,41,55,.03) !important;
+}
+html[data-bif-theme="light"] :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
+  .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select
+):hover {
+  border-color: #7b8797 !important;
+}
+html[data-bif-theme="light"] :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
+  .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select
+):focus {
+  border-color: #8a6310 !important;
+  box-shadow: 0 0 0 3px rgba(154,111,18,.16) !important;
+  outline: none !important;
+}
+html[data-bif-theme="light"] ::placeholder {
+  color: #667085 !important;
+  opacity: 1 !important;
+}
+html[data-bif-theme="light"] select option,
+html[data-bif-theme="light"] .field-select option,
+html[data-bif-theme="light"] .form-select option,
+html[data-bif-theme="light"] .inline-select option,
+html[data-bif-theme="light"] .rich-select option,
+html[data-bif-theme="light"] .crono-item select option {
+  background: #ffffff !important;
+  color: #263445 !important;
+}
+
+/* Botões neutros e ações principais */
+html[data-bif-theme="light"] :where(
+  .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.nav-btn,.icon-btn,.paper-btn,
+  .doc-action-btn,.mini-btn,.btn-header,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
+):not(.btn-primary):not(.primary):not(.gold):not(.btn-gold):not(.btn-login):not(.danger):not(.btn-danger) {
+  background: #ffffff !important;
+  color: #344054 !important;
+  border-color: #b9c3cf !important;
+  box-shadow: 0 1px 2px rgba(31,41,55,.04) !important;
+}
+html[data-bif-theme="light"] :where(
+  .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.nav-btn,.icon-btn,.paper-btn,
+  .doc-action-btn,.mini-btn,.btn-header,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
+):not(.btn-primary):not(.primary):not(.gold):not(.btn-gold):not(.btn-login):not(.danger):not(.btn-danger):hover {
+  background: #f1f4f8 !important;
+  color: #263445 !important;
+  border-color: #7b8797 !important;
+}
+html[data-bif-theme="light"] :where(.btn-primary,.primary,.btn.gold,.btn-gold,.btn-login,.btn-abrir,.btn-save,.obr-btn-gold) {
+  background: linear-gradient(135deg,#d4ad3f,#e5c967) !important;
+  color: #1f2a39 !important;
+  border-color: #b88e24 !important;
+  box-shadow: 0 5px 14px rgba(154,111,18,.16) !important;
+}
+html[data-bif-theme="light"] :where(.btn-primary,.primary,.btn.gold,.btn-gold,.btn-login,.btn-abrir,.btn-save,.obr-btn-gold):hover {
+  background: linear-gradient(135deg,#c99f31,#ddbd58) !important;
+  color: #172231 !important;
+}
+html[data-bif-theme="light"] :where(.danger,.btn-danger,.btn-remove,.delete-btn) {
+  color: #b42318 !important;
+  border-color: #f2b8b5 !important;
+  background: #fff7f7 !important;
+}
+
+/* Chips e estados */
+html[data-bif-theme="light"] :where(.badge,.chip,.pill,.tag-filter,.scope-chip,.filter-pill,.cat-chip,.mini-tag) {
+  background: #f8fafc !important;
+  border-color: #cbd3dd !important;
+  color: #475467 !important;
+}
+html[data-bif-theme="light"] :where(.active,.selected,.tag-filter.active,.filter-pill.active,.cat-chip.active,.scope-chip.active) {
+  border-color: rgba(138,99,16,.48) !important;
+}
+html[data-bif-theme="light"] :where(.tag-filter.active,.filter-pill.active,.cat-chip.active,.scope-chip.active,.tag-chip.active) {
+  background: #f7ebc7 !important;
+  color: #6e4f0c !important;
+}
+
+/* Tabelas */
+html[data-bif-theme="light"] :where(table,.table-wrap,.table-container) {
+  background: #ffffff !important;
+  color: #263445 !important;
+  border-color: #d7dde5 !important;
+}
+html[data-bif-theme="light"] :where(thead,.table-head) {
+  background: #eef2f6 !important;
+}
+html[data-bif-theme="light"] th {
+  background: #eef2f6 !important;
+  color: #344054 !important;
+  border-color: #cbd3dd !important;
+}
+html[data-bif-theme="light"] td {
+  color: #344054 !important;
+  border-color: #e1e6ec !important;
+}
+html[data-bif-theme="light"] tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+/* Modais, menus e mensagens flutuantes */
+html[data-bif-theme="light"] :where(.modal-overlay,.overlay,.drawer-overlay) {
+  background: rgba(24,34,48,.42) !important;
+}
+html[data-bif-theme="light"] :where(
+  .floating-format-menu,.rich .img-resize-toolbar,.rich-field .img-resize-toolbar,
+  .company-dropdown,.results,.empresa-results,.toast,.statusbar,.sync
+) {
+  background: #ffffff !important;
+  color: #344054 !important;
+  border-color: #b9c3cf !important;
+  box-shadow: 0 14px 34px rgba(31,41,55,.16) !important;
+}
+
+/* Correções de áreas que permaneciam escuras por cores fixas */
+html[data-bif-theme="light"] :where(
+  .note-card,.focus-strip,.tag-filter,.searchbox input,.shell,.backlink,
+  .rich-tool,.rich-select,.rich-color,.rich-image,.rich-img-remove,
+  .add-row input,.obr-dropzone,.company-result-list,.filter-segments,
+  .checklist-search-wrap,.movement-select-wrap,.method-item,.alert-item,
+  .dep-card,.event-card,.rhythm-card,.task,.concorrente-item,.canvas-block,
+  .crono-item,.vp-block,.rich-block,.section-block,.active-field-card
+) {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #d7dde5 !important;
+  color: #344054 !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] .note-card {
+  border-left: 3px solid #d4ad3f !important;
+  box-shadow: 0 2px 8px rgba(31,41,55,.05) !important;
+}
+html[data-bif-theme="light"] .note-card.active {
+  background: #fff8e8 !important;
+  border-color: #c99f31 !important;
+}
+html[data-bif-theme="light"] :where(.note-card .card-title,.note-card.active .card-title,.note-card .card-preview,.note-card.active .card-preview) {
+  color: #344054 !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] :where(.fixed-search-strip,.concorrente-toolbar,.obr-vals-title,.guia-modal-footer,.modal-head,.card-foot,.card-actions,.top-summary-body) {
+  background: #f8fafc !important;
+  background-image: none !important;
+  color: #344054 !important;
+  border-color: #d7dde5 !important;
+}
+html[data-bif-theme="light"] :where(.topbar-search,.searchbox,.search-box) {
+  background: #ffffff !important;
+  border-color: #98a3b2 !important;
+}
+html[data-bif-theme="light"] :where(.topbar-search input,.searchbox input,.search-box input) {
+  background: transparent !important;
+  color: #263445 !important;
+  box-shadow: none !important;
+}
+
+/* Indicadores e cores semânticas mais legíveis em fundo claro */
+html[data-bif-theme="light"] :where(.ok,.success,.green,.saved) { color: #16794f !important; }
+html[data-bif-theme="light"] :where(.warn,.warning,.amber) { color: #8a5a00 !important; }
+html[data-bif-theme="light"] :where(.error,.red,.danger-text) { color: #b42318 !important; }
+html[data-bif-theme="light"] :where(.blue,.info) { color: #175ea8 !important; }
+
+/* Scrollbars discretas */
+html[data-bif-theme="light"] * {
+  scrollbar-color: #a98a35 #e9edf2 !important;
+}
+html[data-bif-theme="light"] *::-webkit-scrollbar-track {
+  background: #e9edf2 !important;
+}
+html[data-bif-theme="light"] *::-webkit-scrollbar-thumb {
+  background: #a98a35 !important;
+  border-color: #e9edf2 !important;
+}
+
+/* Autofill */
+html[data-bif-theme="light"] input:-webkit-autofill,
+html[data-bif-theme="light"] input:-webkit-autofill:hover,
+html[data-bif-theme="light"] input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #263445 !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
