@@ -2,22 +2,20 @@
  * Tema global do portal BIF
  * A escolha feita no index é salva em localStorage e aplicada a todos os módulos.
  *
- * Direção do tema claro (revisão 4 — "ledger/pergaminho"):
- * Depois de duas rodadas, a direção que ficou definida é: conteúdo em
- * pergaminho/creme quente (nem branco puro, nem muito escuro — meio
- * termo), e a régua de marca (cabeçalho/topbar/régua lateral) num tom de
- * "couro" — marrom-carvão escuro, não mais azul-navy frio — pra combinar
- * com o dourado e o creme em vez de destoar. A ideia geral é a de um
- * livro-caixa/dossiê fiscal: capa escura com detalhe dourado, páginas em
- * pergaminho. Mantém a identidade (nada de cinza-claro genérico de SaaS)
- * e resolve o choque de temperatura entre navy frio e branco frio das
- * versões anteriores.
+ * Direção do tema claro (revisão 5 — "navy em camadas"):
+ * Depois de testar branco puro e pergaminho/creme, a direção que ficou foi
+ * outra: nada de fundo claro. É um navy suave, em camadas de profundidade —
+ * fundo da página em degradê navy escuro, cards uma camada acima (navy um
+ * pouco mais claro, também em degradê), campos de preenchimento mais claros
+ * ainda (pra se destacarem como "o que se pode editar"), e dourado como
+ * acabamento/detalhe em bordas, títulos e botões principais. O cabeçalho
+ * fixo de cada módulo já nasce com o navy mais escuro de todos (cor fixa no
+ * CSS de cada módulo) — como o resto da paleta agora também é navy, ele
+ * deixa de destoar sozinho, sem precisar de nenhum tratamento especial.
  *
- * Esses elementos de marca (.header/.app-header/.topbar/.side) usam cor
- * fixa no CSS de cada módulo (não variável), por isso o único jeito de
- * mudar o fundo deles é sobrescrever explicitamente (seção 5). O resto
- * do arquivo cobre a área de trabalho via variáveis CSS consumidas pelos
- * módulos.
+ * Por isso este arquivo ficou mais simples que as versões anteriores: não
+ * existe mais "área de marca vs. área clara" — é tudo a mesma família de
+ * cor, só em profundidades diferentes.
  */
 
 html {
@@ -25,113 +23,118 @@ html {
 }
 
 /* ==========================================================================
-   1. TOKENS — fonte única de verdade para o tema claro
+   1. TOKENS — fonte única de verdade para o tema claro ("navy em camadas")
    ========================================================================== */
 
 html[data-bif-theme="light"] {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Superfícies — pergaminho/creme, brilho no meio-termo (nem branco, nem escuro) */
-  --navy: #d9cca3 !important;
-  --navy-mid: #cabb8a !important;
-  --navy-card: #e6d9b8 !important;
-  --navy-light: #cabb8a !important;
-  --navy-hover: #d2c39a !important;
-  --navy-soft: #ddd0af !important;
-  --bg: #d9cca3 !important;
-  --bg-deep: #cabb8a !important;
-  --bg2: #e6d9b8 !important;
-  --bg3: #ddd0af !important;
-  --bg-card: #e6d9b8 !important;
-  --bg-card2: #ddd0af !important;
-  --bg-input: #ede3c8 !important;
-  --card: #e6d9b8 !important;
-  --card2: #ddd0af !important;
-  --card3: #cabb8a !important;
-  --card-2: #ddd0af !important;
-  --card-alt: #ddd0af !important;
-  --card-soft: #ddd0af !important;
-  --card-hover: #d2c39a !important;
-  --card-h: #d2c39a !important;
-  --panel: #e6d9b8 !important;
-  --input: #ede3c8 !important;
-  --ui-soft: #ddd0af !important;
-  --ui-soft-2: #d2c39a !important;
-  --paper: #ede3c8 !important;
-  --paper-ink: #3b3226 !important;
-  --paper-muted: #6b5d47 !important;
+  /* Camada 0 — fundo da página: o navy mais fundo, em degradê */
+  --navy: #16233a !important;
+  --navy-mid: #1c2d47 !important;
+  --navy-card: #22364f !important;
+  --navy-light: #28405c !important;
+  --navy-hover: #2b3f5a !important;
+  --navy-soft: #1c2c44 !important;
+  --bg: #16233a !important;
+  --bg-deep: #0f1a2c !important;
+  --bg2: #22364f !important;
+  --bg3: #1c2c44 !important;
 
-  /* Texto: marrom-carvão quente, sem preto puro */
-  --text: #3b3226 !important;
-  --text2: #4a4030 !important;
-  --text3: #6b5d47 !important;
-  --text-light: #3b3226 !important;
-  --text-muted: #6b5d47 !important;
-  --text-dim: #7d6f57 !important;
-  --muted: #6b5d47 !important;
-  --muted2: #7d6f57 !important;
-  --muted-2: #7d6f57 !important;
-  --dim: #7d6f57 !important;
-  --white: #3b3226 !important;
+  /* Camada 1 — cards/painéis: um degrau acima do fundo */
+  --bg-card: #22364f !important;
+  --bg-card2: #1c2c44 !important;
+  --card: #22364f !important;
+  --card2: #1c2c44 !important;
+  --card3: #182740 !important;
+  --card-2: #1c2c44 !important;
+  --card-alt: #1c2c44 !important;
+  --card-soft: #1c2c44 !important;
+  --card-hover: #2b3f5a !important;
+  --card-h: #2b3f5a !important;
+  --panel: #22364f !important;
+  --ui-soft: #1c2c44 !important;
+  --ui-soft-2: #263a54 !important;
+  --paper: #22364f !important;
+  --paper-ink: #eef1f5 !important;
+  --paper-muted: #93a2b6 !important;
 
-  /* Dourado: escurecido o suficiente pra ler bem sobre o creme */
-  --gold: #8f6510 !important;
-  --gold2: #a97b1c !important;
-  --gold-light: #6f4e0c !important;
-  --gold-bright: #7d590e !important;
-  --gold-soft: rgba(143,101,16,.13) !important;
-  --gold-dim: rgba(143,101,16,.18) !important;
-  --gold-border: rgba(122,86,13,.36) !important;
-  --gold-glow: rgba(143,101,16,.2) !important;
+  /* Camada 2 — campos de preenchimento: mais claros, pra se destacarem */
+  --bg-input: #33506f !important;
+  --input: #33506f !important;
 
-  /* Cores semânticas com contraste adequado sobre o creme */
-  --green: #146b47 !important;
-  --success: #146b47 !important;
-  --red: #a8321c !important;
-  --danger: #a8321c !important;
-  --blue: #1c5c8a !important;
-  --info: #1c5c8a !important;
-  --amber: #8a5a00 !important;
-  --warn: #8a5a00 !important;
-  --purple: #6d4bb8 !important;
-  --teal: #0f6e63 !important;
-  --orange: #a8500c !important;
+  /* Texto: claro, sem branco puro */
+  --text: #eef1f5 !important;
+  --text2: #cdd6e2 !important;
+  --text3: #a7b4c5 !important;
+  --text-light: #cdd6e2 !important;
+  --text-muted: #93a2b6 !important;
+  --text-dim: #7e8fa5 !important;
+  --muted: #93a2b6 !important;
+  --muted2: #7e8fa5 !important;
+  --muted-2: #7e8fa5 !important;
+  --dim: #7e8fa5 !important;
+  --white: #eef1f5 !important;
 
-  /* Contornos e elevação — tons de tan/bege, nada de cinza-azulado frio */
-  --border: #c9b787 !important;
-  --border2: #b39f6e !important;
-  --line: #c9b787 !important;
-  --line2: #b39f6e !important;
-  --line-strong: #a8956a !important;
-  --shadow: 0 8px 24px rgba(59,45,20,.12), 0 1px 3px rgba(59,45,20,.08) !important;
-  --shadow-hover: 0 14px 34px rgba(59,45,20,.16), 0 2px 6px rgba(59,45,20,.09) !important;
+  /* Dourado: o acabamento — mantido vivo, igual ao tema escuro original */
+  --gold: #c9a84c !important;
+  --gold2: #d8bb63 !important;
+  --gold-light: #e8c97a !important;
+  --gold-bright: #f0d691 !important;
+  --gold-soft: rgba(201,168,76,.14) !important;
+  --gold-dim: rgba(201,168,76,.24) !important;
+  --gold-border: rgba(201,168,76,.34) !important;
+  --gold-glow: rgba(201,168,76,.2) !important;
+
+  /* Cores semânticas vivas o suficiente pra ler sobre navy */
+  --green: #2fd48d !important;
+  --success: #2fd48d !important;
+  --red: #ff7a7a !important;
+  --danger: #ff7a7a !important;
+  --blue: #74b9ff !important;
+  --info: #74b9ff !important;
+  --amber: #ffce54 !important;
+  --warn: #ffce54 !important;
+  --purple: #b8a2f7 !important;
+  --teal: #5fd6c8 !important;
+  --orange: #ffab66 !important;
+
+  /* Contornos e elevação */
+  --border: rgba(255,255,255,.10) !important;
+  --border2: rgba(255,255,255,.16) !important;
+  --line: rgba(255,255,255,.08) !important;
+  --line2: rgba(201,168,76,.18) !important;
+  --line-strong: rgba(255,255,255,.22) !important;
+  --shadow: 0 8px 24px rgba(0,0,0,.35), 0 1px 3px rgba(0,0,0,.25) !important;
+  --shadow-hover: 0 14px 34px rgba(0,0,0,.42), 0 2px 6px rgba(0,0,0,.28) !important;
 
   /* Tokens específicos presentes nos módulos */
-  --bif-navy: #d9cca3 !important;
-  --bif-navy-2: #cabb8a !important;
-  --bif-card: #e6d9b8 !important;
-  --bif-panel: #e6d9b8 !important;
-  --bif-ink: #3b3226 !important;
-  --bif-muted: #6b5d47 !important;
-  --bif-line: #c9b787 !important;
-  --v10-panel: #e6d9b8 !important;
-  --v10-soft: #ddd0af !important;
-  --v10-line: #c9b787 !important;
-  --receipt-line: #c9b787 !important;
-  --receipt-muted: #6b5d47 !important;
+  --bif-navy: #16233a !important;
+  --bif-navy-2: #1c2d47 !important;
+  --bif-card: #22364f !important;
+  --bif-panel: #22364f !important;
+  --bif-ink: #eef1f5 !important;
+  --bif-muted: #93a2b6 !important;
+  --bif-line: rgba(255,255,255,.1) !important;
+  --v10-panel: #22364f !important;
+  --v10-soft: #1c2c44 !important;
+  --v10-line: rgba(255,255,255,.1) !important;
+  --receipt-line: rgba(255,255,255,.1) !important;
+  --receipt-muted: #93a2b6 !important;
 }
 
 html[data-bif-theme="light"] body {
-  background: #d9cca3 !important;
+  background: linear-gradient(160deg, #0f1a2c 0%, #16233a 55%, #1c2d47 100%) !important;
   background-image:
-    radial-gradient(circle at 10% 0%, rgba(143,101,16,.08), transparent 32%),
-    radial-gradient(circle at 100% 100%, rgba(66,58,44,.08), transparent 36%) !important;
-  color: #3b3226 !important;
+    radial-gradient(ellipse at 15% 8%, rgba(201,168,76,.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 88% 85%, rgba(116,185,255,.06) 0%, transparent 52%),
+    linear-gradient(160deg, #0f1a2c 0%, #16233a 55%, #1c2d47 100%) !important;
+  color: #eef1f5 !important;
 }
 
 html[data-bif-theme="light"] body::before,
 html[data-bif-theme="light"] body::after {
-  color: rgba(122,86,13,.05) !important;
+  color: rgba(201,168,76,.05) !important;
 }
 
 /* Transição curta ao alternar o tema, sem animar diálogos e elementos móveis. */
@@ -147,27 +150,25 @@ html[data-bif-theme] select {
 
 /* ==========================================================================
    2. TIPOGRAFIA E HIERARQUIA
-   (excluídos da régua de marca — ver seção 5)
    ========================================================================== */
 
-html[data-bif-theme="light"] :where(h1,h2,h3,h4,h5,h6,.title,.head-title,.header-title,.card-title,.section-title,.block-title,.column-title,.modal-title,.tool-title,.brand-title):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
-  color: #3b3226 !important;
+html[data-bif-theme="light"] :where(h1,h2,h3,h4,h5,h6,.title,.head-title,.header-title,.card-title,.section-title,.block-title,.column-title,.modal-title,.tool-title,.brand-title) {
+  color: #eef1f5 !important;
   text-shadow: none !important;
 }
-html[data-bif-theme="light"] :where(p,.subtitle,.desc,.description,.hint,.field-hint,.section-desc,.section-sub,.header-sub,.card-preview,.small,.muted,.date-meta,.meta-label,.kpi-label,.stat-label,.metric-label):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
-  color: #6b5d47 !important;
+html[data-bif-theme="light"] :where(p,.subtitle,.desc,.description,.hint,.field-hint,.section-desc,.section-sub,.header-sub,.card-preview,.small,.muted,.date-meta,.meta-label,.kpi-label,.stat-label,.metric-label) {
+  color: #93a2b6 !important;
   text-shadow: none !important;
 }
-html[data-bif-theme="light"] :where(.gold,.gold-text,.mono-label,.section-kicker,.focus-kicker,.rule-kicker):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
-  color: #7d590e !important;
+html[data-bif-theme="light"] :where(.gold,.gold-text,.mono-label,.section-kicker,.focus-kicker,.rule-kicker) {
+  color: #e8c97a !important;
 }
-html[data-bif-theme="light"] a:not(.btn):not(.tool-card):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
-  color: #6f4e0c;
+html[data-bif-theme="light"] a:not(.btn):not(.tool-card) {
+  color: #e8c97a;
 }
 
 /* ==========================================================================
-   3. SUPERFÍCIES DE CONTEÚDO — pergaminho/creme, borda quente, sombra âmbar
-   (cabeçalho/topbar/régua lateral ficam de fora — ver seção 5)
+   3. SUPERFÍCIES — cards em degradê navy, uma camada acima do fundo
    ========================================================================== */
 
 html[data-bif-theme="light"] :where(
@@ -180,14 +181,14 @@ html[data-bif-theme="light"] :where(
   .empty,.empty-state,.empty-notes,.upload-zone,.filter-panel,.filter-card,.metrics-strip,
   .check-item,.obr-card,.guia-card,.registro-card,.manual-card,.result-card
 ) {
-  background-color: #e6d9b8 !important;
-  background-image: none !important;
-  border-color: #c9b787 !important;
-  color: #3b3226 !important;
+  background-color: #22364f !important;
+  background-image: linear-gradient(135deg, #1e3049, #28405c) !important;
+  border-color: rgba(255,255,255,.1) !important;
+  color: #eef1f5 !important;
   box-shadow: var(--shadow) !important;
 }
 
-/* Elementos internos, filtros e faixas secundárias */
+/* Elementos internos, filtros e faixas secundárias — camada intermediária */
 html[data-bif-theme="light"] :where(
   .workspace,.sidebar,.editor-wrap,.dashboard,.nav,.toolbar,.panel-head,.section-header,.block-head,
   .filter-segments,.checklist-search-wrap,.movement-select-wrap,.variable-box,.personalize-box,
@@ -195,52 +196,54 @@ html[data-bif-theme="light"] :where(
   .concorrente-intro,.bif-note,.page-meta,.sync,.focus-strip,.pill,.scope-chip,.filter-pill,
   .tag-filter,.palette-chip,.doc-toggle-mark,.card.access-card .password-line,.obr-vals-title,
   .form-section,.form-card,.search-area,.filters,.search-wrap,.cat-filter-bar
-):not(.header):not(.header *):not(.app-header):not(.app-header *):not(.topbar):not(.topbar *):not(.side):not(.side *) {
-  background: #ddd0af !important;
-  border-color: #c9b787 !important;
-  color: #4a4030 !important;
+) {
+  background: #1c2c44 !important;
+  border-color: rgba(255,255,255,.1) !important;
+  color: #cdd6e2 !important;
   box-shadow: none !important;
 }
 
-/* Faixa de busca fixa (não é marca, é utilitário de conteúdo).
-   Mesmo tom do fundo da página, pra não criar uma faixa à parte. */
+/* Faixa de busca fixa — mesma família, levemente translúcida sobre o fundo */
 html[data-bif-theme="light"] .fixed-search-strip {
-  background: rgba(231,221,196,.93) !important;
-  border-bottom-color: #c9b787 !important;
-  box-shadow: none !important;
+  background: rgba(22,35,58,.9) !important;
+  border-bottom-color: rgba(201,168,76,.2) !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,.25) !important;
   backdrop-filter: blur(10px) !important;
 }
 
-/* Campos: contorno perceptível, texto marrom-carvão, foco inequívoco */
+/* ==========================================================================
+   4. CAMPOS DE PREENCHIMENTO — camada mais clara, pra se destacarem
+   ========================================================================== */
+
 html[data-bif-theme="light"] :where(
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
   .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select,
   .doc-label-input,.doc-hint-input,.rich-select,.tag-input
-):not(.topbar-search input) {
-  background: #ede3c8 !important;
-  color: #3b3226 !important;
-  border-color: #b8a578 !important;
-  box-shadow: inset 0 1px 1px rgba(59,45,20,.05) !important;
+) {
+  background: #33506f !important;
+  color: #f2f5f8 !important;
+  border-color: rgba(255,255,255,.18) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.15) !important;
 }
 html[data-bif-theme="light"] :where(
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
   .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select
-):not(.topbar-search input):hover {
-  border-color: #9c8a5f !important;
+):hover {
+  border-color: rgba(255,255,255,.3) !important;
 }
 html[data-bif-theme="light"] :where(
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
   .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select
-):not(.topbar-search input):focus {
-  border-color: #7d590e !important;
-  box-shadow: 0 0 0 3px rgba(143,101,16,.18) !important;
+):focus {
+  border-color: #e8c97a !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,.22) !important;
   outline: none !important;
 }
 html[data-bif-theme="light"] ::placeholder {
-  color: #7d6f57 !important;
+  color: #93a2b6 !important;
   opacity: 1 !important;
 }
 html[data-bif-theme="light"] select option,
@@ -249,100 +252,98 @@ html[data-bif-theme="light"] .form-select option,
 html[data-bif-theme="light"] .inline-select option,
 html[data-bif-theme="light"] .rich-select option,
 html[data-bif-theme="light"] .crono-item select option {
-  background: #ede3c8 !important;
-  color: #3b3226 !important;
+  background: #22364f !important;
+  color: #eef1f5 !important;
 }
 
 /* ==========================================================================
-   4. BOTÕES, CHIPS, TABELAS, MODAIS
-   (.btn-header e .nav-btn ficam de fora: vivem dentro da régua de marca
-   e devem manter a aparência original em couro/dourado)
+   5. BOTÕES, CHIPS, TABELAS, MODAIS
    ========================================================================== */
 
 html[data-bif-theme="light"] :where(
   .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.icon-btn,.paper-btn,
-  .doc-action-btn,.mini-btn,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
+  .doc-action-btn,.mini-btn,.btn-back,.btn-cancel,.btn-close-modal,.modal-close,.btn-header
 ):not(.btn-primary):not(.primary):not(.gold):not(.btn-gold):not(.btn-login):not(.danger):not(.btn-danger) {
-  background: #ede3c8 !important;
-  color: #4a4030 !important;
-  border-color: #b39f6e !important;
-  box-shadow: 0 1px 2px rgba(59,45,20,.05) !important;
+  background: rgba(255,255,255,.05) !important;
+  color: #cdd6e2 !important;
+  border-color: rgba(255,255,255,.16) !important;
+  box-shadow: none !important;
 }
 html[data-bif-theme="light"] :where(
   .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.icon-btn,.paper-btn,
-  .doc-action-btn,.mini-btn,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
+  .doc-action-btn,.mini-btn,.btn-back,.btn-cancel,.btn-close-modal,.modal-close,.btn-header
 ):not(.btn-primary):not(.primary):not(.gold):not(.btn-gold):not(.btn-login):not(.danger):not(.btn-danger):hover {
-  background: #ddd0af !important;
-  color: #3b3226 !important;
-  border-color: #9c8a5f !important;
+  background: rgba(255,255,255,.09) !important;
+  color: #eef1f5 !important;
+  border-color: rgba(255,255,255,.26) !important;
 }
 html[data-bif-theme="light"] :where(.btn-primary,.primary,.btn.gold,.btn-gold,.btn-login,.btn-abrir,.btn-save,.obr-btn-gold) {
-  background: linear-gradient(135deg,#c99a3a,#e0bd63) !important;
-  color: #2c2010 !important;
-  border-color: #a67a1e !important;
-  box-shadow: 0 5px 14px rgba(143,101,16,.2) !important;
+  background: linear-gradient(135deg,#c9a84c,#e8c97a) !important;
+  color: #16233a !important;
+  border-color: #b88e24 !important;
+  box-shadow: 0 5px 16px rgba(201,168,76,.28) !important;
 }
 html[data-bif-theme="light"] :where(.btn-primary,.primary,.btn.gold,.btn-gold,.btn-login,.btn-abrir,.btn-save,.obr-btn-gold):hover {
-  background: linear-gradient(135deg,#bb8c2e,#d3af53) !important;
-  color: #201808 !important;
+  background: linear-gradient(135deg,#d8bb63,#f0d691) !important;
+  color: #10192a !important;
 }
 html[data-bif-theme="light"] :where(.danger,.btn-danger,.btn-remove,.delete-btn) {
-  color: #a8321c !important;
-  border-color: #e4b19f !important;
-  background: #fbf0ec !important;
+  color: #ff9a9a !important;
+  border-color: rgba(255,122,122,.35) !important;
+  background: rgba(255,122,122,.1) !important;
 }
 
 /* Chips e estados */
 html[data-bif-theme="light"] :where(.badge,.chip,.pill,.tag-filter,.scope-chip,.filter-pill,.cat-chip,.mini-tag) {
-  background: #ddd0af !important;
-  border-color: #bfa876 !important;
-  color: #4a4030 !important;
+  background: rgba(255,255,255,.06) !important;
+  border-color: rgba(255,255,255,.14) !important;
+  color: #cdd6e2 !important;
 }
 html[data-bif-theme="light"] :where(.active,.selected,.tag-filter.active,.filter-pill.active,.cat-chip.active,.scope-chip.active) {
-  border-color: rgba(122,86,13,.5) !important;
+  border-color: rgba(201,168,76,.5) !important;
 }
 html[data-bif-theme="light"] :where(.tag-filter.active,.filter-pill.active,.cat-chip.active,.scope-chip.active,.tag-chip.active) {
-  background: #f0dfab !important;
-  color: #5c410a !important;
+  background: rgba(201,168,76,.18) !important;
+  color: #f0d691 !important;
 }
 
 /* Tabelas */
 html[data-bif-theme="light"] :where(table,.table-wrap,.table-container) {
-  background: #e6d9b8 !important;
-  color: #3b3226 !important;
-  border-color: #c9b787 !important;
+  background: #22364f !important;
+  color: #eef1f5 !important;
+  border-color: rgba(255,255,255,.1) !important;
 }
 html[data-bif-theme="light"] :where(thead,.table-head) {
-  background: #d2c39a !important;
+  background: #1c2c44 !important;
 }
 html[data-bif-theme="light"] th {
-  background: #d2c39a !important;
-  color: #4a4030 !important;
-  border-color: #bfa876 !important;
+  background: #1c2c44 !important;
+  color: #cdd6e2 !important;
+  border-color: rgba(255,255,255,.12) !important;
 }
 html[data-bif-theme="light"] td {
-  color: #4a4030 !important;
-  border-color: #cabb8a !important;
+  color: #cdd6e2 !important;
+  border-color: rgba(255,255,255,.08) !important;
 }
 html[data-bif-theme="light"] tbody tr:hover {
-  background: #ddd0af !important;
+  background: rgba(255,255,255,.04) !important;
 }
 
 /* Modais, menus e mensagens flutuantes */
 html[data-bif-theme="light"] :where(.modal-overlay,.overlay,.drawer-overlay) {
-  background: rgba(43,34,20,.45) !important;
+  background: rgba(6,11,20,.6) !important;
 }
 html[data-bif-theme="light"] :where(
   .floating-format-menu,.rich .img-resize-toolbar,.rich-field .img-resize-toolbar,
   .company-dropdown,.results,.empresa-results,.toast,.statusbar,.sync
 ) {
-  background: #e6d9b8 !important;
-  color: #4a4030 !important;
-  border-color: #b39f6e !important;
-  box-shadow: 0 14px 34px rgba(59,45,20,.2) !important;
+  background: #22364f !important;
+  color: #cdd6e2 !important;
+  border-color: rgba(255,255,255,.14) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.4) !important;
 }
 
-/* Correções de áreas que permaneciam escuras por cores fixas */
+/* Correções de áreas que ficavam claras/erradas por cores fixas herdadas do tema anterior */
 html[data-bif-theme="light"] :where(
   .note-card,.focus-strip,.tag-filter,.searchbox input,.shell,.backlink,
   .rich-tool,.rich-select,.rich-color,.rich-image,.rich-img-remove,
@@ -351,106 +352,62 @@ html[data-bif-theme="light"] :where(
   .dep-card,.event-card,.rhythm-card,.task,.concorrente-item,.canvas-block,
   .crono-item,.vp-block,.rich-block,.section-block,.active-field-card
 ) {
-  background-color: #e6d9b8 !important;
+  background-color: #1c2c44 !important;
   background-image: none !important;
-  border-color: #c9b787 !important;
-  color: #4a4030 !important;
+  border-color: rgba(255,255,255,.1) !important;
+  color: #cdd6e2 !important;
   text-shadow: none !important;
 }
 html[data-bif-theme="light"] .note-card {
-  border-left: 3px solid #c99a3a !important;
-  box-shadow: 0 2px 8px rgba(59,45,20,.07) !important;
+  border-left: 3px solid #c9a84c !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,.2) !important;
 }
 html[data-bif-theme="light"] .note-card.active {
-  background: #f5e9c4 !important;
-  border-color: #bb8c2e !important;
+  background: rgba(201,168,76,.14) !important;
+  border-color: #e8c97a !important;
 }
 html[data-bif-theme="light"] :where(.note-card .card-title,.note-card.active .card-title,.note-card .card-preview,.note-card.active .card-preview) {
-  color: #4a4030 !important;
+  color: #eef1f5 !important;
   text-shadow: none !important;
 }
 html[data-bif-theme="light"] :where(.concorrente-toolbar,.obr-vals-title,.guia-modal-footer,.modal-head,.card-foot,.card-actions,.top-summary-body) {
-  background: #ddd0af !important;
+  background: #1c2c44 !important;
   background-image: none !important;
-  color: #4a4030 !important;
-  border-color: #c9b787 !important;
+  color: #cdd6e2 !important;
+  border-color: rgba(255,255,255,.1) !important;
 }
 html[data-bif-theme="light"] :where(.searchbox,.search-box) {
-  background: #ede3c8 !important;
-  border-color: #b8a578 !important;
+  background: #33506f !important;
+  border-color: rgba(255,255,255,.18) !important;
 }
 html[data-bif-theme="light"] :where(.searchbox input,.search-box input) {
   background: transparent !important;
-  color: #3b3226 !important;
+  color: #f2f5f8 !important;
   box-shadow: none !important;
 }
 
-/* Indicadores e cores semânticas mais legíveis sobre o creme */
-html[data-bif-theme="light"] :where(.ok,.success,.green,.saved) { color: #146b47 !important; }
-html[data-bif-theme="light"] :where(.warn,.warning,.amber) { color: #8a5a00 !important; }
-html[data-bif-theme="light"] :where(.error,.red,.danger-text) { color: #a8321c !important; }
-html[data-bif-theme="light"] :where(.blue,.info) { color: #1c5c8a !important; }
+/* Indicadores e cores semânticas */
+html[data-bif-theme="light"] :where(.ok,.success,.green,.saved) { color: #2fd48d !important; }
+html[data-bif-theme="light"] :where(.warn,.warning,.amber) { color: #ffce54 !important; }
+html[data-bif-theme="light"] :where(.error,.red,.danger-text) { color: #ff7a7a !important; }
+html[data-bif-theme="light"] :where(.blue,.info) { color: #74b9ff !important; }
 
-/* Scrollbars discretas */
+/* Scrollbars discretas, douradas */
 html[data-bif-theme="light"] * {
-  scrollbar-color: #a8895a #cabb8a !important;
+  scrollbar-color: #c9a84c #1c2c44 !important;
 }
 html[data-bif-theme="light"] *::-webkit-scrollbar-track {
-  background: #cabb8a !important;
+  background: #1c2c44 !important;
 }
 html[data-bif-theme="light"] *::-webkit-scrollbar-thumb {
-  background: #a8895a !important;
-  border-color: #cabb8a !important;
+  background: #c9a84c !important;
+  border-color: #1c2c44 !important;
 }
 
 /* Autofill */
 html[data-bif-theme="light"] input:-webkit-autofill,
 html[data-bif-theme="light"] input:-webkit-autofill:hover,
 html[data-bif-theme="light"] input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #3b3226 !important;
-  -webkit-box-shadow: 0 0 0 1000px #ede3c8 inset !important;
-}
-
-/* ==========================================================================
-   5. ANCORAGEM DE MARCA ("couro")
-   O cabeçalho fixo (.header/.app-header/.topbar) e a régua de navegação
-   lateral (.side) de cada módulo usam cor fixa no CSS do próprio módulo
-   (não variável) — por padrão um navy quase preto. Nas versões anteriores
-   isso ficava frio demais contra o creme. Agora o fundo deles vira um
-   marrom-carvão quente ("couro"), pra combinar com o pergaminho e o
-   dourado em vez de destoar. Junto, devolvemos as variáveis de texto/
-   dourado com valores "para fundo escuro", já que variável CSS herda
-   dos ancestrais e as seções 1-4 as redefinem para valores pensados
-   pro creme claro.
-   ========================================================================== */
-
-html[data-bif-theme="light"] :where(.header, .app-header, .topbar) {
-  background: linear-gradient(135deg, #2e2820, #423a2b) !important;
-  border-bottom-color: rgba(201,168,76,.28) !important;
-  box-shadow: 0 4px 18px rgba(30,24,14,.28) !important;
-}
-
-html[data-bif-theme="light"] .side {
-  background: linear-gradient(180deg, rgba(46,40,32,.95), rgba(36,31,24,.92)) !important;
-  box-shadow: 10px 0 30px rgba(30,24,14,.18) !important;
-}
-
-html[data-bif-theme="light"] :where(.header, .app-header, .topbar, .side) {
-  --gold: #d7bb6f !important;
-  --gold-light: #e8c97a !important;
-  --gold-dim: rgba(216,193,132,.3) !important;
-  --gold-glow: rgba(216,193,132,.2) !important;
-  --gold-soft: rgba(216,193,132,.16) !important;
-  --gold-border: rgba(216,193,132,.36) !important;
-  --text: #f1ece0 !important;
-  --text2: #d8d1bf !important;
-  --text3: #b9b1a0 !important;
-  --text-light: #b0a894 !important;
-  --text-muted: #aaa290 !important;
-  --text-dim: #9a9282 !important;
-  --muted: #aaa290 !important;
-  --muted2: #9a9282 !important;
-  --line: rgba(255,255,255,.1) !important;
-  --line2: rgba(255,255,255,.16) !important;
-  --border: rgba(216,193,132,.24) !important;
+  -webkit-text-fill-color: #f2f5f8 !important;
+  -webkit-box-shadow: 0 0 0 1000px #33506f inset !important;
 }
