@@ -198,11 +198,13 @@ html[data-bif-theme="light"] :where(
   box-shadow: none !important;
 }
 
-/* Faixa de busca fixa (não é marca, é utilitário de conteúdo) */
+/* Faixa de busca fixa (não é marca, é utilitário de conteúdo).
+   Usa o MESMO tom do fundo da página (não branco puro), pra não criar
+   uma terceira faixa visual entre o navy do cabeçalho e os cards brancos. */
 html[data-bif-theme="light"] .fixed-search-strip {
-  background: rgba(255,255,255,.97) !important;
+  background: rgba(243,245,248,.92) !important;
   border-bottom-color: #d7dde5 !important;
-  box-shadow: 0 3px 14px rgba(31,41,55,.07) !important;
+  box-shadow: none !important;
   backdrop-filter: blur(10px) !important;
 }
 
@@ -407,34 +409,48 @@ html[data-bif-theme="light"] input:-webkit-autofill:focus {
 }
 
 /* ==========================================================================
-   5. ANCORAGEM DE MARCA
+   5. ANCORAGEM DE MARCA (navy suavizado)
    O cabeçalho fixo (.header/.app-header/.topbar) e a régua de navegação
    lateral (.side) de cada módulo usam cor navy/dourado FIXA no CSS do
-   próprio módulo — nunca foram pensados pra virar branco, e não usam as
-   variáveis de superfície acima. No tema claro eles continuam exatamente
-   como no tema escuro (ancoragem visual da marca BIF). A única coisa que
-   fazemos aqui é devolver, só dentro deles, as variáveis de texto e
-   dourado com os valores "para fundo escuro", porque variável CSS herda
-   dos ancestrais e as seções 1-4 redefinem essas variáveis para valores
-   escuros pensados pra fundo branco.
+   próprio módulo (não variável). No tema escuro eles usam um navy quase
+   preto (#0d1b2a); no tema claro isso criava um corte seco demais contra
+   o branco logo abaixo — parecia "dois apps colados". Aqui a régua de
+   marca continua navy/dourado (identidade preservada), só que num tom
+   mais claro/acinzentado, pensado para ficar mais próximo do restante
+   da página. Como o fundo deles é hardcoded, precisamos sobrescrever o
+   background explicitamente — e, junto, devolver as variáveis de texto/
+   dourado com valores "para fundo escuro", já que variável CSS herda
+   dos ancestrais e as seções 1-4 as redefinem para valores pensados
+   pra fundo branco.
    ========================================================================== */
 
+html[data-bif-theme="light"] :where(.header, .app-header, .topbar) {
+  background: linear-gradient(135deg, #2b3d54, #3a4f68) !important;
+  border-bottom-color: rgba(201,168,76,.28) !important;
+  box-shadow: 0 4px 18px rgba(31,41,55,.16) !important;
+}
+
+html[data-bif-theme="light"] .side {
+  background: linear-gradient(180deg, rgba(43,61,84,.95), rgba(35,49,68,.92)) !important;
+  box-shadow: 10px 0 30px rgba(31,41,55,.10) !important;
+}
+
 html[data-bif-theme="light"] :where(.header, .app-header, .topbar, .side) {
-  --gold: #c9a84c !important;
+  --gold: #d7bb6f !important;
   --gold-light: #e8c97a !important;
-  --gold-dim: rgba(201,168,76,.22) !important;
-  --gold-glow: rgba(201,168,76,.15) !important;
-  --gold-soft: rgba(201,168,76,.12) !important;
-  --gold-border: rgba(201,168,76,.3) !important;
-  --text: #e8eaf0 !important;
-  --text2: #c7ccd6 !important;
-  --text3: #a7afbd !important;
-  --text-light: #8899aa !important;
-  --text-muted: #8899aa !important;
-  --text-dim: #7a8699 !important;
-  --muted: #8899aa !important;
-  --muted2: #7a8699 !important;
-  --line: rgba(255,255,255,.08) !important;
-  --line2: rgba(255,255,255,.14) !important;
-  --border: rgba(201,168,76,.18) !important;
+  --gold-dim: rgba(216,193,132,.30) !important;
+  --gold-glow: rgba(216,193,132,.20) !important;
+  --gold-soft: rgba(216,193,132,.16) !important;
+  --gold-border: rgba(216,193,132,.36) !important;
+  --text: #f1f3f6 !important;
+  --text2: #d8dde5 !important;
+  --text3: #b9c1cc !important;
+  --text-light: #b0bac8 !important;
+  --text-muted: #aab4c2 !important;
+  --text-dim: #9aa5b4 !important;
+  --muted: #aab4c2 !important;
+  --muted2: #9aa5b4 !important;
+  --line: rgba(255,255,255,.12) !important;
+  --line2: rgba(255,255,255,.18) !important;
+  --border: rgba(216,193,132,.24) !important;
 }
