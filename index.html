@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <script src="./tema-bif.js?v=20260713"></script>
   <meta charset="UTF-8"/>
   <title>Business Intelligence Fiscal</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%230d1b2a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%272%27%20width%3D%2728%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27none%27%20stroke%3D%27%23c9a84c%27%20stroke-opacity%3D%27.35%27%20stroke-width%3D%271%27%2F%3E%3Crect%20x%3D%278%27%20y%3D%278%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23c9a84c%27%2F%3E%3Crect%20x%3D%2717%27%20y%3D%278%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23e8c97a%27%2F%3E%3Crect%20x%3D%278%27%20y%3D%2717%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23e8c97a%27%2F%3E%3Crect%20x%3D%2717%27%20y%3D%2717%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23c9a84c%27%2F%3E%3Cpath%20d%3D%27M16%205.5l2.2%202.2H13.8L16%205.5z%27%20fill%3D%27%238ba0b8%27%20opacity%3D%27.8%27%2F%3E%3C%2Fsvg%3E"/>
@@ -508,17 +509,66 @@
     /* ── CATEGORIAS ─────────────────────────────────────────── */
     .category { margin-bottom: 40px; }
 
+
+    /* ── SELETOR DE TEMA ───────────────────────────────────── */
+    .theme-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .theme-option {
+      border: 0;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+
+    .theme-option:hover {
+      color: var(--gold-light);
+    }
+
+    .theme-option.active {
+      color: var(--navy);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      box-shadow: 0 3px 10px rgba(201,168,76,0.18);
+    }
+
+    html[data-bif-theme="light"] .theme-switch {
+      background: rgba(28,48,74,0.045);
+    }
+
+    html[data-bif-theme="light"] .theme-option.active {
+      color: #182230;
+    }
+
     /* ── RESPONSIVO ─────────────────────────────────────────── */
     @media (max-width: 640px) {
       .topbar { height: auto; padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
       .topbar-brand span { display: none; }
       .topbar-search { order: 3; flex: 1 1 100%; max-width: none; width: 100%; }
-      .topbar-right { margin-left: auto; }
+      .topbar-right { margin-left: auto; gap: 8px; }
+      .theme-switch { order: -1; }
+      .theme-option { padding: 6px 8px; font-size: 0.74rem; }
       .main { padding: 24px 16px 48px; }
       .welcome h2 { font-size: 1.4rem; }
       .tools-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="./tema-bif.css?v=20260713"/>
 </head>
 <body>
 
@@ -556,6 +606,10 @@
       <button type="button" class="btn-clear-search" id="btnClearIndexSearch" aria-label="Limpar busca">×</button>
     </label>
     <div class="topbar-right">
+      <div class="theme-switch" role="group" aria-label="Tema das páginas">
+        <button type="button" class="theme-option" data-theme="light" aria-pressed="false" title="Usar tema claro">☀ Claro</button>
+        <button type="button" class="theme-option" data-theme="dark" aria-pressed="false" title="Usar tema escuro">☾ Escuro</button>
+      </div>
       <span class="user-info" id="userEmail"></span>
       <button class="btn-logout" id="btnLogout">Sair</button>
     </div>
@@ -1168,7 +1222,27 @@
   const indexSearch = document.getElementById('indexSearch');
   const btnClearIndexSearch = document.getElementById('btnClearIndexSearch');
   const searchEmpty = document.getElementById('searchEmpty');
+  const themeOptions = Array.from(document.querySelectorAll('.theme-option[data-theme]'));
 
+
+  function refreshThemeOptions() {
+    const currentTheme = window.BIFTheme?.get?.() || document.documentElement.dataset.bifTheme || 'dark';
+    themeOptions.forEach(button => {
+      const isActive = button.dataset.theme === currentTheme;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  }
+
+  themeOptions.forEach(button => {
+    button.addEventListener('click', () => {
+      window.BIFTheme?.set?.(button.dataset.theme);
+      refreshThemeOptions();
+    });
+  });
+
+  window.addEventListener('bif-theme-change', refreshThemeOptions);
+  refreshThemeOptions();
 
 
   function normalizeIndexSearch(v) {
