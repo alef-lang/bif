@@ -1,222 +1,32 @@
 /*
  * Tema global do portal BIF
  * A escolha feita no index é salva em localStorage e aplicada a todos os módulos.
+ *
+ * Direção do tema claro (revisão 3):
+ * O app inteiro foi desenhado em navy/dourado. Um tema claro que reescreve
+ * TUDO pra cinza-claro genérico apaga essa identidade e o portal passa a
+ * parecer qualquer SaaS de prateleira (exatamente o que compete com
+ * Domínio/SIEG/Onvio). Por isso a régua de marca — cabeçalho fixo de cada
+ * módulo (.header/.app-header/.topbar) e a régua de navegação (.side) —
+ * permanece navy/dourado nos dois temas. Só a área de trabalho (cards,
+ * tabelas, formulários, modais) vira clara. Esses elementos de marca usam
+ * cor fixa no CSS de cada módulo (não variável), então não precisam de
+ * nenhuma regra aqui — o único cuidado é RESTAURAR, dentro deles, as
+ * variáveis de texto/dourado que o tema claro redefine globalmente,
+ * já que variável CSS herda por dentro mesmo quando o fundo é escuro.
  */
 
 html {
   color-scheme: dark;
 }
 
-html[data-bif-theme="light"] {
-  color-scheme: light;
-
-  --navy: #f4f7fb !important;
-  --navy-mid: #e8eef5 !important;
-  --navy-card: #ffffff !important;
-  --navy-light: #e8eef5 !important;
-  --navy-hover: #edf2f7 !important;
-  --navy-soft: #f8fafc !important;
-
-  --bg: #f4f7fb !important;
-  --bg-deep: #edf2f7 !important;
-  --bg2: #ffffff !important;
-  --bg3: #f7f9fc !important;
-  --bg-card: #ffffff !important;
-  --bg-card2: #f7f9fc !important;
-  --bg-input: #ffffff !important;
-
-  --card: #ffffff !important;
-  --card2: #f7f9fc !important;
-  --card3: #edf2f7 !important;
-  --card-2: #f7f9fc !important;
-  --card-alt: #f8fafc !important;
-  --card-soft: #f8fafc !important;
-  --card-hover: #f1f5f9 !important;
-  --card-h: #f1f5f9 !important;
-
-  --panel: #ffffff !important;
-  --input: #ffffff !important;
-  --ui-soft: #f7f9fc !important;
-  --ui-soft-2: #eef3f8 !important;
-
-  --text: #182230 !important;
-  --text2: #344054 !important;
-  --text3: #667085 !important;
-  --text-muted: #667085 !important;
-  --text-dim: #7a8699 !important;
-  --muted: #667085 !important;
-  --muted2: #7a8699 !important;
-  --muted-2: #7a8699 !important;
-  --dim: #7a8699 !important;
-
-  --border: rgba(28, 48, 74, 0.15) !important;
-  --border2: rgba(28, 48, 74, 0.22) !important;
-  --line: rgba(28, 48, 74, 0.13) !important;
-  --line2: rgba(28, 48, 74, 0.20) !important;
-  --line-strong: rgba(28, 48, 74, 0.26) !important;
-
-  --gold-dim: rgba(171, 129, 24, 0.17) !important;
-  --gold-border: rgba(171, 129, 24, 0.32) !important;
-  --gold-glow: rgba(171, 129, 24, 0.16) !important;
-  --gold-soft: rgba(171, 129, 24, 0.10) !important;
-
-  --shadow: 0 10px 30px rgba(38, 53, 72, 0.13) !important;
-  --shadow-hover: 0 16px 38px rgba(38, 53, 72, 0.18) !important;
-
-  --bif-navy: #f4f7fb !important;
-  --bif-navy-2: #e8eef5 !important;
-  --bif-card: #ffffff !important;
-  --bif-panel: #ffffff !important;
-  --bif-ink: #182230 !important;
-  --bif-muted: #667085 !important;
-  --bif-line: rgba(28, 48, 74, 0.15) !important;
-
-  --v10-panel: #ffffff !important;
-  --v10-soft: #f7f9fc !important;
-  --v10-line: rgba(28, 48, 74, 0.15) !important;
-
-  --receipt-line: rgba(28, 48, 74, 0.16) !important;
-  --receipt-muted: #667085 !important;
-}
-
-html[data-bif-theme="light"] body {
-  background-color: #f4f7fb !important;
-  background-image:
-    radial-gradient(ellipse at 18% 8%, rgba(201, 168, 76, 0.10) 0%, transparent 48%),
-    radial-gradient(ellipse at 85% 88%, rgba(82, 126, 176, 0.09) 0%, transparent 52%) !important;
-  color: #182230 !important;
-}
-
-html[data-bif-theme="light"] body::before {
-  color: rgba(137, 103, 19, 0.045) !important;
-}
-
-html[data-bif-theme="light"] :where(
-  .topbar,
-  .header,
-  .login-card,
-  .panel,
-  .tool-card,
-  .card,
-  .modal,
-  .side-panel,
-  .sidebar,
-  .kpi,
-  .stat,
-  .section-block,
-  .company-box,
-  .company-results,
-  .empty,
-  .empty-state
-) {
-  background-color: #ffffff !important;
-}
-
-html[data-bif-theme="light"] :where(.topbar, .header) {
-  background-image: linear-gradient(135deg, rgba(255,255,255,.98), rgba(247,249,252,.98)) !important;
-  box-shadow: 0 6px 22px rgba(38, 53, 72, 0.10) !important;
-}
-
-html[data-bif-theme="light"] :where(
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-  textarea,
-  select,
-  .input,
-  .select,
-  .field-input,
-  .field-select,
-  .field-textarea,
-  .form-input,
-  .form-select,
-  .search-input
-) {
-  background-color: #ffffff !important;
-  color: #182230 !important;
-  border-color: rgba(28, 48, 74, 0.18) !important;
-}
-
-html[data-bif-theme="light"] select option {
-  background: #ffffff !important;
-  color: #182230 !important;
-}
-
-html[data-bif-theme="light"] ::placeholder {
-  color: #8a96a6 !important;
-  opacity: 1;
-}
-
-html[data-bif-theme="light"] :where(.modal-overlay, .overlay, .drawer-overlay) {
-  background-color: rgba(24, 34, 48, 0.38) !important;
-}
-
-
-html[data-bif-theme="light"] .topbar-search {
-  background: rgba(28, 48, 74, 0.045) !important;
-  border-color: rgba(28, 48, 74, 0.16) !important;
-}
-
-html[data-bif-theme="light"] .topbar-search input {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-html[data-bif-theme="light"] :where(table, .table-wrap, .table-container) {
-  color: #182230 !important;
-}
-
-html[data-bif-theme="light"] :where(thead, .table-head) {
-  background-color: #eef3f8 !important;
-}
-
-html[data-bif-theme="light"] th {
-  color: #475467 !important;
-  border-color: rgba(28, 48, 74, 0.14) !important;
-}
-
-html[data-bif-theme="light"] td {
-  border-color: rgba(28, 48, 74, 0.10) !important;
-}
-
-html[data-bif-theme="light"] :where(.btn-clear-search, .icon-btn) {
-  background-color: #f7f9fc !important;
-}
-
-html[data-bif-theme="light"] :where(.tool-card.locked)::before {
-  background: rgba(244, 247, 251, 0.64) !important;
-}
-
-html[data-bif-theme="light"] * {
-  scrollbar-color: rgba(171, 129, 24, 0.55) rgba(28, 48, 74, 0.08);
-}
-
-html[data-bif-theme="light"] input:-webkit-autofill,
-html[data-bif-theme="light"] input:-webkit-autofill:hover,
-html[data-bif-theme="light"] input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #182230 !important;
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-}
-
-/* Transição curta ao alternar o tema, sem animar diálogos e elementos móveis. */
-html[data-bif-theme] body,
-html[data-bif-theme] .topbar,
-html[data-bif-theme] .header,
-html[data-bif-theme] .panel,
-html[data-bif-theme] .tool-card,
-html[data-bif-theme] .card,
-html[data-bif-theme] input,
-html[data-bif-theme] textarea,
-html[data-bif-theme] select {
-  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
-}
-
-/* ========================================================================== 
-   TEMA CLARO BIF — REVISÃO UX 2
-   Hierarquia de superfícies, tipografia de alto contraste e dourado acessível.
-   Somente o tema claro é afetado; o tema escuro permanece intacto.
+/* ==========================================================================
+   1. TOKENS — fonte única de verdade para o tema claro
    ========================================================================== */
 
 html[data-bif-theme="light"] {
+  color-scheme: light;
+
   /* Superfícies */
   --navy: #f3f5f8 !important;
   --navy-mid: #eef1f5 !important;
@@ -260,7 +70,7 @@ html[data-bif-theme="light"] {
   --dim: #667085 !important;
   --white: #263445 !important;
 
-  /* Dourado: preenchimento preservado; texto dourado escurecido */
+  /* Dourado: preenchimento preservado; texto dourado escurecido p/ contraste no claro */
   --gold: #9a6f12 !important;
   --gold2: #b88a24 !important;
   --gold-light: #79590f !important;
@@ -269,7 +79,6 @@ html[data-bif-theme="light"] {
   --gold-dim: rgba(154,111,18,.16) !important;
   --gold-border: rgba(138,99,16,.34) !important;
   --gold-glow: rgba(154,111,18,.18) !important;
-
 
   /* Cores semânticas com contraste adequado sobre superfícies claras */
   --green: #16794f !important;
@@ -321,26 +130,44 @@ html[data-bif-theme="light"] body::after {
   color: rgba(138,99,16,.045) !important;
 }
 
-/* Tipografia e hierarquia */
-html[data-bif-theme="light"] :where(h1,h2,h3,h4,h5,h6,.title,.head-title,.header-title,.card-title,.section-title,.block-title,.column-title,.modal-title,.tool-title,.brand-title) {
+/* Transição curta ao alternar o tema, sem animar diálogos e elementos móveis. */
+html[data-bif-theme] body,
+html[data-bif-theme] .panel,
+html[data-bif-theme] .tool-card,
+html[data-bif-theme] .card,
+html[data-bif-theme] input,
+html[data-bif-theme] textarea,
+html[data-bif-theme] select {
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+
+/* ==========================================================================
+   2. TIPOGRAFIA E HIERARQUIA
+   (excluídos da régua de marca — ver seção 6)
+   ========================================================================== */
+
+html[data-bif-theme="light"] :where(h1,h2,h3,h4,h5,h6,.title,.head-title,.header-title,.card-title,.section-title,.block-title,.column-title,.modal-title,.tool-title,.brand-title):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
   color: #263445 !important;
   text-shadow: none !important;
 }
-html[data-bif-theme="light"] :where(p,.subtitle,.desc,.description,.hint,.field-hint,.section-desc,.section-sub,.header-sub,.card-preview,.small,.muted,.date-meta,.meta-label,.kpi-label,.stat-label,.metric-label) {
+html[data-bif-theme="light"] :where(p,.subtitle,.desc,.description,.hint,.field-hint,.section-desc,.section-sub,.header-sub,.card-preview,.small,.muted,.date-meta,.meta-label,.kpi-label,.stat-label,.metric-label):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
   color: #526071 !important;
   text-shadow: none !important;
 }
-html[data-bif-theme="light"] :where(.gold,.gold-text,.mono-label,.section-kicker,.focus-kicker,.rule-kicker) {
+html[data-bif-theme="light"] :where(.gold,.gold-text,.mono-label,.section-kicker,.focus-kicker,.rule-kicker):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
   color: #8a6310 !important;
 }
-html[data-bif-theme="light"] a:not(.btn):not(.tool-card) {
+html[data-bif-theme="light"] a:not(.btn):not(.tool-card):not(.header *):not(.app-header *):not(.topbar *):not(.side *) {
   color: #6e5218;
 }
 
-/* Superfícies principais — branco limpo, borda neutra e sombra discreta */
+/* ==========================================================================
+   3. SUPERFÍCIES DE CONTEÚDO — branco limpo, borda neutra, sombra discreta
+   (cabeçalho/topbar/régua lateral ficam de fora — continuam navy, ver seção 6)
+   ========================================================================== */
+
 html[data-bif-theme="light"] :where(
   .shell,.app-shell,.container-shell,
-  .topbar,.header,header,.fixed-search-strip,
   .login-card,.panel,.panel-card,.tool-card,.card,.stat,.stat-card,.kpi,.kpi-card,.kpi-box,
   .modal,.modal-content,.modal-card,.side-panel,
   .company-card,.company-box,.company-results,.company-result-list,.company-dropdown,
@@ -364,34 +191,19 @@ html[data-bif-theme="light"] :where(
   .concorrente-intro,.bif-note,.page-meta,.sync,.focus-strip,.pill,.scope-chip,.filter-pill,
   .tag-filter,.palette-chip,.doc-toggle-mark,.card.access-card .password-line,.obr-vals-title,
   .form-section,.form-card,.search-area,.filters,.search-wrap,.cat-filter-bar
-) {
+):not(.header):not(.header *):not(.app-header):not(.app-header *):not(.topbar):not(.topbar *):not(.side):not(.side *) {
   background: #f8fafc !important;
   border-color: #d7dde5 !important;
   color: #344054 !important;
   box-shadow: none !important;
 }
 
-/* Cabeçalhos claros com separação visual consistente */
-html[data-bif-theme="light"] :where(.topbar,.header,header,.fixed-search-strip) {
+/* Faixa de busca fixa (não é marca, é utilitário de conteúdo) */
+html[data-bif-theme="light"] .fixed-search-strip {
   background: rgba(255,255,255,.97) !important;
   border-bottom-color: #d7dde5 !important;
   box-shadow: 0 3px 14px rgba(31,41,55,.07) !important;
   backdrop-filter: blur(10px) !important;
-}
-html[data-bif-theme="light"] :where(.header::after,.topbar::after) {
-  opacity: .72 !important;
-}
-
-/* Sidebar e áreas de trabalho não viram blocos escuros */
-html[data-bif-theme="light"] :where(.sidebar,.editor-wrap,.workspace) {
-  background: #f8fafc !important;
-  border-color: #d7dde5 !important;
-}
-html[data-bif-theme="light"] .paper {
-  background: #fffdf8 !important;
-  color: #273244 !important;
-  border: 1px solid #e1ddd2 !important;
-  box-shadow: 0 12px 34px rgba(31,41,55,.10) !important;
 }
 
 /* Campos: contorno perceptível, texto cinza bem escuro, foco inequívoco */
@@ -400,7 +212,7 @@ html[data-bif-theme="light"] :where(
   textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
   .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select,
   .doc-label-input,.doc-hint-input,.rich-select,.tag-input
-) {
+):not(.topbar-search input) {
   background: #ffffff !important;
   color: #263445 !important;
   border-color: #98a3b2 !important;
@@ -410,14 +222,14 @@ html[data-bif-theme="light"] :where(
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
   .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select
-):hover {
+):not(.topbar-search input):hover {
   border-color: #7b8797 !important;
 }
 html[data-bif-theme="light"] :where(
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   textarea,select,.input,.select,.field-input,.field-select,.field-textarea,
   .form-input,.form-select,.form-textarea,.search-input,.fin-input,.inline-input,.inline-select
-):focus {
+):not(.topbar-search input):focus {
   border-color: #8a6310 !important;
   box-shadow: 0 0 0 3px rgba(154,111,18,.16) !important;
   outline: none !important;
@@ -436,10 +248,15 @@ html[data-bif-theme="light"] .crono-item select option {
   color: #263445 !important;
 }
 
-/* Botões neutros e ações principais */
+/* ==========================================================================
+   4. BOTÕES, CHIPS, TABELAS, MODAIS
+   (.btn-header e .nav-btn ficam de fora: vivem dentro da régua de marca
+   e devem manter a aparência original em navy — ver bug do Kanban)
+   ========================================================================== */
+
 html[data-bif-theme="light"] :where(
-  .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.nav-btn,.icon-btn,.paper-btn,
-  .doc-action-btn,.mini-btn,.btn-header,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
+  .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.icon-btn,.paper-btn,
+  .doc-action-btn,.mini-btn,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
 ):not(.btn-primary):not(.primary):not(.gold):not(.btn-gold):not(.btn-login):not(.danger):not(.btn-danger) {
   background: #ffffff !important;
   color: #344054 !important;
@@ -447,8 +264,8 @@ html[data-bif-theme="light"] :where(
   box-shadow: 0 1px 2px rgba(31,41,55,.04) !important;
 }
 html[data-bif-theme="light"] :where(
-  .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.nav-btn,.icon-btn,.paper-btn,
-  .doc-action-btn,.mini-btn,.btn-header,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
+  .btn,.btn-secondary,.btn-ghost,.ghost,.secondary,.icon-btn,.paper-btn,
+  .doc-action-btn,.mini-btn,.btn-back,.btn-cancel,.btn-close-modal,.modal-close
 ):not(.btn-primary):not(.primary):not(.gold):not(.btn-gold):not(.btn-login):not(.danger):not(.btn-danger):hover {
   background: #f1f4f8 !important;
   color: #263445 !important;
@@ -547,17 +364,17 @@ html[data-bif-theme="light"] :where(.note-card .card-title,.note-card.active .ca
   color: #344054 !important;
   text-shadow: none !important;
 }
-html[data-bif-theme="light"] :where(.fixed-search-strip,.concorrente-toolbar,.obr-vals-title,.guia-modal-footer,.modal-head,.card-foot,.card-actions,.top-summary-body) {
+html[data-bif-theme="light"] :where(.concorrente-toolbar,.obr-vals-title,.guia-modal-footer,.modal-head,.card-foot,.card-actions,.top-summary-body) {
   background: #f8fafc !important;
   background-image: none !important;
   color: #344054 !important;
   border-color: #d7dde5 !important;
 }
-html[data-bif-theme="light"] :where(.topbar-search,.searchbox,.search-box) {
+html[data-bif-theme="light"] :where(.searchbox,.search-box) {
   background: #ffffff !important;
   border-color: #98a3b2 !important;
 }
-html[data-bif-theme="light"] :where(.topbar-search input,.searchbox input,.search-box input) {
+html[data-bif-theme="light"] :where(.searchbox input,.search-box input) {
   background: transparent !important;
   color: #263445 !important;
   box-shadow: none !important;
@@ -587,4 +404,37 @@ html[data-bif-theme="light"] input:-webkit-autofill:hover,
 html[data-bif-theme="light"] input:-webkit-autofill:focus {
   -webkit-text-fill-color: #263445 !important;
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
+
+/* ==========================================================================
+   5. ANCORAGEM DE MARCA
+   O cabeçalho fixo (.header/.app-header/.topbar) e a régua de navegação
+   lateral (.side) de cada módulo usam cor navy/dourado FIXA no CSS do
+   próprio módulo — nunca foram pensados pra virar branco, e não usam as
+   variáveis de superfície acima. No tema claro eles continuam exatamente
+   como no tema escuro (ancoragem visual da marca BIF). A única coisa que
+   fazemos aqui é devolver, só dentro deles, as variáveis de texto e
+   dourado com os valores "para fundo escuro", porque variável CSS herda
+   dos ancestrais e as seções 1-4 redefinem essas variáveis para valores
+   escuros pensados pra fundo branco.
+   ========================================================================== */
+
+html[data-bif-theme="light"] :where(.header, .app-header, .topbar, .side) {
+  --gold: #c9a84c !important;
+  --gold-light: #e8c97a !important;
+  --gold-dim: rgba(201,168,76,.22) !important;
+  --gold-glow: rgba(201,168,76,.15) !important;
+  --gold-soft: rgba(201,168,76,.12) !important;
+  --gold-border: rgba(201,168,76,.3) !important;
+  --text: #e8eaf0 !important;
+  --text2: #c7ccd6 !important;
+  --text3: #a7afbd !important;
+  --text-light: #8899aa !important;
+  --text-muted: #8899aa !important;
+  --text-dim: #7a8699 !important;
+  --muted: #8899aa !important;
+  --muted2: #7a8699 !important;
+  --line: rgba(255,255,255,.08) !important;
+  --line2: rgba(255,255,255,.14) !important;
+  --border: rgba(201,168,76,.18) !important;
 }
