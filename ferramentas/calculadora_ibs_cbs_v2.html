@@ -370,6 +370,108 @@ select option { background: #1e2435; }
   .results-hero { grid-template-columns: 1fr; }
   .result-hero-card .big-value { font-size: 28px; }
 }
+
+/* ── TEMA CLARO ─────────────────────────────────────────── */
+html[data-bif-theme="light"] {
+  --bg: #f4f1e8;
+  --bg2: #ffffff;
+  --bg3: #f8f6ef;
+  --border: rgba(155,118,36,0.18);
+  --border2: rgba(155,118,36,0.28);
+  --text: #1b2837;
+  --text2: #5d6b7a;
+  --text3: #74808c;
+  --ibs: #1f67a8;
+  --ibs-light: #1a58a0;
+  --ibs-bg: rgba(31,103,168,0.09);
+  --ibs-border: rgba(31,103,168,0.28);
+  --cbs: #0f766e;
+  --cbs-light: #0c6460;
+  --cbs-bg: rgba(15,118,110,0.09);
+  --cbs-border: rgba(15,118,110,0.28);
+  --accent: #7a5c12;
+  --accent-bg: rgba(122,92,18,0.09);
+}
+html[data-bif-theme="light"] body {
+  background: #f4f1e8 !important;
+  background-image: radial-gradient(ellipse at 18% 8%, rgba(155,118,36,.10) 0%, transparent 46%) !important;
+  color: #1b2837 !important;
+}
+html[data-bif-theme="light"] header {
+  background: rgba(255,255,255,.96) !important;
+  border-bottom: 1px solid rgba(155,118,36,.20) !important;
+  box-shadow: 0 4px 14px rgba(39,49,61,.07) !important;
+}
+html[data-bif-theme="light"] .page-title { color: #1b2837 !important; }
+html[data-bif-theme="light"] .page-sub { color: #5d6b7a !important; }
+html[data-bif-theme="light"] .back-btn {
+  background: rgba(155,118,36,.08) !important;
+  color: #7a5c12 !important;
+  border: 1px solid rgba(155,118,36,.28) !important;
+}
+html[data-bif-theme="light"] .back-btn:hover {
+  background: rgba(155,118,36,.16) !important;
+}
+html[data-bif-theme="light"] main { background: transparent !important; }
+html[data-bif-theme="light"] .card-section {
+  background: #ffffff !important;
+  border: 1px solid rgba(155,118,36,.18) !important;
+  box-shadow: 0 8px 22px rgba(39,49,61,.08) !important;
+}
+html[data-bif-theme="light"] .card-header { border-bottom-color: rgba(155,118,36,.14) !important; }
+html[data-bif-theme="light"] .card-header-title { color: #1b2837 !important; }
+html[data-bif-theme="light"] .toggle-btn {
+  background: #f8f6ef !important;
+  border-color: rgba(155,118,36,.22) !important;
+  color: #344454 !important;
+}
+html[data-bif-theme="light"] .toggle-btn.active {
+  background: linear-gradient(135deg,#9b7624,#bd9438) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+html[data-bif-theme="light"] label { color: #5d6b7a !important; }
+html[data-bif-theme="light"] input[type="number"],
+html[data-bif-theme="light"] input[type="text"],
+html[data-bif-theme="light"] select {
+  background: #ffffff !important;
+  color: #1b2837 !important;
+  border-color: rgba(155,118,36,.22) !important;
+}
+html[data-bif-theme="light"] input:focus, html[data-bif-theme="light"] select:focus {
+  border-color: #9b7624 !important;
+  box-shadow: 0 0 0 3px rgba(155,118,36,.18) !important;
+}
+html[data-bif-theme="light"] select option { background: #ffffff !important; color: #1b2837 !important; }
+html[data-bif-theme="light"] .results-hero .result-hero-card {
+  box-shadow: 0 4px 14px rgba(39,49,61,.10) !important;
+}
+html[data-bif-theme="light"] .result-hero-card.ibs {
+  background: rgba(31,103,168,.07) !important;
+  border-color: rgba(31,103,168,.28) !important;
+}
+html[data-bif-theme="light"] .result-hero-card.cbs {
+  background: rgba(15,118,110,.07) !important;
+  border-color: rgba(15,118,110,.28) !important;
+}
+html[data-bif-theme="light"] .sub-row .sub-lbl { color: #5d6b7a !important; }
+html[data-bif-theme="light"] .onboarding-toggle { color: #7a5c12 !important; }
+html[data-bif-theme="light"] .onboarding-body {
+  background: rgba(155,118,36,.06) !important;
+  border-color: rgba(155,118,36,.18) !important;
+  color: #344454 !important;
+}
+html[data-bif-theme="light"] .tag {
+  border-radius: 5px !important;
+  padding: 2px 6px !important;
+}
+html[data-bif-theme="light"] .info-box {
+  background: rgba(155,118,36,.07) !important;
+  border-color: rgba(155,118,36,.22) !important;
+  color: #344454 !important;
+}
+html[data-bif-theme="light"] .info-box strong { color: #7a5c12 !important; }
+html[data-bif-theme="light"] .divider { border-color: rgba(155,118,36,.14) !important; }
 </style>
   <link rel="stylesheet" href="../tema-bif.css?v=20260714-white"/>
 </head>

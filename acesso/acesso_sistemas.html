@@ -53,6 +53,108 @@
 .card.access-card .card-actions{display:flex!important;gap:7px;flex-wrap:wrap;margin-top:0!important;padding-top:9px;border-top:1px solid rgba(201,168,76,.14);}
 .card.access-card .card-actions .btn{min-height:34px;font-weight:800;}
 @media(max-width:760px){.lane-body{grid-template-columns:1fr}.card-title-row{grid-template-columns:1fr}.access-summary-box{align-items:flex-start}.access-summary-box small{text-align:left}.card.access-card.collapsed{min-height:160px!important}}
+
+/* ── TEMA CLARO ─────────────────────────────────────────── */
+html[data-bif-theme="light"] body {
+  background: #f4f1e8 !important;
+  background-image: radial-gradient(ellipse at 18% 8%, rgba(155,118,36,.10) 0%, transparent 46%) !important;
+  color: #1b2837 !important;
+}
+html[data-bif-theme="light"] .header {
+  background: #ffffff !important;
+  border-color: rgba(155,118,36,.22) !important;
+  box-shadow: 0 4px 14px rgba(39,49,61,.07) !important;
+}
+html[data-bif-theme="light"] .header::before {
+  background: linear-gradient(90deg,transparent,#9b7624,transparent) !important;
+}
+html[data-bif-theme="light"] .brand h1 { color: #1b2837 !important; }
+html[data-bif-theme="light"] .brand p { color: #5d6b7a !important; }
+html[data-bif-theme="light"] .glyph { color: #9b7624 !important; }
+html[data-bif-theme="light"] .btn {
+  background: rgba(155,118,36,.07) !important;
+  color: #344454 !important;
+  border-color: rgba(155,118,36,.28) !important;
+}
+html[data-bif-theme="light"] .btn:hover {
+  background: rgba(155,118,36,.14) !important;
+  color: #7a5c12 !important;
+  border-color: rgba(155,118,36,.45) !important;
+}
+html[data-bif-theme="light"] .btn.gold {
+  background: linear-gradient(135deg,#9b7624,#bd9438) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+html[data-bif-theme="light"] .btn.red { color: #a01c14 !important; border-color: rgba(180,35,24,.28) !important; background: rgba(180,35,24,.07) !important; }
+html[data-bif-theme="light"] .btn.green { color: #0d6b43 !important; border-color: rgba(17,122,75,.28) !important; background: rgba(17,122,75,.07) !important; }
+html[data-bif-theme="light"] .btn.blue { color: #1f67a8 !important; border-color: rgba(31,103,168,.28) !important; background: rgba(31,103,168,.07) !important; }
+html[data-bif-theme="light"] .panel {
+  background: #ffffff !important;
+  border-color: rgba(155,118,36,.20) !important;
+  box-shadow: 0 8px 22px rgba(39,49,61,.08) !important;
+}
+html[data-bif-theme="light"] .panel::before {
+  background: linear-gradient(90deg,transparent,rgba(155,118,36,.55),transparent) !important;
+}
+html[data-bif-theme="light"] .section-title { color: #9b7624 !important; }
+html[data-bif-theme="light"] .section-title::before { background: #9b7624 !important; }
+html[data-bif-theme="light"] .toolbar {
+  background: #f8f6ef !important;
+  border: 1px solid rgba(155,118,36,.18) !important;
+  border-radius: 12px !important;
+  padding: 10px !important;
+}
+html[data-bif-theme="light"] .input, html[data-bif-theme="light"] .select {
+  background: #ffffff !important;
+  color: #1b2837 !important;
+  border-color: rgba(155,118,36,.22) !important;
+}
+html[data-bif-theme="light"] .input:focus, html[data-bif-theme="light"] .select:focus {
+  border-color: #9b7624 !important;
+  box-shadow: 0 0 0 3px rgba(155,118,36,.18) !important;
+}
+html[data-bif-theme="light"] select option { background: #ffffff !important; color: #1b2837 !important; }
+html[data-bif-theme="light"] .stat {
+  background: #ffffff !important;
+  border-color: rgba(155,118,36,.18) !important;
+}
+html[data-bif-theme="light"] .stat small { color: #5d6b7a !important; }
+html[data-bif-theme="light"] .stat strong { color: #1b2837 !important; }
+html[data-bif-theme="light"] .card {
+  background: #ffffff !important;
+  border-color: rgba(155,118,36,.18) !important;
+  box-shadow: 0 4px 12px rgba(39,49,61,.07) !important;
+}
+html[data-bif-theme="light"] .card:hover {
+  border-color: rgba(155,118,36,.36) !important;
+  background: #fffdf8 !important;
+}
+html[data-bif-theme="light"] .card h3 { color: #1b2837 !important; }
+html[data-bif-theme="light"] .meta { color: #5d6b7a !important; }
+html[data-bif-theme="light"] .chip { background: rgba(155,118,36,.08) !important; border-color: rgba(155,118,36,.22) !important; color: #7a5c12 !important; }
+html[data-bif-theme="light"] .chip.red { color: #a01c14 !important; border-color: rgba(180,35,24,.24) !important; background: rgba(180,35,24,.07) !important; }
+html[data-bif-theme="light"] .chip.green { color: #0d6b43 !important; border-color: rgba(17,122,75,.24) !important; background: rgba(17,122,75,.07) !important; }
+html[data-bif-theme="light"] .chip.blue { color: #1f67a8 !important; border-color: rgba(31,103,168,.24) !important; background: rgba(31,103,168,.07) !important; }
+html[data-bif-theme="light"] .chip.amber { color: #7a5800 !important; border-color: rgba(138,94,0,.24) !important; background: rgba(138,94,0,.07) !important; }
+html[data-bif-theme="light"] .chip.purple { color: #5c3fad !important; border-color: rgba(92,63,173,.24) !important; background: rgba(92,63,173,.07) !important; }
+html[data-bif-theme="light"] .empty { border-color: rgba(155,118,36,.24) !important; color: #5d6b7a !important; }
+html[data-bif-theme="light"] .modal {
+  background: #ffffff !important;
+  border-color: rgba(155,118,36,.22) !important;
+  color: #1b2837 !important;
+}
+html[data-bif-theme="light"] .modal::before { background: linear-gradient(90deg,transparent,#9b7624,transparent) !important; }
+html[data-bif-theme="light"] .modal h2 { color: #7a5c12 !important; }
+html[data-bif-theme="light"] .lbl { color: #9b7624 !important; }
+html[data-bif-theme="light"] .modal-footer { border-top-color: rgba(155,118,36,.18) !important; }
+html[data-bif-theme="light"] .company-box { background: #f8f6ef !important; border-color: rgba(155,118,36,.18) !important; }
+html[data-bif-theme="light"] .company-results { background: rgba(255,255,255,.96) !important; border-color: rgba(155,118,36,.22) !important; }
+html[data-bif-theme="light"] .company-option { background: #f8f6ef !important; color: #1b2837 !important; border-color: rgba(155,118,36,.14) !important; }
+html[data-bif-theme="light"] .company-option:hover, html[data-bif-theme="light"] .company-option.on { border-color: #9b7624 !important; background: rgba(155,118,36,.10) !important; }
+html[data-bif-theme="light"] .toast { background: #ffffff !important; color: #1b2837 !important; border-color: rgba(155,118,36,.22) !important; }
+html[data-bif-theme="light"] .lockscreen { background: #f4f1e8 !important; }
+html[data-bif-theme="light"] .security { background: rgba(155,118,36,.08) !important; border: 1px solid rgba(155,118,36,.22) !important; color: #344454 !important; border-radius: 10px !important; padding: 10px 12px !important; }
 </style>  <link rel="stylesheet" href="../tema-bif.css?v=20260714-white"/>
 </head><body><div id="lock" class="lockscreen"><div class="brand" style="margin-bottom:16px"><div class="glyph">◈</div><div><h1>Acesso a Sistemas</h1><p>Cofre criptografado — nuvem + local. Sem a senha mestra, ninguém lê.</p></div></div><div class="security"><b>Segurança:</b> os dados são criptografados com AES-256-GCM antes de qualquer salvamento. O Firebase armazena apenas o blob cifrado — sem a senha mestra é impossível descriptografar. O localStorage é cache offline automático.</div><div class="field full"><div class="lbl">Senha mestra</div><input id="master" type="password" class="input" placeholder="Digite a senha mestra do cofre" onkeydown="if(event.key==='Enter')unlockVault()"></div><div class="actions" style="margin-top:10px"><button class="btn gold" onclick="unlockVault()">Desbloquear / criar cofre</button><button class="btn" onclick="document.getElementById('encryptedImport').click()">Importar cofre</button><input id="encryptedImport" hidden type="file" accept="application/json" onchange="importEncrypted(event)"></div><p class="meta" id="lockHint" style="margin-top:10px">Primeiro acesso: defina uma senha mestra forte. Ela criptografa tudo antes de salvar.</p></div>
 <div class="app vault" id="vault"><header class="header"><div class="brand"><div class="glyph">◈</div><div><h1>Acesso a Sistemas</h1><p>Senhas, logins, URLs e observações. Cofre criptografado — salvo na nuvem e localmente.</p></div></div><div class="actions"><span id="cloudStatus" class="chip">⏳ conectando</span><span id="saveStatus" class="chip green">🔒 desbloqueado</span><button class="btn gold" onclick="openModal()">+ Novo acesso</button><button class="btn" onclick="exportEncrypted()">⬇ Exportar cofre</button><button class="btn blue" onclick="lockVault()">Bloquear</button><a class="btn" href="../index.html">← BIF</a></div></header><div class="stats"><div class="stat"><small>Total</small><strong id="stTotal">0</strong></div><div class="stat"><small>2FA</small><strong id="st2fa">0</strong></div><div class="stat"><small>Vencendo</small><strong id="stVenc">0</strong></div><div class="stat"><small>Críticos</small><strong id="stCrit">0</strong></div></div><section class="panel"><div class="section-title">Cofre de acessos</div><div class="toolbar"><div class="search"><span>🔎</span><input id="search" class="input" placeholder="Buscar sistema, empresa, login, categoria..." oninput="render()"></div><select id="catFilter" class="select" style="max-width:220px" onchange="render()"><option value="">Todas as categorias</option><option>Fiscal</option><option>Prefeitura</option><option>SEFAZ</option><option>Receita/e-CAC</option><option>ERP/Sistema</option><option>Banco</option><option>Cliente</option><option>Outro</option></select><button class="btn small" onclick="clearFilters()">Limpar filtros</button></div><div class="category-lanes" id="lanes"></div></section></div>
