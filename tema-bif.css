@@ -891,3 +891,159 @@ html[data-bif-theme="light"] body header {
   border-color: rgba(155,118,36,.20) !important;
   box-shadow: 0 5px 18px rgba(39,49,61,.07) !important;
 }
+
+/* ==========================================================================
+   TEMA CLARO BIF — revisão 7
+   Padronização definitiva de títulos em azul-marinho e contraste automático.
+   ========================================================================== */
+html[data-bif-theme="light"] {
+  --title-navy: #223650 !important;
+  --text: #223650 !important;
+  --paper-ink: #223650 !important;
+  /* Muitos módulos antigos usam --white como cor de texto. No tema claro,
+     ela precisa representar a tinta principal, não branco literal. */
+  --white: #223650 !important;
+}
+
+/* Nome do módulo: mesma fonte, tamanho e azul-marinho em todas as páginas. */
+html[data-bif-theme="light"] :where(
+  [data-bif-page-title],
+  body > header h1,
+  .app-header h1,
+  .app-title h1,
+  .header h1,
+  .hero h1,
+  .bif-hero h1,
+  .kanban-topbar h1,
+  .title-block h1,
+  .head-title h1,
+  .brand h1,
+  .page-header h1,
+  .page-header h2,
+  .topbar h1
+) {
+  margin: 0 !important;
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-size: clamp(1.35rem, 1.16rem + .55vw, 1.72rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.032em !important;
+  color: #223650 !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: #223650 !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] :where(
+  [data-bif-page-title],
+  body > header h1,
+  .app-header h1,
+  .app-title h1,
+  .header h1,
+  .hero h1,
+  .title-block h1,
+  .head-title h1,
+  .brand h1,
+  .page-header h1,
+  .page-header h2
+) span,
+html[data-bif-theme="light"] .bif-title-accent {
+  color: #223650 !important;
+  -webkit-text-fill-color: #223650 !important;
+}
+html[data-bif-theme="light"] :where(
+  [data-bif-page-subtitle],
+  .app-title p,
+  .header-sub,
+  .h-sub,
+  .title-block .subtitle,
+  .head-title p,
+  .brand p,
+  .page-header p,
+  .page-sub
+) {
+  color: #66758a !important;
+  text-shadow: none !important;
+}
+
+/* Símbolo do módulo no mesmo padrão visual. */
+html[data-bif-theme="light"] :where(.app-logo,.page-symbol,.module-symbol) {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 11px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 40px !important;
+  background: linear-gradient(135deg,#a77d1e,#c69a36) !important;
+  color: #162a42 !important;
+  -webkit-text-fill-color: #162a42 !important;
+  border: 0 !important;
+  box-shadow: 0 7px 17px rgba(155,118,36,.20) !important;
+  font-family: 'Poppins',sans-serif !important;
+}
+
+/* Correção específica do Painel de Tarefas e componentes antigos que
+   mantinham branco literal mesmo sobre cartões claros. */
+html[data-bif-theme="light"] :where(
+  .task-name,.task-mini-title,.task-details-title,.subtask-name,
+  .toggle-label,.adhd-field-value,.work-tree-line,.work-scale-help strong,
+  .company-option-title,.company-result-btn,.company-result-name,
+  .park-info-row span,.top-summary-toggle,.top-summary-title,
+  .priority-lane-title,.lane-title,.focus-title,.rhythm-title,
+  .event-title,.routine-title,.dep-card-title,.day-number,
+  .company-name,.note-item,.note-item strong,.empty-notes strong
+) {
+  color: #223650 !important;
+  -webkit-text-fill-color: #223650 !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] :where(
+  .task-desc,.task-mini-meta,.task-details-section,.adhd-field-label,
+  .work-tree-empty,.work-scale-help,.company-option-meta,.company-result-meta,
+  .park-info-row,.lane-sub,.dep-lane-sub,.event-essential,.routine-meta
+) {
+  color: #66758a !important;
+  text-shadow: none !important;
+}
+html[data-bif-theme="light"] :where(
+  .task,.task.task-compact,.task-details-modal,.task-details-side,
+  .adhd-field,.work-tree,.work-tree-line,.top-summary-toggle,
+  .top-summary-body,.top-summary-section,.priority-lane,.lane-body,
+  .dep-lane,.dep-card,.day-block,.day-card,.event-card,.routine-card
+) {
+  text-shadow: none !important;
+}
+
+/* O script marca automaticamente qualquer texto quase branco que tenha
+   ficado sobre uma superfície clara. Botões dourados e superfícies escuras
+   são ignorados pelo detector. */
+html[data-bif-theme="light"] [data-bif-auto-contrast] {
+  color: #34465a !important;
+  -webkit-text-fill-color: #34465a !important;
+  text-shadow: none !important;
+}
+
+/* Textos de botões principais continuam brancos. */
+html[data-bif-theme="light"] :where(
+  .btn-primary,.primary,.btn.gold,.btn-gold,.btn-login,.btn-abrir,
+  .btn-save,.obr-btn-gold,.btn-green,.btn-blue
+),
+html[data-bif-theme="light"] :where(
+  .btn-primary,.primary,.btn.gold,.btn-gold,.btn-login,.btn-abrir,
+  .btn-save,.obr-btn-gold,.btn-green,.btn-blue
+) * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+@media (max-width:760px) {
+  html[data-bif-theme="light"] :where(
+    [data-bif-page-title],body > header h1,.app-header h1,.app-title h1,
+    .header h1,.hero h1,.title-block h1,.head-title h1,.brand h1,.page-header h2
+  ) {
+    font-size: 1.25rem !important;
+  }
+}
