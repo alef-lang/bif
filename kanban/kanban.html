@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script src="../tema-bif.js?v=20260714-white"></script>
+  <script src="../tema-bif.js?v=20260714-kanbanfix"></script>
   <link rel="icon" type="image/svg+xml" href="../favicons/kanban.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1889,7 +1889,384 @@
     }
 
 </style>
-  <link rel="stylesheet" href="../tema-bif.css?v=20260714-white"/>
+  <link rel="stylesheet" href="../tema-bif.css?v=20260714-kanbanfix"/>
+
+  <style id="kanban-light-theme-fix">
+    /* ============================================================
+       CORREÇÃO EXCLUSIVA DO KANBAN — TEMA CLARO
+       Mantém o tema escuro intacto e evita a mistura de cabeçalho
+       branco com corpo de card escuro.
+       ============================================================ */
+    html[data-bif-theme="light"] {
+      color-scheme: light !important;
+      --bif-page: #f4f1e8;
+      --bif-surface: #ffffff;
+      --bif-surface-soft: #faf8f2;
+      --bif-surface-muted: #f0f2f4;
+      --bif-ink-light: #10243b;
+      --bif-copy-light: #34475c;
+      --bif-muted-light: #718096;
+      --bif-line-light: #ddd5c6;
+      --bif-line-soft-light: #ece6da;
+      --bif-gold-light-fix: #b89231;
+      --bif-shadow-light: 0 8px 22px rgba(36, 47, 61, .10);
+    }
+
+    html[data-bif-theme="light"] body {
+      background: var(--bif-page) !important;
+      background-image: none !important;
+      color: var(--bif-ink-light) !important;
+    }
+
+    html[data-bif-theme="light"] .main {
+      background: transparent !important;
+    }
+
+    /* Cabeçalho e barra de busca */
+    html[data-bif-theme="light"] .hero,
+    html[data-bif-theme="light"] .kanban-topbar {
+      background: var(--bif-surface) !important;
+      border: 1px solid var(--bif-line-soft-light) !important;
+      box-shadow: 0 4px 14px rgba(36, 47, 61, .07) !important;
+    }
+    html[data-bif-theme="light"] h1,
+    html[data-bif-theme="light"] .section-title h2,
+    html[data-bif-theme="light"] .modal h3 {
+      color: var(--bif-ink-light) !important;
+      -webkit-text-fill-color: var(--bif-ink-light) !important;
+      text-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .kicker,
+    html[data-bif-theme="light"] .subtitle,
+    html[data-bif-theme="light"] .drag-hint,
+    html[data-bif-theme="light"] .ctl-label,
+    html[data-bif-theme="light"] .page-meta {
+      color: var(--bif-muted-light) !important;
+    }
+    html[data-bif-theme="light"] .work-top {
+      border-top-color: #dfd4bd !important;
+    }
+    html[data-bif-theme="light"] .search,
+    html[data-bif-theme="light"] .ctl-group,
+    html[data-bif-theme="light"] .page-meta,
+    html[data-bif-theme="light"] .sync {
+      background: var(--bif-surface) !important;
+      border-color: var(--bif-line-light) !important;
+      color: var(--bif-copy-light) !important;
+      box-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .search input {
+      background: transparent !important;
+      color: var(--bif-ink-light) !important;
+      box-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .search input::placeholder {
+      color: #78879a !important;
+    }
+    html[data-bif-theme="light"] .btn,
+    html[data-bif-theme="light"] .options-toggle {
+      background: var(--bif-surface) !important;
+      color: var(--bif-copy-light) !important;
+      border-color: var(--bif-line-light) !important;
+      box-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .btn:hover,
+    html[data-bif-theme="light"] .options-toggle:hover {
+      background: #fffdf7 !important;
+      color: var(--bif-ink-light) !important;
+      border-color: #c9a84c !important;
+    }
+    html[data-bif-theme="light"] .btn.primary {
+      background: linear-gradient(135deg, #c9a84c, #e8c97a) !important;
+      color: #14243a !important;
+      border-color: transparent !important;
+    }
+    html[data-bif-theme="light"] select {
+      background: var(--bif-surface) !important;
+      color: var(--bif-copy-light) !important;
+      border-color: var(--bif-line-light) !important;
+      box-shadow: none !important;
+    }
+    html[data-bif-theme="light"] select option {
+      background: #ffffff !important;
+      color: var(--bif-ink-light) !important;
+    }
+
+    /* Área do quadro */
+    html[data-bif-theme="light"] .workspace {
+      background: #f8f5ee !important;
+      border: 1px solid #ded6c8 !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8) !important;
+    }
+    html[data-bif-theme="light"] .workspace::before {
+      content: none !important;
+    }
+    html[data-bif-theme="light"] .boards-track {
+      background: transparent !important;
+    }
+
+    /* Card principal: branco e coerente de cima a baixo */
+    html[data-bif-theme="light"] .company-card.card-clean {
+      background: var(--bif-surface) !important;
+      border-color: #d8d0c2 !important;
+      color: var(--bif-ink-light) !important;
+      box-shadow: var(--bif-shadow-light) !important;
+    }
+    html[data-bif-theme="light"] .company-card.card-clean:hover {
+      border-color: color-mix(in srgb, var(--accent) 52%, #cfc6b5) !important;
+      box-shadow: 0 12px 28px rgba(36, 47, 61, .14) !important;
+    }
+    html[data-bif-theme="light"] .company-card.card-clean.selected {
+      border-color: #c9a84c !important;
+      box-shadow: 0 0 0 2px rgba(201,168,76,.16), 0 12px 28px rgba(36,47,61,.13) !important;
+    }
+
+    /* Cores manuais viram tons suaves, não blocos escuros */
+    html[data-bif-theme="light"] .card-clean.card-color-none {
+      background: #ffffff !important;
+    }
+    html[data-bif-theme="light"] .card-clean.card-color-red {
+      background: linear-gradient(160deg, #fffafa, #fff1f2) !important;
+      border-color: #efc4c8 !important;
+    }
+    html[data-bif-theme="light"] .card-clean.card-color-orange {
+      background: linear-gradient(160deg, #fffdf8, #fff5e5) !important;
+      border-color: #ead2a5 !important;
+    }
+    html[data-bif-theme="light"] .card-clean.card-color-green {
+      background: linear-gradient(160deg, #fbfffd, #edf9f4) !important;
+      border-color: #b9dfd0 !important;
+    }
+
+    /* Cabeçalho do card */
+    html[data-bif-theme="light"] .cc-head {
+      background: rgba(255,255,255,.72) !important;
+      border-bottom-color: var(--bif-line-soft-light) !important;
+    }
+    html[data-bif-theme="light"] .cc-name {
+      color: var(--bif-ink-light) !important;
+    }
+    html[data-bif-theme="light"] .cc-cnpj {
+      color: #77879a !important;
+    }
+    html[data-bif-theme="light"] .cc-lane {
+      background: color-mix(in srgb, var(--accent) 11%, white) !important;
+      border-color: color-mix(in srgb, var(--accent) 35%, #d7dce2) !important;
+      color: color-mix(in srgb, var(--accent) 78%, #22354a) !important;
+    }
+    html[data-bif-theme="light"] .cc-focus-btn {
+      background: #fffdf8 !important;
+      color: #526579 !important;
+      border-color: #ded6c8 !important;
+    }
+    html[data-bif-theme="light"] .cc-focus-btn:hover {
+      background: #f8f2e5 !important;
+      color: var(--bif-ink-light) !important;
+      border-color: #c9a84c !important;
+    }
+
+    /* Próxima ação */
+    html[data-bif-theme="light"] .cc-next {
+      background: color-mix(in srgb, var(--accent) 9%, white) !important;
+      border-color: color-mix(in srgb, var(--accent) 36%, #d7dce2) !important;
+      box-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .cc-next-lbl {
+      color: color-mix(in srgb, var(--accent) 82%, #263b50) !important;
+    }
+    html[data-bif-theme="light"] .cc-next-txt {
+      color: #173047 !important;
+      text-shadow: none !important;
+    }
+
+    /* Anotações */
+    html[data-bif-theme="light"] .cc-notes-title {
+      color: #6f8092 !important;
+    }
+    html[data-bif-theme="light"] .cc-notes-title b {
+      color: #9a7420 !important;
+    }
+    html[data-bif-theme="light"] .cc-tag {
+      background: rgba(255,255,255,.82) !important;
+      border-color: #e1dbcf !important;
+      color: #53667a !important;
+    }
+    html[data-bif-theme="light"] .cc-note {
+      background: rgba(255,255,255,.88) !important;
+      border-color: #e1dbd0 !important;
+      border-left-color: var(--nk, var(--accent-neutral)) !important;
+      color: var(--bif-copy-light) !important;
+      box-shadow: 0 1px 2px rgba(36,47,61,.04) !important;
+    }
+    html[data-bif-theme="light"] .cc-note:hover {
+      background: #ffffff !important;
+      border-color: color-mix(in srgb, var(--nk) 45%, #d9d3c8) !important;
+    }
+    html[data-bif-theme="light"] .cc-note-txt {
+      color: #2e4358 !important;
+      text-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .cc-note.active {
+      background: color-mix(in srgb, var(--nk) 11%, white) !important;
+      border-color: var(--nk) !important;
+      border-left-color: var(--nk) !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--nk) 16%, transparent) !important;
+    }
+    html[data-bif-theme="light"] .cc-note.active .cc-note-txt {
+      color: #173047 !important;
+      text-shadow: none !important;
+    }
+    html[data-bif-theme="light"] .cc-note .mini-btn {
+      background: #edf0f3 !important;
+      color: #5b6d80 !important;
+      border-color: #d6dce2 !important;
+    }
+    html[data-bif-theme="light"] .cc-note .mini-btn:hover {
+      background: #ffffff !important;
+      color: var(--bif-ink-light) !important;
+      border-color: #c9a84c !important;
+    }
+    html[data-bif-theme="light"] .cc-empty {
+      background: #eef1f4 !important;
+      border-color: #cfd6dd !important;
+      color: #718296 !important;
+    }
+    html[data-bif-theme="light"] .cc-empty:hover {
+      background: #f7f9fa !important;
+      border-color: color-mix(in srgb, var(--accent) 42%, #c8cfd6) !important;
+    }
+    html[data-bif-theme="light"] .cc-empty strong {
+      color: #8495a8 !important;
+    }
+    html[data-bif-theme="light"] .cc-empty span {
+      color: #aa842c !important;
+    }
+    html[data-bif-theme="light"] .cc-notes {
+      scrollbar-color: #c9a84c transparent !important;
+    }
+    html[data-bif-theme="light"] .cc-notes::-webkit-scrollbar-thumb {
+      background: rgba(184,146,49,.42) !important;
+    }
+
+    /* Rodapé, etapas e botões */
+    html[data-bif-theme="light"] .cc-foot {
+      border-top-color: var(--bif-line-soft-light) !important;
+      background: rgba(255,255,255,.48) !important;
+    }
+    html[data-bif-theme="light"] .cc-phases .flow-step {
+      background: rgba(255,255,255,.86) !important;
+      border-color: #ded8cd !important;
+    }
+    html[data-bif-theme="light"] .cc-phases .flow-step b {
+      color: #78889a !important;
+    }
+    html[data-bif-theme="light"] .cc-phases .flow-step.current {
+      background: color-mix(in srgb, var(--accent) 9%, white) !important;
+      border-color: color-mix(in srgb, var(--accent) 44%, #d8d0c4) !important;
+    }
+    html[data-bif-theme="light"] .cc-phases .flow-step.current b {
+      color: color-mix(in srgb, var(--accent) 82%, #293c50) !important;
+    }
+    html[data-bif-theme="light"] .cc-phases .flow-step.done b {
+      color: #33866f !important;
+    }
+    html[data-bif-theme="light"] .cc-btn {
+      background: #ffffff !important;
+      color: #41566b !important;
+      border-color: #d9d2c7 !important;
+    }
+    html[data-bif-theme="light"] .cc-btn:hover {
+      background: #fffdf8 !important;
+      color: var(--bif-ink-light) !important;
+      border-color: #c9a84c !important;
+    }
+    html[data-bif-theme="light"] .cc-btn.add {
+      background: color-mix(in srgb, var(--accent) 8%, white) !important;
+      color: color-mix(in srgb, var(--accent) 78%, #2b4055) !important;
+      border-color: color-mix(in srgb, var(--accent) 34%, #d9d2c7) !important;
+    }
+    html[data-bif-theme="light"] .cc-colors .card-color-btn {
+      border-color: #c8c2b8 !important;
+      box-shadow: 0 1px 2px rgba(36,47,61,.10) !important;
+    }
+    html[data-bif-theme="light"] .cc-colors .card-color-btn.active {
+      border-color: #10243b !important;
+      box-shadow: 0 0 0 2px rgba(16,36,59,.12) !important;
+    }
+    html[data-bif-theme="light"] .cc-colors .card-color-btn.color-none {
+      background: #ffffff !important;
+    }
+    html[data-bif-theme="light"] .cc-colors .card-color-btn.color-none::after {
+      color: #66788b !important;
+    }
+
+    /* Pomodoro e estados vazios */
+    html[data-bif-theme="light"] .cc-pomodoro {
+      background: #eef6ff !important;
+      border-color: #c9ddf4 !important;
+    }
+    html[data-bif-theme="light"] .cc-pomodoro span {
+      color: #61758a !important;
+    }
+    html[data-bif-theme="light"] .cc-pomodoro strong {
+      color: #214a70 !important;
+    }
+    html[data-bif-theme="light"] .cc-pomodoro button {
+      background: #ffffff !important;
+      color: #214a70 !important;
+      border-color: #bcd3eb !important;
+    }
+    html[data-bif-theme="light"] .empty-board {
+      background: #ffffff !important;
+      color: var(--bif-copy-light) !important;
+      border-color: var(--bif-line-light) !important;
+      box-shadow: var(--bif-shadow-light) !important;
+    }
+    html[data-bif-theme="light"] .empty-board h3 {
+      color: #9a7420 !important;
+    }
+
+    /* Modais */
+    html[data-bif-theme="light"] dialog::backdrop {
+      background: rgba(16,36,59,.32) !important;
+    }
+    html[data-bif-theme="light"] dialog,
+    html[data-bif-theme="light"] .modal {
+      background: #ffffff !important;
+      color: var(--bif-ink-light) !important;
+      border-color: #d8d0c2 !important;
+      box-shadow: 0 24px 70px rgba(16,36,59,.22) !important;
+    }
+    html[data-bif-theme="light"] .modal-head,
+    html[data-bif-theme="light"] .modal-actions {
+      border-color: var(--bif-line-soft-light) !important;
+      background: #faf8f2 !important;
+    }
+    html[data-bif-theme="light"] .modal p,
+    html[data-bif-theme="light"] .field > span {
+      color: var(--bif-muted-light) !important;
+    }
+    html[data-bif-theme="light"] .modal input,
+    html[data-bif-theme="light"] .modal textarea,
+    html[data-bif-theme="light"] .modal select {
+      background: #ffffff !important;
+      color: var(--bif-ink-light) !important;
+      border-color: #d7d0c5 !important;
+      box-shadow: inset 0 1px 2px rgba(36,47,61,.05) !important;
+    }
+    html[data-bif-theme="light"] .modal input:focus,
+    html[data-bif-theme="light"] .modal textarea:focus,
+    html[data-bif-theme="light"] .modal select:focus {
+      border-color: #c9a84c !important;
+      box-shadow: 0 0 0 3px rgba(201,168,76,.16) !important;
+    }
+
+    /* Scrollbar geral do quadro */
+    html[data-bif-theme="light"] .workspace::-webkit-scrollbar-thumb {
+      background: #c9c0b1 !important;
+      border-color: #f8f5ee !important;
+    }
+  </style>
 </head>
 <body>
   <div class="app">
