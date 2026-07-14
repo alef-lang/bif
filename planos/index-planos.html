@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script src="../tema-bif.js?v=20260714-white"></script>
+  <script src="../tema-bif.js?v=20260714-light8"></script>
   <link rel="icon" type="image/svg+xml" href="../favicons/index-planos.svg">
   <meta charset="UTF-8"/>
   <title>Planos de Negócio — BIF</title>
@@ -208,7 +208,8 @@
     html[data-bif-theme="light"] .option:hover,.option.on,html[data-bif-theme="light"] .company-option:hover { border-color:#9b7624 !important;background:rgba(155,118,36,.10) !important; }
 
   </style>
-  <link rel="stylesheet" href="../tema-bif.css?v=20260714-white"/>
+
+  <link rel="stylesheet" href="../tema-bif.css?v=20260714-light8"/>
 </head>
 <body>
 
@@ -234,7 +235,15 @@
 
   <div id="cloudBadge" class="cloud-badge loading">⏳ Carregando planos...</div>
 
-  <div class="planos-grid" id="planos-grid"></div>
+  <div class="planos-grid" id="planos-grid">
+    <div class="plano-card" data-fallback-plano="pn_fluignos" onclick="window.location.href='plano.html?id=pn_fluignos'">
+      <div class="plano-icon">🧭</div>
+      <div class="plano-nome">Fluignos</div>
+      <div class="plano-data">Plano principal</div>
+      <div class="plano-desc">Consultoria de estruturação de escritórios contábeis — SOPs, playbooks e Customer Success.</div>
+      <div class="plano-actions"><a class="btn-abrir" href="plano.html?id=pn_fluignos" onclick="event.stopPropagation()">Abrir plano →</a></div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"><span class="t-icon">✓</span><span id="toast-msg"></span></div>
@@ -294,11 +303,16 @@ async function loadPlanos(){
   setCloud('loading','Carregando...');
   try {
     const snap = await get(ref(db, DB_PATH));
-    planos = snap.exists() ? Object.values(snap.val()) : [];
-    // Seed Fluignos se vazio
-    if(!planos.length){
-      const fluignos = { id:'pn_fluignos', nome:'Fluignos', desc:'Consultoria de estruturação de escritórios contábeis — SOPs, playbooks e Customer Success.', icon:'🧭', criado:new Date().toISOString().slice(0,10) };
-      planos.push(fluignos);
+    const raw = snap.exists() ? snap.val() : {};
+    if(Array.isArray(raw)){
+      planos = raw.filter(Boolean).map((p,i)=>({ ...p, id:String(p.id || `pn_legacy_${i}`) }));
+    } else {
+      planos = Object.entries(raw || {}).map(([key,p])=>({ ...(p || {}), id:String((p && p.id) || key) }));
+    }
+    planos = planos.filter(p=>p && p.id && (p.nome || p.id==='pn_fluignos'));
+    // O plano principal precisa existir mesmo em bases antigas que não receberam o novo registro.
+    if(!planos.some(p=>p.id==='pn_fluignos')){
+      planos.unshift({ id:'pn_fluignos', nome:'Fluignos', desc:'Consultoria de estruturação de escritórios contábeis — SOPs, playbooks e Customer Success.', icon:'🧭', criado:new Date().toISOString().slice(0,10) });
       await saveAll();
     }
     render();
@@ -343,7 +357,7 @@ function render(){
 }
 
 window.abrirPlano = function(id){
-  window.location.href = `plano.html?id=${id}`;
+  window.location.href = `plano.html?id=${encodeURIComponent(id || 'pn_fluignos')}`;
 };
 
 window.abrirModalNovo = function(){

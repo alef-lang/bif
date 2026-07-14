@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script src="./tema-bif.js?v=20260714-white"></script>
+  <script src="./tema-bif.js?v=20260714-light8"></script>
   <meta charset="UTF-8"/>
   <title>Business Intelligence Fiscal</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%230d1b2a%27%2F%3E%3Crect%20x%3D%272%27%20y%3D%272%27%20width%3D%2728%27%20height%3D%2728%27%20rx%3D%276%27%20fill%3D%27none%27%20stroke%3D%27%23c9a84c%27%20stroke-opacity%3D%27.35%27%20stroke-width%3D%271%27%2F%3E%3Crect%20x%3D%278%27%20y%3D%278%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23c9a84c%27%2F%3E%3Crect%20x%3D%2717%27%20y%3D%278%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23e8c97a%27%2F%3E%3Crect%20x%3D%278%27%20y%3D%2717%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23e8c97a%27%2F%3E%3Crect%20x%3D%2717%27%20y%3D%2717%27%20width%3D%277%27%20height%3D%277%27%20rx%3D%272%27%20fill%3D%27%23c9a84c%27%2F%3E%3Cpath%20d%3D%27M16%205.5l2.2%202.2H13.8L16%205.5z%27%20fill%3D%27%238ba0b8%27%20opacity%3D%27.8%27%2F%3E%3C%2Fsvg%3E"/>
@@ -599,7 +599,8 @@
       .tools-grid { grid-template-columns: 1fr; }
     }
   </style>
-  <link rel="stylesheet" href="./tema-bif.css?v=20260714-white"/>
+
+  <link rel="stylesheet" href="./tema-bif.css?v=20260714-light8"/>
 </head>
 <body>
 
@@ -1412,7 +1413,7 @@
         const tool = card.dataset.tool;
         // O Mapa da Agenda é complemento direto de Tarefas.
         // Quem tem acesso a Tarefas também consegue abrir o Mapa, mesmo que a permissão nova ainda não exista no Firebase.
-        if (permissoes[tool] === true || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true))) {
+        if (permissoes[tool] === true || tool === 'planos-negocio' || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true))) {
           unlockCard(card, tool);
         } else {
           lockCard(card);
