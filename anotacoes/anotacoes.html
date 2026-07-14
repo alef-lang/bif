@@ -473,9 +473,9 @@ function setUserPaths(user){
     TRASH_BASE_PATH = null;
     return;
   }
-  DB_PATH = `users/${currentUser.uid}/sistema_vida/${PAGE_KEY}`;
-  BACKUP_BASE_PATH = `users/${currentUser.uid}/backups`;
-  TRASH_BASE_PATH = `users/${currentUser.uid}/lixeira`;
+  DB_PATH = PAGE_KEY;
+  BACKUP_BASE_PATH = `${PAGE_KEY}_backups`;
+  TRASH_BASE_PATH = `${PAGE_KEY}_lixeira`;
 }
 
 function canUseCloud(){
