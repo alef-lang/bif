@@ -1022,6 +1022,83 @@
       h1, .section-title { color: #0c2d5a !important; }
     }
 
+    /* ── MODAL RELATÓRIO DE EMPRESAS ── */
+    .rel-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5,12,22,0.90);
+      backdrop-filter: blur(6px);
+      z-index: 3200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .rel-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .rel-modal {
+      background: #0f2035;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 12px;
+      width: 100%; max-width: 640px;
+      max-height: 86vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      transform: translateY(16px);
+      transition: transform 0.22s;
+    }
+    .rel-modal-overlay.open .rel-modal { transform: translateY(0); }
+    .rel-modal-head {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .rel-modal-head h3 { font-family:'Poppins',sans-serif; font-size:1rem; font-weight:600; color:#e8c97a; margin:0; }
+    .rel-modal-meta { font-size:0.73rem; font-family:'DM Mono',monospace; color:#7a92a8; margin-top:3px; }
+    .rel-modal-close { background:none; border:none; color:#7a92a8; font-size:1.2rem; cursor:pointer; padding:2px 6px; line-height:1; border-radius:4px; }
+    .rel-modal-close:hover { color:#e8c97a; background:rgba(201,168,76,0.1); }
+    .rel-modal-body { flex:1; overflow-y:auto; padding:0; }
+    .rel-modal-body::-webkit-scrollbar { width:6px; }
+    .rel-modal-body::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); }
+    .rel-modal-body::-webkit-scrollbar-thumb { background:rgba(201,168,76,0.4); border-radius:999px; }
+    .rel-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .rel-table thead th {
+      position: sticky; top:0; z-index:1;
+      background: #0d1b2a;
+      color: #c9a84c;
+      font-family:'DM Mono',monospace;
+      font-size:0.68rem;
+      font-weight:600;
+      letter-spacing:0.07em;
+      text-transform:uppercase;
+      padding: 9px 14px;
+      text-align:left;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+    }
+    .rel-table thead th:first-child { width:40px; text-align:center; }
+    .rel-table thead th:last-child { width:80px; text-align:center; }
+    .rel-table tbody tr { border-bottom:1px solid rgba(255,255,255,0.04); }
+    .rel-table tbody tr:hover { background:rgba(201,168,76,0.05); }
+    .rel-table tbody td { padding:8px 14px; color:#d4dde8; vertical-align:middle; }
+    .rel-table tbody td:first-child { text-align:center; color:#7a92a8; font-family:'DM Mono',monospace; font-size:0.75rem; }
+    .rel-table tbody td:last-child { text-align:center; }
+    .rel-status-ok { display:inline-block; width:10px; height:10px; background:#2ecc8a; border-radius:50%; }
+    .rel-status-pend { display:inline-block; width:10px; height:10px; background:#ff7675; border-radius:50%; }
+    .rel-section-row td { padding:6px 14px; background:rgba(201,168,76,0.06); color:#c9a84c; font-family:'DM Mono',monospace; font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; border-bottom:1px solid rgba(201,168,76,0.12); }
+    .rel-modal-footer {
+      padding: 12px 22px 16px;
+      border-top: 1px solid rgba(201,168,76,0.12);
+      display: flex; gap: 8px; justify-content: flex-end; align-items:center;
+    }
+    .rel-total-badge { font-size:0.72rem; font-family:'DM Mono',monospace; color:#7a92a8; margin-right:auto; }
+
+    @media print {
+      .rel-modal-overlay { display:none !important; }
+    }
+    @media (max-width:480px) {
+      .rel-modal { max-height:92vh; }
+      .rel-modal-head { padding:14px 16px 12px; }
+      .rel-table thead th, .rel-table tbody td { padding:7px 10px; }
+    }
+
     /* ── MODAL ENVIO DE OBRIGAÇÃO (SPED/EFD) ── */
     .obr-modal-overlay {
       position: fixed; inset: 0;
@@ -1485,6 +1562,7 @@
           <button type="button" onclick="proximoMes()" style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#0d1b2a;font-weight:700;"><span class="icon">▶</span> Próximo mês</button>
           <button type="button" class="btn-secondary" onclick="window.print()"><span class="icon">🖨</span> Imprimir</button>
           <button type="button" class="btn-secondary" onclick="exportToWord()"><span class="icon">📄</span> Word</button>
+          <button type="button" class="btn-secondary" onclick="abrirRelatorio()"><span class="icon">📋</span> Relatório</button>
           <button type="button" class="btn-secondary" onclick="backupDados()"><span class="icon">⬇️</span> Backup</button>
           <button type="button" class="btn-secondary" onclick="carregarBackup()"><span class="icon">⬆️</span> Restaurar</button>
         </div>
@@ -3386,6 +3464,190 @@
   document.getElementById('obrModalOverlay').addEventListener('click', function(e) {
     if (e.target === this) window.cancelarObrModal();
   });
+
+  // ── MODAL RELATÓRIO DE EMPRESAS ──────────────────────────────────────────────
+
+  function coletarEmpresasParaRelatorio() {
+    const resultado = [];
+
+    // Empresas do Painel (seção from-painel)
+    document.querySelectorAll('.section-card.from-painel .empresa-item').forEach(item => {
+      const nome    = item.querySelector('.item-title-input')?.value?.trim() || '';
+      const regime  = item.querySelector('.tag-input')?.value?.trim() || item.querySelector('.painel-badge + span, [class*="badge"] + span')?.textContent?.trim() || '';
+      const checked = item.querySelector('.empresa-check')?.checked || false;
+      // tenta pegar o regime pelo meta
+      const regimeMeta = item.querySelector('.item-meta span:not(.painel-badge):not(.movement-badge)')?.textContent?.trim() || '';
+      if (nome) resultado.push({ nome, regime: regimeMeta || regime, checked, origem: 'Painel' });
+    });
+
+    // Empresas manuais
+    document.querySelectorAll('#manualItemsBody .empresa-item, #manualBody .empresa-item').forEach(item => {
+      const nome    = item.querySelector('.item-title-input')?.value?.trim() || '';
+      const regime  = item.querySelector('.tag-input')?.value?.trim() || '';
+      const checked = item.querySelector('.empresa-check')?.checked || false;
+      if (nome) resultado.push({ nome, regime, checked, origem: 'Manual' });
+    });
+
+    return resultado;
+  }
+
+  window.abrirRelatorio = function() {
+    const competencia  = document.getElementById('competenciaField')?.value || '—';
+    const responsavel  = document.getElementById('responsavelField')?.value || '—';
+
+    document.getElementById('relModalMeta').textContent =
+      `Competência: ${competencia}   |   Responsável: ${responsavel}`;
+
+    const empresas = coletarEmpresasParaRelatorio();
+    const tbody    = document.getElementById('relTableBody');
+    tbody.innerHTML = '';
+
+    // Separa por origem para criar linha de seção
+    const origens = ['Painel', 'Manual'];
+    let seq = 0;
+
+    origens.forEach(origem => {
+      const grupo = empresas.filter(e => e.origem === origem);
+      if (!grupo.length) return;
+
+      const secRow = document.createElement('tr');
+      secRow.className = 'rel-section-row';
+      secRow.innerHTML = `<td colspan="4">${origem === 'Painel' ? '🏢 Do Painel' : '📋 Manual'} — ${grupo.length} empresa${grupo.length !== 1 ? 's' : ''}</td>`;
+      tbody.appendChild(secRow);
+
+      grupo.forEach(emp => {
+        seq++;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${seq}</td>
+          <td>${emp.nome || '—'}</td>
+          <td style="color:#7a92a8;font-size:0.78rem;">${emp.regime || '—'}</td>
+          <td><span class="${emp.checked ? 'rel-status-ok' : 'rel-status-pend'}" title="${emp.checked ? 'Concluída' : 'Pendente'}"></span></td>`;
+        tbody.appendChild(tr);
+      });
+    });
+
+    const total = empresas.length;
+    const conc  = empresas.filter(e => e.checked).length;
+    document.getElementById('relTotalBadge').textContent =
+      `${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}`;
+
+    document.getElementById('relModalOverlay').classList.add('open');
+  };
+
+  window.fecharRelatorio = function() {
+    document.getElementById('relModalOverlay').classList.remove('open');
+  };
+
+  document.getElementById('relModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) fecharRelatorio();
+  });
+
+  window.imprimirRelatorio = function() {
+    const competencia = document.getElementById('competenciaField')?.value || '—';
+    const responsavel = document.getElementById('responsavelField')?.value || '—';
+    const empresas    = coletarEmpresasParaRelatorio();
+
+    const origens = ['Painel', 'Manual'];
+    let seq = 0;
+    let tabelaHTML = '';
+
+    origens.forEach(origem => {
+      const grupo = empresas.filter(e => e.origem === origem);
+      if (!grupo.length) return;
+      tabelaHTML += `<tr style="background:#e8f0f8;"><td colspan="4" style="padding:6px 10px;font-size:9pt;font-weight:700;color:#0c2d5a;letter-spacing:0.05em;">${origem === 'Painel' ? '🏢 Do Painel' : '📋 Manual'}</td></tr>`;
+      grupo.forEach(emp => {
+        seq++;
+        tabelaHTML += `<tr>
+          <td style="padding:5px 10px;text-align:center;color:#888;font-size:8.5pt;">${seq}</td>
+          <td style="padding:5px 10px;font-size:9pt;">${emp.nome || '—'}</td>
+          <td style="padding:5px 10px;font-size:8.5pt;color:#555;">${emp.regime || '—'}</td>
+          <td style="padding:5px 10px;text-align:center;font-size:9pt;">${emp.checked ? '✓' : '○'}</td>
+        </tr>`;
+      });
+    });
+
+    const total = empresas.length;
+    const conc  = empresas.filter(e => e.checked).length;
+
+    const win = window.open('', '_blank', 'width=720,height=900');
+    win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+      <title>Relatório de Empresas — ${competencia}</title>
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20mm 15mm; color: #1a1a1a; }
+        h1 { font-size: 14pt; color: #0c2d5a; margin-bottom: 4px; }
+        .meta { font-size: 9pt; color: #555; margin-bottom: 16px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th { background: #0c2d5a; color: #fff; padding: 7px 10px; font-size: 9pt; text-align: left; }
+        th:first-child { width: 36px; text-align: center; }
+        th:last-child { width: 70px; text-align: center; }
+        td { border-bottom: 1px solid #e0e0e0; }
+        tr:hover td { background: #f5f8ff; }
+        .rodape { margin-top: 18px; font-size: 8pt; color: #888; }
+      </style>
+    </head><body>
+      <h1>📋 Relatório de Empresas — Checklist de Fechamento</h1>
+      <div class="meta">Competência: <strong>${competencia}</strong> &nbsp;|&nbsp; Responsável: <strong>${responsavel}</strong> &nbsp;|&nbsp; ${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}</div>
+      <table>
+        <thead><tr><th>#</th><th>Empresa</th><th>Regime / Classificação</th><th>Status</th></tr></thead>
+        <tbody>${tabelaHTML}</tbody>
+      </table>
+      <div class="rodape">Emitido em: ${new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 400);
+  };
+
+  window.exportRelatorioWord = function() {
+    const competencia = document.getElementById('competenciaField')?.value || '—';
+    const responsavel = document.getElementById('responsavelField')?.value || '—';
+    const empresas    = coletarEmpresasParaRelatorio();
+
+    const origens = ['Painel', 'Manual'];
+    let seq = 0;
+    let rows = '';
+
+    origens.forEach(origem => {
+      const grupo = empresas.filter(e => e.origem === origem);
+      if (!grupo.length) return;
+      rows += `<tr style="background:#dce8f5"><td colspan="4" style="padding:5px 8px;font-weight:bold;color:#0c2d5a;">${origem === 'Painel' ? 'Do Painel' : 'Manual'}</td></tr>`;
+      grupo.forEach(emp => {
+        seq++;
+        rows += `<tr>
+          <td style="padding:4px 8px;text-align:center;color:#888;">${seq}</td>
+          <td style="padding:4px 8px;">${emp.nome || ''}</td>
+          <td style="padding:4px 8px;color:#555;">${emp.regime || ''}</td>
+          <td style="padding:4px 8px;text-align:center;">${emp.checked ? '✓' : '○'}</td>
+        </tr>`;
+      });
+    });
+
+    const total = empresas.length;
+    const conc  = empresas.filter(e => e.checked).length;
+
+    const htmlDoc = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="utf-8"><title>Relatório de Empresas</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;font-size:10pt;}h1{font-size:14pt;color:#0c2d5a;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #d0d5db;padding:4px 8px;font-size:9pt;}th{background:#0c2d5a;color:#fff;}</style>
+</head><body>
+<h1>Relatório de Empresas — Checklist de Fechamento</h1>
+<p><strong>Competência:</strong> ${competencia} &nbsp; <strong>Responsável:</strong> ${responsavel}</p>
+<p>${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}</p>
+<table><thead><tr><th>#</th><th>Empresa</th><th>Regime / Classificação</th><th>Status</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<p style="font-size:8pt;color:#888;">Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
+</body></html>`;
+
+    const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `relatorio-empresas-${competencia.replace('/', '-')}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 </script>
 
 <!-- ── MODAL ENVIO DE OBRIGAÇÃO (SPED/EFD — bloqueante) ── -->
@@ -3581,6 +3843,37 @@
         <button class="guia-btn guia-btn-ghost" onclick="window.cancelarGuiaModal()">Cancelar</button>
         <button class="guia-btn guia-btn-gold" onclick="window.confirmarGuiaModal()">✓ Confirmar envio</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RELATÓRIO DE EMPRESAS -->
+<div class="rel-modal-overlay" id="relModalOverlay">
+  <div class="rel-modal">
+    <div class="rel-modal-head">
+      <div>
+        <h3>📋 Relatório de Empresas</h3>
+        <div class="rel-modal-meta" id="relModalMeta">Competência — Responsável</div>
+      </div>
+      <button class="rel-modal-close" onclick="fecharRelatorio()" title="Fechar">✕</button>
+    </div>
+    <div class="rel-modal-body">
+      <table class="rel-table" id="relTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Empresa</th>
+            <th>Regime / Classificação</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="relTableBody"></tbody>
+      </table>
+    </div>
+    <div class="rel-modal-footer">
+      <span class="rel-total-badge" id="relTotalBadge">0 empresas</span>
+      <button type="button" class="btn-secondary" onclick="exportRelatorioWord()"><span class="icon">📄</span> Word</button>
+      <button type="button" class="btn-secondary" onclick="imprimirRelatorio()"><span class="icon">🖨</span> Imprimir</button>
     </div>
   </div>
 </div>
