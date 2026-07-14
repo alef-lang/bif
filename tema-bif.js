@@ -5,14 +5,14 @@
   var THEMES = { light: true, dark: true };
 
   function normalize(theme) {
-    return THEMES[theme] ? theme : 'dark';
+    return THEMES[theme] ? theme : 'light';
   }
 
   function read() {
     try {
       return normalize(localStorage.getItem(STORAGE_KEY));
     } catch (error) {
-      return 'dark';
+      return 'light';
     }
   }
 
@@ -23,7 +23,7 @@
       meta.setAttribute('name', 'theme-color');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', theme === 'light' ? '#f4f7fb' : '#0d1b2a');
+    meta.setAttribute('content', theme === 'light' ? '#f4f1e8' : '#0d1b2a');
   }
 
   function apply(theme, persist) {
