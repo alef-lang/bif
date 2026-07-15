@@ -145,8 +145,14 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
   .fixed-search-clear{padding:7px 9px;font-size:10px;}
 }
 
+/* STATS PANEL — colapsável */
+.stats-panel{background:var(--bg-card2);border-bottom:1px solid var(--border);}
+.stats-panel-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 24px;cursor:pointer;user-select:none;transition:background 0.18s;}
+.stats-panel-toggle:hover{background:rgba(201,168,76,0.05);}
+.stats-panel-body{overflow:hidden;max-height:0;transition:max-height 0.30s cubic-bezier(0.4,0,0.2,1);}
+.stats-panel-body.open{max-height:200px;}
 /* STATS — estilo KPI (do Controle de Guias) */
-.stats-bar{padding:14px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;background:var(--bg-card2);border-bottom:1px solid var(--border);}
+.stats-bar{padding:14px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;background:var(--bg-card2);border-bottom:none;}
 .stat-card{background:var(--bg-card);border:1px solid rgba(201,168,76,0.28);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;flex:unset;box-shadow:var(--shadow);}
 .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4;}
 .stat-icon{display:none;}
@@ -1818,6 +1824,7 @@ th.col-dragging{opacity:0.45;}
         radial-gradient(ellipse at 82% 92%,rgba(30,80,140,.07) 0%,transparent 50%) !important;
     }
     html[data-bif-theme="light"] .filter-panel,
+    html[data-bif-theme="light"] .stats-panel,
     html[data-bif-theme="light"] .stats-bar {
       background:#eee7d9 !important;
     }
@@ -1844,6 +1851,79 @@ th.col-dragging{opacity:0.45;}
     html[data-bif-theme="light"] #modalEmpresa .portal-record-card,
     html[data-bif-theme="light"] #modalEmpresa .nota-repo-manager {
       border-color:rgba(155,118,36,.20) !important;
+    }
+
+    /* ── BOTÕES DO HEADER — tema bege ─────────────────────────── */
+    html[data-bif-theme="light"] .btn-header {
+      background:#f3eee4 !important;
+      border:1px solid rgba(155,118,36,.28) !important;
+      color:#6b4f0e !important;
+    }
+    html[data-bif-theme="light"] .btn-header:hover {
+      background:#ede4d5 !important;
+      border-color:rgba(155,118,36,.50) !important;
+      color:#4a3608 !important;
+    }
+    html[data-bif-theme="light"] .btn-header.export {
+      background:rgba(15,118,110,.10) !important;
+      border-color:rgba(15,118,110,.28) !important;
+      color:#0d6e67 !important;
+    }
+    html[data-bif-theme="light"] .btn-header.export:hover {
+      background:rgba(15,118,110,.18) !important;
+    }
+    /* link BIF no header */
+    html[data-bif-theme="light"] .header a[href="#"] {
+      background:#f3eee4 !important;
+      border-color:rgba(155,118,36,.28) !important;
+      color:#6b4f0e !important;
+    }
+    html[data-bif-theme="light"] .header a[href="#"]:hover {
+      background:#ede4d5 !important;
+    }
+    /* título do header */
+    html[data-bif-theme="light"] .header-title h1 {
+      background:linear-gradient(135deg,#7a5c12,#9b7624) !important;
+      -webkit-background-clip:text !important;
+      -webkit-text-fill-color:transparent !important;
+      background-clip:text !important;
+    }
+    /* logo G */
+    html[data-bif-theme="light"] .header-logo {
+      background:linear-gradient(135deg,#9b7624,#c9a84c) !important;
+      color:#fff !important;
+    }
+    /* busca fixa */
+    html[data-bif-theme="light"] .fixed-search-strip {
+      background:#e8e1d1 !important;
+      border-bottom:1px solid rgba(155,118,36,.18) !important;
+    }
+    html[data-bif-theme="light"] .fixed-search-strip .search-box input {
+      background:#f3eee4 !important;
+      border-color:rgba(155,118,36,.25) !important;
+      color:#1b2837 !important;
+    }
+    html[data-bif-theme="light"] .fixed-search-clear {
+      background:#f3eee4 !important;
+      border-color:rgba(155,118,36,.25) !important;
+      color:#6b4f0e !important;
+    }
+    /* toggle filtros */
+    html[data-bif-theme="light"] .filter-panel-toggle:hover {
+      background:rgba(155,118,36,.07) !important;
+    }
+    html[data-bif-theme="light"] #filterPanelChevron {
+      color:#9b7624 !important;
+    }
+    /* stats panel */
+    html[data-bif-theme="light"] .stats-panel {
+      background:#eee7d9 !important;
+    }
+    html[data-bif-theme="light"] .stats-panel-toggle:hover {
+      background:rgba(155,118,36,.07) !important;
+    }
+    html[data-bif-theme="light"] #statsPanelChevron {
+      color:#9b7624 !important;
     }
 
   </style>
@@ -1938,14 +2018,25 @@ th.col-dragging{opacity:0.45;}
 </div>
 
 <!-- STATS -->
-<div class="stats-bar">
-  <div class="stat-card total"><div class="stat-label">Total</div><div class="stat-number" id="stat-total">0</div></div>
-  <div class="stat-card produtor"><div class="stat-label">Produtor Rural</div><div class="stat-number" id="stat-produtor-rural">0</div></div>
-  <div class="stat-card simples"><div class="stat-label">Simples</div><div class="stat-number" id="stat-simples">0</div></div>
-  <div class="stat-card presumido"><div class="stat-label">Presumido</div><div class="stat-number" id="stat-presumido">0</div></div>
-  <div class="stat-card real"><div class="stat-label">Real</div><div class="stat-number" id="stat-real">0</div></div>
-  <div class="stat-card outros"><div class="stat-label">Outros</div><div class="stat-number" id="stat-outros">0</div></div>
-  <div class="stat-card fechadas" style="cursor:pointer;" onclick="filtrarPorSemMovimento()"><div class="stat-label">Sem Movimento</div><div class="stat-number" id="stat-sem-movimento">0</div></div>
+<div class="stats-panel" id="statsPanel">
+  <div class="stats-panel-toggle" onclick="toggleStatsPanel()">
+    <span style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:13px;">📊</span>
+      <span style="font-size:11px;font-weight:700;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);">Resumo</span>
+    </span>
+    <span id="statsPanelChevron" style="font-size:10px;color:var(--text-light);transition:transform 0.22s;display:inline-block;">▼</span>
+  </div>
+  <div class="stats-panel-body" id="statsPanelBody">
+    <div class="stats-bar">
+      <div class="stat-card total"><div class="stat-label">Total</div><div class="stat-number" id="stat-total">0</div></div>
+      <div class="stat-card produtor"><div class="stat-label">Produtor Rural</div><div class="stat-number" id="stat-produtor-rural">0</div></div>
+      <div class="stat-card simples"><div class="stat-label">Simples</div><div class="stat-number" id="stat-simples">0</div></div>
+      <div class="stat-card presumido"><div class="stat-label">Presumido</div><div class="stat-number" id="stat-presumido">0</div></div>
+      <div class="stat-card real"><div class="stat-label">Real</div><div class="stat-number" id="stat-real">0</div></div>
+      <div class="stat-card outros"><div class="stat-label">Outros</div><div class="stat-number" id="stat-outros">0</div></div>
+      <div class="stat-card fechadas" style="cursor:pointer;" onclick="filtrarPorSemMovimento()"><div class="stat-label">Sem Movimento</div><div class="stat-number" id="stat-sem-movimento">0</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -3117,6 +3208,15 @@ function renderListView(filtered){
 }
 
 // ── FILTER PANEL TOGGLE ──
+let statsPanelOpen = false;
+function toggleStatsPanel(){
+  statsPanelOpen = !statsPanelOpen;
+  const body = $('statsPanelBody');
+  const chevron = $('statsPanelChevron');
+  body.classList.toggle('open', statsPanelOpen);
+  if(chevron) chevron.style.transform = statsPanelOpen ? 'rotate(180deg)' : '';
+}
+
 let filterPanelOpen = false;
 function toggleFilterPanel(){
   filterPanelOpen = !filterPanelOpen;
