@@ -55,13 +55,14 @@
 body{font-family:var(--font-body);background:var(--bg);background-image:radial-gradient(ellipse at 15% 10%, rgba(201,168,76,0.07) 0%, transparent 55%), radial-gradient(ellipse at 85% 80%, rgba(201,168,76,0.05) 0%, transparent 50%);color:var(--text);min-height:100vh;}
 
 /* HEADER */
-.header{background:linear-gradient(135deg,#0d1b2a,#1b2e42);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(0,0,0,0.45);border-bottom:1px solid var(--gold-dim);position:sticky;top:0;z-index:200;flex-wrap:wrap;gap:10px;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.header-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#0d1b2a;flex-shrink:0;font-family:var(--font-title);}
-.header-title h1{font-size:16px;font-weight:700;font-family:var(--font-title);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.header-title p{font-size:11px;color:var(--text-light);margin-top:1px;font-family:var(--font-mono);}
-.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.btn-header{background:rgba(201,168,76,0.1);border:1px solid var(--gold-dim);color:var(--gold-light);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all 0.2s;white-space:nowrap;font-family:var(--font-body);}
+.header{background:linear-gradient(135deg,#0d1b2a,#1b2e42);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(0,0,0,0.45);border-bottom:1px solid var(--gold-dim);position:sticky;top:0;z-index:200;gap:12px;min-height:0;}
+.header-left{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.header-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#0d1b2a;flex-shrink:0;font-family:var(--font-title);}
+.header-title h1{font-size:14px;font-weight:700;font-family:var(--font-title);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;}
+.header-title p{font-size:10px;color:var(--text-light);margin-top:1px;font-family:var(--font-mono);white-space:nowrap;}
+.header-right{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+.header-right::-webkit-scrollbar{display:none;}
+.btn-header{background:rgba(201,168,76,0.1);border:1px solid var(--gold-dim);color:var(--gold-light);padding:5px 11px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;transition:all 0.2s;white-space:nowrap;font-family:var(--font-body);}
 .btn-header:hover{background:rgba(201,168,76,0.22);border-color:var(--gold);transform:translateY(-1px);}
 .btn-header.export{background:rgba(0,206,201,0.15);border-color:rgba(0,206,201,0.35);color:#5eecea;}
 .btn-header.export:hover{background:rgba(0,206,201,0.28);}
@@ -239,6 +240,14 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .modal-sm{max-width:400px;}
 .modal-md{max-width:580px;}
 .modal-header{padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border);}
+/* Header compacto da ficha de empresa */
+.modal-header-empresa{padding:12px 16px;align-items:center;gap:12px;min-height:0;}
+.modal-header-left{flex:1;min-width:0;}
+.modal-header-left h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.modal-header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.btn-sm{font-size:11px!important;padding:5px 11px!important;}
+/* Modal empresa maior */
+#modalEmpresa .modal{max-width:900px;max-height:96vh;}
 .modal-header-info h2{font-size:16px;font-weight:700;font-family:var(--font-title);color:var(--gold-light);}
 .modal-header-info p{font-size:12px;color:var(--text-light);margin-top:3px;font-family:var(--font-mono);}
 .btn-close-modal{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;color:var(--text-light);flex-shrink:0;font-family:inherit;}
@@ -1925,6 +1934,20 @@ th.col-dragging{opacity:0.45;}
     html[data-bif-theme="light"] #statsPanelChevron {
       color:#9b7624 !important;
     }
+    /* header compacto da ficha */
+    html[data-bif-theme="light"] .modal-header-empresa {
+      background:#f5f0e6 !important;
+    }
+    html[data-bif-theme="light"] .modal-header-empresa .btn-secondary,
+    html[data-bif-theme="light"] .modal-header-empresa .btn-edit-mode {
+      background:#ede5d4 !important;
+      border-color:rgba(155,118,36,.30) !important;
+      color:#6b4f0e !important;
+    }
+    html[data-bif-theme="light"] .modal-header-empresa .btn-secondary:hover,
+    html[data-bif-theme="light"] .modal-header-empresa .btn-edit-mode:hover {
+      background:#e2d8c5 !important;
+    }
 
   </style>
 </head>
@@ -1940,7 +1963,7 @@ th.col-dragging{opacity:0.45;}
     </div>
   </div>
   <div class="header-right">
-    <span id="cloudStatus" style="font-size:11px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:5px;">⏳ Conectando...</span>
+    <span id="cloudStatus" style="font-size:10px;font-family:var(--font-mono);color:var(--text-light);display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;">⏳</span>
     <button type="button" class="btn-header" onclick="openAddModal(null)">➕ Nova Empresa</button>
     <button type="button" class="btn-header" onclick="openImportModal()">⬆️ Importar</button>
     <button type="button" class="btn-header" onclick="sincronizarProdutoresRurais()">🌾 Produtores</button>
@@ -2124,24 +2147,23 @@ th.col-dragging{opacity:0.45;}
 <!-- MODAL: FICHA DA EMPRESA -->
 <div class="modal-overlay" id="modalEmpresa">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-header-info">
-        <h2 id="modalEmpresaTitle">Ficha da Empresa</h2>
-        <p id="modalEmpresaSubtitle"></p>
+    <div class="modal-header modal-header-empresa">
+      <div class="modal-header-left">
+        <h2 id="modalEmpresaTitle" style="font-size:15px;font-weight:700;font-family:var(--font-title);color:var(--gold-light);line-height:1.2;"></h2>
+        <p id="modalEmpresaSubtitle" style="font-size:11px;color:var(--text-light);margin-top:2px;font-family:var(--font-mono);"></p>
       </div>
-      <button class="btn-close-modal" onclick="closeModal('modalEmpresa')">✕</button>
+      <div class="modal-header-actions">
+        <button class="btn-delete-subtle" id="btnDeleteFromModal" onclick="askDelete(currentEditId)" title="Excluir empresa" style="padding:5px 10px;font-size:11px;">🗑</button>
+        <button class="btn-secondary btn-sm" id="btnPrintEmpresa" onclick="printEmpresa()" title="Imprimir A4" style="padding:5px 10px;font-size:11px;">🖨️</button>
+        <button class="btn-edit-mode btn-sm" id="btnEditMode" onclick="enableEditMode()" style="padding:5px 12px;font-size:11px;">✏️ Editar</button>
+        <button class="btn-primary btn-sm" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;padding:5px 12px;font-size:11px;">💾 Salvar</button>
+        <button class="btn-close-modal" onclick="closeModal('modalEmpresa')" style="margin-left:4px;">✕</button>
+      </div>
     </div>
     <div class="view-mode-banner" id="viewModeBanner">
       👁 <span>Modo visualização</span> — clique em Editar para modificar os dados
     </div>
     <div class="modal-body" id="modalEmpresaBody"></div>
-    <div class="modal-footer">
-      <button class="btn-delete-subtle" id="btnDeleteFromModal" onclick="askDelete(currentEditId)" title="Excluir empresa">Excluir</button>
-      <button class="btn-secondary" id="btnPrintEmpresa" onclick="printEmpresa()">🖨️ Imprimir A4</button>
-      <button class="btn-secondary" onclick="closeModal('modalEmpresa')">Fechar</button>
-      <button class="btn-edit-mode" id="btnEditMode" onclick="enableEditMode()">✏️ Editar</button>
-      <button class="btn-primary" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;">💾 Salvar</button>
-    </div>
   </div>
 </div>
 
@@ -2704,7 +2726,8 @@ function setCloudStatus(state, msg) {
   if (!el) return;
   const icons = { ok: '☁️', loading: '⏳', error: '⚠️' };
   const colors = { ok: '#2ecc8a', loading: '#c9a84c', error: '#e05a5a' };
-  el.textContent = (icons[state] || '⏳') + ' ' + msg;
+  el.title = msg;
+  el.textContent = icons[state] || '⏳';
   el.style.color = colors[state] || '#8899aa';
 }
 
