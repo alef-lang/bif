@@ -256,15 +256,15 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;}
 
 /* FORM */
-.form-section{margin-bottom:20px;}
-.form-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gold);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-family:var(--font-mono);}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.form-section{margin-bottom:24px;}
+.form-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gold);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);font-family:var(--font-mono);display:flex;align-items:center;gap:6px;}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 16px;}
 .form-grid.cols-3{grid-template-columns:repeat(3,1fr);}
 .form-grid.cols-1{grid-template-columns:1fr;}
-.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group{display:flex;flex-direction:column;gap:3px;}
 .form-group.full{grid-column:1/-1;}
-.form-group label{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.4px;font-family:var(--font-mono);}
-.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);font-size:12px;color:var(--text);background:var(--bg-input);outline:none;transition:all 0.18s;font-family:var(--font-body);}
+.form-group label{font-size:9px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-mono);}
+.form-group input,.form-group select,.form-group textarea{padding:7px 10px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);font-size:12px;color:var(--text);background:var(--bg-input);outline:none;transition:all 0.18s;font-family:var(--font-body);}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);background:rgba(201,168,76,0.06);box-shadow:0 0 0 3px var(--gold-glow);}
 .form-group textarea{resize:vertical;min-height:72px;}
 .checklist-collapse{border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);background:var(--bg-input);overflow:hidden;}
@@ -1047,24 +1047,58 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .apuracao-badge-sm.nao_apurada{background:rgba(253,203,110,0.15);color:#fdcb6e;}
 .apuracao-badge-sm.pendente_info{background:rgba(255,118,117,0.15);color:#ff7675;}
 
-/* VIEW MODE (read-only) */
+/* VIEW MODE (read-only) — campos viram texto puro */
 .modal.view-mode .form-group input,
-.modal.view-mode .form-group textarea,
-.modal.view-mode .rich-field {
-  pointer-events: auto;
-  opacity: 0.75;
-  border-color: rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
-  cursor: text;
+.modal.view-mode .form-group textarea {
+  pointer-events: none;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0;
+  padding-right: 0;
+  cursor: default;
   user-select: text;
   -webkit-user-select: text;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
 }
 .modal.view-mode .form-group select {
   pointer-events: none;
-  opacity: 0.75;
-  border-color: rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0;
   cursor: default;
+  -webkit-appearance: none;
+  appearance: none;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+.modal.view-mode .form-group label {
+  font-size: 9px;
+  opacity: 0.7;
+}
+.modal.view-mode .rich-field {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+/* linha separadora leve entre campos no view-mode */
+.modal.view-mode .form-group {
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+}
+.modal.view-mode .form-group:last-child { border-bottom: none; }
+/* campo vazio no view-mode fica discreto */
+.modal.view-mode .form-group input:placeholder-shown,
+.modal.view-mode .form-group textarea:placeholder-shown {
+  opacity: 0.3;
 }
 .modal.view-mode .checkbox-row {
   pointer-events: none;
@@ -1084,8 +1118,8 @@ select option{background:#1b2e42;color:#e8eaf0;}
 }
 .modal.view-mode .custom-field-title-input{
   pointer-events:none;
-  border-color:transparent;
-  background:transparent;
+  border-color:transparent !important;
+  background:transparent !important;
   padding-left:0;
 }
 .modal.view-mode .status-select {
@@ -1094,8 +1128,14 @@ select option{background:#1b2e42;color:#e8eaf0;}
 }
 .modal.view-mode .apuracao-section select {
   pointer-events: none;
-  opacity: 0.75;
+  -webkit-appearance: none;
+  appearance: none;
+  border-color: transparent !important;
+  background: transparent !important;
+  padding-left: 0;
 }
+/* "Só números" no view-mode — ocultar linha extra */
+.modal.view-mode #cnpjNumerico + button { display: none !important; }
 .btn-edit-mode {
   padding: 9px 18px;
   background: rgba(201,168,76,0.12);
@@ -1947,6 +1987,20 @@ th.col-dragging{opacity:0.45;}
     html[data-bif-theme="light"] .modal-header-empresa .btn-secondary:hover,
     html[data-bif-theme="light"] .modal-header-empresa .btn-edit-mode:hover {
       background:#e2d8c5 !important;
+    }
+    /* view-mode no tema bege */
+    html[data-bif-theme="light"] .modal.view-mode .form-group input,
+    html[data-bif-theme="light"] .modal.view-mode .form-group textarea,
+    html[data-bif-theme="light"] .modal.view-mode .form-group select {
+      color:#1b2837 !important;
+    }
+    html[data-bif-theme="light"] .modal.view-mode .form-group {
+      border-bottom-color: rgba(155,118,36,.10) !important;
+    }
+    html[data-bif-theme="light"] .view-mode-banner {
+      background:rgba(155,118,36,.07) !important;
+      border-color:rgba(155,118,36,.18) !important;
+      color:#5d6b7a !important;
     }
 
   </style>
