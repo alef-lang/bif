@@ -1134,8 +1134,7 @@ select option{background:#1b2e42;color:#e8eaf0;}
   background: transparent !important;
   padding-left: 0;
 }
-/* "Só números" no view-mode — ocultar linha extra */
-.modal.view-mode #cnpjNumerico + button { display: none !important; }
+/* "Só números" no view-mode — manter botão copiar visível */
 .btn-edit-mode {
   padding: 9px 18px;
   background: rgba(201,168,76,0.12);
@@ -1892,14 +1891,80 @@ th.col-dragging{opacity:0.45;}
       border-color:rgba(155,118,36,.22) !important;
     }
     html[data-bif-theme="light"] #modalEmpresa .modal-body {
-      background:#eee7d9 !important;
+      background:#f2ecdf !important;
     }
-    html[data-bif-theme="light"] #modalEmpresa .form-section,
+    html[data-bif-theme="light"] #modalEmpresa .form-section {
+      background:#f8f4eb !important;
+      border:1px solid rgba(155,118,36,.16) !important;
+      border-radius:12px !important;
+      padding:14px 16px !important;
+      margin-bottom:12px !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .form-section-title {
+      color:#7a5c12 !important;
+      border-bottom-color:rgba(155,118,36,.18) !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .form-group label {
+      color:#6b5020 !important;
+    }
+    /* Campos em modo EDIÇÃO */
+    html[data-bif-theme="light"] #modalEmpresa .form-group input,
+    html[data-bif-theme="light"] #modalEmpresa .form-group select,
+    html[data-bif-theme="light"] #modalEmpresa .form-group textarea {
+      background:#fff !important;
+      border-color:rgba(155,118,36,.25) !important;
+      color:#1b2837 !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .form-group input:focus,
+    html[data-bif-theme="light"] #modalEmpresa .form-group select:focus,
+    html[data-bif-theme="light"] #modalEmpresa .form-group textarea:focus {
+      border-color:#9b7624 !important;
+      box-shadow:0 0 0 3px rgba(155,118,36,.14) !important;
+    }
+    /* Campos em modo VIEW — texto puro, sem caixa */
+    html[data-bif-theme="light"] #modalEmpresa .modal.view-mode .form-group input,
+    html[data-bif-theme="light"] #modalEmpresa .modal.view-mode .form-group textarea,
+    html[data-bif-theme="light"] #modalEmpresa .modal.view-mode .form-group select {
+      background:transparent !important;
+      border-color:transparent !important;
+      color:#1b2837 !important;
+      box-shadow:none !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .modal.view-mode .form-group {
+      border-bottom-color:rgba(155,118,36,.10) !important;
+    }
     html[data-bif-theme="light"] #modalEmpresa .static-field-card,
     html[data-bif-theme="light"] #modalEmpresa .custom-field-card,
     html[data-bif-theme="light"] #modalEmpresa .portal-record-card,
     html[data-bif-theme="light"] #modalEmpresa .nota-repo-manager {
       border-color:rgba(155,118,36,.20) !important;
+      background:#f5f0e6 !important;
+    }
+    /* Checkbox e obrig rows */
+    html[data-bif-theme="light"] #modalEmpresa .checkbox-row {
+      background:#fff !important;
+      border-color:rgba(155,118,36,.20) !important;
+      color:#1b2837 !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .obrig-header {
+      background:rgba(155,118,36,.08) !important;
+      color:#7a5c12 !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .obrig-item {
+      border-color:rgba(155,118,36,.12) !important;
+      color:#1b2837 !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .obrig-add-row input,
+    html[data-bif-theme="light"] #modalEmpresa .imposto-add-row input {
+      background:#fff !important;
+      border-color:rgba(155,118,36,.25) !important;
+      color:#1b2837 !important;
+    }
+    /* Chip CNPJ numérico */
+    html[data-bif-theme="light"] #cnpjNumerico {
+      background:rgba(155,118,36,.10) !important;
+      border-color:rgba(155,118,36,.25) !important;
+      color:#6b4f0e !important;
     }
 
     /* ── BOTÕES DO HEADER — tema bege ─────────────────────────── */
