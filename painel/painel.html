@@ -58,7 +58,7 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 .header{background:linear-gradient(135deg,#0d1b2a,#1b2e42);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(0,0,0,0.45);border-bottom:1px solid var(--gold-dim);position:sticky;top:0;z-index:200;gap:12px;min-height:0;}
 .header-left{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .header-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#0d1b2a;flex-shrink:0;font-family:var(--font-title);}
-.header-title h1{font-size:14px;font-weight:700;font-family:var(--font-title);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;}
+.header-title h1{font-size:14px!important;line-height:1.2;font-weight:700;font-family:var(--font-title);background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;}
 .header-title p{font-size:10px;color:var(--text-light);margin-top:1px;font-family:var(--font-mono);white-space:nowrap;}
 .header-right{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
 .header-right::-webkit-scrollbar{display:none;}
@@ -139,17 +139,59 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
   font-family:var(--font-mono);
   white-space:nowrap;
 }
-@media(max-width:760px){
-  .fixed-search-strip{padding:8px 14px;gap:7px;}
-  .fixed-search-strip .search-box{min-width:0;max-width:none;}
+.search-panel-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+.search-panel-btn{
+  height:34px;
+  padding:0 12px;
+  border-radius:20px;
+  border:1px solid var(--gold-dim);
+  background:rgba(201,168,76,0.08);
+  color:var(--text-light);
+  cursor:pointer;
+  font-size:10px;
+  font-weight:800;
+  font-family:var(--font-mono);
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:all 0.18s;
+}
+.search-panel-btn:hover,
+.search-panel-btn.active{
+  background:rgba(201,168,76,0.18);
+  border-color:var(--gold);
+  color:var(--gold-light);
+}
+.search-panel-btn .panel-chevron{
+  font-size:9px;
+  display:inline-block;
+  transition:transform 0.22s;
+}
+@media(max-width:980px){
   .fixed-search-strip .fixed-search-label,.fixed-search-meta{display:none;}
+  .fixed-search-strip .search-box{min-width:180px;max-width:none;}
+}
+@media(max-width:760px){
+  .fixed-search-strip{padding:8px 10px;gap:6px;overflow-x:auto;scrollbar-width:none;}
+  .fixed-search-strip::-webkit-scrollbar{display:none;}
+  .fixed-search-strip .search-box{min-width:210px;flex:1 0 210px;}
   .fixed-search-clear{padding:7px 9px;font-size:10px;}
+  .search-panel-actions{gap:5px;}
+  .search-panel-btn{padding:0 9px;font-size:9px;}
 }
 
 /* STATS PANEL — colapsável */
-.stats-panel{background:var(--bg-card2);border-bottom:1px solid var(--border);}
-.stats-panel-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 24px;cursor:pointer;user-select:none;transition:background 0.18s;}
-.stats-panel-toggle:hover{background:rgba(201,168,76,0.05);}
+.stats-panel{background:transparent;border-bottom:none;}
+.stats-panel-toggle{display:none;}
 .stats-panel-body{overflow:hidden;max-height:0;transition:max-height 0.30s cubic-bezier(0.4,0,0.2,1);}
 .stats-panel-body.open{max-height:200px;}
 /* STATS — estilo KPI (do Controle de Guias) */
@@ -1420,13 +1462,8 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .rich-field:has(.img-resize-wrap){overflow:visible !important;}
 
 /* ── FILTER PANEL (colapsável) ── */
-.filter-panel{background:var(--bg-card2);border-bottom:1px solid var(--border);}
-.filter-panel-toggle{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:9px 24px;cursor:pointer;user-select:none;
-  transition:background 0.18s;
-}
-.filter-panel-toggle:hover{background:rgba(201,168,76,0.05);}
+.filter-panel{background:transparent;border-bottom:none;}
+.filter-panel-toggle{display:none;}
 .filter-panel-body{
   overflow:hidden;
   max-height:0;
@@ -1997,6 +2034,8 @@ th.col-dragging{opacity:0.45;}
     }
     /* título do header */
     html[data-bif-theme="light"] .header-title h1 {
+      font-size:14px !important;
+      line-height:1.2 !important;
       background:linear-gradient(135deg,#7a5c12,#9b7624) !important;
       -webkit-background-clip:text !important;
       -webkit-text-fill-color:transparent !important;
@@ -2017,10 +2056,17 @@ th.col-dragging{opacity:0.45;}
       border-color:rgba(155,118,36,.25) !important;
       color:#1b2837 !important;
     }
-    html[data-bif-theme="light"] .fixed-search-clear {
+    html[data-bif-theme="light"] .fixed-search-clear,
+    html[data-bif-theme="light"] .search-panel-btn {
       background:#f3eee4 !important;
       border-color:rgba(155,118,36,.25) !important;
       color:#6b4f0e !important;
+    }
+    html[data-bif-theme="light"] .search-panel-btn:hover,
+    html[data-bif-theme="light"] .search-panel-btn.active {
+      background:#e3d8c5 !important;
+      border-color:#9b7624 !important;
+      color:#4f3a0a !important;
     }
     /* toggle filtros */
     html[data-bif-theme="light"] .filter-panel-toggle:hover {
@@ -2068,6 +2114,168 @@ th.col-dragging{opacity:0.45;}
       color:#5d6b7a !important;
     }
 
+
+
+    /* ══ REFINO DA FICHA E DA LISTA — 15/07/2026 ═══════════════
+       Integra melhor o bege do modal com os campos, amplia a ficha
+       e reforça a leitura dos regimes na visualização em lista. */
+
+    /* Ficha com proporção de largura inspirada em uma folha A4 vertical.
+       210 mm equivalem a aproximadamente 794 px no padrão CSS de tela. */
+    #modalEmpresa .modal {
+      width:min(210mm, calc(100vw - 40px));
+      max-width:210mm;
+      max-height:97vh;
+      border-radius:18px;
+    }
+    #modalEmpresa .modal-body {
+      padding:22px 24px 28px;
+    }
+    #modalEmpresa .modal-header-empresa {
+      padding:14px 18px;
+    }
+    #modalEmpresa .view-mode-banner {
+      padding-left:24px;
+      padding-right:24px;
+    }
+    #modalEmpresa .form-grid {
+      gap:13px 16px;
+    }
+    #modalEmpresa .form-section {
+      margin-bottom:15px;
+    }
+    @media (max-width:760px) {
+      #modalEmpresa .modal {
+        width:calc(100vw - 16px);
+        max-height:98vh;
+        border-radius:16px;
+      }
+      #modalEmpresa .modal-body {
+        padding:16px 14px 22px;
+      }
+      #modalEmpresa .modal-header-empresa {
+        padding:12px 13px;
+      }
+      #modalEmpresa .view-mode-banner {
+        padding-left:14px;
+        padding-right:14px;
+      }
+    }
+
+    /* Tema claro: fundo e campos pertencem à mesma família de bege */
+    html[data-bif-theme="light"] #modalEmpresa .modal {
+      background:#eee6d7 !important;
+      border-color:rgba(122,92,18,.25) !important;
+      box-shadow:0 28px 72px rgba(68,55,30,.22) !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .modal-header,
+    html[data-bif-theme="light"] #modalEmpresa .modal-footer {
+      background:#f2ebde !important;
+      border-color:rgba(122,92,18,.18) !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .modal-body {
+      background:#eee6d7 !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .view-mode-banner {
+      background:#e7dcc8 !important;
+      border-color:rgba(122,92,18,.20) !important;
+      color:#5c4a2c !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .form-section {
+      background:linear-gradient(180deg,#f5efe5 0%,#f1e9dc 100%) !important;
+      border-color:rgba(122,92,18,.17) !important;
+      box-shadow:0 7px 20px rgba(84,66,35,.055) !important;
+      border-radius:14px !important;
+      padding:17px 18px !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .form-section-title {
+      color:#6e5216 !important;
+      border-bottom-color:rgba(122,92,18,.18) !important;
+      margin-bottom:14px !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .form-group label {
+      color:#624d27 !important;
+    }
+
+    /* Edição: caixas em bege claro, evitando o branco isolado */
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group input,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group select,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group textarea,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .rich-field,
+    html[data-bif-theme="light"] #modalEmpresa .obrig-add-row input,
+    html[data-bif-theme="light"] #modalEmpresa .imposto-add-row input,
+    html[data-bif-theme="light"] #modalEmpresa .custom-field-title-input,
+    html[data-bif-theme="light"] #modalEmpresa .custom-field-add input {
+      background:#faf6ee !important;
+      border-color:rgba(122,92,18,.27) !important;
+      color:#26323e !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.62) !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group input:hover,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group select:hover,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group textarea:hover,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .rich-field:hover {
+      border-color:rgba(122,92,18,.40) !important;
+      background:#fcf9f3 !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group input:focus,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group select:focus,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .form-group textarea:focus,
+    html[data-bif-theme="light"] #modalEmpresa .modal:not(.view-mode) .rich-field:focus {
+      background:#fffaf2 !important;
+      border-color:#8d6a1d !important;
+      box-shadow:0 0 0 3px rgba(141,106,29,.13) !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .checkbox-row,
+    html[data-bif-theme="light"] #modalEmpresa .checklist-collapse,
+    html[data-bif-theme="light"] #modalEmpresa .static-field-card,
+    html[data-bif-theme="light"] #modalEmpresa .custom-field-card,
+    html[data-bif-theme="light"] #modalEmpresa .portal-record-card,
+    html[data-bif-theme="light"] #modalEmpresa .nota-repo-manager,
+    html[data-bif-theme="light"] #modalEmpresa .obrig-manager {
+      background:#f8f2e8 !important;
+      border-color:rgba(122,92,18,.20) !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .checkbox-row:hover,
+    html[data-bif-theme="light"] #modalEmpresa .obrig-item:hover {
+      background:#f3eadb !important;
+    }
+    html[data-bif-theme="light"] #modalEmpresa .apuracao-section {
+      background:#e9deca !important;
+      border-color:rgba(122,92,18,.22) !important;
+    }
+
+    /* Lista: regimes com mais contraste e aparência sólida */
+    html[data-bif-theme="light"] .empresa-table td:has(.regime-pill) {
+      background:rgba(105,83,37,.025) !important;
+    }
+    html[data-bif-theme="light"] .regime-pill {
+      padding:4px 10px !important;
+      font-weight:800 !important;
+      border-width:1px !important;
+      box-shadow:0 1px 2px rgba(33,43,54,.08) !important;
+    }
+    html[data-bif-theme="light"] .regime-pill.simples {
+      background:#d5e8e4 !important;
+      color:#075e58 !important;
+      border-color:#76aaa4 !important;
+    }
+    html[data-bif-theme="light"] .regime-pill.presumido {
+      background:#dbe7f2 !important;
+      color:#174f7d !important;
+      border-color:#88a9c5 !important;
+    }
+    html[data-bif-theme="light"] .regime-pill.real {
+      background:#e4dcf0 !important;
+      color:#573c87 !important;
+      border-color:#a393c1 !important;
+    }
+    html[data-bif-theme="light"] .regime-pill.outros {
+      background:#efdce5 !important;
+      color:#86365a !important;
+      border-color:#bf8ba2 !important;
+    }
+
   </style>
 </head>
 <body>
@@ -2096,25 +2304,26 @@ th.col-dragging{opacity:0.45;}
 
 <!-- BUSCA FIXA -->
 <div class="fixed-search-strip" id="fixedSearchStrip">
-  <span class="filter-label fixed-search-label">🔎 Busca fixa</span>
+  <span class="filter-label fixed-search-label">🔎 Busca</span>
   <div class="search-box fixed-search-box">
     <span class="search-icon">🔎</span>
     <input type="search" autocomplete="off" placeholder="Buscar empresa, CNPJ, colaborador ou atividade..." oninput="doSearch(this.value)" id="searchInput">
   </div>
-  <button type="button" class="fixed-search-clear" onclick="clearSearchFixed()">Limpar busca</button>
-  <span class="fixed-search-meta">Visível durante a rolagem</span>
+  <button type="button" class="fixed-search-clear" onclick="clearSearchFixed()">Limpar</button>
+  <div class="search-panel-actions">
+    <button type="button" class="search-panel-btn" id="filterPanelButton" onclick="toggleFilterPanel()" aria-expanded="false" aria-controls="filterPanelBody">
+      <span>🔍</span><span>Filtros e obrigações</span>
+      <span id="filterActiveCount" style="display:none;background:var(--gold);color:#0d1b2a;border-radius:20px;padding:1px 6px;font-size:9px;font-weight:800;">0</span>
+      <span id="filterPanelChevron" class="panel-chevron">▼</span>
+    </button>
+    <button type="button" class="search-panel-btn" id="statsPanelButton" onclick="toggleStatsPanel()" aria-expanded="false" aria-controls="statsPanelBody">
+      <span>📊</span><span>Resumo</span><span id="statsPanelChevron" class="panel-chevron">▼</span>
+    </button>
+  </div>
 </div>
 
 <!-- FILTROS — colapsável -->
 <div class="filter-panel" id="filterPanel">
-  <div class="filter-panel-toggle" onclick="toggleFilterPanel()">
-    <span style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:13px;">🔍</span>
-      <span style="font-size:11px;font-weight:700;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);">Filtros &amp; Obrigações</span>
-      <span id="filterActiveCount" style="display:none;background:var(--gold);color:#0d1b2a;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:800;font-family:var(--font-mono);">0</span>
-    </span>
-    <span id="filterPanelChevron" style="font-size:10px;color:var(--text-light);transition:transform 0.22s;display:inline-block;">▼</span>
-  </div>
   <div class="filter-panel-body" id="filterPanelBody">
     <div class="filter-bar" style="border-bottom:1px solid rgba(201,168,76,0.10);">
       <span class="filter-label">📋 Obrigação:</span>
@@ -2161,13 +2370,6 @@ th.col-dragging{opacity:0.45;}
 
 <!-- STATS -->
 <div class="stats-panel" id="statsPanel">
-  <div class="stats-panel-toggle" onclick="toggleStatsPanel()">
-    <span style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:13px;">📊</span>
-      <span style="font-size:11px;font-weight:700;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);">Resumo</span>
-    </span>
-    <span id="statsPanelChevron" style="font-size:10px;color:var(--text-light);transition:transform 0.22s;display:inline-block;">▼</span>
-  </div>
   <div class="stats-panel-body" id="statsPanelBody">
     <div class="stats-bar">
       <div class="stat-card total"><div class="stat-label">Total</div><div class="stat-number" id="stat-total">0</div></div>
@@ -3355,8 +3557,13 @@ function toggleStatsPanel(){
   statsPanelOpen = !statsPanelOpen;
   const body = $('statsPanelBody');
   const chevron = $('statsPanelChevron');
+  const button = $('statsPanelButton');
   body.classList.toggle('open', statsPanelOpen);
   if(chevron) chevron.style.transform = statsPanelOpen ? 'rotate(180deg)' : '';
+  if(button){
+    button.classList.toggle('active', statsPanelOpen);
+    button.setAttribute('aria-expanded', String(statsPanelOpen));
+  }
 }
 
 let filterPanelOpen = false;
@@ -3364,8 +3571,13 @@ function toggleFilterPanel(){
   filterPanelOpen = !filterPanelOpen;
   const body = $('filterPanelBody');
   const chevron = $('filterPanelChevron');
+  const button = $('filterPanelButton');
   body.classList.toggle('open', filterPanelOpen);
   if(chevron) chevron.style.transform = filterPanelOpen ? 'rotate(180deg)' : '';
+  if(button){
+    button.classList.toggle('active', filterPanelOpen);
+    button.setAttribute('aria-expanded', String(filterPanelOpen));
+  }
 }
 
 function updateFilterBadge(){
