@@ -993,7 +993,7 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db    = getDatabase(fbApp);
 const DB_PATH = 'bif_tarefas_fiscal';
-const PAINEL_PATH = 'painel';
+const PAINEL_PATH = 'bif_painel';
 
 const PRI_COLORS=['','#2ecc8a','#2dd4bf','#f59e0b','#f97316','#e05a5a'];
 const PRI_LABELS=['','Baixa','Moderada','Média','Alta','Urgente'];
@@ -1257,11 +1257,15 @@ async function load(){
       setAutosaveStatus('saved','Pronto');
     }
   } catch(e){
-    // Offline — usa localStorage como fallback
-    try{ tasks=asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]')); }catch(e){ tasks=[]; }
-    try{ expanded=JSON.parse(localStorage.getItem('fiscal_exp')||'{}'); }catch(e){ expanded={}; }
-    try{ points=parseInt(localStorage.getItem('fiscal_pts')||'0'); }catch(e){ points=0; }
-    setAutosaveStatus('saving','Offline — salvo localmente');
+    // Erro de conexão ou permissão — usa localStorage como fallback
+    console.error('[BIF Tarefas] Erro ao carregar do Firebase:', e?.code || e?.message || e);
+    const errMsg = e?.code === 'PERMISSION_DENIED' ? 'Sem permissão no Firebase' : 'Offline — salvo localmente';
+    try{ tasks=asTaskArray(JSON.parse(localStorage.getItem('fiscal_tasks')||'[]')); }catch(e2){ tasks=[]; }
+    try{ expanded=JSON.parse(localStorage.getItem('fiscal_exp')||'{}'); }catch(e2){ expanded={}; }
+    try{ points=parseInt(localStorage.getItem('fiscal_pts')||'0'); }catch(e2){ points=0; }
+    setAutosaveStatus('saving', errMsg);
+    // Mostrar toast de aviso se não tem dados locais
+    if(!tasks.length) setTimeout(()=>toast('Não foi possível conectar ao Firebase. Verifique as regras do banco.','error'),1200);
   }
   migrateParkingClassification();
   localStorage.setItem('fiscal_tasks', JSON.stringify(tasks));
