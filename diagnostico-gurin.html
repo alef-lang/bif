@@ -72,6 +72,17 @@
   .send-btn.sent { background: #1a6b2a; }
   .notice { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 10px; line-height: 1.5; }
   .footer { margin-top: 1.5rem; font-size: 12px; color: var(--text-muted); text-align: center; }
+  .ident-screen { padding: 1.75rem 2rem 2rem; }
+  .ident-screen h2 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .ident-screen p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+  .field-group { margin-bottom: 1rem; }
+  .field-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .field-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius); font-size: 14px; font-family: inherit; color: var(--text); background: var(--surface); transition: border-color 0.15s; outline: none; }
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: var(--text-muted); }
+  .ident-btn { width: 100%; margin-top: 0.5rem; padding: 11px; border-radius: var(--radius); background: var(--accent); color: #fff; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .ident-btn:hover { background: #244a31; }
+  .ident-btn:disabled { opacity: 0.4; cursor: default; }
   @media (max-width: 480px) {
     .card-header, .progress-wrap, .questions, .nav, .result { padding-left: 1.25rem; padding-right: 1.25rem; }
     .q-text { font-size: 15px; }
@@ -93,6 +104,21 @@
     <p>Responda as perguntas abaixo para que possamos estruturar corretamente o registro de extração e as obrigações tributárias da empresa.</p>
   </div>
 
+  <div class="ident-screen" id="ident-screen">
+    <h2>Antes de começar</h2>
+    <p>Informe seu nome e cargo para que possamos identificar suas respostas.</p>
+    <div class="field-group">
+      <label class="field-label" for="campo-nome">Nome completo</label>
+      <input class="field-input" type="text" id="campo-nome" placeholder="Ex: João Silva" oninput="verificaIdent()">
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="campo-cargo">Cargo ou função</label>
+      <input class="field-input" type="text" id="campo-cargo" placeholder="Ex: Sócio, Gerente, Contador">
+    </div>
+    <button class="ident-btn" id="ident-btn" onclick="iniciar()" disabled>Iniciar diagnóstico →</button>
+  </div>
+
+  <div id="main-content" style="display:none">
   <div class="progress-wrap">
     <div class="progress-meta">
       <span class="progress-label" id="prog-label">Pergunta 1 de 8</span>
@@ -222,14 +248,31 @@
 
 <div class="footer">Mineradora Gurin · Diagnóstico fiscal 2026 · Escritório Mercúrio</div>
 
+  </div><!-- /main-content -->
+
 <!-- Formspree hidden form -->
 <form id="fs-form" action="https://formspree.io/f/mpqvjwpy" method="POST" style="display:none">
   <input type="hidden" name="email" id="fs-email" value="cliente@mineradoragurin.com">
-  <input type="hidden" name="_subject" value="Diagnóstico Gurin — respostas do cliente">
+  <input type="hidden" name="_subject" id="fs-subject" value="Diagnóstico Gurin — respostas do cliente">
   <textarea name="message" id="fs-respostas"></textarea>
 </form>
 
 <script>
+var nomeRespondente = '';
+var cargoRespondente = '';
+
+function verificaIdent() {
+  var nome = document.getElementById('campo-nome').value.trim();
+  document.getElementById('ident-btn').disabled = nome.length < 2;
+}
+
+function iniciar() {
+  nomeRespondente = document.getElementById('campo-nome').value.trim();
+  cargoRespondente = document.getElementById('campo-cargo').value.trim();
+  document.getElementById('ident-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+}
+
 var questions = [
   "Existe balança instalada na mina para pesagem da argila extraída?",
   "Como é feito o apontamento diário de produção?",
@@ -347,8 +390,10 @@ function enviar() {
     texto += (i+1) + '. ' + q + '\nR: ' + resp + '\n\n';
   });
 
-  document.getElementById('fs-respostas').value = texto;
+  var cabecalho = 'Respondente: ' + nomeRespondente + (cargoRespondente ? ' (' + cargoRespondente + ')' : '') + '\n\n';
+  document.getElementById('fs-respostas').value = cabecalho + texto;
   document.getElementById('fs-email').value = 'cliente@mineradoragurin.com';
+  document.getElementById('fs-subject').value = 'Diagnóstico Gurin — ' + nomeRespondente;
 
   var btn = document.getElementById('send-btn');
   btn.disabled = true;
