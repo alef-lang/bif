@@ -6380,6 +6380,7 @@ function relatorioHtml(){
       </optgroup>
       <optgroup label="Por Colaborador">
         <option value="colaborador">👤 Empresas por colaborador</option>
+        <option value="sem_colaborador">⚠️ Empresas sem colaborador definido</option>
       </optgroup>
       <optgroup label="Por Tag">
         <option value="tag">🏷️ Empresas por tag</option>
@@ -6500,6 +6501,30 @@ function renderRelatorioTabela(){
     return;
   }
 
+
+  // ── EMPRESAS SEM COLABORADOR DEFINIDO ────────────────────────
+  if(type === 'sem_colaborador'){
+    const emps = base
+      .filter(e => !safe(e.colaborador).trim())
+      .sort((a,b) => safe(a.nome).localeCompare(safe(b.nome), 'pt-BR'));
+    const abertas = emps.filter(e => !e.fechada && !e.semMovimento).length;
+    const semMovimento = emps.filter(e => !!e.semMovimento && !e.fechada).length;
+    const fechadas = emps.filter(e => !!e.fechada).length;
+    $('relatorioConteudo').innerHTML = `<div class="rel-section">
+      <h3>Empresas sem Colaborador Definido — ${todayBR()}</h3>
+      <div class="rel-summary">
+        <div class="rel-sum-card"><div class="num">${emps.length}</div><div class="lbl">Sem responsável</div></div>
+        <div class="rel-sum-card"><div class="num">${abertas}</div><div class="lbl">Abertas</div></div>
+        <div class="rel-sum-card"><div class="num">${semMovimento}</div><div class="lbl">Sem movimento</div></div>
+        <div class="rel-sum-card"><div class="num">${fechadas}</div><div class="lbl">Fechadas</div></div>
+      </div>
+      <div style="margin:0 0 14px;padding:10px 13px;border:1px solid rgba(245,158,11,.28);border-radius:10px;background:rgba(245,158,11,.08);color:var(--text);font-size:12px;line-height:1.5;">
+        ⚠️ São exibidas as empresas cujo campo <strong>Colaborador Responsável</strong> está vazio. A lista respeita os filtros aplicados no painel.
+      </div>
+      ${emps.length ? `<table class="rel-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Categoria</th><th>Regime</th><th>Atividade</th><th>Obrigações</th><th>Status</th></tr></thead><tbody>${emps.map(e=>`<tr><td>${esc(e.nome||'-')}</td><td style="font-family:var(--font-mono)">${esc(e.cnpj||'-')}</td><td>${categoriaPillHtml(e)}</td><td>${esc(regimeLabel(e.regime))}</td><td>${esc(e.atividade||'-')}</td><td>${esc((e.obrigacoes||[]).map(o=>o.nome).join(' | ') || '-')}</td><td><span class="rel-badge ${e.fechada?'fechada':'ativa'}">${e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'}</span></td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Ótimo: nenhuma empresa sem colaborador definido foi encontrada.</p></div>'}
+    </div>`;
+    return;
+  }
 
   // ── POR ATIVIDADE ECONÔMICA ───────────────────────────────────
   if(type === 'atividade'){
@@ -6840,6 +6865,7 @@ function relatorioAtualTitulo(type){
     sped_ecd:'Empresas com SPED ECD',
     sped_ecf:'Empresas com SPED ECF',
     colaborador:'Empresas por Colaborador',
+    sem_colaborador:'Empresas sem Colaborador Definido',
     checklist:'Checklist geral de obrigações',
     obrigacoes_produtor:'Obrigações — produtores rurais',
     obrigacoes_demais:'Obrigações — demais empresas',
@@ -6863,7 +6889,7 @@ function getRelatorioPrintRows(){
       empresa:e.nome || '', cnpj:e.cnpj || '—', regime:regimeLabel(e.regime), colaborador:e.colaborador || '—', atividade:e.atividade || '—', impostos:(e.obrigacoes||[]).map(o=>o.nome).join(' | ') || '—', status:e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta', categoria:categoriaEmpresaLabel(e)
     }));
   }
-  if(type.startsWith('apuracao') || type.startsWith('sped') || type === 'colaborador'){
+  if(type.startsWith('apuracao') || type.startsWith('sped') || type === 'colaborador' || type === 'sem_colaborador'){
     let emps = base;
     if(type==='movimento') emps = base.filter(isEmpresaComMovimento);
     if(type==='apuracao_pendente') emps = base.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada');
@@ -6871,7 +6897,8 @@ function getRelatorioPrintRows(){
     const spedMap = {sped_todos:null,sped_icms:'SPED ICMS/IPI',sped_contrib:'SPED Contribuições',sped_ecd:'SPED ECD',sped_ecf:'SPED ECF'};
     if(type.startsWith('sped')){ const f=spedMap[type]; emps=base.filter(e=>(e.obrigacoes||[]).some(o=>f?o.nome===f:o.nome.startsWith('SPED'))); }
     if(type==='colaborador'){ const cv=$('relColaborador')?.value || ''; if(cv) emps=base.filter(e=>e.colaborador===cv); }
-    return emps.map(e => ({empresa:e.nome||'', cnpj:e.cnpj||'—', regime:regimeLabel(e.regime), colaborador:e.colaborador||'—', atividade:e.atividade||'—', impostos:impostosToText(e), status:apuracaoLabel(e.statusApuracao), categoria:categoriaEmpresaLabel(e)}));
+    if(type==='sem_colaborador') emps = base.filter(e=>!safe(e.colaborador).trim());
+    return emps.map(e => ({empresa:e.nome||'', cnpj:e.cnpj||'—', regime:regimeLabel(e.regime), colaborador:type==='sem_colaborador'?'Não definido':(e.colaborador||'—'), atividade:e.atividade||'—', impostos:impostosToText(e), status:e.fechada?'Fechada':e.semMovimento?'Sem movimento':apuracaoLabel(e.statusApuracao), categoria:categoriaEmpresaLabel(e)}));
   }
   if(type === 'atividade'){
     const at = $('relAtividade')?.value || '';
@@ -6898,6 +6925,10 @@ function buildRelatorioPrintHtml(){
   const emitido = new Date().toLocaleString('pt-BR');
   const logoHtml = S.relatorioLogo ? `<img src="${escAttr(S.relatorioLogo)}" alt="Logo do escritório">` : 'Logo / Escritório';
   const logoClass = S.relatorioLogo ? 'logo-box has-logo' : 'logo-box';
+  const infoTitulo = type === 'sem_colaborador' ? 'Pendências de atribuição de responsabilidade' : 'Lista para conferência de fechamento';
+  const infoTexto = type === 'sem_colaborador'
+    ? 'Este relatório mostra as empresas cujo campo Colaborador Responsável está vazio. Defina um responsável na ficha de cada empresa para removê-la automaticamente desta lista.'
+    : 'Empresas marcadas como sem movimento ou fechadas não entram no relatório de empresas com movimento. Use o filtro do painel antes de exportar caso queira restringir por regime, colaborador, atividade ou obrigação.';
   const tableRows = rows.map((r,i)=>`<tr><td class="num">${i+1}</td><td class="empresa">${esc(r.empresa)}</td><td>${esc(r.cnpj)}</td><td>${esc(r.categoria||'')}</td><td>${esc(r.regime)}</td><td>${esc(r.colaborador)}</td><td>${esc(r.atividade)}</td><td>${esc(r.impostos)}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Nenhum registro encontrado.</td></tr>';
   const regimeSummary = Object.keys(regimes).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(k=>`<span><strong>${esc(k)}:</strong> ${regimes[k]}</span>`).join('');
   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(titulo)}</title>
@@ -6945,7 +6976,7 @@ function buildRelatorioPrintHtml(){
   </style></head><body><main class="sheet">
     <div class="topbar"></div>
     <header class="doc-header"><div class="${logoClass}">${logoHtml}</div><div class="title-area"><div class="office">${esc(S.nomeEscritorio || 'Painel de Gestão')}</div><h1>${esc(titulo)}</h1><div class="sub">Relatório fiscal operacional • Emitido em ${esc(emitido)}</div></div></header>
-    <section class="info-banner"><div class="icon">📌</div><div><h3>Lista para conferência de fechamento</h3><p>Empresas marcadas como sem movimento ou fechadas não entram no relatório de empresas com movimento. Use o filtro do painel antes de exportar caso queira restringir por regime, colaborador, atividade ou obrigação.</p></div></section>
+    <section class="info-banner"><div class="icon">${type === 'sem_colaborador' ? '⚠️' : '📌'}</div><div><h3>${esc(infoTitulo)}</h3><p>${esc(infoTexto)}</p></div></section>
     <section class="summary"><div class="field"><span class="label">Total no relatório</span><span class="value">${total}</span></div><div class="field"><span class="label">Colaboradores</span><span class="value">${colaboradores}</span></div><div class="field"><span class="label">Tipo</span><span class="value">${esc(titulo)}</span></div><div class="regimes">${regimeSummary || '<span><strong>Regimes:</strong> —</span>'}</div></section>
     <div class="section-title">Empresas listadas</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Empresa</th><th>CNPJ</th><th>Categoria</th><th>Regime</th><th>Colaborador</th><th>Atividade / obrigação</th><th>Impostos / venc.</th></tr></thead><tbody>${tableRows}</tbody></table></div>
     <div class="footer"></div>
@@ -6984,7 +7015,7 @@ function exportRelatorioCSV(){
       (e.obrigacoes||[]).map(o=>o.nome).join(' | '),
       e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta'
     ]);
-  } else if(type==='movimento' || type==='colaborador' || type==='tag' || type.startsWith('apuracao') || type.startsWith('sped')){
+  } else if(type==='movimento' || type==='colaborador' || type==='sem_colaborador' || type==='tag' || type.startsWith('apuracao') || type.startsWith('sped')){
     let emps = base;
     if(type==='movimento') emps = base.filter(isEmpresaComMovimento);
     if(type==='apuracao_pendente') emps = base.filter(e=>(e.statusApuracao||'nao_apurada')==='nao_apurada');
@@ -6992,13 +7023,14 @@ function exportRelatorioCSV(){
     const spedMap = {sped_todos:null,sped_icms:'SPED ICMS/IPI',sped_contrib:'SPED Contribuições',sped_ecd:'SPED ECD',sped_ecf:'SPED ECF'};
     if(type.startsWith('sped')){ const f=spedMap[type]; emps=base.filter(e=>(e.obrigacoes||[]).some(o=>f?o.nome===f:o.nome.startsWith('SPED'))); }
     if(type==='colaborador'){ const cv=$('relColaborador').value; if(cv) emps=base.filter(e=>e.colaborador===cv); }
+    if(type==='sem_colaborador') emps=base.filter(e=>!safe(e.colaborador).trim());
     if(type==='tag'){ const tv=$('relTag').value; emps = tv ? base.filter(e=>(e.tags||[]).includes(tv)) : base.filter(e=>(e.tags||[]).length); }
     headers = type==='movimento'
       ? ['Empresa','CNPJ','Categoria','Regime','Colaborador','Atividade','Impostos','Status Empresa']
       : ['Empresa','CNPJ','Categoria','Regime','Colaborador','Obrigações','Status Apuração','Status Empresa'];
     data = type==='movimento'
       ? emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),e.colaborador||'',e.atividade||'',impostosToText(e),e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Com movimento'])
-      : emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),e.colaborador||'',(e.obrigacoes||[]).map(o=>o.nome).join(' | '),apuracaoLabel(e.statusApuracao),e.fechada?'Fechada':'Aberta']);
+      : emps.map(e=>[e.nome,e.cnpj||'',categoriaEmpresaLabel(e),regimeLabel(e.regime),type==='sem_colaborador'?'Não definido':(e.colaborador||''),(e.obrigacoes||[]).map(o=>o.nome).join(' | '),apuracaoLabel(e.statusApuracao),e.fechada?'Fechada':e.semMovimento?'Sem movimento':'Aberta']);
   } else if(type==='serv_energia' || type==='serv_telefone'){
     const campo = type === 'serv_energia' ? 'servEnergia' : 'servTelefone';
     const emps = base.filter(e => !!e[campo]);
