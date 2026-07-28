@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Renomeador Inteligente de Guias PDF — Autosave e Histórico EML</title>
-  <meta name="description" content="Identifica dados em guias PDF, renomeia arquivos e gera e-mails Outlook .EML com assinatura, autosave e histórico local." />
+  <title>Renomeador Inteligente de Guias PDF — E-mail conforme as guias</title>
+  <meta name="description" content="Identifica dados em guias PDF, inclusive DARE-SP, renomeia arquivos e gera e-mails Outlook .EML sincronizados com as guias selecionadas, com assinatura, autosave e histórico local." />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiMxMjNjNzMiLz4KICA8cGF0aCBkPSJNMTggMTFoMjBsMTAgMTB2MzJIMTh6IiBmaWxsPSIjZmZmZmZmIi8+CiAgPHBhdGggZD0iTTM4IDExdjExaDEwIiBmaWxsPSIjZjJkMjdhIi8+CiAgPHBhdGggZD0iTTM4IDExbDEwIDEwSDM4eiIgZmlsbD0iI2M0OWEzNSIvPgogIDxwYXRoIGQ9Ik0zOS41IDMxLjVjLTIuMi0yLjItNS4xLTMuNC04LjMtMy40LTYuNiAwLTExLjcgNC44LTExLjcgMTEuNSAwIDYuOCA1LjEgMTEuNSAxMS44IDExLjUgMy42IDAgNi43LTEuMiA4LjktMy4ydi05LjZoLTkuOXY0LjhoNC41djIuMWMtLjkuNi0yIDEtMy41IDEtMy44IDAtNi40LTIuNi02LjQtNi42IDAtMy44IDIuNy02LjYgNi40LTYuNiAyIDAgMy43LjcgNSAyeiIgZmlsbD0iIzEyM2M3MyIvPgo8L3N2Zz4=" />
   <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiMxMjNjNzMiLz4KICA8cGF0aCBkPSJNMTggMTFoMjBsMTAgMTB2MzJIMTh6IiBmaWxsPSIjZmZmZmZmIi8+CiAgPHBhdGggZD0iTTM4IDExdjExaDEwIiBmaWxsPSIjZjJkMjdhIi8+CiAgPHBhdGggZD0iTTM4IDExbDEwIDEwSDM4eiIgZmlsbD0iI2M0OWEzNSIvPgogIDxwYXRoIGQ9Ik0zOS41IDMxLjVjLTIuMi0yLjItNS4xLTMuNC04LjMtMy40LTYuNiAwLTExLjcgNC44LTExLjcgMTEuNSAwIDYuOCA1LjEgMTEuNSAxMS44IDExLjUgMy42IDAgNi43LTEuMiA4LjktMy4ydi05LjZoLTkuOXY0LjhoNC41djIuMWMtLjkuNi0yIDEtMy41IDEtMy44IDAtNi40LTIuNi02LjQtNi42IDAtMy44IDIuNy02LjYgNi40LTYuNiAyIDAgMy43LjcgNSAyeiIgZmlsbD0iIzEyM2M3MyIvPgo8L3N2Zz4=" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -478,7 +478,7 @@
 
     .fields {
       display: grid;
-      grid-template-columns: 1.7fr 1.25fr .8fr .95fr;
+      grid-template-columns: 1.7fr 1.25fr .8fr .95fr .85fr;
       gap: 11px;
     }
 
@@ -1616,7 +1616,7 @@
         <div>
           <div class="hero-kicker">Gestão fiscal · organização de documentos</div>
           <h1>Renomeador Inteligente de <span>Guias PDF</span></h1>
-          <p>Identificação, organização e e-mails Outlook .EML com assinatura gerenciada para DAS, DARF e ISSQN.</p>
+          <p>Identificação, organização e e-mails Outlook .EML com assinatura gerenciada para DAS, DARF, DARE-SP e ISSQN.</p>
         </div>
       </div>
       <div class="privacy">Processamento local no navegador</div>
@@ -1745,6 +1745,7 @@
         </div>
 
         <div class="modal-actions">
+          <button id="regenerateEmailDraftBtn" class="btn btn-gold" type="button">↻ Atualizar conforme as guias</button>
           <button id="copyEmailBtn" class="btn btn-ghost">Copiar mensagem</button>
           <button id="openMailBtn" class="btn btn-outline">Abrir no e-mail (sem anexos)</button>
           <button id="downloadEmlBtn" class="btn btn-primary">Baixar e-mail Outlook .EML com anexos</button>
@@ -1787,8 +1788,8 @@
           <h4 class="signature-card-title">Dados da assinatura</h4>
           <div class="signature-help" style="margin-bottom:14px;">
             <strong>Como preencher:</strong><br>
-            1. Informe o nome que deverá aparecer no e-mail.<br>
-            2. Preencha o cargo e, quando aplicável, o registro profissional.<br>
+            1. Informe o nome que deverá aparecer no e-mail — este campo começa vazio.<br>
+            2. Preencha o cargo e, quando aplicável, o registro profissional — este campo também começa vazio.<br>
             3. Digite os telefones com DDD; o segundo telefone é opcional.<br>
             4. Informe o WhatsApp e o endereço para gerar links clicáveis.<br>
             5. Confira o resultado na pré-visualização. As alterações são salvas automaticamente neste navegador.
@@ -1956,6 +1957,7 @@
     const emailAutosaveStatus = $("#emailAutosaveStatus");
     const attachmentList = $("#attachmentList");
     const attachmentCount = $("#attachmentCount");
+    const regenerateEmailDraftBtn = $("#regenerateEmailDraftBtn");
     const copyEmailBtn = $("#copyEmailBtn");
     const openMailBtn = $("#openMailBtn");
     const downloadEmlBtn = $("#downloadEmlBtn");
@@ -1998,7 +2000,7 @@
     const SIGNATURE_ICON_PHONE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAJoUlEQVR4nO3dz4skdxnH8c/zrZosCEFZDx53t3aHIAQ8LEjwYF9047+gngxsyEWI+gcoCF4VjAQ2IIJLQP8CIYIMopd1D4JCfvbCsB4MxgSFYNiq7+Ohu7K9szOz/aOq6/uter9OgSR0T3e/+6mnZ7pKAgAAAAAAAAAAAAAAAADsyoa+AyM11OPqA90usLYw4G3zhtcxHtBuBUmxqqrP1nUdzMzdvffHuL2d4+PjD/XwOWWadIBAOjKbzcqjo6P68uXLN4ui+MkyjH1NkxhCCO7+2/fee+8lSYWkKCLZGYF0YDWOsixvue//denuKopCTdO8Np/PXxSRdIJAdnQyjhhjo8XjuvfH1t3rsiwPiKQ7BLKDM+IIGvBxXUZSEkk3hvzEJWspxiFJZlbWdV0XRXGzqqpbkpK4X7kikC2kGkeLSLpDIBtKPY4WkXSDQDaQSxwtItkdgawptzhaRLIbAllDrnG0iGR7BPIEucfRIpLtEMg5xhJHi0g2RyBnGFscLSLZDIGcYqxxtIhkfQRywtjjaBHJeghkxVTiaBHJkxHI0tTiaBHJ+QhE042jRSRnm3wgU4+jRSSnm3QgxPEoInncZAMhjtMRyaMmGQhxnI9IHppcIMSxHiJZmNQPe/369YO7d+8+II71nfIdd2nxeE3iO+5TeWG056hqiGNzq5GEEL777rvvPtDiRBCjN4VDrEKLd7vmypUr31vGEUUcazOzsmmauiiKm5Ke0yKOYuC7tRfl0HegZ6Wk+plnnnm6ruufhRBeaJqGybGd4O4xxjiJMFqjnSCz2ayUVFdVdVjX9e9DCC/UdV1r8c5HHNsJZjaJ3aM1xglikmz5SdXzZva6mV2s67o2szH+vOjR2CZIu2/EqqpeLsvyd5Iuxhgb4sA2xvSiOW/fmNRxM7ozignCvoG+5D5B2DfQq5wnCPsGepfrC4l9A3uR3QRh38A+5TRB2Dewd7lMEPYNDCKHFxf7xrBcUnT3Rg/fqCYj6QnCvjEIl9S4e63Fl6TMzIqiKJ4KIRQxxhzeVDuT6ousvUpsvHz58vNFUbxuZhebpmHf6F47IdzMTFJhZlr8oxRj/FjS383sT+7+x7qu/3B8fPzRyv87aikGUmjxzqWqql4OIfzU3bUy4rGbjYKQ9Jf5fH484P0dVGqB8P2N7nURhM1ms+Lo6Mg1sUtKp/SiM0leVdWhmd0OIXyZj3B35lrsELsE0UYxSakEYpLs6tWrN9z9dgjh8+wbuzMzufvHkv5mZn8miM2lEIhJ8kuXLn2uKIp/hBA+szyhAvvG9nwZxweSvjKfz9858e8JYk3JfMzr7ibpf+7uSuh+5cjdYwjB3P0X8/n8ndlsVi4/Mi+0eGz96Oio/RiXOM6R2iFM+/HuZJbAHngIITRN88GFCxd+LikcHR1FEcJWeKcemZXp8cqbb775gZa/Txr6fuWKQMbl5PQgjh0RyIicMj2COFzdCYGMB9OjBwQyEkyPfhDIODA9ekIgI8D06A+B5I/p0SMCyRzTo18EkjemR88IJGNMj/4RSL6YHntAIJlieuwHgeSJ6bEnBJIhpsf+EEh+PIRQNE3z0cHBwStievSKQDKznB5y9x+//fbb/5rNZpM72+E+EUhmzMwW30rWoSQtv1eewrkFRolA8hNijLEsy5eqqrqlxffKOW9YTwgkT6FpmrooiptE0i8CyVdZ1zWR9IxAMmZmRNIzAskckfSLQEaASPpDICNBJP1ILRB+I7yDRCIJA9xmb5IJJMZo7v60iGQnA0bSXjOyPc3pKH6BmUIgLincv3//P5J+FUIIy+vjYUt7jmQ1jObw8PCL165d+01VVT+U5MuTZmcrlcLb++FVVd0qiuImF8/ZnbvXZVmWTdO8Np/PX9TDF3IXf7vVBtdeLu9ZM/u+u38rhHBBkpqmuXHv3r03tHJZvdykEoi0uC9BUkMk3ekhkrPC+HYI4akYo9z9QQihlPR+jPFL9+7de1+Z/tVxSoFIRNKLjiJZJ4zGzD7975aXjX5jPp/fUKZTJIUdZFV7taNiPp+/2DTNa2VZluwku9lxJ3lkx6iq6tmrV6/+UtJdM/uOpKeWF1p1M1u9fn2x/Huxr1+5cuVHkpoc95HUJkiLSdKDDSfJphPjLM3yC15Z7iOpBiIRSS/WiKSrMFpxefnpLPeRlAORiKQXp0Sy+mLvKoxV2e4jqe0gJ7GT9OCUnSRq8YLdZMfYRLb7SOoTpMUk6cHKJHlV0qtm9gN3/2YHE+Ms2e0juQQiEUlfopkFd/cQgvUUxuptZbWPpH6ItYrDrX4Ed4+SrINDqbVuy8y+YGa/VgZ/r5VTIBKR9CWo3zBWZbWPJF3vOTjcyl8W+0iugUhEkrss9pHcDrFWcbiVtyz2kZwDkYgkd8nvI8kVuyUOt/KW7D4ylkAkIsnZyX3kn1o8l4PvI7kfYq3icCtfq/vI7WvXrl0Y+g61xhSIRCQ5K2KMTVEUX5P0nJbP48D3aXSBSESSM3N3jzEOHkZrjIFIRJIzM7NkLgg01kAkIkEHxhyIRCTY0dgDkYgEO5hCIBKRYEtTCUQiEmxhSoFIRIINTS0QiUiwgSkGIhEJ1jTVQCQiwRqmHIhEJHiCqQciEQnOQSALRIJTEchDRILHEMijiASPIJDHEQk+RSCnIxJIIpDzEAkI5AmIZOII5MmIZMIIZD1EMlEEsj4imSAC2QyRTAyBbI5IJoRAtkMkE0Eg2yOSCSCQ3RBJ96IWj2sSCGR3RNKdaGYhxpjMJSsIpBtEsiN3r4uiKJumuVMUxV+VyPVBxnQBnRRwEZ8ttHG4+50HDx48f3x8/KEWj+Xgh1pMkG4xSTZ0RhxBCcQhEUgfiGRN58Qx+KFVi0D6QSRPkEMcEoH0iUjOkEscEoH0jUhOyCkOiUD2gUiWcotDIpB9mXwkOcYhEcg+TTaSXOOQCGTfJhdJznFIBDKEyUSSexwSgQxl9JGMIQ6JQIY02kjGEodEIEMbXSRjikMikBSMJpKxxSERSCqyj2SMcUgEkpJsIxlrHBKBpCa7SMYch0QgKcomkrHHIRFIqpKPZApxSASSsmQjmUocEoGkLrlIphSHxFlNcvHY2VKapqm15zc4d49lWZYxxknEIRFITh6LJMYos/08he6uEIJijHc++eSTb9y/f//fGnkcEoHkpn2+/PDw8KsxxmKPt+3uHg4ODu689dZb/9UE4kC+hn5jG/r292YyP+gI7XN6rErq5NIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8vV/bXOH1XzeQ4cAAAAASUVORK5CYII=";
     const SIGNATURE_ICON_CHAT = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAARG0lEQVR4nO3dbYxc1X0G8Od/zp3x+mVjewOOd1l7vbax01b+QB2nRUUdq0AcVRRHVNtUSk0lhGijSpWg7QerikpEVCGhCFBIpfL2KVEQJkRWW1QgiAwlqlqD6hKKiu2dGS9WHRvZu37Bxjv3nH8/3HOHYWOPd20z987c5yetrJ1d77kzc5573u65AxARERERERERERERERERERERERERERERERERERERERERERERERERERERUR+SrA+gS4ryPLtNsz4AWjgBYCuVSgTAAjAZH08/M+jz17pfzqymUqmYarXqAfiL/XzLli3LT58+raraL885EyKiqire+4+PHDly/mK/UqlUbIf3oqf0emWx4V+XPjA6OjpULpdvEpHfBrARwFrv/WoRGc7kCPvXGQCTqjojIv8N4B0ReWtycvKDtt8RJK2KR492x3o1IAbJC64AsHHjxlHv/e0Avgbgd4wxnxcRqCbviapCVSHSq083n9LXM32tvffnAOwXkZ+IyEuHDh16r+3XLdpOZL2i12pMekZyALBx48bbvfe7AOw0xnwOaIXBq6oPb6C0fdG10zpBqapK8mJbEYExBs65WEReB/CDRYsWPffee+/N4pMxSs90vXqp0rTOQDfeeONvee8fAnC7iMB7D1V1IRAGvfW8+okC8CEwkTFJHlT1XVX9+1qt9qPwez3TmvRKRYoAxGvWrBkpl8vfAfAnIlLy3qdvBkORP2lYYK21AKCqrzrnvtVoNP4Dc7rJeZX3SpV2jfy6det2WGufNcaMOOeA5AxkO/5vygsPAMYYo6qxqv5NrVZ7LPws161JngOSzn5gfHz8QWvt34WBYCwiFvk+drqI0A021lpxzj0/Ozv7zSNHjpxEjkOS10pmAPjNmzcPxnH8mDHmHpc0G+kgnXqXqqqLoijy3u9T1W/UarWDyGlI8hgQA8CvXbt2ZalU+ldjzJfjOG6KSCnrA6NrR1Vja22kqie991+t1+v7kMOQ5C0gAgDDw8OLlyxZ8jNjzDaGo3+pqjPGWADTqlqp1Wq/QM5CkrfuigWgAwMD/8Bw9D8Rsd57JyIrReSHIyMjn0cyq5WbE3duAhIueIvHx8cfjKLoTxmOYhAR65yLjTFbBgYGnkMyMZObepmXpFoAbnx8/HZr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";
     const SIGNATURE_ICON_PIN = "data:image/png;base64,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";
-    const SIGNATURE_STORAGE_KEY = "renomeadorGuias:assinatura:v1";
+    const SIGNATURE_STORAGE_KEY = "renomeadorGuias:assinatura:v2";
     const SIGNATURE_INCLUDE_STORAGE_KEY = "renomeadorGuias:incluirAssinatura:v1";
     const EMAIL_DRAFT_STORAGE_KEY = "renomeadorGuias:rascunhoEmail:v1";
     const EML_HISTORY_DB_NAME = "renomeadorGuiasHistorico";
@@ -2007,11 +2009,11 @@
     const SIGNATURE_DEFAULTS = {
       name: "",
       role: "",
-      phone1: "",
-      phone2: "",
-      whatsapp: "",
-      address1: "",
-      address2: ""
+      phone1: "15 3251-3090",
+      phone2: "15 3251-3065",
+      whatsapp: "15 99675-1284",
+      address1: "Rua Coronel Aureliano de Camargo 295",
+      address2: "Centro - Tatuí/SP - CEP 18270-170"
     };
 
     const knownCompanies = new Map([
@@ -2022,6 +2024,7 @@
 
     let records = [];
     let sequence = 0;
+    let activeEmailSelectionKey = "";
 
     const taxRules = [
       ["IRPJ", /\b2089\b|\bIRPJ\b|IMPOSTO SOBRE A RENDA DA PESSOA JURIDICA/i],
@@ -2089,6 +2092,16 @@
     }
 
     function detectGuideType(text) {
+      // O DARE-SP precisa ser identificado antes das demais regras, pois a
+      // descrição do serviço pode mencionar "Simples Nacional" sem ser um DAS.
+      if (
+        /\bDARE\s*-?\s*SP\b/i.test(text) ||
+        /DOCUMENTO DE ARRECADACAO DE RECEITAS ESTADUAIS/i.test(text) ||
+        /NUMERO DO DARE/i.test(text)
+      ) {
+        return "DARE-SP";
+      }
+
       if (
         /DOCUMENTO DE ARRECADACAO DO SIMPLES NACIONAL/i.test(text) ||
         /\bDAS\b/i.test(text) ||
@@ -2110,6 +2123,129 @@
       }
 
       return "OUTRO";
+    }
+
+    function compactPdfLines(rawText) {
+      return String(rawText || "")
+        .split(/\r?\n/)
+        .map((line) => line.replace(/\s+/g, " ").trim())
+        .filter(Boolean);
+    }
+
+    function stripDareCompanyNoise(value) {
+      return cleanCompany(
+        String(value || "")
+          .replace(/\s+\d{2}\/\d{2}\/\d{4}(?:\s.*)?$/i, "")
+          .replace(/\s+R\$\s*[\d.,]+(?:\s.*)?$/i, "")
+          .replace(/\s+(?:VIA DO BANCO|VIA DO CONTRIBUINTE).*$/i, "")
+      );
+    }
+
+    function extractDareCompany(rawText, normalizedText) {
+      const lines = compactPdfLines(rawText);
+      const labelPatterns = [
+        /(?:^|\s)01\s*-\s*NOME\s*\/\s*RAZAO SOCIAL/i,
+        /(?:^|\s)15\s*-\s*NOME DO CONTRIBUINTE/i
+      ];
+
+      for (let index = 0; index < lines.length; index += 1) {
+        if (!labelPatterns.some((pattern) => pattern.test(lines[index]))) continue;
+
+        for (let offset = 1; offset <= 4 && index + offset < lines.length; offset += 1) {
+          const candidateLine = lines[index + offset];
+          if (
+            /(?:ENDERECO|DATA DE VENCIMENTO|CNPJ|CPF|TELEFONE|VALOR TOTAL|NUMERO DO DARE|OBSERVACOES|CODIGO DE RECEITA)/i.test(candidateLine)
+          ) {
+            continue;
+          }
+
+          const company = stripDareCompanyNoise(candidateLine);
+          if (
+            company.length >= 3 &&
+            /[A-ZÀ-Ú]/i.test(company) &&
+            !/^R\$|^\d|^DARE(?:-SP)?$/i.test(company)
+          ) {
+            return company;
+          }
+        }
+      }
+
+      // Alternativa para PDFs cuja extração venha completamente linearizada.
+      const match = normalizedText.match(
+        /(?:01\s*-\s*NOME\s*\/\s*RAZAO SOCIAL|15\s*-\s*NOME DO CONTRIBUINTE)(?:\s+07\s*-\s*DATA DE VENCIMENTO)?\s+(.+?)(?=\s+\d{2}\/\d{2}\/\d{4}|\s+02\s*-\s*ENDERECO|\s+03\s*-\s*CNPJ|\s+16\s*-\s*ENDERECO)/i
+      );
+      return stripDareCompanyNoise(match?.[1]);
+    }
+
+    function extractDareCnpj(normalizedText) {
+      const labeled = normalizedText.match(
+        /(?:04\s*-\s*CNPJ OU CPF|CNPJ OU CPF|CNPJ BASE\s*\/\s*CPF).{0,180}?(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})/i
+      );
+      if (labeled) return labeled[1];
+
+      const fullCnpjs = normalizedText.match(/\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b/g) || [];
+      return fullCnpjs[0] || "";
+    }
+
+    function extractDarePeriod(rawText, normalizedText) {
+      const lines = compactPdfLines(rawText);
+      const referenceIndex = lines.findIndex((line) => /(?:^|\s)07\s*-\s*REFERENCIA/i.test(line));
+
+      if (referenceIndex >= 0) {
+        for (let offset = 0; offset <= 10 && referenceIndex + offset < lines.length; offset += 1) {
+          const candidate = lines[referenceIndex + offset].match(
+            /(?:^|[^\d\/])(0?[1-9]|1[0-2])\/(\d{4})(?=$|[^\d\/])/
+          );
+          if (candidate) return `${String(Number(candidate[1])).padStart(2, "0")}-${candidate[2]}`;
+        }
+      }
+
+      const linear = normalizedText.match(
+        /(?:07\s*-\s*)?REFERENCIA.{0,240}?(?:^|[^\d\/])(0?[1-9]|1[0-2])\/(\d{4})(?=$|[^\d\/])/i
+      );
+      return linear ? `${String(Number(linear[1])).padStart(2, "0")}-${linear[2]}` : "";
+    }
+
+    function extractDareDueDate(rawText, normalizedText) {
+      const lines = compactPdfLines(rawText);
+
+      for (let index = 0; index < lines.length; index += 1) {
+        if (!/(?:^|\s)(?:03|07)\s*-\s*DATA DE VENCIMENTO/i.test(lines[index])) continue;
+
+        for (let offset = 0; offset <= 4 && index + offset < lines.length; offset += 1) {
+          const date = lines[index + offset].match(/\b(\d{2}\/\d{2}\/\d{4})\b/);
+          if (date) return date[1].replaceAll("/", "-");
+        }
+      }
+
+      const linear = normalizedText.match(
+        /(?:03|07)\s*-\s*DATA DE VENCIMENTO.{0,120}?(\d{2}\/\d{2}\/\d{4})/i
+      );
+      return linear ? linear[1].replaceAll("/", "-") : "";
+    }
+
+    function extractDareTax(normalizedText) {
+      if (/\bICMS\b/i.test(normalizedText) && /DIFERENCIAL DE ALIQUOTA|\bDIFAL\b/i.test(normalizedText)) {
+        return "ICMS DIFAL";
+      }
+      if (/\bICMS\b/i.test(normalizedText) && /SUBSTITUICAO TRIBUTARIA|\bICMS\s*-?\s*ST\b/i.test(normalizedText)) {
+        return "ICMS-ST";
+      }
+      if (/\bICMS\b/i.test(normalizedText)) return "ICMS";
+      if (/\bITCMD\b/i.test(normalizedText)) return "ITCMD";
+      if (/\bIPVA\b/i.test(normalizedText)) return "IPVA";
+      if (/\bTAXA\b/i.test(normalizedText)) return "TAXA ESTADUAL";
+      return "DARE-SP";
+    }
+
+    function extractDareFields(rawText, normalizedText) {
+      return {
+        cnpj: extractDareCnpj(normalizedText),
+        company: extractDareCompany(rawText, normalizedText),
+        taxes: extractDareTax(normalizedText),
+        period: extractDarePeriod(rawText, normalizedText),
+        dueDate: extractDareDueDate(rawText, normalizedText)
+      };
     }
 
     function extractCompany(text, cnpj) {
@@ -2151,6 +2287,10 @@
       // documento pago é uma única guia do Simples Nacional.
       if (guideType === "DAS") return ["DAS"];
 
+      // O DARE-SP pode citar "Simples Nacional" na descrição do serviço.
+      // A classificação deve vir da receita estadual, sem gerar um falso DAS.
+      if (guideType === "DARE-SP") return [extractDareTax(text)];
+
       // Nos boletos municipais, o tributo correto é ISSQN. Evita capturar
       // informações bancárias ou o CNPJ do município como dados da empresa.
       if (guideType === "ISSQN") return ["ISSQN"];
@@ -2167,6 +2307,9 @@
       const monthlyPatterns = [
         // Boletos municipais: COMPETÊNCIA: 06/2026 - PRESTADOR/TOMADOR
         /COMPETENCIA\s*:?\s*(\d{1,2})\s*\/\s*(\d{4})/i,
+
+        // DARE-SP: campo 07 - Referência.
+        /(?:07\s*-\s*)?REFERENCIA.{0,220}?(?:^|[^\d\/])(0?[1-9]|1[0-2])\s*\/\s*(\d{4})(?=$|[^\d\/])/i,
 
         // DARF e demais documentos federais.
         /PA\s*:\s*(\d{1,2})\s*\/\s*(\d{4})/i,
@@ -2279,22 +2422,53 @@
       return pages.join("\n\n");
     }
 
+    function extractAmount(rawText, normalizedText) {
+      const labels = [
+        /VALOR TOTAL DO DOCUMENTO/i,
+        /TOTAL A PAGAR/i,
+        /VALOR A PAGAR/i,
+        /VALOR TOTAL/i,
+        /VALOR COBRADO/i,
+        /VALOR DO DOCUMENTO/i,
+        /VALOR PRINCIPAL/i,
+        /VALOR A RECOLHER/i
+      ];
+      const moneyPattern = /(?:R\$\s*)?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2})/;
+      for (const label of labels) {
+        const match = normalizedText.match(new RegExp(label.source + '[\\s\\S]{0,120}?' + moneyPattern.source, 'i'));
+        if (match && match[1]) {
+          const num = parseFloat(match[1].replace(/\./g, '').replace(',', '.'));
+          if (num > 0) return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+      }
+      // Fallback: maior valor monetário no texto
+      const allValues = [...normalizedText.matchAll(/(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2})/g)]
+        .map(m => parseFloat(m[1].replace(/\./g, '').replace(',', '.')))
+        .filter(n => n > 0)
+        .sort((a, b) => b - a);
+      if (allValues.length) return allValues[0].toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      return "";
+    }
+
     function analyzeText(rawText) {
       const text = normalizeText(rawText);
       const guideType = detectGuideType(text);
-      const cnpj = extractCnpj(text);
-      const company = extractCompany(text, cnpj);
-      const taxes = extractTaxes(text, guideType);
-      const period = extractPeriod(text);
-      const dueDate = extractDueDate(text);
+      const dareFields = guideType === "DARE-SP" ? extractDareFields(rawText, text) : null;
+      const cnpj = dareFields?.cnpj || extractCnpj(text);
+      const company = dareFields?.company || extractCompany(text, cnpj);
+      const taxes = dareFields?.taxes || extractTaxes(text, guideType).join(" e ");
+      const period = dareFields?.period || extractPeriod(text);
+      const dueDate = dareFields?.dueDate || extractDueDate(text);
+      const amount = extractAmount(rawText, text);
 
       return {
         guideType,
         cnpj,
-        company,
-        taxes: taxes.join(" e "),
+        company: company || cnpj,
+        taxes,
         period,
-        dueDate
+        dueDate,
+        amount
       };
     }
 
@@ -2387,6 +2561,10 @@
                 <div class="field">
                   <label>Vencimento</label>
                   <input data-field="dueDate" value="${escapeAttr(record.dueDate)}" placeholder="20-07-2026" />
+                </div>
+                <div class="field">
+                  <label>Valor</label>
+                  <input data-field="amount" value="${escapeAttr(record.amount)}" placeholder="R$ 0,00" />
                 </div>
               </div>
 
@@ -2613,6 +2791,7 @@
           taxes: "",
           period: "",
           dueDate: "",
+          amount: "",
           cnpj: "",
           guideType: "",
           rawText: "",
@@ -2665,6 +2844,7 @@
           record.taxes = data.taxes;
           record.period = data.period;
           record.dueDate = data.dueDate;
+          record.amount = data.amount;
           record.progress = 100;
 
           const missing = [];
@@ -2985,6 +3165,7 @@
         cc: emailCc.value,
         subject: emailSubject.value,
         body: emailBody.value,
+        selectionKey: activeEmailSelectionKey,
         updatedAt: new Date().toISOString()
       };
     }
@@ -3173,28 +3354,69 @@
     }
 
     function buildEmailDraft(selected) {
-      const companies = [...new Set(selected.map((record) => record.company.trim()).filter(Boolean))];
-      const periods = [...new Set(selected.map((record) => record.period.trim()).filter(Boolean))];
+      const companies = [...new Set(selected.map((r) => r.company.trim()).filter(Boolean))];
+      const periods   = [...new Set(selected.map((r) => r.period.trim()).filter(Boolean))];
 
       let subject = "Envio de guias de impostos";
       if (companies.length === 1) subject += ` - ${companies[0]}`;
-      if (periods.length === 1) subject += ` - ${periods[0]}`;
+      if (periods.length === 1)   subject += ` - ${periods[0]}`;
 
-      const lines = selected.map((record) => {
-        const details = [];
-        if (record.company.trim()) details.push(record.company.trim());
-        if (record.taxes.trim()) details.push(record.taxes.trim());
-        if (record.period.trim()) details.push(`Competência ${record.period.trim()}`);
-        if (record.dueDate.trim()) details.push(`Vencimento ${formatEmailDate(record.dueDate.trim())}`);
-        return `• ${details.join(" — ") || buildFileName(record)}`;
-      });
+      // Agrupa por empresa + competência + vencimento
+      const groups = new Map();
+      for (const record of selected) {
+        const company  = record.company.trim()  || "Empresa não identificada";
+        const period   = record.period.trim()   || "";
+        const dueDate  = record.dueDate.trim()  || "";
+        const key = `${company}|||${period}|||${dueDate}`;
+        if (!groups.has(key)) groups.set(key, { company, period, dueDate, items: [] });
+        groups.get(key).items.push(record);
+      }
+
+      const bodyLines = [];
+      for (const { company, period, dueDate, items } of groups.values()) {
+        // Cabeçalho do grupo: Empresa - Competência · Vencimento
+        const header = [
+          company,
+          period   ? `Competência ${period}`                          : "",
+          dueDate  ? `Vencimento ${formatEmailDate(dueDate)}`         : ""
+        ].filter(Boolean).join(" · ");
+        bodyLines.push(header);
+
+        // Uma linha por guia do grupo
+        for (const item of items) {
+          const tax    = item.taxes.trim()  || item.guideType || "";
+          const amount = item.amount        ? item.amount.trim() : "Valor não identificado";
+          const label  = tax ? `${tax}: ${amount}` : amount;
+          bodyLines.push(`  • ${label}`);
+        }
+
+        bodyLines.push(""); // linha em branco entre grupos
+      }
+
+      // Remover última linha em branco
+      if (bodyLines.length && bodyLines[bodyLines.length - 1] === "") bodyLines.pop();
+
+      // Total geral se houver mais de uma guia com valor identificado
+      const identified = selected
+        .map((r) => r.amount ? parseFloat(r.amount.replace(/[R$\s.]/g, "").replace(",", ".")) : NaN)
+        .filter((n) => !isNaN(n));
+      if (identified.length > 1) {
+        const total = identified.reduce((a, b) => a + b, 0);
+        const totalFmt = total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        bodyLines.push("");
+        bodyLines.push(
+          identified.length < selected.length
+            ? `Total dos valores identificados: ${totalFmt}`
+            : `Total das guias: ${totalFmt}`
+        );
+      }
 
       const body = [
         "Prezados,",
         "",
         "Seguem anexas as guias para pagamento:",
         "",
-        ...lines,
+        ...bodyLines,
         "",
         "Peço, por gentileza, que observem os respectivos vencimentos.",
         "",
@@ -3204,16 +3426,62 @@
       return { subject, body };
     }
 
+    function buildEmailSelectionKey(selected) {
+      const source = selected
+        .map((record) => [
+          record.file.name,
+          record.file.size,
+          record.file.lastModified || 0,
+          record.company.trim(),
+          record.taxes.trim(),
+          record.period.trim(),
+          record.dueDate.trim(),
+          (record.amount || "").trim()
+        ].join("|"))
+        .sort((a, b) => a.localeCompare(b, "pt-BR"))
+        .join("||");
+
+      let hash = 2166136261;
+      for (let index = 0; index < source.length; index += 1) {
+        hash ^= source.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      return `${selected.length}:${(hash >>> 0).toString(16)}`;
+    }
+
+    function applyEmailDraftFromSelectedGuides(selected, announce = false) {
+      if (!selected.length) return;
+      activeEmailSelectionKey = buildEmailSelectionKey(selected);
+      const draft = buildEmailDraft(selected);
+      emailSubject.value = draft.subject;
+      emailBody.value = draft.body;
+      saveEmailDraftData();
+      if (announce) {
+        setStatus(`Assunto e mensagem atualizados conforme ${selected.length} guia(s) selecionada(s).`, "ok");
+      }
+    }
+
     function openEmailComposer() {
       const selected = getSelectedRecords();
       if (!selected.length) return;
 
-      const draft = buildEmailDraft(selected);
+      const selectionKey = buildEmailSelectionKey(selected);
       const savedDraft = loadEmailDraftData();
-      if (!savedDraft?.subject?.trim()) emailSubject.value = draft.subject;
-      if (!savedDraft?.body?.trim()) emailBody.value = draft.body;
+      activeEmailSelectionKey = selectionKey;
+
+      const savedDraftMatchesCurrentGuides = savedDraft?.selectionKey === selectionKey;
+      if (!savedDraftMatchesCurrentGuides) {
+        const draft = buildEmailDraft(selected);
+        emailSubject.value = draft.subject;
+        emailBody.value = draft.body;
+      } else {
+        const draft = buildEmailDraft(selected);
+        if (!emailSubject.value.trim()) emailSubject.value = draft.subject;
+        if (!emailBody.value.trim()) emailBody.value = draft.body;
+      }
+
       saveEmailDraftData();
-      emailModalSubtitle.textContent = `${selected.length} guia(s) escolhida(s) para este e-mail.`;
+      emailModalSubtitle.textContent = `${selected.length} guia(s) escolhida(s). O texto está vinculado a esta seleção.`;
       attachmentCount.textContent = `${selected.length} arquivo(s)`;
       attachmentList.innerHTML = selected.map((record) => `
         <div class="attachment-item">
@@ -3542,6 +3810,9 @@
     closeEmailModal.addEventListener("click", hideEmailComposer);
     emailModal.addEventListener("click", (event) => {
       if (event.target === emailModal) hideEmailComposer();
+    });
+    regenerateEmailDraftBtn.addEventListener("click", () => {
+      applyEmailDraftFromSelectedGuides(getSelectedRecords(), true);
     });
     copyEmailBtn.addEventListener("click", copyEmailMessage);
     openMailBtn.addEventListener("click", openMailApp);
