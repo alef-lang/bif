@@ -1783,41 +1783,49 @@
       <div class="signature-layout">
         <section class="signature-card">
           <h4 class="signature-card-title">Dados da assinatura</h4>
+          <div class="signature-help" style="margin-bottom:14px;">
+            <strong>Como preencher:</strong><br>
+            1. Informe o nome que deverá aparecer no e-mail.<br>
+            2. Preencha o cargo e, quando aplicável, o registro profissional.<br>
+            3. Digite os telefones com DDD; o segundo telefone é opcional.<br>
+            4. Informe o WhatsApp e o endereço para gerar links clicáveis.<br>
+            5. Confira o resultado na pré-visualização. As alterações são salvas automaticamente neste navegador.
+          </div>
           <div class="signature-form">
             <div>
               <label for="signatureName">Nome completo</label>
-              <input id="signatureName" type="text" placeholder="Ex.: FABIO ANTONIO POLIS" />
+              <input id="signatureName" type="text" placeholder="Digite o nome que aparecerá na assinatura" />
             </div>
 
             <div>
               <label for="signatureRole">Cargo e registro profissional</label>
-              <input id="signatureRole" type="text" placeholder="Ex.: Contador · CRC 1SP168607-O9" />
+              <input id="signatureRole" type="text" placeholder="Ex.: Contador(a) · CRC/UF nº 000000" />
             </div>
 
             <div class="signature-row">
               <div>
                 <label for="signaturePhone1">Telefone principal</label>
-                <input id="signaturePhone1" type="text" placeholder="15 3251-3090" />
+                <input id="signaturePhone1" type="text" placeholder="Ex.: (15) 3251-3090" />
               </div>
               <div>
                 <label for="signaturePhone2">Telefone adicional</label>
-                <input id="signaturePhone2" type="text" placeholder="15 3251-3065" />
+                <input id="signaturePhone2" type="text" placeholder="Opcional: outro telefone com DDD" />
               </div>
             </div>
 
             <div>
               <label for="signatureWhatsapp">WhatsApp</label>
-              <input id="signatureWhatsapp" type="text" placeholder="15 99675-1284" />
+              <input id="signatureWhatsapp" type="text" placeholder="Ex.: (15) 99999-9999" />
             </div>
 
             <div class="signature-row">
               <div>
                 <label for="signatureAddress1">Endereço</label>
-                <input id="signatureAddress1" type="text" placeholder="Rua e número" />
+                <input id="signatureAddress1" type="text" placeholder="Ex.: Rua, avenida, número e complemento" />
               </div>
               <div>
                 <label for="signatureAddress2">Cidade, UF e CEP</label>
-                <input id="signatureAddress2" type="text" placeholder="Centro - Tatuí/SP - CEP 18270-170" />
+                <input id="signatureAddress2" type="text" placeholder="Ex.: Bairro — Cidade/UF — CEP" />
               </div>
             </div>
           </div>
@@ -1842,7 +1850,7 @@
 
           <div class="signature-preview-actions">
             <button id="clearSignatureBtn" class="btn btn-ghost" type="button">Limpar campos</button>
-            <button id="restoreSignatureBtn" class="btn btn-outline" type="button">Restaurar padrão</button>
+            <button id="restoreSignatureBtn" class="btn btn-outline" type="button">Usar modelo em branco</button>
             <button id="copySignatureBtn" class="btn btn-primary" type="button">Copiar assinatura</button>
           </div>
           <div id="signatureCopyStatus" class="signature-copy-status"></div>
@@ -1995,13 +2003,13 @@
     const EML_HISTORY_STORE_NAME = "emlFiles";
     const EML_HISTORY_LIMIT = 30;
     const SIGNATURE_DEFAULTS = {
-      name: "FABIO ANTONIO POLIS",
-      role: "Contador · CRC 1SP168607-O9",
-      phone1: "15 3251-3090",
-      phone2: "15 3251-3065",
-      whatsapp: "15 99675-1284",
-      address1: "Rua Coronel Aureliano de Camargo 295",
-      address2: "Centro - Tatuí/SP - Cep 18270-170"
+      name: "",
+      role: "",
+      phone1: "",
+      phone2: "",
+      whatsapp: "",
+      address1: "",
+      address2: ""
     };
 
     const knownCompanies = new Map([
