@@ -1661,6 +1661,54 @@ th.col-dragging{opacity:0.45;}
 @media(max-width:700px){.rte-float-v2{left:8px!important;right:8px!important;top:auto!important;bottom:12px!important;width:auto!important}.ff-hex{width:78px}.rte-float-v2 .ff-label{font-size:9px}}
 
 
+/* BUSCA DENTRO DA FICHA */
+.ficha-search-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;
+  background:rgba(13,27,42,0.6);
+  border-bottom:1px solid var(--gold-dim);
+  backdrop-filter:blur(8px);
+}
+.ficha-search-bar input{flex:1;}
+
+/* HIGHLIGHT DE BUSCA NA FICHA */
+mark.ficha-hl{
+  background:rgba(232,201,122,0.35);
+  color:var(--gold-light);
+  border-radius:2px;
+  padding:0 1px;
+}
+
+/* GERENCIADOR DE CREDENCIAIS DE SISTEMAS */
+.cred-manager{border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:4px;}
+.cred-header-row{display:grid;grid-template-columns:1fr 160px 160px 80px 80px;gap:8px;padding:7px 12px;background:rgba(201,168,76,0.08);border-bottom:1px solid var(--border);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gold);font-family:var(--font-mono);}
+.cred-list{display:flex;flex-direction:column;}
+.cred-item{display:grid;grid-template-columns:1fr 160px 160px 80px 80px;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.13s;}
+.cred-item:last-child{border-bottom:none;}
+.cred-item:hover{background:rgba(201,168,76,0.04);}
+.cred-name{font-size:12px;font-weight:600;color:var(--text);}
+.cred-field-wrap{display:flex;align-items:center;gap:4px;min-width:0;}
+.cred-val{font-size:11px;font-family:var(--font-mono);color:var(--text-light);background:var(--bg-input);border:1px solid rgba(255,255,255,0.08);border-radius:5px;padding:3px 7px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cred-val.masked{letter-spacing:2px;color:var(--text-light);}
+.cred-btn-copy{width:24px;height:24px;border-radius:5px;border:1px solid var(--gold-dim);background:rgba(201,168,76,0.08);color:var(--gold-light);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;padding:0;line-height:1;}
+.cred-btn-copy:hover{background:rgba(201,168,76,0.22);border-color:var(--gold);}
+.cred-btn-eye{width:24px;height:24px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-light);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;padding:0;line-height:1;}
+.cred-btn-eye:hover{background:rgba(255,255,255,0.06);color:var(--text);}
+.cred-btn-remove{width:26px;height:26px;border-radius:6px;border:none;background:rgba(255,118,117,0.12);color:#ff7675;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;flex-shrink:0;padding:0;line-height:1;}
+.cred-btn-remove:hover{background:#ff7675;color:#0d1b2a;}
+.cred-add-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:rgba(201,168,76,0.03);}
+.cred-add-row input{padding:6px 9px;border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);font-size:11px;color:var(--text);background:var(--bg-input);outline:none;font-family:var(--font-body);transition:border-color 0.18s;}
+.cred-add-row input:focus{border-color:var(--gold);}
+
+/* TEMA CLARO — credenciais */
+html[data-bif-theme="light"] .cred-manager{border-color:rgba(122,92,18,.18);}
+html[data-bif-theme="light"] .cred-header-row{background:rgba(155,118,36,.07);}
+html[data-bif-theme="light"] .cred-val{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08);color:var(--text2);}
+html[data-bif-theme="light"] .cred-item:hover{background:rgba(155,118,36,.04);}
+html[data-bif-theme="light"] .cred-add-row{background:rgba(155,118,36,.03);}
+html[data-bif-theme="light"] .ficha-search-bar{background:rgba(244,241,232,.9);border-bottom-color:rgba(122,92,18,.18);}
+html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color:#7a5c12;}
+
 /* RELATÓRIO POR ATIVIDADE ECONÔMICA */
 .activity-report-grid{
   display:grid;
@@ -2484,6 +2532,12 @@ th.col-dragging{opacity:0.45;}
     <div class="view-mode-banner" id="viewModeBanner">
       👁 <span>Modo visualização</span> — clique em Editar para modificar os dados
     </div>
+    <div class="ficha-search-bar" id="fichaSearchBar">
+      <span style="font-size:12px;color:var(--text-light);">🔎</span>
+      <input type="search" id="fichaSearchInput" autocomplete="off" placeholder="Buscar dentro da ficha..." oninput="fichaSearchFilter(this.value)" style="flex:1;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;background:var(--bg-input);color:var(--text);font-family:var(--font-body);transition:border-color 0.18s;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+      <span id="fichaSearchCount" style="font-size:10px;color:var(--text-light);font-family:var(--font-mono);white-space:nowrap;display:none;"></span>
+      <button type="button" onclick="fichaSearchClear()" style="padding:4px 9px;border-radius:7px;border:1px solid var(--gold-dim);background:rgba(201,168,76,0.08);color:var(--gold-light);font-size:10px;cursor:pointer;font-weight:700;font-family:var(--font-body);" title="Limpar busca">✕</button>
+    </div>
     <div class="modal-body" id="modalEmpresaBody"></div>
   </div>
 </div>
@@ -2887,6 +2941,7 @@ let modalImportacoes = [];
 let modalImpostos = [];
 let modalRepositorioNotas = [];
 let modalCamposPersonalizados = [];
+let modalCredenciais = [];
 let empresaFormInitialSnapshot = '';
 let empresaDirtyNoticeTimer = null;
 let portalRegistros = [];
@@ -3073,6 +3128,7 @@ function normalizeEmpresa(e) {
     followup: e.followup || '',
     comunicacaoGuias: e.comunicacaoGuias || '',
     acessosSistemas: e.acessosSistemas || '',
+    credenciais: Array.isArray(e.credenciais) ? e.credenciais : [],
     apoioEscrituracao: e.apoioEscrituracao || '',
     ocorrencias: e.ocorrencias || ''
   };
@@ -3549,7 +3605,7 @@ function renderListView(filtered){
     const more = (e.obrigacoes||[]).length > 4 ? `<span class="tbl-obrig-tag">+${(e.obrigacoes||[]).length-4}</span>` : '';
     const cells = {
       nome: `<td><span class="tbl-name">${esc(e.nome)}</span>${isProdutorRural(e)?'<div style="margin-top:4px;">'+categoriaPillHtml(e)+'</div>':''}</td>`,
-      cnpj: `<td><span class="tbl-cnpj-only" title="${esc(e.cnpj||'')}">${esc(e.cnpj||'—')}</span></td>`,
+      cnpj: `<td><div style="display:flex;align-items:center;gap:5px;"><span class="tbl-cnpj-only" title="${esc(e.cnpj||'')}">${esc(e.cnpj||'—')}</span>${e.cnpj?`<button type="button" onclick="event.stopPropagation();copiarCnpjLista('${esc((e.cnpj||'').replace(/\D/g,''))}',this)" title="Copiar CNPJ (só números)" style="flex-shrink:0;width:20px;height:20px;border-radius:4px;border:1px solid var(--gold-dim);background:rgba(201,168,76,0.08);color:var(--gold-light);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:all 0.15s;" onmouseover="this.style.background='rgba(201,168,76,0.22)'" onmouseout="this.style.background='rgba(201,168,76,0.08)'">📋</button>`:''}</div></td>`,
       regime: `<td><span class="regime-pill ${esc(e.regime||'outros')}">${esc(regimeLabel(e.regime))}</span></td>`,
       categoria: `<td>${categoriaPillHtml(e)}</td>`,
       atividade: `<td><span class="tbl-atividade" title="${esc(e.atividade||'')}">${esc(e.atividade||'—')}</span></td>`,
@@ -3670,6 +3726,12 @@ function closeModal(id, force=false){
   if(id === 'modalEmpresa'){
     hideFloatingMenu();
     empresaFormInitialSnapshot = '';
+    // Limpa busca da ficha
+    const fsInp = $('fichaSearchInput');
+    if(fsInp) fsInp.value = '';
+    fichaSearchFilter('');
+    const countEl = $('fichaSearchCount');
+    if(countEl) countEl.style.display = 'none';
   }
   return true;
 }
@@ -3735,7 +3797,7 @@ function criarEmpresaBasica(nome, cnpj, colaborador, observacaoExtra=''){
     observacoes: observacaoExtra || '',
     parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: [], tags: []
+    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: [], tags: [], credenciais: []
   };
 }
 
@@ -4150,7 +4212,7 @@ async function iniciarImportacao(){
           observacoes: `Importado automaticamente em ${new Date().toLocaleDateString('pt-BR')}. Situação RF: ${d.descricao_situacao_cadastral||'—'}.`,
           parametros:'', regras:'',
           followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-          obrigacoes:[], importacoes:[], impostos:[], camposEstaticosData:{}, camposPersonalizados:[]
+          obrigacoes:[], importacoes:[], impostos:[], camposEstaticosData:{}, camposPersonalizados:[], credenciais:[]
         };
       }
 
@@ -4280,7 +4342,7 @@ async function addCompany(){
     responsavel:'', email:'', telefone:'', dataAbertura:'', capitalSocial:'',
     observacoes:'', parametros:'', regras:'',
     followup:'', comunicacaoGuias:'', acessosSistemas:'', apoioEscrituracao:'', ocorrencias:'',
-    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: [], tags: []
+    obrigacoes: [], importacoes: [], impostos: [], repositorioNotas: [], camposEstaticosData: {}, camposPersonalizados: [], tags: [], credenciais: []
   };
   try {
     setCloudStatus('loading', 'Salvando...');
@@ -5533,6 +5595,7 @@ function openEmpresa(id){
   if(!e) return;
   currentEditId = id;
   modalObrigacoes = JSON.parse(JSON.stringify(e.obrigacoes || []));
+  modalCredenciais = JSON.parse(JSON.stringify(e.credenciais || []));
   modalTags = Array.isArray(e.tags) ? [...e.tags] : [];
   modalImportacoes = JSON.parse(JSON.stringify(e.importacoes || []));
   modalImpostos = JSON.parse(JSON.stringify(e.impostos || []));
@@ -5542,6 +5605,7 @@ function openEmpresa(id){
   $('modalEmpresaSubtitle').textContent = empresaSubtitle(e);
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderModalObrigacoes();
+  renderModalCredenciais();
   renderEmpresaTagsPicker();
   renderModalImportacoes();
   renderModalImpostos();
@@ -5552,6 +5616,15 @@ function openEmpresa(id){
   setupCompanyDirtyTracking();
   normalizeAllRichFields();
   openModal('modalEmpresa');
+  // Limpa busca interna ao abrir nova empresa
+  const fsInp2 = $('fichaSearchInput');
+  if(fsInp2) fsInp2.value = '';
+  fichaSearchFilter('');
+  const cntEl = $('fichaSearchCount');
+  if(cntEl) cntEl.style.display = 'none';
+  // Scroll para o topo ao abrir a ficha
+  const modalBodyEl = $('modalEmpresaBody');
+  if(modalBodyEl) modalBodyEl.scrollTop = 0;
   // Abrir sempre em modo visualização
   const modalEl = document.querySelector('#modalEmpresa .modal');
   modalEl.classList.add('view-mode');
@@ -5737,8 +5810,22 @@ function empresaFormHtml(e){
 
   <div class="form-section">
     <div class="form-section-title">🔐 Acesso a sistemas</div>
-    <div class="form-grid cols-1">
-      <div class="form-group"><label>Acesso a sistemas</label><div class="rich-field" id="f_acessosSistemas" contenteditable="true">${e.acessosSistemas||''}</div></div>
+    <p style="font-size:11px;color:var(--text-light);margin-bottom:10px;font-family:var(--font-mono);">Credenciais de sistemas. Senhas ficam mascaradas e podem ser reveladas individualmente. Copie login e senha com um clique.</p>
+    <div class="cred-manager">
+      <div class="cred-header-row"><div>Sistema</div><div>Login / Usuário</div><div>Senha</div><div style="text-align:center;">Copiar</div><div style="text-align:center;">Remover</div></div>
+      <div class="cred-list" id="modalCredList"></div>
+      <div class="cred-add-row">
+        <input id="newCredSistema" placeholder="Sistema (ex: e-CAC, Domínio, SIEG)">
+        <input id="newCredLogin" placeholder="Login / Usuário">
+        <input id="newCredSenha" placeholder="Senha" type="text" autocomplete="off">
+        <button class="btn-add-obrig" type="button" onclick="addCredToModal()">Adicionar</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="form-section-title" style="font-size:9px;margin-bottom:8px;">📝 Notas de acesso (texto livre)</div>
+      <div class="form-group">
+        <div class="rich-field" id="f_acessosSistemas" contenteditable="true">${e.acessosSistemas||''}</div>
+      </div>
     </div>
   </div>
 
@@ -5853,6 +5940,72 @@ function markCompanyDirtySoft(){
   // A verificação real acontece ao fechar/salvar. Esta função existe para os campos dinâmicos e menu rico.
 }
 
+// ── BUSCA DENTRO DA FICHA ──
+let _fichaHlNodes = [];
+function fichaSearchFilter(term){
+  // Remove highlights anteriores
+  _fichaHlNodes.forEach(({node, original}) => {
+    if(node && node.parentNode) node.parentNode.replaceChild(document.createTextNode(original), node);
+  });
+  _fichaHlNodes = [];
+  const countEl = $('fichaSearchCount');
+
+  const body = $('modalEmpresaBody');
+  if(!body || !term || term.length < 2){
+    if(countEl) countEl.style.display = 'none';
+    return;
+  }
+
+  const q = term.trim().toLowerCase();
+  if(!q){ if(countEl) countEl.style.display = 'none'; return; }
+
+  let count = 0;
+  const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node){
+      // Pula scripts, inputs já tratados, e nós ocultos
+      const parent = node.parentElement;
+      if(!parent) return NodeFilter.FILTER_REJECT;
+      if(['SCRIPT','STYLE','INPUT','SELECT','TEXTAREA'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+      if(node.nodeValue.trim() === '') return NodeFilter.FILTER_SKIP;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const toProcess = [];
+  while(walker.nextNode()) toProcess.push(walker.currentNode);
+
+  toProcess.forEach(textNode => {
+    const text = textNode.nodeValue;
+    const lower = text.toLowerCase();
+    if(!lower.includes(q)) return;
+    const span = document.createElement('span');
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+    span.innerHTML = text.replace(regex, m => `<mark class="ficha-hl">${m}</mark>`);
+    textNode.parentNode.replaceChild(span, textNode);
+    count += (lower.match(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'))||[]).length;
+    _fichaHlNodes.push({node: span, original: text});
+  });
+
+  if(countEl){
+    if(count > 0){
+      countEl.textContent = count + ' resultado' + (count !== 1 ? 's' : '');
+      countEl.style.display = '';
+      // Scroll até o primeiro match
+      const first = body.querySelector('mark.ficha-hl');
+      if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
+    } else {
+      countEl.textContent = 'Nenhum resultado';
+      countEl.style.display = '';
+    }
+  }
+}
+
+function fichaSearchClear(){
+  const inp = $('fichaSearchInput');
+  if(inp){ inp.value = ''; inp.focus(); }
+  fichaSearchFilter('');
+}
+
 function setupCompanyDirtyTracking(){
   const body = $('modalEmpresaBody');
   if(!body || body.dataset.dirtyReady === '1') return;
@@ -5895,6 +6048,7 @@ function collectCompanyFormData(){
     followup: $('f_followup')?.innerHTML || '',
     comunicacaoGuias: $('f_comunicacaoGuias')?.innerHTML || '',
     acessosSistemas: $('f_acessosSistemas')?.innerHTML || '',
+    credenciais: JSON.parse(JSON.stringify(modalCredenciais || [])),
     apoioEscrituracao: $('f_apoioEscrituracao')?.innerHTML || '',
     ocorrencias: $('f_ocorrencias')?.innerHTML || '',
     obrigacoes: JSON.parse(JSON.stringify(modalObrigacoes || [])),
@@ -5930,6 +6084,105 @@ function addObrigToModal(){
   renderModalObrigacoes(); renderFilterTags(); renderCfgObrigList(); markCompanyDirtySoft();
 }
 function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); markCompanyDirtySoft(); }
+
+// ── GERENCIADOR DE CREDENCIAIS ──
+function renderModalCredenciais(){
+  const el = $('modalCredList');
+  if(!el) return;
+  const creds = Array.isArray(modalCredenciais) ? modalCredenciais : [];
+  if(!creds.length){
+    el.innerHTML = '<div class="empty-state" style="padding:14px 12px;font-size:11px;color:var(--text-light);font-family:var(--font-mono);">Nenhuma credencial cadastrada. Use o campo abaixo para adicionar.</div>';
+    return;
+  }
+  el.innerHTML = creds.map((c, i) => {
+    const sid = 'credPwd_' + i;
+    const masked = '••••••••';
+    return `<div class="cred-item">
+      <div class="cred-name">${esc(c.sistema||'—')}</div>
+      <div class="cred-field-wrap">
+        <span class="cred-val" title="${esc(c.login||'')}">${esc(c.login||'—')}</span>
+        <button type="button" class="cred-btn-copy" onclick="copiarCredencial('${esc(c.login||'')}','Login')" title="Copiar login">📋</button>
+      </div>
+      <div class="cred-field-wrap">
+        <span class="cred-val masked" id="${sid}" data-original="${esc(c.senha||'')}" title="Clique no olho para revelar">${c.senha ? masked : '—'}</span>
+        ${c.senha ? `<button type="button" class="cred-btn-eye" onclick="toggleCredSenha('${sid}')" title="Mostrar/ocultar senha">👁</button>
+        <button type="button" class="cred-btn-copy" onclick="copiarCredencial('${esc(c.senha||'')}','Senha')" title="Copiar senha">📋</button>` : ''}
+      </div>
+      <div style="display:flex;justify-content:center;gap:4px;">
+        <button type="button" class="cred-btn-copy" onclick="copiarCredencialPar(${i})" title="Copiar login e senha juntos" style="width:auto;padding:0 8px;font-size:10px;font-family:var(--font-mono);">📋 Tudo</button>
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <button type="button" class="cred-btn-remove" onclick="removeCredFromModal(${i})" title="Remover credencial">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCredSenha(sid){
+  const el = document.getElementById(sid);
+  if(!el) return;
+  const original = el.dataset.original || '';
+  const masked = '••••••••';
+  if(el.classList.contains('masked')){
+    el.textContent = original;
+    el.classList.remove('masked');
+  } else {
+    el.textContent = original ? masked : '—';
+    el.classList.add('masked');
+  }
+}
+
+function copiarCredencial(valor, tipo){
+  if(!valor){ toast(tipo + ' está vazio.', 'error'); return; }
+  navigator.clipboard.writeText(valor).then(() => {
+    toast(tipo + ' copiado!', 'success');
+  }).catch(() => {
+    const i = document.createElement('input');
+    i.value = valor; document.body.appendChild(i); i.select();
+    document.execCommand('copy'); document.body.removeChild(i);
+    toast(tipo + ' copiado!', 'success');
+  });
+}
+
+function copiarCredencialPar(i){
+  const c = (modalCredenciais||[])[i];
+  if(!c) return;
+  const texto = (c.login ? 'Login: ' + c.login : '') + (c.login && c.senha ? '\n' : '') + (c.senha ? 'Senha: ' + c.senha : '');
+  if(!texto){ toast('Nenhum dado para copiar.', 'error'); return; }
+  navigator.clipboard.writeText(texto).then(() => {
+    toast('Login e senha copiados!', 'success');
+  }).catch(() => {
+    const inp = document.createElement('input');
+    inp.value = texto; document.body.appendChild(inp); inp.select();
+    document.execCommand('copy'); document.body.removeChild(inp);
+    toast('Login e senha copiados!', 'success');
+  });
+}
+
+function addCredToModal(){
+  const sistema = ($('newCredSistema')?.value || '').trim();
+  const login   = ($('newCredLogin')?.value || '').trim();
+  const senha   = ($('newCredSenha')?.value || '').trim();
+  if(!sistema){ toast('Informe o nome do sistema.', 'error'); return; }
+  if(!Array.isArray(modalCredenciais)) modalCredenciais = [];
+  modalCredenciais.push({ sistema, login, senha });
+  $('newCredSistema').value = '';
+  $('newCredLogin').value   = '';
+  $('newCredSenha').value   = '';
+  renderModalCredenciais();
+  markCompanyDirtySoft();
+  // ── AUDITORIA DE SALVAMENTO ──
+  // As credenciais são salvas junto com o restante da empresa via saveCompany()
+  // que chama collectCompanyFormData() → modalCredenciais → Firebase update
+  toast('Credencial adicionada. Clique em Salvar para persistir.', 'success');
+}
+
+function removeCredFromModal(i){
+  if(!Array.isArray(modalCredenciais)) return;
+  modalCredenciais.splice(i, 1);
+  renderModalCredenciais();
+  markCompanyDirtySoft();
+}
 
 // ── TAGS DA EMPRESA (dentro da ficha) ──
 function renderEmpresaTagsPicker(){
@@ -6331,6 +6584,19 @@ function removeFilterObrig(i){
   S.filterObrigacoes.splice(i,1);
   S.activeFilters = S.activeFilters.filter(x=>x!==ob);
   saveState(); renderFilterTags(); renderCfgObrigList(); renderAll();
+}
+
+function copiarCnpjLista(cnpjSoNumeros, btn){
+  navigator.clipboard.writeText(cnpjSoNumeros).then(function(){
+    toast('CNPJ copiado: ' + cnpjSoNumeros, 'success');
+    if(btn){ const orig = btn.textContent; btn.textContent = '✓'; setTimeout(() => { btn.textContent = orig; }, 1200); }
+  }).catch(function(){
+    const i = document.createElement('input');
+    i.value = cnpjSoNumeros;
+    document.body.appendChild(i); i.select(); document.execCommand('copy'); document.body.removeChild(i);
+    toast('CNPJ copiado: ' + cnpjSoNumeros, 'success');
+    if(btn){ const orig = btn.textContent; btn.textContent = '✓'; setTimeout(() => { btn.textContent = orig; }, 1200); }
+  });
 }
 
 function toast(msg,type=''){
