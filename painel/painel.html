@@ -3130,8 +3130,10 @@ async function init(){
   }
 
   // Normaliza campos de config
-  S.activeFilters = Array.isArray(S.activeFilters) ? S.activeFilters : [];
-  S.activeStatusObrig = Array.isArray(S.activeStatusObrig) ? S.activeStatusObrig : [];
+  // ── Filtros e busca são sempre resetados na abertura da página ──
+  S.activeFilters = [];
+  S.activeStatusObrig = [];
+  S.searchTerm = '';
   S.empresaTags = Array.isArray(S.empresaTags) ? S.empresaTags : [];
   S.activeTagFilters = Array.isArray(S.activeTagFilters) ? S.activeTagFilters : [];
   S.camposEstaticos = Array.isArray(S.camposEstaticos) ? S.camposEstaticos : [];
@@ -3144,6 +3146,15 @@ async function init(){
 
   updateHeaderName();
   updateStickyHeaderOffset();
+
+  // ── Reset visual dos selects e campo de busca na abertura ──
+  ['filterRegime','filterCategoria','filterStatus','filterApuracao','filterColaborador','filterAtividade'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const fixedSearch = document.getElementById('fixedSearchInput');
+  if (fixedSearch) fixedSearch.value = '';
+
   renderFilterTags();
   renderTagFilterChips();
   renderCfgObrigList();
