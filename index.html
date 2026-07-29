@@ -775,6 +775,26 @@
           </div>
         </div>
 
+        <div class="tool-card ready" data-tool="arquivo" onclick="openTool('arquivo')">
+          <div class="tool-icon">🗂️</div>
+          <h3>Gestão de Arquivo</h3>
+          <p>Controle e organização do arquivo físico e digital do escritório — indexação, localização e histórico de documentos arquivados.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="faq" onclick="openTool('faq')">
+          <div class="tool-icon">❓</div>
+          <h3>FAQ &amp; Base de Conhecimento</h3>
+          <p>Perguntas frequentes e respostas padronizadas — captura de conhecimento operacional para consulta rápida pela equipe.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -803,12 +823,73 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="kpi-numeros" onclick="openTool('kpi-numeros')">
           <div class="tool-icon">📊</div>
-          <h3>Capa de Fechamento Fiscal</h3>
-          <p>Painel de acompanhamento mensal do fechamento fiscal por empresa.</p>
+          <h3>KPI Números</h3>
+          <p>Importação de SPED e planilhas para geração automática de KPIs fiscais com semáforo, tendência e histórico mensal por empresa.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="saneamento-ncm" onclick="openTool('saneamento-ncm')">
+          <div class="tool-icon">🔧</div>
+          <h3>Saneamento de NCM</h3>
+          <p>Diagnóstico e remediação de NCMs incorretos — análise de CFOP, PIS/COFINS e geração de relatório de inconsistências por empresa.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="controle-ciap" onclick="openTool('controle-ciap')">
+          <div class="tool-icon">🏭</div>
+          <h3>Controle CIAP</h3>
+          <p>Histórico mensal do Crédito do Ativo Imobilizado — controle de parcelas, saldo, alíquotas e vida útil por bem.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="cronograma-reforma" onclick="openTool('cronograma-reforma')">
+          <div class="tool-icon">🗓️</div>
+          <h3>Cronograma da Reforma Tributária</h3>
+          <p>Acompanhamento visual das etapas de implantação do IBS e da CBS — prazos, obrigações e impactos por fase.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="monitor-reforma" onclick="openTool('monitor-reforma')">
+          <div class="tool-icon">📡</div>
+          <h3>Monitor da Reforma Tributária</h3>
+          <p>Verificação por cliente se já estão emitindo com os campos da Reforma Tributária — IBS, CBS e status de adequação.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="renomeador-guias" onclick="openTool('renomeador-guias')">
+          <div class="tool-icon">📄</div>
+          <h3>Renomeador de Guias PDF</h3>
+          <p>Renomeação automática e inteligente de guias PDF — organização padronizada com envio por e-mail e WhatsApp.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
+          </div>
+        </div>
+
+        <div class="tool-card ready" data-tool="certificados" onclick="openTool('certificados')">
+          <div class="tool-icon">🔐</div>
+          <h3>Certificados Digitais</h3>
+          <p>Controle centralizado de certificados digitais por empresa — vencimentos, alertas e histórico de renovações.</p>
+          <div class="tool-footer">
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -943,21 +1024,13 @@
       <div class="section-title">Modelos &amp; Formulários</div>
       <div class="tools-grid">
 
-        <div class="tool-card locked">
-          <div class="tool-icon">🗂️</div>
-          <h3>Capa de Arquivo Morto</h3>
-          <p>Gerador de capas padronizadas para arquivamento físico de documentos fiscais e contábeis.</p>
-          <div class="tool-footer">
-            <span class="badge-wip">● Em construção</span>
-          </div>
-        </div>
-
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="capa-fechamento" onclick="openTool('capa-fechamento')">
           <div class="tool-icon">📁</div>
-          <h3>Capas de Fechamento</h3>
-          <p>Modelos de capa para fechamento fiscal e contábil mensal por empresa.</p>
+          <h3>Capa de Fechamento Fiscal</h3>
+          <p>Gerador de capas padronizadas para arquivamento físico e digital — rendimento, IRRF e fechamento mensal por empreendimento.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -979,12 +1052,13 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="gerador-assinatura" onclick="openTool('gerador-assinatura')">
           <div class="tool-icon">✉️</div>
-          <h3>Modelos de Comunicado</h3>
-          <p>Cartas, e-mails e ofícios padronizados para comunicação formal com clientes e órgãos.</p>
+          <h3>Gerador de Assinatura de E-mail</h3>
+          <p>Criação de assinatura profissional para e-mail do contador — com preview ao vivo, dados do CRC e exportação pronta para uso.</p>
           <div class="tool-footer">
-            <span class="badge-soon">Em breve</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -1064,12 +1138,13 @@
           </div>
         </div>
 
-        <div class="tool-card locked">
+        <div class="tool-card ready" data-tool="elicitacao" onclick="openTool('elicitacao')">
           <div class="tool-icon">🎓</div>
           <h3>Elicitação &amp; Treinamento</h3>
           <p>Captura de conhecimento tácito, onboarding e trilhas de capacitação. Porta de entrada do Centro de Treinamentos.</p>
           <div class="tool-footer">
-            <span class="badge-wip">● Em construção</span>
+            <span class="badge-ready">● Disponível</span>
+            <span class="btn-open">Abrir →</span>
           </div>
         </div>
 
@@ -1413,7 +1488,7 @@
         const tool = card.dataset.tool;
         // O Mapa da Agenda é complemento direto de Tarefas.
         // Quem tem acesso a Tarefas também consegue abrir o Mapa, mesmo que a permissão nova ainda não exista no Firebase.
-        if (permissoes[tool] === true || tool === 'planos-negocio' || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true))) {
+        if (permissoes[tool] === true || tool === 'planos-negocio' || (tool === 'mapa-agenda' && permissoes['tarefas'] === true) || (tool === 'gestao-equipes' && permissoes['tarefas'] === true) || (tool === 'kanban' && permissoes['tarefas'] === true) || (tool === 'atendimento-cliente' && (permissoes['central-relacionamento'] === true || permissoes['tarefas'] === true)) || (tool === 'comunicacao' && permissoes['central-relacionamento'] === true) || (tool === 'catalogo-contatos' && permissoes['central-relacionamento'] === true) || (tool === 'obrigacoes' && (permissoes['checklist'] === true || permissoes['painel'] === true)) || (tool === 'calculadora-ibs-cbs' && permissoes['calculadora-simples'] === true) || (tool === 'recebimento' && (permissoes['painel'] === true || permissoes['tarefas'] === true || permissoes['checklist'] === true)) || (tool === 'kpi-numeros' && (permissoes['painel'] === true || permissoes['checklist'] === true)) || (tool === 'saneamento-ncm' && (permissoes['painel'] === true || permissoes['apoio-escrituracao'] === true)) || (tool === 'controle-ciap' && (permissoes['painel'] === true || permissoes['checklist'] === true)) || (tool === 'cronograma-reforma' && permissoes['antena-fiscal'] === true) || (tool === 'monitor-reforma' && permissoes['antena-fiscal'] === true) || (tool === 'renomeador-guias' && (permissoes['controle-guias'] === true || permissoes['painel'] === true)) || (tool === 'certificados' && (permissoes['painel'] === true || permissoes['colaboradores'] === true)) || (tool === 'arquivo' && (permissoes['documentos'] === true || permissoes['painel'] === true)) || (tool === 'faq' && permissoes['portal-treinamentos'] === true) || (tool === 'elicitacao' && permissoes['portal-treinamentos'] === true) || (tool === 'capa-fechamento' && (permissoes['painel'] === true || permissoes['checklist'] === true)) || (tool === 'gerador-assinatura' && permissoes['colaboradores'] === true)) {
           unlockCard(card, tool);
         } else {
           lockCard(card);
@@ -1457,7 +1532,19 @@
       'antena-fiscal': './antena/antena-fiscal.html',
       'calculadora-ibs-cbs': './ferramentas/calculadora_ibs_cbs_v2.html',
       'acesso-sistemas': './acesso/acesso_sistemas.html',
-      'catalogo-contatos': './catalogo/contatos.html'
+      'catalogo-contatos': './catalogo/contatos.html',
+      'arquivo': './arquivo/arquivo.html',
+      'certificados': './certificados.html',
+      'elicitacao': './conhecimento/elicitacao.html',
+      'faq': './conhecimento/faq.html',
+      'saneamento-ncm': './controladoria/saneamento_ncm.html',
+      'renomeador-guias': './ferramentas/Renomeador_Inteligente_Guias_PDF_V9_Email_WhatsApp_Web.html',
+      'capa-fechamento': './ferramentas/capa_empreendimentos_v2_rendimento_irrf_corrigido.html',
+      'gerador-assinatura': './ferramentas/gerador_assinatura_preview_email_contador_crc.html',
+      'controle-ciap': './indicadores/controle_ciap.html',
+      'cronograma-reforma': './indicadores/cronograma_reforma_tributaria.html',
+      'kpi-numeros': './indicadores/indicadores-principal-com-sped.html',
+      'monitor-reforma': './indicadores/monitor_reforma_tributaria.html'
     };
     if (urls[tool]) window.location.href = urls[tool];
   };
