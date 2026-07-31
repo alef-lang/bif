@@ -76,9 +76,13 @@
     .header-sub { margin-top: 1px; font: 11px 'DM Mono'; color: var(--text-secondary); }
 
     #cloudStatus {
-      font: 11px 'DM Mono';
+      font: 700 11px 'DM Mono';
       color: var(--text-secondary);
       white-space: nowrap;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255,255,255,.04);
     }
 
     .container { max-width: 1480px; margin: 0 auto; padding: 22px 20px 42px; }
@@ -1040,12 +1044,12 @@
           <div class="goal-form-grid">
             <div class="field">
               <label for="goalSalesInput">Meta mensal de vendas / faturamento</label>
-              <input id="goalSalesInput" class="input" inputmode="decimal" placeholder="Ex.: 300.000,00">
+              <input id="goalSalesInput" class="input" inputmode="decimal" placeholder="R$ 0,00">
               <small>Valor mínimo esperado de faturamento no mês.</small>
             </div>
             <div class="field">
               <label for="goalPurchasesInput">Meta mensal de compras produtivas</label>
-              <input id="goalPurchasesInput" class="input" inputmode="decimal" placeholder="Ex.: 100.000,00">
+              <input id="goalPurchasesInput" class="input" inputmode="decimal" placeholder="R$ 0,00">
               <small>Valor planejado ou limite de compras do mês.</small>
             </div>
             <div class="field">
@@ -1245,7 +1249,7 @@
     };
 
     const state = {
-      storageMode: 'local',
+      storageMode: 'conectando',
       firebase: null,
       allData: {},
       configs: {},
@@ -1276,8 +1280,10 @@
     }
 
     function setStatus(type, text) {
-      const colors = { ok: '#00c897', error: '#ff6b6b', loading: '#f0b429', local: '#4da6ff' };
-      els.status.style.color = colors[type] || '#9aa8b9';
+      const colors = { ok: '#00c897', error: '#ff6b6b', loading: '#f0b429' };
+      const color = colors[type] || '#9aa8b9';
+      els.status.style.color = color;
+      els.status.style.borderColor = color;
       els.status.textContent = text;
     }
 
@@ -1289,122 +1295,61 @@
       toastTimer = setTimeout(() => els.toast.classList.remove('show'), 3200);
     }
 
-    function localRead() {
-      try { return JSON.parse(localStorage.getItem(ROOT) || '{"dados":{},"configuracoes":{}}'); }
-      catch { return { dados: {}, configuracoes: {} }; }
-    }
-    function localWrite(data) { localStorage.setItem(ROOT, JSON.stringify(data)); }
-
-    function useLocalStorage(reason = '') {
-      if (reason) console.warn('Firebase indisponível ou sem permissão; usando armazenamento local.', reason);
-      state.storageMode = 'local';
-      state.firebase = null;
-      setStatus('local', '💾 Dados salvos neste navegador');
-    }
-
-    function savePeriodLocal(data) {
-      const base = localRead();
-      base.dados ||= {}; base.dados[data.cnpj] ||= {};
-      base.dados[data.cnpj][data.periodoChave] = data;
-      localWrite(base);
-    }
-
-    function saveConfigLocal(cnpj, config) {
-      const base = localRead();
-      base.configuracoes ||= {}; base.configuracoes[cnpj] = config;
-      localWrite(base);
-    }
-
-    function deleteCompanyLocal(cnpj) {
-      const base = localRead();
-      delete base.dados?.[cnpj];
-      delete base.configuracoes?.[cnpj];
-      localWrite(base);
-    }
-
     async function initStorage() {
-      try {
-        const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-        const dbMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
-        const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(firebaseConfig);
-        const db = dbMod.getDatabase(app);
+      const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+      const dbMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+      const app = appMod.getApps().length ? appMod.getApp() : appMod.initializeApp(firebaseConfig);
+      const db = dbMod.getDatabase(app);
 
-        // Não basta carregar o SDK: testamos se este caminho pode ser lido.
-        // Caso as regras do Firebase neguem acesso, a página continua normalmente
-        // usando o armazenamento local do navegador, sem exibir “Permission denied”.
-        await dbMod.get(dbMod.ref(db, ROOT));
+      // Testa se este caminho pode ser lido. Sem armazenamento local de reserva:
+      // se o Firebase não responder, a página mostra erro em vez de salvar só no navegador.
+      await dbMod.get(dbMod.ref(db, ROOT));
 
-        state.firebase = { db, ...dbMod };
-        state.storageMode = 'firebase';
-        setStatus('ok', '☁ Firebase conectado');
-      } catch (error) {
-        useLocalStorage(error);
-      }
+      state.firebase = { db, ...dbMod };
+      state.storageMode = 'firebase';
+      setStatus('ok', '☁ Firebase conectado — tudo é salvo no banco de dados');
     }
 
     async function storageLoadAll() {
-      if (state.storageMode === 'firebase' && state.firebase) {
-        try {
-          const { db, ref, get } = state.firebase;
-          const snap = await get(ref(db, ROOT));
-          const value = snap.val() || {};
-          return { dados: value.dados || {}, configuracoes: value.configuracoes || {} };
-        } catch (error) {
-          useLocalStorage(error);
-        }
-      }
-      return localRead();
+      const { db, ref, get } = state.firebase;
+      const snap = await get(ref(db, ROOT));
+      const value = snap.val() || {};
+      return { dados: value.dados || {}, configuracoes: value.configuracoes || {} };
     }
 
     async function storageSavePeriod(data) {
-      if (state.storageMode === 'firebase' && state.firebase) {
-        try {
-          const { db, ref, set } = state.firebase;
-          await set(ref(db, `${ROOT}/dados/${data.cnpj}/${data.periodoChave}`), data);
-          return;
-        } catch (error) {
-          useLocalStorage(error);
-          toast('Firebase sem permissão. A importação foi salva neste navegador.');
-        }
-      }
-      savePeriodLocal(data);
+      const { db, ref, set } = state.firebase;
+      await set(ref(db, `${ROOT}/dados/${data.cnpj}/${data.periodoChave}`), data);
+      setStatus('ok', `☁ Salvo no Firebase às ${new Date().toLocaleTimeString('pt-BR')}`);
     }
 
     async function storageSaveConfig(cnpj, config) {
-      if (state.storageMode === 'firebase' && state.firebase) {
-        try {
-          const { db, ref, set } = state.firebase;
-          await set(ref(db, `${ROOT}/configuracoes/${cnpj}`), config);
-          return;
-        } catch (error) {
-          useLocalStorage(error);
-          toast('Firebase sem permissão. As regras foram salvas neste navegador.');
-        }
-      }
-      saveConfigLocal(cnpj, config);
+      const { db, ref, set } = state.firebase;
+      await set(ref(db, `${ROOT}/configuracoes/${cnpj}`), config);
+      setStatus('ok', `☁ Salvo no Firebase às ${new Date().toLocaleTimeString('pt-BR')}`);
     }
 
     async function storageDeleteCompany(cnpj) {
-      if (state.storageMode === 'firebase' && state.firebase) {
-        try {
-          const { db, ref, set } = state.firebase;
-          await Promise.all([
-            set(ref(db, `${ROOT}/dados/${cnpj}`), null),
-            set(ref(db, `${ROOT}/configuracoes/${cnpj}`), null)
-          ]);
-          return;
-        } catch (error) {
-          useLocalStorage(error);
-          toast('Firebase sem permissão. A exclusão foi aplicada apenas neste navegador.');
-        }
-      }
-      deleteCompanyLocal(cnpj);
+      const { db, ref, set } = state.firebase;
+      await Promise.all([
+        set(ref(db, `${ROOT}/dados/${cnpj}`), null),
+        set(ref(db, `${ROOT}/configuracoes/${cnpj}`), null)
+      ]);
+      setStatus('ok', `☁ Exclusão salva no Firebase às ${new Date().toLocaleTimeString('pt-BR')}`);
     }
 
     function normalizeText(value) {
       return String(value ?? '')
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         .toUpperCase().trim();
+    }
+
+    function applyCurrencyMask(input) {
+      const digits = input.value.replace(/\D/g, '');
+      if (!digits) { input.value = ''; return; }
+      const cents = parseInt(digits, 10);
+      const formatted = (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      input.value = 'R$ ' + formatted;
     }
 
     function toNumber(value) {
@@ -1871,8 +1816,8 @@
     function renderGoals(periods, period, config, calc) {
       const goals = normalizeGoals(config);
       if (!state.dirtyGoals) {
-        els.goalSalesInput.value = goals.faturamento ? goals.faturamento.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '';
-        els.goalPurchasesInput.value = goals.compras ? goals.compras.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '';
+        els.goalSalesInput.value = goals.faturamento ? 'R$ ' + goals.faturamento.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '';
+        els.goalPurchasesInput.value = goals.compras ? 'R$ ' + goals.compras.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '';
         els.goalPurchasesMode.value = goals.comprasModo;
         els.goalToleranceInput.value = goals.toleranciaCompras;
         els.goalStartInput.value = goals.vigenciaInicio;
@@ -3036,6 +2981,7 @@
     $('saveGoalsBtn').addEventListener('click', saveGoals);
     $('clearGoalsBtn').addEventListener('click', clearGoals);
     els.exportGoalsPdfBtn.addEventListener('click', exportGoalsPdf);
+    [els.goalSalesInput, els.goalPurchasesInput].forEach(input => input.addEventListener('input', () => applyCurrencyMask(input)));
     [els.goalSalesInput, els.goalPurchasesInput, els.goalPurchasesMode, els.goalToleranceInput, els.goalStartInput, els.goalNotesInput].forEach(input => input.addEventListener('input', () => { state.dirtyGoals = true; }));
     $('deleteCompanyBtn').addEventListener('click', deleteCurrentCompany);
     window.addEventListener('beforeunload', event => { if (state.dirtyRules || state.dirtyGoals) { event.preventDefault(); event.returnValue = ''; } });
