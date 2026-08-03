@@ -2803,13 +2803,38 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
       </div>
 
       <div class="config-section">
-        <h3>📋 Obrigações nos filtros</h3>
-        <p>Gerencie as obrigações que aparecem nos filtros rápidos</p>
-        <div class="config-row">
-          <input type="text" id="cfgNovaObrig" placeholder="Ex: EFD-Reinf">
-          <button class="btn-primary" onclick="addFilterObrig()">Adicionar</button>
+        <h3>📋 Catálogo de Obrigações Acessórias</h3>
+        <p>Cadastre as obrigações disponíveis para seleção na ficha de cada empresa. O vencimento padrão é preenchido automaticamente ao adicionar à empresa.</p>
+        <div class="config-row" style="gap:6px;">
+          <input type="text" id="cfgNovaObrig" placeholder="Nome da obrigação (ex: MIT)" style="flex:1;">
+          <input type="text" id="cfgNovaObrigVenc" placeholder="Vencimento (ex: 20/mês)" style="max-width:150px;">
+          <button class="btn-primary" onclick="addCatalogoObrig()">Adicionar</button>
         </div>
-        <div id="cfgObrigList" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;"></div>
+        <div id="cfgObrigList" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="config-section" style="border:1.5px solid rgba(201,168,76,0.35);border-radius:12px;padding:16px;">
+        <h3>⚡ Aplicar Obrigação em Lote</h3>
+        <p style="margin-bottom:12px;">Inclui uma obrigação do catálogo em todas as empresas que correspondem ao colaborador e regime selecionados. Empresas que já possuem a obrigação não são duplicadas.</p>
+        <div class="config-row" style="flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="loteObrig" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Selecione a obrigação...</option>
+            </select>
+            <select id="loteColaborador" style="flex:1;min-width:140px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Todos os colaboradores</option>
+            </select>
+            <select id="loteRegime" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Todos os regimes</option>
+              <option value="simples">Simples Nacional</option>
+              <option value="presumido">Lucro Presumido</option>
+              <option value="real">Lucro Real</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div id="lotePreview" style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);min-height:18px;"></div>
+          <button class="btn-primary" onclick="aplicarObrigacaoEmLote()" style="align-self:flex-start;background:linear-gradient(135deg,rgba(201,168,76,0.35),rgba(201,168,76,0.2));border-color:var(--gold);">⚡ Aplicar em lote</button>
+        </div>
       </div>
 
       <div class="config-section">
@@ -2916,6 +2941,18 @@ let S = {
   activeFilters: [],       // filtros por nome de obrigação
   activeStatusObrig: [],   // filtros por status de entrega (entregue/pendente/atrasado)
   filterObrigacoes: ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'],
+  catalogoObrigacoes: [
+    {nome:'SPED ICMS/IPI',      vencimento:'15/mês'},
+    {nome:'SPED Contribuições', vencimento:'10/mês'},
+    {nome:'SPED ECD',           vencimento:'31/05'},
+    {nome:'SPED ECF',           vencimento:'31/07'},
+    {nome:'DCTF',               vencimento:'15/mês'},
+    {nome:'DEFIS',              vencimento:'31/03'},
+    {nome:'DASN-SIMEI',         vencimento:'31/05'},
+    {nome:'DeSTDA',             vencimento:'20/mês'},
+    {nome:'GIA',                vencimento:'16/mês'},
+    {nome:'REINF',              vencimento:'15/mês'}
+  ],
   searchTerm: '',
   empresas: []
 };
@@ -3199,6 +3236,12 @@ async function init(){
   S.filterObrigacoes = Array.isArray(S.filterObrigacoes) && S.filterObrigacoes.length
     ? S.filterObrigacoes
     : ['SPED ICMS/IPI','SPED Contribuições','SPED ECD','SPED ECF','DCTF','DEFIS','DASN-SIMEI','DeSTDA','GIA','REINF'];
+  // Catálogo de obrigações — migração automática: se não existir, cria a partir de filterObrigacoes
+  if (!Array.isArray(S.catalogoObrigacoes) || !S.catalogoObrigacoes.length) {
+    S.catalogoObrigacoes = S.filterObrigacoes.map(nome => ({nome, vencimento:''}));
+  }
+  // Garantir que filterObrigacoes sempre reflita o catálogo
+  S.filterObrigacoes = S.catalogoObrigacoes.map(o => o.nome);
 
   updateHeaderName();
   updateStickyHeaderOffset();
@@ -3445,13 +3488,7 @@ function renderFilterTags(){
   }).join('');
 }
 
-function renderCfgObrigList(){
-  const el = $('cfgObrigList');
-  if(!el) return;
-  el.innerHTML = S.filterObrigacoes.map((ob,i)=>
-    `<span class="obrig-chip">${esc(ob)} <button title="Remover" onclick="removeFilterObrig(${i})">✕</button></span>`
-  ).join('');
-}
+// renderCfgObrigList foi movida para o bloco do catálogo acima
 
 function toggleFilter(btn, obrig){
   const i = S.activeFilters.indexOf(obrig);
@@ -5604,6 +5641,7 @@ function openEmpresa(id){
   $('modalEmpresaTitle').textContent = e.nome;
   $('modalEmpresaSubtitle').textContent = empresaSubtitle(e);
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
+  renderObrigSelectModal();
   renderModalObrigacoes();
   renderModalCredenciais();
   renderEmpresaTagsPicker();
@@ -5752,8 +5790,12 @@ function empresaFormHtml(e){
       <div class="obrig-header" style="grid-template-columns:1fr 140px 32px;"><div>Obrigação</div><div>Vencimento</div><div></div></div>
       <div class="obrig-list" id="modalObrigList"></div>
       <div class="obrig-add-row">
-        <input id="newObrigNome" placeholder="Ex: SPED ICMS/IPI" list="obrigSuggestions">
-        <datalist id="obrigSuggestions">${S.filterObrigacoes.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>
+        <select id="newObrigNome" style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-input);color:var(--text);font-family:var(--font-body);font-size:12px;outline:none;" onchange="preencherVencimentoPadrao()">
+          <option value="">Selecione a obrigação...</option>
+          ${(S.catalogoObrigacoes||[]).map(o=>`<option value="${esc(o.nome)}" data-venc="${esc(o.vencimento||'')}">${esc(o.nome)}${o.vencimento?' — '+o.vencimento:''}</option>`).join('')}
+          <option value="__outro__">+ Outro (digitar)</option>
+        </select>
+        <input id="newObrigNomeCustom" placeholder="Nome da obrigação" style="display:none;flex:1;">
         <input id="newObrigVenc" placeholder="Vencimento" style="max-width:130px">
         <button class="btn-add-obrig" onclick="addObrigToModal()">Adicionar</button>
       </div>
@@ -6076,12 +6118,31 @@ function renderModalObrigacoes(){
   </div>`).join('');
 }
 function addObrigToModal(){
-  const nome = $('newObrigNome').value.trim();
-  if(!nome){ toast('Informe o nome da obrigação.', 'error'); return; }
-  modalObrigacoes.push({nome, vencimento:$('newObrigVenc').value.trim(), status:'pendente'});
-  if(!S.filterObrigacoes.includes(nome)) S.filterObrigacoes.push(nome);
-  $('newObrigNome').value=''; $('newObrigVenc').value='';
-  renderModalObrigacoes(); renderFilterTags(); renderCfgObrigList(); markCompanyDirtySoft();
+  const selEl = $('newObrigNome');
+  const customEl = $('newObrigNomeCustom');
+  let nome = '';
+  if(selEl && selEl.value === '__outro__'){
+    nome = customEl ? customEl.value.trim() : '';
+  } else {
+    nome = selEl ? selEl.value.trim() : '';
+  }
+  if(!nome){ toast('Selecione ou informe o nome da obrigação.', 'error'); return; }
+  if(modalObrigacoes.some(o=>norm(o.nome||'')===norm(nome))){ toast('Obrigação "'+nome+'" já está na lista desta empresa.', 'error'); return; }
+  const vencimento = $('newObrigVenc') ? $('newObrigVenc').value.trim() : '';
+  modalObrigacoes.push({nome, vencimento, status:'pendente'});
+  // Adiciona ao catálogo se for nome customizado e ainda não existir
+  if(selEl && selEl.value === '__outro__' && nome){
+    if(!Array.isArray(S.catalogoObrigacoes)) S.catalogoObrigacoes=[];
+    if(!S.catalogoObrigacoes.some(o=>o.nome===nome)){
+      S.catalogoObrigacoes.push({nome, vencimento});
+      S.filterObrigacoes = S.catalogoObrigacoes.map(o=>o.nome);
+      saveState(); renderCfgObrigList(); renderObrigSelectModal();
+    }
+  }
+  if(selEl){ selEl.value=''; }
+  if(customEl){ customEl.value=''; customEl.style.display='none'; }
+  if($('newObrigVenc')) $('newObrigVenc').value='';
+  renderModalObrigacoes(); renderFilterTags(); markCompanyDirtySoft();
 }
 function removeObrigFromModal(i){ modalObrigacoes.splice(i,1); renderModalObrigacoes(); markCompanyDirtySoft(); }
 
@@ -6553,12 +6614,14 @@ function removeRelatorioLogo(){
 function openConfigModal(){
   $('cfgNome').value = S.nomeEscritorio || '';
   $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; $('cfgNovaObrig').value='';
+  if($('cfgNovaObrigVenc')) $('cfgNovaObrigVenc').value='';
   if($('cfgPrintFont')) $('cfgPrintFont').value = S.printFont || 'Arial';
   if($('cfgPrintFontSize')) $('cfgPrintFontSize').value = S.printFontSize || '10.5pt';
   if($('cfgNovoCampoEstatico')) $('cfgNovoCampoEstatico').value = '';
   renderCfgObrigList();
   renderCfgCamposEstaticosList();
   refreshRelatorioLogoPreviews();
+  popularSelectsLote();
   openModal('modalConfig');
 }
 function saveOfficeName(){
@@ -6573,17 +6636,151 @@ function changePassword(){
   if(!/^\d{4}$/.test(nova)){ toast('A nova senha precisa ter 4 dígitos.', 'error'); return; }
   S.senha = nova; saveState(); $('cfgSenhaAtual').value=''; $('cfgSenhaNova').value=''; toast('Senha alterada.', 'success');
 }
-function addFilterObrig(){
-  const v = $('cfgNovaObrig').value.trim();
-  if(!v) return;
-  if(!S.filterObrigacoes.includes(v)) S.filterObrigacoes.push(v);
-  $('cfgNovaObrig').value=''; saveState(); renderFilterTags(); renderCfgObrigList(); toast('Obrigação adicionada aos filtros.', 'success');
+// ── Catálogo de obrigações ──
+function addCatalogoObrig(){
+  const nome = $('cfgNovaObrig').value.trim();
+  const vencimento = ($('cfgNovaObrigVenc')||{}).value?.trim() || '';
+  if(!nome){ toast('Informe o nome da obrigação.', 'error'); return; }
+  if(!Array.isArray(S.catalogoObrigacoes)) S.catalogoObrigacoes = [];
+  if(S.catalogoObrigacoes.some(o=>o.nome===nome)){ toast('Obrigação já existe no catálogo.', 'error'); return; }
+  S.catalogoObrigacoes.push({nome, vencimento});
+  S.filterObrigacoes = S.catalogoObrigacoes.map(o=>o.nome);
+  $('cfgNovaObrig').value='';
+  if($('cfgNovaObrigVenc')) $('cfgNovaObrigVenc').value='';
+  saveState(); renderFilterTags(); renderCfgObrigList(); renderObrigSelectModal();
+  toast('Obrigação "'+nome+'" adicionada ao catálogo.', 'success');
 }
+
+function addFilterObrig(){
+  // Mantido para retrocompatibilidade — delega ao novo catálogo
+  addCatalogoObrig();
+}
+
 function removeFilterObrig(i){
-  const ob = S.filterObrigacoes[i];
-  S.filterObrigacoes.splice(i,1);
+  if(!Array.isArray(S.catalogoObrigacoes)) S.catalogoObrigacoes=[];
+  const ob = S.catalogoObrigacoes[i]?.nome || S.filterObrigacoes[i];
+  S.catalogoObrigacoes.splice(i,1);
+  S.filterObrigacoes = S.catalogoObrigacoes.map(o=>o.nome);
   S.activeFilters = S.activeFilters.filter(x=>x!==ob);
-  saveState(); renderFilterTags(); renderCfgObrigList(); renderAll();
+  saveState(); renderFilterTags(); renderCfgObrigList(); renderObrigSelectModal(); renderAll();
+}
+
+function renderCfgObrigList(){
+  const el = $('cfgObrigList');
+  if(!el) return;
+  const cat = Array.isArray(S.catalogoObrigacoes) ? S.catalogoObrigacoes : [];
+  if(!cat.length){
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);padding:6px 0;">Nenhuma obrigação cadastrada.</div>';
+    return;
+  }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--text-light);font-family:var(--font-mono);text-transform:uppercase;border-bottom:1px solid var(--border);">Obrigação</th>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--text-light);font-family:var(--font-mono);text-transform:uppercase;border-bottom:1px solid var(--border);">Vencimento padrão</th>
+      <th style="width:32px;border-bottom:1px solid var(--border);"></th>
+    </tr></thead>
+    <tbody>${cat.map((o,i)=>`<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+      <td style="padding:7px 8px;font-weight:600;">${esc(o.nome)}</td>
+      <td style="padding:7px 8px;color:var(--text-light);font-family:var(--font-mono);">${esc(o.vencimento||'—')}</td>
+      <td style="padding:4px 8px;"><button style="background:none;border:none;color:#ff7675;cursor:pointer;font-size:14px;line-height:1;" title="Remover" onclick="removeFilterObrig(${i})">✕</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// Atualiza o select de obrigações dentro do modal de empresa
+function renderObrigSelectModal(){
+  const sel = $('newObrigNome');
+  if(!sel) return;
+  const cat = Array.isArray(S.catalogoObrigacoes) ? S.catalogoObrigacoes : [];
+  const current = sel.value;
+  sel.innerHTML = `<option value="">Selecione a obrigação...</option>
+    ${cat.map(o=>`<option value="${esc(o.nome)}" data-venc="${esc(o.vencimento||'')}">${esc(o.nome)}${o.vencimento?' — '+o.vencimento:''}</option>`).join('')}
+    <option value="__outro__">+ Outro (digitar)</option>`;
+  if(current) sel.value = current;
+}
+
+// Preenche o campo de vencimento com o padrão do catálogo ao selecionar obrigação
+function preencherVencimentoPadrao(){
+  const sel = $('newObrigNome');
+  const vencEl = $('newObrigVenc');
+  const customEl = $('newObrigNomeCustom');
+  if(!sel) return;
+  const val = sel.value;
+  if(val === '__outro__'){
+    if(customEl){ customEl.style.display=''; customEl.focus(); }
+    if(vencEl) vencEl.value='';
+    return;
+  }
+  if(customEl) customEl.style.display='none';
+  const opt = sel.options[sel.selectedIndex];
+  const venc = opt ? opt.dataset.venc : '';
+  if(vencEl && venc) vencEl.value = venc;
+}
+
+// ── Aplicação em lote ──
+function atualizarLotePreview(){
+  const obrigNome = ($('loteObrig')||{}).value;
+  const colab = ($('loteColaborador')||{}).value;
+  const regime = ($('loteRegime')||{}).value;
+  const prev = $('lotePreview');
+  if(!prev) return;
+  if(!obrigNome){ prev.textContent='Selecione uma obrigação para visualizar o impacto.'; return; }
+  const alvos = (S.empresas||[]).filter(e=>{
+    if(e.fechada) return false;
+    if(colab && norm(e.colaborador||'') !== norm(colab)) return false;
+    if(regime && e.regime !== regime) return false;
+    return true;
+  });
+  const jatem = alvos.filter(e=>(e.obrigacoes||[]).some(o=>norm(o.nome||'')===norm(obrigNome)));
+  const serao = alvos.length - jatem.length;
+  prev.textContent = `${alvos.length} empresa(s) correspondem ao filtro — ${serao} receberão a obrigação, ${jatem.length} já possuem.`;
+}
+
+async function aplicarObrigacaoEmLote(){
+  const obrigNome = ($('loteObrig')||{}).value;
+  const colab = ($('loteColaborador')||{}).value;
+  const regime = ($('loteRegime')||{}).value;
+  if(!obrigNome){ toast('Selecione uma obrigação.', 'error'); return; }
+  const catItem = (S.catalogoObrigacoes||[]).find(o=>o.nome===obrigNome) || {nome:obrigNome, vencimento:''};
+  const alvos = (S.empresas||[]).filter(e=>{
+    if(e.fechada) return false;
+    if(colab && norm(e.colaborador||'') !== norm(colab)) return false;
+    if(regime && e.regime !== regime) return false;
+    if((e.obrigacoes||[]).some(o=>norm(o.nome||'')===norm(obrigNome))) return false;
+    return true;
+  });
+  if(!alvos.length){ toast('Nenhuma empresa nova para adicionar — todas já possuem a obrigação ou não correspondem ao filtro.', 'info'); return; }
+  const conf = confirm(`Adicionar "${obrigNome}" em ${alvos.length} empresa(s)?\n\nColaborador: ${colab||'todos'}\nRegime: ${regime ? regimeLabel(regime) : 'todos'}\n\nEsta ação não pode ser desfeita em lote.`);
+  if(!conf) return;
+  const prev = $('lotePreview');
+  if(prev) prev.textContent = 'Salvando...';
+  let ok = 0, fail = 0;
+  for(const emp of alvos){
+    emp.obrigacoes = [...(emp.obrigacoes||[]), {nome:catItem.nome, vencimento:catItem.vencimento||'', status:'pendente'}];
+    try{
+      await saveEmpresa(emp);
+      ok++;
+    } catch(e){
+      fail++;
+      console.error('Lote saveEmpresa erro:', e);
+    }
+  }
+  atualizarLotePreview();
+  if(fail===0) toast(`✅ "${obrigNome}" adicionada em ${ok} empresa(s) com sucesso.`, 'success');
+  else toast(`⚠️ ${ok} salvas, ${fail} com erro. Verifique o console.`, 'error');
+}
+
+function popularSelectsLote(){
+  const selOb = $('loteObrig');
+  const selCol = $('loteColaborador');
+  if(!selOb||!selCol) return;
+  selOb.innerHTML = '<option value="">Selecione a obrigação...</option>' +
+    (S.catalogoObrigacoes||[]).map(o=>`<option value="${esc(o.nome)}">${esc(o.nome)}</option>`).join('');
+  selCol.innerHTML = '<option value="">Todos os colaboradores</option>' +
+    getAllColaboradores().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  ['loteObrig','loteColaborador','loteRegime'].forEach(id=>{
+    const el=$(id); if(el) el.onchange=atualizarLotePreview;
+  });
 }
 
 function copiarCnpjLista(cnpjSoNumeros, btn){
