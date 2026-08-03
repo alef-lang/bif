@@ -6,47 +6,123 @@
 <title>Pedido de Emissão de Nota Fiscal</title>
 <style>
 :root{
-  --navy:#163a5f; --navy-2:#24557f; --blue:#397ba8; --gold:#b58a32;
-  --cream:#f4efe5; --paper:#fffdf8; --ink:#1e2b36; --muted:#68727c;
-  --line:#d9d3c6; --soft:#eaf1f5; --ok:#2f7d5b; --warn:#a56c13; --danger:#a74444;
-  --shadow:0 14px 34px rgba(30,43,54,.10); --radius:18px;
+  --navy:#0d1b2a; --navy-2:#1b2e42; --navy-3:#243954; --blue:#6fb3d9; --gold:#c9a84c; --gold-2:#e8c97a;
+  --ink:#e8edf3; --muted:#8ba0b8; --line:#2a3e58; --soft:#243954;
+  --ok:#5dbb7a; --ok-bg:rgba(93,187,122,.14); --warn:#e0a95d; --warn-bg:rgba(224,169,93,.14); --danger:#e07070; --danger-bg:rgba(224,112,112,.14);
+  --shadow:0 14px 34px rgba(0,0,0,.35); --radius:18px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#f7f3ea 0%,#edf3f6 100%);color:var(--ink);min-height:100vh}
-button,input,select,textarea{font:inherit}
+body{margin:0;font-family:'DM Sans',Inter,'Segoe UI',Arial,sans-serif;background:linear-gradient(180deg,#0d1b2a 0%,#0a151f 100%);color:var(--ink);min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 .app-shell{max-width:1280px;margin:0 auto;padding:24px}
-.hero{background:linear-gradient(135deg,var(--navy),#244f76);color:white;border-radius:26px;padding:28px 30px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.hero:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;right:-110px;top:-170px;background:rgba(255,255,255,.08)}
-.hero-row{position:relative;z-index:1;display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
-.brand{display:flex;gap:16px;align-items:center}.brand-mark{width:56px;height:56px;border-radius:16px;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:26px;box-shadow:0 8px 20px rgba(0,0,0,.15)}
-h1{margin:0 0 6px;font-size:clamp(25px,4vw,38px);letter-spacing:-.4px}.hero p{margin:0;color:#dbe8f2;max-width:760px;line-height:1.55}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:750;display:inline-flex;gap:8px;align-items:center;justify-content:center;transition:.2s}
-.btn:hover{transform:translateY(-1px)}.btn.primary{background:var(--navy);color:#fff}.btn.secondary{background:#fff;color:var(--navy);border:1px solid #d7e0e7}.btn.ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25)}.btn.gold{background:#d7b15c;color:#17334d}.btn.danger{background:#fff0f0;color:var(--danger);border:1px solid #efcccc}.btn.small{padding:7px 10px;font-size:13px}
-.progress-wrap{margin:18px 0 0;position:relative;z-index:1}.progress-label{display:flex;justify-content:space-between;font-size:12px;color:#dbe8f2;margin-bottom:7px}.progress{height:8px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:#e2c06f;transition:.3s}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;margin-top:20px}.main{min-width:0}.aside{position:sticky;top:16px;align-self:start}
-.card{background:rgba(255,253,248,.96);border:1px solid rgba(209,203,190,.85);border-radius:var(--radius);box-shadow:0 7px 22px rgba(30,43,54,.06);padding:22px;margin-bottom:18px}.card h2{margin:0 0 6px;font-size:21px;color:var(--navy)}.card h3{margin:0 0 10px;color:var(--navy);font-size:17px}.card p.lead{margin:0 0 18px;color:var(--muted);line-height:1.5}
-.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.step-badge{background:var(--navy);color:white;border-radius:11px;padding:7px 11px;font-size:13px;font-weight:800;white-space:nowrap}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.span-12{grid-column:span 12}.span-9{grid-column:span 9}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.span-2{grid-column:span 2}
-.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:13px;font-weight:750;color:#374653}.field label .req{color:var(--danger)}.hint{font-size:12px;color:var(--muted);line-height:1.35}
-input,select,textarea{width:100%;border:1px solid #cfd4d6;background:#fff;border-radius:11px;padding:11px 12px;color:var(--ink);outline:none;transition:.2s}textarea{min-height:92px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(57,123,168,.12)}input.invalid,select.invalid,textarea.invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(167,68,68,.10)}
-.choice-grid{display:flex;gap:8px;flex-wrap:wrap}.choice{position:relative}.choice input{position:absolute;opacity:0;pointer-events:none}.choice span{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #ccd3d7;border-radius:999px;background:#fff;font-size:13px;font-weight:650;transition:.2s}.choice input:checked+span{background:var(--soft);border-color:var(--blue);color:var(--navy);box-shadow:0 0 0 2px rgba(57,123,168,.08)}
-.notice{padding:13px 14px;border-radius:12px;background:#f5f0e2;border-left:4px solid var(--gold);font-size:13px;line-height:1.45;color:#4f483c}.notice.blue{background:#edf4f8;border-left-color:var(--blue);color:#315066}.notice.ok{background:#eaf6ef;border-left-color:var(--ok);color:#265c45}.notice.warn{background:#fff5e6;border-left-color:var(--warn)}
-.item-card{border:1px solid #d5d8d7;border-radius:16px;background:#fff;padding:18px;margin:12px 0}.item-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.item-title strong{font-size:17px;color:var(--navy)}.item-total{font-weight:850;color:var(--navy)}
-.pista{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}.pista-step{background:#f7f9fa;border:1px solid #dfe4e6;border-radius:14px;padding:12px}.pista-step b{display:block;color:var(--navy);font-size:13px;margin-bottom:5px}.pista-step small{color:var(--muted);line-height:1.35}.pista-step textarea,.pista-step input,.pista-step select{margin-top:8px;font-size:13px;padding:9px}
-.file-zone{border:2px dashed #b8c7d1;background:#f7fafc;border-radius:16px;padding:18px;text-align:center;transition:.2s}.file-zone.drag{border-color:var(--blue);background:#edf5fa}.file-zone input{display:none}.file-zone label{display:block;cursor:pointer}.file-zone strong{color:var(--navy)}.file-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}.file-card{border:1px solid #d8dde0;border-radius:12px;padding:10px;background:#fff;min-width:0}.file-card img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px}.file-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-meta{font-size:11px;color:var(--muted)}
-.summary-card{background:linear-gradient(180deg,#fffdf8,#f6f1e7);border:1px solid #d7cfbd;border-radius:18px;padding:18px;box-shadow:var(--shadow)}.summary-card h3{margin:0 0 14px;color:var(--navy)}.summary-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed #d7d0c2;font-size:13px}.summary-row:last-child{border-bottom:0}.summary-row strong{color:var(--navy)}.total{font-size:24px;font-weight:900;color:var(--navy);padding-top:12px;text-align:right}
-.aside .card{padding:17px}.aside-title{font-size:12px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:850;margin-bottom:10px}.checklist{display:grid;gap:9px}.checkline{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:#465460}.dot{width:18px;height:18px;border-radius:50%;border:2px solid #b8c0c5;flex:0 0 auto;margin-top:1px;display:grid;place-items:center;font-size:11px}.checkline.done .dot{background:var(--ok);border-color:var(--ok);color:white}.checkline.done{color:#2e604a}
-details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-top:12px}summary{list-style:none;padding:14px 16px;cursor:pointer;font-weight:800;color:var(--navy);display:flex;justify-content:space-between;align-items:center}summary::-webkit-details-marker{display:none}.details-body{padding:0 16px 16px}
-.hidden{display:none!important}.muted{color:var(--muted)}.divider{height:1px;background:#e1ddd4;margin:18px 0}.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.sticky-submit{position:sticky;bottom:12px;background:rgba(255,253,248,.95);backdrop-filter:blur(8px);border:1px solid #d8d2c4;border-radius:18px;padding:13px;display:flex;gap:10px;justify-content:flex-end;box-shadow:0 12px 30px rgba(30,43,54,.14);z-index:20}
-.protocol{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#eef3f7;color:var(--navy);padding:5px 8px;border-radius:8px;font-weight:800}.pill{display:inline-flex;padding:5px 9px;border-radius:999px;background:#edf3f6;color:var(--navy);font-size:12px;font-weight:750}.urgente{background:#fff0eb;color:#9d3c2f}
-.modal{position:fixed;inset:0;background:rgba(17,34,48,.66);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}.modal.open{display:flex}.modal-box{width:min(760px,100%);max-height:92vh;overflow:auto;background:#fffdf8;border-radius:22px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.28)}.modal-box h2{color:var(--navy);margin-top:0}
-.toast-wrap{position:fixed;right:18px;bottom:18px;display:grid;gap:10px;z-index:200}.toast{background:#173c5e;color:#fff;padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);font-size:13px;max-width:360px}.toast.error{background:#8d3737}.toast.ok{background:#2d7054}
-.config-note{background:#f3f6f7;border:1px solid #d6dfe4;border-radius:12px;padding:12px;font-size:12px;line-height:1.5;color:#425562}
+.hero{background:linear-gradient(135deg,var(--navy-2),#152838);border:1px solid var(--line);color:white;border-radius:26px;padding:28px 30px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;right:-110px;top:-170px;background:rgba(201,168,76,.08)}
+.hero-row{position:relative;z-index:1;display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.brand{display:flex;gap:16px;align-items:center}
+.brand-mark{width:56px;height:56px;border-radius:16px;background:var(--gold);color:#17334d;display:grid;place-items:center;font-weight:900;font-size:22px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+h1{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:clamp(24px,4vw,36px);letter-spacing:-.02em}
+.hero p{margin:0;color:#c3d3e0;max-width:760px;line-height:1.55;font-size:14px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:700;display:inline-flex;gap:8px;align-items:center;justify-content:center;transition:.2s;font-size:13.5px}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--navy-3);color:var(--gold-2);border:1px solid var(--line)}
+.btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn.gold{background:var(--gold);color:#17334d}
+.btn.gold:hover{background:var(--gold-2)}
+.btn.danger{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(224,112,112,.4)}
+.btn.small{padding:7px 10px;font-size:12px}
+.progress-wrap{margin:18px 0 0;position:relative;z-index:1}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:#c3d3e0;margin-bottom:7px}
+.progress{height:8px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--gold);transition:.3s}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;margin-top:20px}
+.main{min-width:0}
+.aside{position:sticky;top:16px;align-self:start}
+.card{background:var(--navy-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 7px 22px rgba(0,0,0,.25);padding:22px;margin-bottom:18px}
+.card h2{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:19px;color:var(--gold-2)}
+.card h3{margin:0 0 10px;color:var(--gold-2);font-size:16px}
+.card p.lead{margin:0 0 18px;color:var(--muted);line-height:1.5;font-size:13.5px}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.step-badge{background:var(--navy-3);color:var(--gold-2);border:1px solid var(--line);border-radius:11px;padding:7px 11px;font-size:12px;font-weight:700;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.span-12{grid-column:span 12}.span-9{grid-column:span 9}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.span-2{grid-column:span 2}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:12.5px;font-weight:600;color:var(--ink)}
+.field label .req{color:var(--danger)}
+.hint{font-size:11.5px;color:var(--muted);line-height:1.35}
+input,select,textarea{width:100%;border:1px solid var(--line);background:var(--navy-3);border-radius:11px;padding:10px 12px;color:var(--ink);outline:none;transition:.2s}
+textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(111,179,217,.18)}
+input.invalid,select.invalid,textarea.invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(224,112,112,.18)}
+input::placeholder,textarea::placeholder{color:#5f7690}
+.choice-grid{display:flex;gap:8px;flex-wrap:wrap}
+.choice{position:relative}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice span{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:var(--navy-3);font-size:12.5px;font-weight:600;transition:.2s}
+.choice input:checked+span{background:var(--soft);border-color:var(--blue);color:var(--gold-2);box-shadow:0 0 0 2px rgba(111,179,217,.15)}
+.notice{padding:13px 14px;border-radius:12px;background:rgba(201,168,76,.1);border-left:4px solid var(--gold);font-size:13px;line-height:1.45;color:var(--ink)}
+.notice.blue{background:rgba(111,179,217,.1);border-left-color:var(--blue)}
+.notice.ok{background:var(--ok-bg);border-left-color:var(--ok)}
+.notice.warn{background:var(--warn-bg);border-left-color:var(--warn)}
+.item-card{border:1px solid var(--line);border-radius:16px;background:var(--navy-3);padding:18px;margin:12px 0}
+.item-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.item-title strong{font-size:15px;color:var(--gold-2)}
+.item-total{font-weight:800;color:var(--gold-2)}
+.pista{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}
+.pista-step{background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.pista-step b{display:block;color:var(--gold-2);font-size:12.5px;margin-bottom:5px}
+.pista-step small{color:var(--muted);line-height:1.35;font-size:11px}
+.pista-step textarea,.pista-step input,.pista-step select{margin-top:8px;font-size:12.5px;padding:9px}
+.file-zone{border:2px dashed var(--line);background:var(--navy-3);border-radius:16px;padding:18px;text-align:center;transition:.2s}
+.file-zone.drag{border-color:var(--blue);background:var(--soft)}
+.file-zone input{display:none}
+.file-zone label{display:block;cursor:pointer}
+.file-zone strong{color:var(--gold-2)}
+.file-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}
+.file-card{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--navy-2);min-width:0}
+.file-card img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px}
+.file-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-meta{font-size:11px;color:var(--muted)}
+.summary-card{background:linear-gradient(180deg,var(--navy-2),#16283a);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.summary-card h3{margin:0 0 14px;color:var(--gold-2)}
+.summary-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.summary-row:last-child{border-bottom:0}
+.summary-row strong{color:var(--gold-2)}
+.total{font-size:23px;font-weight:800;color:var(--gold);padding-top:12px;text-align:right}
+.aside .card{padding:17px}
+.aside-title{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700;margin-bottom:10px}
+.checklist{display:grid;gap:9px}
+.checkline{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--muted)}
+.dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto;margin-top:1px;display:grid;place-items:center;font-size:10px;color:transparent}
+.checkline.done .dot{background:var(--ok);border-color:var(--ok);color:#0d1b2a}
+.checkline.done{color:var(--ink)}
+details{border:1px solid var(--line);border-radius:14px;background:var(--navy-3);margin-top:12px}
+summary{list-style:none;padding:14px 16px;cursor:pointer;font-weight:700;color:var(--gold-2);display:flex;justify-content:space-between;align-items:center;font-size:13.5px}
+summary::-webkit-details-marker{display:none}
+.details-body{padding:0 16px 16px}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.divider{height:1px;background:var(--line);margin:18px 0}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.sticky-submit{position:sticky;bottom:12px;background:rgba(13,27,42,.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:18px;padding:13px;display:flex;gap:10px;justify-content:flex-end;box-shadow:0 12px 30px rgba(0,0,0,.4);z-index:20;flex-wrap:wrap}
+.protocol{font-family:'DM Mono',ui-monospace,monospace;background:var(--navy-3);color:var(--gold-2);padding:5px 8px;border-radius:8px;font-weight:700}
+.pill{display:inline-flex;padding:5px 9px;border-radius:999px;background:var(--navy-3);color:var(--gold-2);font-size:12px;font-weight:600}
+.urgente{background:rgba(224,112,112,.16);color:#f0a0a0}
+.modal{position:fixed;inset:0;background:rgba(5,12,20,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.open{display:flex}
+.modal-box{width:min(760px,100%);max-height:92vh;overflow:auto;background:var(--navy-2);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.modal-box h2{color:var(--gold-2);margin-top:0;font-family:Poppins,sans-serif}
+.toast-wrap{position:fixed;right:18px;bottom:18px;display:grid;gap:10px;z-index:200}
+.toast{background:var(--navy-3);border:1px solid var(--line);color:#fff;padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);font-size:13px;max-width:360px}
+.toast.error{background:#5c2626;border-color:#7a3535}
+.toast.ok{background:#1e4433;border-color:#2f6b4f}
+.config-note{background:var(--navy-3);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12px;line-height:1.5;color:var(--muted)}
 @media(max-width:1000px){.layout{grid-template-columns:1fr}.aside{position:static;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.pista{grid-template-columns:repeat(2,1fr)}.pista-step:last-child{grid-column:span 2}}
-@media(max-width:720px){.app-shell{padding:12px}.hero{padding:20px}.hero-row{flex-direction:column}.hero-actions{justify-content:flex-start}.grid{grid-template-columns:1fr}.span-12,.span-9,.span-8,.span-6,.span-4,.span-3,.span-2{grid-column:1}.pista{grid-template-columns:1fr}.pista-step:last-child{grid-column:auto}.aside{grid-template-columns:1fr}.sticky-submit{flex-direction:column}.sticky-submit .btn{width:100%}.toolbar{justify-content:stretch}.toolbar .btn{flex:1}.choice-grid{gap:6px}.choice span{font-size:12px;padding:8px 10px}}
-@media print{body{background:#fff;color:#000}.hero,.aside,.sticky-submit,.no-print,.btn{display:none!important}.app-shell{max-width:none;padding:0}.layout{display:block}.card,.item-card{box-shadow:none;border:1px solid #000;background:#fff;break-inside:avoid}input,select,textarea{border:0;border-bottom:1px solid #000;border-radius:0;padding:4px;color:#000}.choice input:checked+span{border:1px solid #000;background:#fff;color:#000}.pista-step,.notice{background:#fff;border:1px solid #000}.main{width:100%}}
+@media(max-width:720px){.app-shell{padding:12px}.hero{padding:20px}.hero-row{flex-direction:column}.hero-actions{justify-content:flex-start}.grid{grid-template-columns:1fr}.span-12,.span-9,.span-8,.span-6,.span-5,.span-4,.span-3,.span-2{grid-column:1}.pista{grid-template-columns:1fr}.pista-step:last-child{grid-column:auto}.aside{grid-template-columns:1fr}.sticky-submit{flex-direction:column}.sticky-submit .btn{width:100%}.toolbar{justify-content:stretch}.toolbar .btn{flex:1}.choice-grid{gap:6px}.choice span{font-size:12px;padding:8px 10px}}
+@media print{body{background:#fff;color:#000}.hero,.aside,.sticky-submit,.no-print,.btn{display:none!important}.app-shell{max-width:none;padding:0}.layout{display:block}.card,.item-card{box-shadow:none;border:1px solid #000;background:#fff;color:#000;break-inside:avoid}.card h2,.card h3,.item-title strong,.item-total,.pista-step b,summary{color:#000!important}input,select,textarea{border:0;border-bottom:1px solid #000;border-radius:0;padding:4px;color:#000;background:#fff}.choice input:checked+span{border:1px solid #000;background:#fff;color:#000}.pista-step,.notice{background:#fff;border:1px solid #000}.main{width:100%}}
 </style>
 </head>
 <body>
@@ -57,7 +133,7 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
         <div class="brand-mark">NF</div>
         <div>
           <h1>Pedido de Emissão de Nota Fiscal</h1>
-          <p>Envie os dados da operação, destinatário, produtos ou serviços e os documentos de apoio. Ao final, você receberá um protocolo do pedido.</p>
+          <p>Envie os dados da operação, destinatário, produtos ou serviços e os documentos de apoio. Ao final, você recebe um protocolo do pedido.</p>
         </div>
       </div>
       <div class="hero-actions no-print">
@@ -136,8 +212,8 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
         </section>
 
         <section class="card" id="productSection" data-section="itens">
-          <div class="section-head"><div><h2>4. Produtos e método PISTA</h2><p class="lead">Cadastre cada produto. As cinco perguntas ajudam o escritório a identificar corretamente a mercadoria.</p></div><button type="button" class="btn secondary no-print" onclick="addProductItem()">＋ Adicionar produto</button></div>
-          <div class="notice blue"><strong>PISTA do Produto:</strong> Produto, Ingredientes, Sistema de produção, Tipo de apresentação e Aquisição/aplicação.</div>
+          <div class="section-head"><div><h2>4. Identificação do produto</h2><p class="lead">Cadastre cada produto. As perguntas abaixo ajudam o escritório a identificar corretamente a mercadoria.</p></div><button type="button" class="btn secondary no-print" onclick="addProductItem()">＋ Adicionar produto</button></div>
+          <div class="notice blue">Responda as cinco perguntas de cada produto com suas palavras — elas evitam que a classificação fiscal seja feita só pelo nome do item.</div>
           <div id="productItems"></div>
         </section>
 
@@ -195,11 +271,11 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
         <section class="card" data-section="anexos">
           <div class="section-head"><div><h2>7. Fotos e documentos</h2><p class="lead">Anexe pedidos, contratos, comprovantes, fotos dos produtos, rótulos e outros documentos úteis.</p></div><span class="step-badge">Upload</span></div>
           <div class="file-zone" id="fileZone">
-            <label for="attachments"><strong>Toque ou arraste arquivos aqui</strong><br><span class="muted">Fotos, PDF, XML, planilhas e documentos. Até 12 arquivos.</span></label>
+            <label for="attachments"><strong>Toque ou arraste arquivos aqui</strong><br><span class="muted">Fotos, PDF, XML, planilhas e documentos. Até 12 arquivos, 8 MB cada.</span></label>
             <input id="attachments" type="file" multiple accept="image/*,.pdf,.xml,.xlsx,.xls,.csv,.doc,.docx,.txt,.zip">
           </div>
           <div class="file-list" id="fileList"></div>
-          <div class="notice warn" style="margin-top:12px"><strong>Modo sem Firebase:</strong> as fotos são comprimidas e incluídas no rascunho local. Os demais arquivos ficam listados no pedido; após configurar o Firebase Storage, o mesmo formulário poderá enviá-los integralmente.</div>
+          <div class="notice" style="margin-top:12px" id="attachNotice"><strong>Envio direto:</strong> os arquivos são enviados junto com o pedido. Evite anexar arquivos muito grandes — prefira fotos comprimidas e PDFs simples.</div>
         </section>
 
         <section class="card" data-section="confirmacao">
@@ -214,7 +290,7 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
         <div class="sticky-submit no-print">
           <button type="button" class="btn secondary" onclick="previewRequest()">👁 Revisar pedido</button>
           <button type="button" class="btn secondary" onclick="downloadPDF(false)">⬇ Exportar PDF</button>
-          <button type="submit" class="btn gold">✓ Enviar pedido de emissão</button>
+          <button type="submit" class="btn gold" id="submitBtn">✓ Enviar pedido de emissão</button>
         </div>
       </form>
     </main>
@@ -240,8 +316,8 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
         </div>
       </div>
       <div class="card">
-        <div class="aside-title">Por que usamos o PISTA?</div>
-        <p class="muted" style="font-size:13px;line-height:1.5;margin:0">Ele evita que a classificação do produto seja feita apenas pelo nome. As perguntas identificam o que é, do que é feito, como foi produzido, como é apresentado e sua origem e uso.</p>
+        <div class="aside-title">Por que essas perguntas?</div>
+        <p class="muted" style="font-size:12.5px;line-height:1.5;margin:0">Elas evitam que a classificação do produto seja feita apenas pelo nome. Identificam o que é, do que é feito, como foi produzido, como é apresentado e sua origem e uso.</p>
       </div>
     </aside>
   </div>
@@ -263,7 +339,7 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
   </div></div>
   <div id="webhookFields" class="hidden"><div class="grid" style="margin-top:14px">
     <div class="field span-8"><label>URL da função/webhook</label><input id="webhookUrl" placeholder="https://...cloudfunctions.net/notifyInvoiceRequest"></div><div class="field span-4"><label>Token opcional</label><input id="webhookToken" type="password"></div>
-    <div class="field span-12"><div class="hint">O portal enviará um POST JSON com o pedido. A função deverá validar, salvar no Firebase e disparar o e-mail.</div></div>
+    <div class="field span-12"><div class="hint">O portal envia o pedido direto para o Firebase; esse webhook é só para disparar o aviso por e-mail à equipe.</div></div>
   </div></div>
   <div class="divider"></div>
   <div class="toolbar"><button class="btn secondary" onclick="testNotification()">Enviar teste</button><button class="btn primary" onclick="saveEmailConfig()">Salvar configuração</button></div>
@@ -271,10 +347,25 @@ details{border:1px solid #d8dcde;border-radius:14px;background:#fbfcfc;margin-to
 
 <div class="toast-wrap" id="toastWrap"></div>
 
-<script>
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArxzlPxV6YonegVS3rO_7LCO_doVXAjg0",
+  authDomain: "portal-treinamentos-lang.firebaseapp.com",
+  databaseURL: "https://portal-treinamentos-lang-default-rtdb.firebaseio.com",
+  projectId: "portal-treinamentos-lang",
+  storageBucket: "portal-treinamentos-lang.firebasestorage.app",
+  messagingSenderId: "1049839891406",
+  appId: "1:1049839891406:web:c5874166bdbee74139f19f"
+};
+const fbApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const fbDb = getDatabase(fbApp);
+const FB_NODE = "bif_pedidos_emissao_nota";
+
 const UF_LIST=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 const STORAGE_DRAFT='pedidoNota_draft_v1';
-const STORAGE_REQUESTS='pedidoNota_requests_v1';
 const STORAGE_CONFIG='pedidoNota_emailConfig_v1';
 let productCounter=0, serviceCounter=0, filesState=[], lastSubmitted=null;
 
@@ -307,6 +398,7 @@ function money(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',c
 function esc(v=''){return String(v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
 function toast(msg,type=''){const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;document.getElementById('toastWrap').appendChild(el);setTimeout(()=>el.remove(),4200)}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
+function cryptoId(){return (crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2))}
 
 function productTemplate(id){return `<div class="item-card product-item" data-id="${id}">
   <div class="item-title"><strong>Produto ${id}</strong><div><span class="item-total">R$ 0,00</span> <button type="button" class="btn small danger no-print" onclick="removeItem(this,'product')">Excluir</button></div></div>
@@ -321,11 +413,11 @@ function productTemplate(id){return `<div class="item-card product-item" data-id
     <div class="field span-3"><label>Lote/validade</label><input data-key="lot"></div>
   </div>
   <div class="pista">
-    <div class="pista-step"><b>P — Produto</b><small>O que é? Explique de forma simples.</small><textarea data-key="pistaProduct" required placeholder="O que é o produto?"></textarea></div>
-    <div class="pista-step"><b>I — Ingredientes</b><small>Do que é feito? Qual matéria predomina?</small><textarea data-key="pistaIngredients" required placeholder="Materiais, ingredientes ou componentes"></textarea></div>
-    <div class="pista-step"><b>S — Sistema de produção</b><small>O que foi feito para ficar assim?</small><textarea data-key="pistaSystem" required placeholder="Cortado, fermentado, moldado, montado..."></textarea></div>
-    <div class="pista-step"><b>T — Tipo de apresentação</b><small>Como é vendido ou entregue?</small><select data-key="pistaPresentation" required><option value="">Selecione</option><option>A granel</option><option>Ensacado</option><option>Embalado</option><option>Caixa</option><option>Fardo</option><option>Peça</option><option>Kit/conjunto</option><option>Líquido</option><option>Pó/granulado</option><option>Montado</option><option>Desmontado</option><option>Outro</option></select><input data-key="presentationDetail" placeholder="Detalhe, se necessário"></div>
-    <div class="pista-step"><b>A — Aquisição e aplicação</b><small>Origem e uso normal.</small><select data-key="pistaAcquisition" required><option value="">Origem</option><option>Produção própria</option><option>Comprado pronto para revenda</option><option>Comprado e depois transformado</option><option>Produção de terceiro por encomenda</option><option>Não sei informar</option></select><textarea data-key="pistaApplication" required placeholder="Para que normalmente é usado?"></textarea></div>
+    <div class="pista-step"><b>O que é?</b><small>Explique de forma simples.</small><textarea data-key="pistaProduct" required placeholder="O que é o produto?"></textarea></div>
+    <div class="pista-step"><b>Do que é feito?</b><small>Qual matéria predomina?</small><textarea data-key="pistaIngredients" required placeholder="Materiais, ingredientes ou componentes"></textarea></div>
+    <div class="pista-step"><b>Como foi produzido?</b><small>O que foi feito para ficar assim?</small><textarea data-key="pistaSystem" required placeholder="Cortado, fermentado, moldado, montado..."></textarea></div>
+    <div class="pista-step"><b>Como é apresentado?</b><small>Como é vendido ou entregue?</small><select data-key="pistaPresentation" required><option value="">Selecione</option><option>A granel</option><option>Ensacado</option><option>Embalado</option><option>Caixa</option><option>Fardo</option><option>Peça</option><option>Kit/conjunto</option><option>Líquido</option><option>Pó/granulado</option><option>Montado</option><option>Desmontado</option><option>Outro</option></select><input data-key="presentationDetail" placeholder="Detalhe, se necessário"></div>
+    <div class="pista-step"><b>Origem e uso</b><small>De onde vem e para que serve.</small><select data-key="pistaAcquisition" required><option value="">Origem</option><option>Produção própria</option><option>Comprado pronto para revenda</option><option>Comprado e depois transformado</option><option>Produção de terceiro por encomenda</option><option>Não sei informar</option></select><textarea data-key="pistaApplication" required placeholder="Para que normalmente é usado?"></textarea></div>
   </div>
   <details><summary><span>Detalhes fiscais e logísticos do produto</span><span>＋</span></summary><div class="details-body grid">
     <div class="field span-4"><label>GTIN/EAN</label><input data-key="gtin"></div><div class="field span-4"><label>CEST</label><input data-key="cest"></div><div class="field span-4"><label>Origem da mercadoria</label><select data-key="origin"><option>Não sei informar</option><option>Nacional</option><option>Estrangeira — importação direta</option><option>Estrangeira — adquirida no mercado interno</option></select></div>
@@ -356,58 +448,157 @@ function fillConsumerFinal(){const f=document.getElementById('requestForm');f.re
 async function handleFiles(files){
   const allowed=files.slice(0,Math.max(0,12-filesState.length));
   for(const file of allowed){
-    if(file.size>10*1024*1024){toast(`${file.name}: arquivo acima de 10 MB.`, 'error');continue}
+    if(file.size>8*1024*1024){toast(`${file.name}: arquivo acima de 8 MB.`, 'error');continue}
     const entry={id:cryptoId(),name:file.name,size:file.size,type:file.type||'arquivo',dataUrl:'',isImage:file.type.startsWith('image/')};
-    if(entry.isImage)entry.dataUrl=await compressImage(file,1200,.75);
+    entry.dataUrl=await fileToDataUrl(file);
     filesState.push(entry);
   }
-  renderFiles();updateAll();
+  document.getElementById('attachments').value='';
+  renderFiles();
+  updateAll();
 }
-function compressImage(file,max,quality){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(Math.max(w,h)>max){const ratio=max/Math.max(w,h);w=Math.round(w*ratio);h=Math.round(h*ratio)}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
-function renderFiles(){document.getElementById('fileList').innerHTML=filesState.map(f=>`<div class="file-card">${f.dataUrl?`<img src="${f.dataUrl}">`:''}<div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div><div class="file-meta">${formatBytes(f.size)} · ${esc(f.type)}</div><button type="button" class="btn small danger no-print" style="margin-top:7px" onclick="removeFile('${f.id}')">Remover</button></div>`).join('')}
-function removeFile(id){filesState=filesState.filter(x=>x.id!==id);renderFiles();updateAll()}
-function formatBytes(b){if(!b)return'0 B';const u=['B','KB','MB'];const i=Math.min(2,Math.floor(Math.log(b)/Math.log(1024)));return `${(b/Math.pow(1024,i)).toFixed(i?1:0)} ${u[i]}`}
-function cryptoId(){return 'f_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function fileToDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(file)})}
+function removeFile(id){filesState=filesState.filter(f=>f.id!==id);renderFiles();updateAll()}
+function renderFiles(){
+  const wrap=document.getElementById('fileList');
+  wrap.innerHTML=filesState.map(f=>`<div class="file-card">${f.isImage?`<img src="${f.dataUrl}" alt="">`:''}<div class="file-name">${esc(f.name)}</div><div class="file-meta">${(f.size/1024).toFixed(0)} KB</div><button type="button" class="btn small danger no-print" style="margin-top:8px;width:100%" onclick="removeFile('${f.id}')">Remover</button></div>`).join('');
+}
 
-function itemData(selector){return [...document.querySelectorAll(selector)].map((card,index)=>{const o={index:index+1};card.querySelectorAll('[data-key]').forEach(el=>{const k=el.dataset.key;if(el.type==='checkbox'){if(!o[k])o[k]=[];if(el.checked)o[k].push(el.value)}else o[k]=el.value});o.total=Math.max(0,Number(o.quantity||1)*Number(o.unitPrice||0)-Number(o.discount||0));return o})}
-function formDataObject(){const form=document.getElementById('requestForm'),fd=new FormData(form),o={};for(const [k,v] of fd.entries()){if(k==='knownWithholdings'){if(!o[k])o[k]=[];o[k].push(v)}else o[k]=v}o.products=itemData('.product-item');o.services=itemData('.service-item');o.attachments=filesState.map(({id,name,size,type,dataUrl,isImage})=>({id,name,size,type,dataUrl,isImage}));o.documentType=document.querySelector('[name="documentType"]:checked')?.value||'';o.total=calculateTotal();return o}
-function calculateTotal(){const service=document.querySelector('[name="documentType"]:checked')?.value?.includes('NFS-e');const items=itemData(service?'.service-item':'.product-item');const itemTotal=items.reduce((a,b)=>a+Number(b.total||0),0);const f=document.getElementById('requestForm');return Math.max(0,itemTotal-Number(f.generalDiscount.value||0)+Number(f.freightValue.value||0)+Number(f.insuranceValue.value||0)+Number(f.otherExpenses.value||0))}
+function collectItems(sel){
+  return [...document.querySelectorAll(sel)].map(card=>{
+    const data={};
+    card.querySelectorAll('[data-key]').forEach(el=>{
+      if(el.type==='checkbox'){if(el.checked){data[el.dataset.key]=data[el.dataset.key]||[];data[el.dataset.key].push(el.value)}}
+      else data[el.dataset.key]=el.value;
+    });
+    return data;
+  });
+}
+function itemTotal(item){const qty=Number(item.quantity||0),price=Number(item.unitPrice||0),disc=Number(item.discount||0);return Math.max(0,qty*price-disc)}
+
+function updateItemTotals(){
+  document.querySelectorAll('.product-item,.service-item').forEach(card=>{
+    const data={};card.querySelectorAll('[data-key]').forEach(el=>{if(el.type!=='checkbox')data[el.dataset.key]=el.value});
+    card.querySelector('.item-total').textContent=money(itemTotal(data));
+  });
+}
+
+function formDataObject(){
+  const form=document.getElementById('requestForm');
+  const fd=new FormData(form);
+  const obj={};
+  fd.forEach((v,k)=>{if(obj[k]!==undefined){obj[k]=Array.isArray(obj[k])?[...obj[k],v]:[obj[k],v]}else obj[k]=v});
+  obj.knownWithholdings=fd.getAll('knownWithholdings');
+  const isService=(obj.documentType||'').includes('NFS-e');
+  obj.products=isService?[]:collectItems('.product-item');
+  obj.services=isService?collectItems('.service-item'):[];
+  const itemsTotal=[...obj.products,...obj.services].reduce((s,i)=>s+itemTotal(i),0);
+  obj.subtotal=itemsTotal;
+  obj.total=Math.max(0,itemsTotal-Number(obj.generalDiscount||0)+Number(obj.freightValue||0)+Number(obj.insuranceValue||0)+Number(obj.otherExpenses||0));
+  obj.attachments=filesState;
+  obj.createdAt=new Date().toISOString();
+  return obj;
+}
+
+function updateChecklist(o){
+  const checks={
+    issuer: !!(o.requesterName&&o.requesterEmail&&o.issuerName&&o.issuerTaxId&&o.issuerCity&&o.issuerUF),
+    operation: !!(o.documentType&&o.operationNature&&o.desiredDate&&o.operationExplanation),
+    recipient: !!(o.recipientName&&o.recipientTaxId&&o.recipientZip&&o.recipientAddress&&o.recipientCity&&o.recipientUF),
+    items: (o.products.length&&o.products.every(p=>p.name&&p.quantity&&p.unitPrice))||(o.services.length&&o.services.every(s=>s.description&&s.unitPrice&&s.city)),
+    files: filesState.length>0,
+    confirm: !!(o.truthDeclaration&&o.taxValidation),
+  };
+  let done=0;
+  Object.entries(checks).forEach(([key,ok])=>{
+    const line=document.querySelector(`.checkline[data-check="${key}"]`);
+    if(line){line.classList.toggle('done',!!ok);if(ok)done++}
+  });
+  return done/Object.keys(checks).length;
+}
+
+function updateSummary(o){
+  document.getElementById('sumDoc').textContent=o.documentType||'Não selecionado';
+  document.getElementById('sumItems').textContent=(o.products.length+o.services.length);
+  document.getElementById('sumRecipient').textContent=o.recipientName||'—';
+  document.getElementById('sumUrgency').textContent=o.urgency||'Não';
+  document.getElementById('sumTotal').textContent=money(o.total);
+}
 
 function updateAll(){
-  document.querySelectorAll('.product-item,.service-item').forEach(card=>{const q=Number(card.querySelector('[data-key="quantity"]')?.value||1),p=Number(card.querySelector('[data-key="unitPrice"]')?.value||0),d=Number(card.querySelector('[data-key="discount"]')?.value||0);card.querySelector('.item-total').textContent=money(Math.max(0,q*p-d))});
-  const f=document.getElementById('requestForm'),doc=document.querySelector('[name="documentType"]:checked')?.value||'Não selecionado';
-  document.getElementById('sumDoc').textContent=doc.replace(' — ',' ');document.getElementById('sumItems').textContent=doc.includes('NFS-e')?document.querySelectorAll('.service-item').length:document.querySelectorAll('.product-item').length;document.getElementById('sumRecipient').textContent=f.recipientName.value||'—';document.getElementById('sumUrgency').textContent=f.urgency.value;document.getElementById('sumTotal').textContent=money(calculateTotal());
-  const checks={issuer:f.issuerName.value&&f.issuerTaxId.value,operation:doc!=='Não selecionado'&&f.operationExplanation.value,recipient:f.recipientName.value&&f.recipientTaxId.value&&f.recipientCity.value,items:doc.includes('NFS-e')?itemData('.service-item').some(x=>x.description&&x.unitPrice):itemData('.product-item').some(x=>x.name&&x.pistaProduct&&x.pistaIngredients),files:filesState.length>0,confirm:f.truthDeclaration.checked&&f.taxValidation.checked};
-  Object.entries(checks).forEach(([k,v])=>document.querySelector(`[data-check="${k}"]`)?.classList.toggle('done',!!v));
-  const required=[...f.querySelectorAll('[required]')].filter(x=>!x.closest('.hidden'));const valid=required.filter(x=>x.type==='checkbox'?x.checked:!!x.value).length;const pct=Math.round(valid/Math.max(1,required.length)*100);document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressText').textContent=pct+'%';
+  updateItemTotals();
+  const o=formDataObject();
+  const ratio=updateChecklist(o);
+  updateSummary(o);
+  document.getElementById('progressBar').style.width=(ratio*100)+'%';
+  document.getElementById('progressText').textContent=Math.round(ratio*100)+'%';
+}
+
+function saveDraft(){localStorage.setItem(STORAGE_DRAFT,JSON.stringify(formDataObject()));toast('Rascunho salvo neste navegador.','ok')}
+function loadDraft(){
+  try{
+    const raw=localStorage.getItem(STORAGE_DRAFT);if(!raw)return;
+    const o=JSON.parse(raw);
+    const form=document.getElementById('requestForm');
+    Object.entries(o).forEach(([k,v])=>{
+      if(['products','services','attachments','subtotal','total','createdAt','knownWithholdings'].includes(k))return;
+      const el=form.elements[k];if(!el)return;
+      if(el instanceof RadioNodeList){[...el].forEach(r=>{if(r.value===v)r.checked=true})}
+      else if(el.type==='checkbox'){el.checked=!!v}
+      else el.value=v;
+    });
+    if(o.documentType)toggleDocumentType();
+    filesState=o.attachments||[];renderFiles();
+  }catch(e){console.warn('Não foi possível restaurar o rascunho.',e)}
 }
 
 function validateForm(){
-  const f=document.getElementById('requestForm');let first=null;f.querySelectorAll('.invalid').forEach(x=>x.classList.remove('invalid'));
-  [...f.querySelectorAll('[required]')].filter(x=>!x.closest('.hidden')).forEach(x=>{const ok=x.type==='radio'?[...f.querySelectorAll(`[name="${x.name}"]`)].some(r=>r.checked):x.type==='checkbox'?x.checked:!!x.value.trim();if(!ok){x.classList.add('invalid');first=first||x}});
-  if(!document.querySelector('[name="documentType"]:checked')){document.getElementById('docTypeChoices').style.outline='2px solid #a74444';first=first||document.getElementById('docTypeChoices')}else document.getElementById('docTypeChoices').style.outline='';
-  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});toast('Revise os campos obrigatórios destacados.','error');return false}return true;
+  const form=document.getElementById('requestForm');
+  let firstInvalid=null;
+  form.querySelectorAll('[required]').forEach(el=>{
+    const visible=el.offsetParent!==null;
+    if(!visible)return;
+    const valid=el.type==='checkbox'?el.checked:!!el.value;
+    el.classList.toggle('invalid',!valid);
+    if(!valid&&!firstInvalid)firstInvalid=el;
+  });
+  const o=formDataObject();
+  if(!o.products.length&&!o.services.length){toast('Adicione ao menos um produto ou serviço.','error');return false}
+  if(firstInvalid){firstInvalid.scrollIntoView({behavior:'smooth',block:'center'});toast('Preencha os campos obrigatórios destacados.','error');return false}
+  return true;
 }
 
-function generateProtocol(){const d=new Date(),date=d.toISOString().slice(0,10).replaceAll('-',''),time=d.toTimeString().slice(0,5).replace(':','');return `NF-${date}-${time}-${Math.random().toString(36).slice(2,6).toUpperCase()}`}
-async function submitRequest(e){e.preventDefault();if(!validateForm())return;const order=formDataObject();order.protocol=generateProtocol();order.createdAt=new Date().toISOString();order.status='Recebido';order.version=1;const list=JSON.parse(localStorage.getItem(STORAGE_REQUESTS)||'[]');list.unshift({...order,attachments:order.attachments.map(x=>({...x,dataUrl:x.dataUrl&&x.dataUrl.length<600000?x.dataUrl:''}))});localStorage.setItem(STORAGE_REQUESTS,JSON.stringify(list.slice(0,100)));lastSubmitted=order;localStorage.removeItem(STORAGE_DRAFT);let notification='Aviso por e-mail não configurado.';try{const r=await sendNotification(order);notification=r.message}catch(err){notification='Pedido salvo, mas o aviso por e-mail falhou: '+err.message;toast(notification,'error')}
-  document.getElementById('successProtocol').textContent=order.protocol;document.getElementById('successDetails').innerHTML=`<div class="summary-row"><span>Empresa</span><strong>${esc(order.issuerName)}</strong></div><div class="summary-row"><span>Documento</span><strong>${esc(order.documentType)}</strong></div><div class="summary-row"><span>Destinatário</span><strong>${esc(order.recipientName)}</strong></div><div class="summary-row"><span>Total</span><strong>${money(order.total)}</strong></div><div class="notice blue" style="margin-top:12px">${esc(notification)}</div>`;document.getElementById('successModal').classList.add('open');toast('Pedido registrado.','ok')}
-
-function saveDraft(){const o=formDataObject();o.savedAt=new Date().toISOString();try{localStorage.setItem(STORAGE_DRAFT,JSON.stringify(o));toast('Rascunho salvo neste navegador.','ok')}catch(e){toast('O rascunho ficou grande demais. Remova algumas fotos.','error')}}
-function loadDraft(){try{const o=JSON.parse(localStorage.getItem(STORAGE_DRAFT)||'null');if(!o)return;const f=document.getElementById('requestForm');Object.entries(o).forEach(([k,v])=>{if(['products','services','attachments','total','savedAt'].includes(k))return;const els=f.querySelectorAll(`[name="${CSS.escape(k)}"]`);if(!els.length)return;if(els[0].type==='radio')els.forEach(x=>x.checked=x.value===v);else if(els[0].type==='checkbox'&&Array.isArray(v))els.forEach(x=>x.checked=v.includes(x.value));else els[0].value=v});
-  if(o.products?.length){document.getElementById('productItems').innerHTML='';productCounter=0;o.products.forEach(x=>{addProductItem();fillItem(document.querySelector('.product-item:last-child'),x)})}
-  if(o.services?.length){document.getElementById('serviceItems').innerHTML='';serviceCounter=0;o.services.forEach(x=>{addServiceItem();fillItem(document.querySelector('.service-item:last-child'),x)})}
-  filesState=o.attachments||[];renderFiles();toggleDocumentType();toast('Rascunho anterior restaurado.','ok')}catch(e){console.warn(e)}}
-function fillItem(card,o){Object.entries(o).forEach(([k,v])=>{if(k==='index'||k==='total')return;const els=card.querySelectorAll(`[data-key="${CSS.escape(k)}"]`);if(!els.length)return;if(els[0].type==='checkbox')els.forEach(x=>x.checked=(v||[]).includes(x.value));else els[0].value=v??''})}
-
-function previewRequest(){const o=formDataObject();document.getElementById('previewContent').innerHTML=buildHtmlSummary(o);document.getElementById('previewModal').classList.add('open')}
-function buildHtmlSummary(o){const items=o.documentType.includes('NFS-e')?o.services:o.products;return `<div class="grid"><div class="span-6"><h3>Solicitante</h3><p>${esc(o.requesterName)}<br>${esc(o.requesterEmail)}<br>${esc(o.requesterPhone)}</p></div><div class="span-6"><h3>Emitente</h3><p>${esc(o.issuerName)}<br>${esc(o.issuerTaxId)} · ${esc(o.issuerCity)}/${esc(o.issuerUF)}</p></div><div class="span-6"><h3>Operação</h3><p><span class="pill">${esc(o.documentType||'Não informado')}</span> ${o.urgency!=='Não'?'<span class="pill urgente">Urgente</span>':''}</p><p>${esc(o.operationExplanation)}</p></div><div class="span-6"><h3>Destinatário</h3><p>${esc(o.recipientName)}<br>${esc(o.recipientTaxId)} · ${esc(o.recipientCity)}/${esc(o.recipientUF)}</p></div></div><div class="divider"></div><h3>Itens</h3>${items.map((x,i)=>`<div class="summary-row"><span>${i+1}. ${esc(x.name||x.description||'Item')}</span><strong>${money(x.total)}</strong></div>`).join('')}<div class="total">${money(o.total)}</div><div class="divider"></div><h3>Anexos</h3><p>${o.attachments.length?o.attachments.map(x=>esc(x.name)).join(', '):'Nenhum anexo.'}</p>`}
-
-function pdfLines(o){const lines=[];const add=(title,value='')=>{lines.push({text:title,bold:true});if(value)wrapText(String(value),92).forEach(t=>lines.push({text:t}));lines.push({text:''})};lines.push({text:'PEDIDO DE EMISSAO DE NOTA FISCAL',bold:true,size:15});lines.push({text:`Protocolo: ${o.protocol||'RASCUNHO'}`,bold:true});lines.push({text:`Gerado em: ${new Date().toLocaleString('pt-BR')}`});lines.push({text:''});add('SOLICITANTE',`${o.requesterName} | ${o.requesterEmail} | ${o.requesterPhone}`);add('EMITENTE',`${o.issuerName} | ${o.issuerTaxId} | IE ${o.issuerIE||'-'} | ${o.issuerCity}/${o.issuerUF} | ${o.issuerRegime}`);add('DOCUMENTO E OPERACAO',`${o.documentType} | ${o.operationNature} | Emissao desejada: ${o.desiredDate||'-'} | Urgencia: ${o.urgency}\n${o.operationExplanation}`);add('DESTINATARIO',`${o.recipientName} | ${o.recipientTaxId} | IE ${o.recipientIE||'-'} | ${o.recipientAddress}, ${o.recipientNumber} - ${o.recipientDistrict} - ${o.recipientCity}/${o.recipientUF} | CEP ${o.recipientZip}`);
-  const items=o.documentType.includes('NFS-e')?o.services:o.products;lines.push({text:'ITENS',bold:true,size:12});items.forEach((x,i)=>{lines.push({text:`${i+1}. ${x.name||x.description||'Item'} — ${money(x.total)}`,bold:true});if(x.name){wrapText(`PISTA: Produto: ${x.pistaProduct}; Ingredientes: ${x.pistaIngredients}; Sistema: ${x.pistaSystem}; Apresentacao: ${x.pistaPresentation} ${x.presentationDetail||''}; Aquisicao: ${x.pistaAcquisition}; Aplicacao: ${x.pistaApplication}`,92).forEach(t=>lines.push({text:t}))}else wrapText(`Servico: ${x.description}; Municipio: ${x.city}/${x.uf}; ISS retido: ${x.issWithheld}`,92).forEach(t=>lines.push({text:t}));lines.push({text:''})});
-  add('VALORES',`Desconto geral: ${money(o.generalDiscount)} | Frete: ${money(o.freightValue)} | Seguro: ${money(o.insuranceValue)} | Outras despesas: ${money(o.otherExpenses)} | TOTAL: ${money(o.total)}`);add('PAGAMENTO',`${o.paymentMethod} | ${o.paymentCondition} | Parcelas: ${o.installments||1} | Primeiro vencimento: ${o.firstDueDate||'-'} | Frete: ${o.freightMode}`);add('INFORMACOES TRIBUTARIAS INFORMADAS',`CFOP: ${o.knownCFOP||'nao informado'} | CST/CSOSN: ${o.knownCST||'nao informado'} | NCM/codigo: ${o.knownTaxCode||'nao informado'} | Retencoes: ${(o.knownWithholdings||[]).join(', ')||'nao informadas'}\n${o.taxNotes||''}`);add('ANEXOS',o.attachments.length?o.attachments.map(x=>`${x.name} (${formatBytes(x.size)})`).join('; '):'Nenhum anexo');add('INFORMACOES ADICIONAIS',o.additionalInfo||'Nenhuma');lines.push({text:'DECLARACOES',bold:true,size:12});wrapText('O solicitante confirmou que as informacoes correspondem a operacao real e que os codigos e tratamentos tributarios serao validados pelo escritorio.',92).forEach(t=>lines.push({text:t}));return lines}
+function pdfLines(o){
+  const lines=[{text:'PEDIDO DE EMISSÃO DE NOTA FISCAL',size:14,bold:true}];
+  lines.push({text:'Protocolo: '+(o.protocol||'RASCUNHO'),size:10});
+  lines.push({text:'Data: '+new Date(o.createdAt).toLocaleString('pt-BR'),size:9});
+  lines.push({text:' ',size:6});
+  lines.push({text:'SOLICITANTE',size:11,bold:true});
+  lines.push({text:`${o.requesterName||''} | ${o.requesterEmail||''} | ${o.requesterPhone||''}`,size:9});
+  lines.push({text:`Emitente: ${o.issuerName||''} — ${o.issuerTaxId||''} — ${o.issuerCity||''}/${o.issuerUF||''}`,size:9});
+  lines.push({text:' ',size:6});
+  lines.push({text:'OPERAÇÃO',size:11,bold:true});
+  lines.push({text:`${o.documentType||''} | ${o.operationNature||''} | Emissão desejada: ${o.desiredDate||''}`,size:9});
+  wrapText(o.operationExplanation,100).forEach(t=>lines.push({text:t,size:9}));
+  lines.push({text:' ',size:6});
+  lines.push({text:'DESTINATÁRIO',size:11,bold:true});
+  lines.push({text:`${o.recipientName||''} — ${o.recipientTaxId||''}`,size:9});
+  lines.push({text:`${o.recipientAddress||''}, ${o.recipientNumber||''} — ${o.recipientDistrict||''} — ${o.recipientCity||''}/${o.recipientUF||''}`,size:9});
+  lines.push({text:' ',size:6});
+  const items=[...o.products,...o.services];
+  lines.push({text:'ITENS',size:11,bold:true});
+  items.forEach((it,i)=>{
+    const name=it.name||it.description||`Item ${i+1}`;
+    lines.push({text:`${i+1}. ${name} — Qtd ${it.quantity||1} — ${money(itemTotal(it))}`,size:9});
+  });
+  lines.push({text:' ',size:6});
+  lines.push({text:`TOTAL: ${money(o.total)}`,size:12,bold:true});
+  lines.push({text:' ',size:6});
+  lines.push({text:'Anexos: '+(o.attachments||[]).length+' arquivo(s)',size:8});
+  return lines;
+}
 function wrapText(text,max){const paras=String(text||'').replace(/\r/g,'').split('\n'),out=[];paras.forEach(p=>{const words=p.split(/\s+/);let line='';words.forEach(w=>{if((line+' '+w).trim().length>max){if(line)out.push(line);line=w}else line=(line+' '+w).trim()});out.push(line)});return out}
-function latin1(s){return String(s).replace(/[–—]/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x00-\xFF]/g,'?')}
+function latin1(s){return String(s).replace(/[–—]/g,'-').replace(/[""]/g,'"').replace(/['']/g,"'").replace(/[^\x00-\xFF]/g,'?')}
 function pdfEsc(s){return latin1(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
 function buildSimplePDF(lines){
   const pages=[];let current=[];let y=805;for(const l of lines){const size=l.size||9;const h=size+4;if(y-h<45){pages.push(current);current=[];y=805}current.push({...l,y});y-=h}if(current.length)pages.push(current);
@@ -418,29 +609,83 @@ function buildSimplePDF(lines){
   let pdf='%PDF-1.4\n%âãÏÓ\n',offsets=[0];objects.forEach((o,i)=>{offsets.push(latin1(pdf).length);pdf+=`${i+1} 0 obj\n${o}\nendobj\n`});const xref=latin1(pdf).length;pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;for(let i=1;i<offsets.length;i++)pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
   const bytes=new Uint8Array(latin1(pdf).length);for(let i=0;i<pdf.length;i++)bytes[i]=latin1(pdf).charCodeAt(i)&255;return new Blob([bytes],{type:'application/pdf'})
 }
-function downloadPDF(useSubmitted){const o=useSubmitted&&lastSubmitted?lastSubmitted:formDataObject();if(!o.protocol)o.protocol='RASCUNHO';const blob=buildSimplePDF(pdfLines(o));downloadBlob(blob,`pedido_nota_${o.protocol}.pdf`);toast('PDF preto e branco gerado sem abrir a caixa de impressão.','ok')}
+function downloadPDF(useSubmitted){const o=useSubmitted&&lastSubmitted?lastSubmitted:formDataObject();if(!o.protocol)o.protocol='RASCUNHO';const blob=buildSimplePDF(pdfLines(o));downloadBlob(blob,`pedido_nota_${o.protocol}.pdf`);toast('PDF gerado sem abrir a caixa de impressão.','ok')}
 function downloadJSON(){const o=lastSubmitted||formDataObject();downloadBlob(new Blob([JSON.stringify(o,null,2)],{type:'application/json'}),`pedido_nota_${o.protocol||'rascunho'}.json`)}
 function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+function previewRequest(){
+  const o=formDataObject();
+  const items=[...o.products,...o.services];
+  document.getElementById('previewContent').innerHTML=`
+    <div class="grid">
+      <div class="field span-12"><label>Solicitante</label><div class="pill">${esc(o.requesterName||'—')} · ${esc(o.requesterEmail||'—')}</div></div>
+      <div class="field span-12"><label>Documento</label><div class="pill">${esc(o.documentType||'Não selecionado')}</div></div>
+      <div class="field span-12"><label>Destinatário</label><div class="pill">${esc(o.recipientName||'—')}</div></div>
+      <div class="field span-12"><label>Itens (${items.length})</label>${items.map((it,i)=>`<div class="notice" style="margin-top:8px">${i+1}. ${esc(it.name||it.description||'')} — ${money(itemTotal(it))}</div>`).join('')||'<div class="hint">Nenhum item cadastrado.</div>'}</div>
+      <div class="field span-12"><label>Total estimado</label><div class="pill">${money(o.total)}</div></div>
+      <div class="field span-12"><label>Anexos</label><div class="pill">${(o.attachments||[]).length} arquivo(s)</div></div>
+    </div>`;
+  document.getElementById('previewModal').classList.add('open');
+}
+
+function generateProtocol(){
+  const now=new Date();
+  const stamp=now.toISOString().slice(0,10).replace(/-/g,'');
+  const rand=Math.floor(1000+Math.random()*9000);
+  return `PED-${stamp}-${rand}`;
+}
+
+async function submitRequest(e){
+  e.preventDefault();
+  if(!validateForm())return;
+  const submitBtn=document.getElementById('submitBtn');
+  submitBtn.disabled=true;
+  const o=formDataObject();
+  o.protocol=generateProtocol();
+  o.status='novo';
+  try{
+    await set(ref(fbDb, `${FB_NODE}/${o.protocol}`), o);
+    lastSubmitted=o;
+    localStorage.removeItem(STORAGE_DRAFT);
+    document.getElementById('successProtocol').textContent=o.protocol;
+    document.getElementById('successDetails').innerHTML=`<p class="muted" style="font-size:13px">Documento: ${esc(o.documentType||'')} · Destinatário: ${esc(o.recipientName||'')} · Total: ${money(o.total)}</p>`;
+    document.getElementById('successModal').classList.add('open');
+    sendNotification(o).then(r=>{if(!r.ok)console.warn(r.message)}).catch(err=>console.warn(err.message));
+  }catch(error){
+    console.error('PERMISSION_DENIED ou falha ao enviar pedido:', error);
+    toast('Não foi possível enviar o pedido ao banco de dados. Tente novamente em instantes.','error');
+  }finally{
+    submitBtn.disabled=false;
+  }
+}
 
 function openConfig(){loadEmailConfig();document.getElementById('configModal').classList.add('open')}
 function configObject(){return{mode:document.getElementById('emailMode').value,toEmail:document.getElementById('notifyEmail').value,emailjsService:document.getElementById('emailjsService').value,emailjsTemplate:document.getElementById('emailjsTemplate').value,emailjsPublicKey:document.getElementById('emailjsPublicKey').value,webhookUrl:document.getElementById('webhookUrl').value,webhookToken:document.getElementById('webhookToken').value}}
 function saveEmailConfig(){localStorage.setItem(STORAGE_CONFIG,JSON.stringify(configObject()));toast('Configuração salva.','ok');closeModal('configModal')}
 function loadEmailConfig(){const c=JSON.parse(localStorage.getItem(STORAGE_CONFIG)||'{}');document.getElementById('emailMode').value=c.mode||'none';document.getElementById('notifyEmail').value=c.toEmail||'';document.getElementById('emailjsService').value=c.emailjsService||'';document.getElementById('emailjsTemplate').value=c.emailjsTemplate||'';document.getElementById('emailjsPublicKey').value=c.emailjsPublicKey||'';document.getElementById('webhookUrl').value=c.webhookUrl||'';document.getElementById('webhookToken').value=c.webhookToken||'';toggleEmailConfig()}
 function toggleEmailConfig(){const m=document.getElementById('emailMode').value;document.getElementById('emailjsFields').classList.toggle('hidden',m!=='emailjs');document.getElementById('webhookFields').classList.toggle('hidden',m!=='webhook')}
-async function testNotification(){const test={protocol:'TESTE-'+Date.now(),issuerName:'Empresa de teste',requesterName:'Teste do portal',requesterEmail:'teste@exemplo.com',documentType:'Teste de aviso',recipientName:'Destinatário de teste',total:0,urgency:'Não',createdAt:new Date().toISOString(),operationExplanation:'Mensagem de teste da configuração de avisos.'};try{const r=await sendNotification(test,configObject());toast(r.message,'ok')}catch(e){toast(e.message,'error')}}
-async function sendNotification(order,override){const c=override||JSON.parse(localStorage.getItem(STORAGE_CONFIG)||'{}');if(!c.mode||c.mode==='none')return{ok:false,message:'Aviso por e-mail não configurado.'};const summary=`${order.documentType} | ${order.issuerName} | ${order.recipientName} | ${money(order.total)} | ${order.operationExplanation}`;
+async function testNotification(){const test={protocol:'TESTE-'+Date.now(),issuerName:'Empresa de teste',requesterName:'Teste do portal',requesterEmail:'teste@exemplo.com',documentType:'Teste de aviso',recipientName:'Destinatário de teste',total:0,urgency:'Não',createdAt:new Date().toISOString(),operationExplanation:'Mensagem de teste da configuração de avisos.'};try{const r=await sendNotification(test,configObject());toast(r.message,r.ok?'ok':'error')}catch(e){toast(e.message,'error')}}
+async function sendNotification(order,override){
+  const c=override||JSON.parse(localStorage.getItem(STORAGE_CONFIG)||'{}');
+  if(!c.mode||c.mode==='none')return{ok:false,message:'Aviso por e-mail não configurado.'};
+  const summary=`${order.documentType} | ${order.issuerName} | ${order.recipientName} | ${money(order.total)} | ${order.operationExplanation}`;
   if(c.mode==='emailjs'){
     if(!c.toEmail||!c.emailjsService||!c.emailjsTemplate||!c.emailjsPublicKey)throw new Error('Configuração EmailJS incompleta.');
     const payload={service_id:c.emailjsService,template_id:c.emailjsTemplate,user_id:c.emailjsPublicKey,template_params:{to_email:c.toEmail,protocol:order.protocol,company_name:order.issuerName,requester_name:order.requesterName,requester_email:order.requesterEmail,document_type:order.documentType,recipient_name:order.recipientName,total:money(order.total),urgency:order.urgency,requested_at:new Date(order.createdAt).toLocaleString('pt-BR'),summary}};
     const res=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!res.ok)throw new Error('EmailJS recusou o envio ('+res.status+').');return{ok:true,message:'Aviso por e-mail enviado ao escritório.'}
   }
   if(c.mode==='webhook'){
-    if(!c.webhookUrl)throw new Error('URL do webhook não informada.');const headers={'Content-Type':'application/json'};if(c.webhookToken)headers.Authorization='Bearer '+c.webhookToken;const res=await fetch(c.webhookUrl,{method:'POST',headers,body:JSON.stringify({event:'invoice_request_created',toEmail:c.toEmail,order:{...order,attachments:order.attachments.map(x=>({name:x.name,size:x.size,type:x.type}))}})});if(!res.ok)throw new Error('Webhook recusou o envio ('+res.status+').');return{ok:true,message:'Pedido enviado ao Firebase/webhook e aviso solicitado.'}
+    if(!c.webhookUrl)throw new Error('URL do webhook não informada.');const headers={'Content-Type':'application/json'};if(c.webhookToken)headers.Authorization='Bearer '+c.webhookToken;
+    const safeOrder={...order,attachments:(order.attachments||[]).map(x=>({name:x.name,size:x.size,type:x.type}))};
+    const res=await fetch(c.webhookUrl,{method:'POST',headers,body:JSON.stringify({event:'invoice_request_created',toEmail:c.toEmail,order:safeOrder})});if(!res.ok)throw new Error('Webhook recusou o envio ('+res.status+').');return{ok:true,message:'Aviso enviado ao webhook.'}
   }
   return{ok:false,message:'Modo de aviso não reconhecido.'}
 }
 
 function newRequest(){closeModal('successModal');document.getElementById('requestForm').reset();document.getElementById('productItems').innerHTML='';document.getElementById('serviceItems').innerHTML='';productCounter=0;serviceCounter=0;filesState=[];renderFiles();addProductItem();lastSubmitted=null;window.scrollTo({top:0,behavior:'smooth'});updateAll()}
+
+// expõe as funções usadas em atributos onclick/onchange no HTML
+Object.assign(window,{saveDraft,openConfig,fillConsumerFinal,addProductItem,addServiceItem,removeItem,toggleDelivery,removeFile,previewRequest,downloadPDF,downloadJSON,closeModal,newRequest,toggleEmailConfig,testNotification,saveEmailConfig});
 
 init();
 </script>
