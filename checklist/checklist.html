@@ -1037,9 +1037,9 @@
     .rel-modal {
       background: #0f2035;
       border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 12px;
-      width: 100%; max-width: 640px;
-      max-height: 86vh;
+      border-radius: 14px;
+      width: 100%; max-width: 780px;
+      max-height: 88vh;
       display: flex; flex-direction: column;
       box-shadow: 0 24px 64px rgba(0,0,0,0.6);
       transform: translateY(16px);
@@ -1047,30 +1047,68 @@
     }
     .rel-modal-overlay.open .rel-modal { transform: translateY(0); }
     .rel-modal-head {
-      padding: 18px 22px 14px;
+      padding: 18px 22px 0;
       border-bottom: 1px solid rgba(201,168,76,0.15);
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      display: flex; flex-direction: column; gap: 10px;
     }
+    .rel-modal-head-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-bottom:10px; }
     .rel-modal-head h3 { font-family:'Poppins',sans-serif; font-size:1rem; font-weight:600; color:#e8c97a; margin:0; }
     .rel-modal-meta { font-size:0.73rem; font-family:'DM Mono',monospace; color:#7a92a8; margin-top:3px; }
-    .rel-modal-close { background:none; border:none; color:#7a92a8; font-size:1.2rem; cursor:pointer; padding:2px 6px; line-height:1; border-radius:4px; }
+    .rel-modal-close { background:none; border:none; color:#7a92a8; font-size:1.2rem; cursor:pointer; padding:2px 6px; line-height:1; border-radius:4px; flex-shrink:0; }
     .rel-modal-close:hover { color:#e8c97a; background:rgba(201,168,76,0.1); }
+
+    /* Abas do relatório */
+    .rel-tabs { display:flex; gap:0; overflow-x:auto; padding: 0 22px; }
+    .rel-tab {
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      font-weight: 600;
+      color: #7a92a8;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+      letter-spacing: 0.04em;
+    }
+    .rel-tab:hover { color: #e8c97a; }
+    .rel-tab.active { color: #c9a84c; border-bottom-color: #c9a84c; }
+
+    /* Filtros dentro do modal */
+    .rel-filters {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 22px;
+      border-bottom: 1px solid rgba(201,168,76,0.08);
+      flex-wrap: wrap;
+    }
+    .rel-filter-label { font-size:0.67rem; font-family:'DM Mono',monospace; color:#7a92a8; text-transform:uppercase; letter-spacing:0.07em; white-space:nowrap; }
+    .rel-filter-select {
+      padding: 4px 10px; border-radius: 999px;
+      border: 1px solid rgba(201,168,76,0.22);
+      background: rgba(13,27,42,0.8); color: #d4dde8;
+      font-family: 'DM Mono',monospace; font-size: 0.75rem; outline:none; cursor:pointer;
+    }
+    .rel-filter-select:focus { border-color: #c9a84c; }
+    .rel-filter-select option { background: #0f2035; }
+
     .rel-modal-body { flex:1; overflow-y:auto; padding:0; }
     .rel-modal-body::-webkit-scrollbar { width:6px; }
     .rel-modal-body::-webkit-scrollbar-track { background:rgba(255,255,255,0.03); }
     .rel-modal-body::-webkit-scrollbar-thumb { background:rgba(201,168,76,0.4); border-radius:999px; }
+    .rel-tab-panel { display:none; }
+    .rel-tab-panel.active { display:block; }
+
     .rel-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
     .rel-table thead th {
       position: sticky; top:0; z-index:1;
       background: #0d1b2a;
       color: #c9a84c;
       font-family:'DM Mono',monospace;
-      font-size:0.68rem;
-      font-weight:600;
-      letter-spacing:0.07em;
-      text-transform:uppercase;
-      padding: 9px 14px;
-      text-align:left;
+      font-size:0.68rem; font-weight:600;
+      letter-spacing:0.07em; text-transform:uppercase;
+      padding: 9px 14px; text-align:left;
       border-bottom: 1px solid rgba(201,168,76,0.2);
     }
     .rel-table thead th:first-child { width:40px; text-align:center; }
@@ -1082,21 +1120,25 @@
     .rel-table tbody td:last-child { text-align:center; }
     .rel-status-ok { display:inline-block; width:10px; height:10px; background:#2ecc8a; border-radius:50%; }
     .rel-status-pend { display:inline-block; width:10px; height:10px; background:#ff7675; border-radius:50%; }
+    .rel-status-na { display:inline-block; width:10px; height:10px; background:#7a92a8; border-radius:50%; }
     .rel-section-row td { padding:6px 14px; background:rgba(201,168,76,0.06); color:#c9a84c; font-family:'DM Mono',monospace; font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; border-bottom:1px solid rgba(201,168,76,0.12); }
     .rel-modal-footer {
       padding: 12px 22px 16px;
       border-top: 1px solid rgba(201,168,76,0.12);
       display: flex; gap: 8px; justify-content: flex-end; align-items:center;
+      flex-wrap: wrap;
     }
     .rel-total-badge { font-size:0.72rem; font-family:'DM Mono',monospace; color:#7a92a8; margin-right:auto; }
+    .rel-empty { padding: 28px 22px; text-align:center; color:#7a92a8; font-size:0.82rem; font-family:'DM Mono',monospace; }
 
     @media print {
       .rel-modal-overlay { display:none !important; }
     }
     @media (max-width:480px) {
       .rel-modal { max-height:92vh; }
-      .rel-modal-head { padding:14px 16px 12px; }
+      .rel-modal-head { padding:14px 16px 0; }
       .rel-table thead th, .rel-table tbody td { padding:7px 10px; }
+      .rel-tab { padding:7px 11px; font-size:0.7rem; }
     }
 
     /* ── MODAL ENVIO DE OBRIGAÇÃO (SPED/EFD) ── */
@@ -3750,73 +3792,235 @@
     if (e.target === this) window.cancelarObrModal();
   });
 
-  // ── MODAL RELATÓRIO DE EMPRESAS ──────────────────────────────────────────────
+  // ── MODAL RELATÓRIO (abas: empresa / imposto / obrigação) ──────────────────
 
-  function coletarEmpresasParaRelatorio() {
-    const resultado = [];
+  let _relAbaAtiva = 'empresas';
 
-    // Empresas do Painel (seção from-painel)
-    document.querySelectorAll('.section-card.from-painel .empresa-item').forEach(item => {
-      const nome    = item.querySelector('.item-title-input')?.value?.trim() || '';
-      const regime  = item.querySelector('.tag-input')?.value?.trim() || item.querySelector('.painel-badge + span, [class*="badge"] + span')?.textContent?.trim() || '';
-      const checked = item.querySelector('.empresa-check')?.checked || false;
-      // tenta pegar o regime pelo meta
+  // Coleta dados brutos de todas as empresa-items visíveis
+  function _relColetarDados() {
+    const dados = [];
+
+    document.querySelectorAll('.empresa-item').forEach(item => {
+      const nome      = item.querySelector('.item-title-input')?.value?.trim() || '';
+      if (!nome) return;
+
+      const checked   = item.querySelector('.empresa-check')?.checked || false;
+      const movimento = item.dataset?.movimento || 'com_movimento';
+      const origemP   = item.closest('.section-card.from-painel');
+      const origem    = origemP ? 'Painel' : 'Manual';
+
+      // Regime
       const regimeMeta = item.querySelector('.item-meta span:not(.painel-badge):not(.movement-badge)')?.textContent?.trim() || '';
-      if (nome) resultado.push({ nome, regime: regimeMeta || regime, checked, origem: 'Painel' });
+      const regimeTag  = item.querySelector('.tag-input')?.value?.trim() || '';
+      const regime     = regimeMeta || regimeTag || '';
+
+      // Subtarefas — impostos
+      const impostos = [];
+      item.querySelectorAll('.sub-check[data-scopes*="imposto"], .sub-check[data-scopes*="pis_cofins"], .sub-check[data-scopes*="icms"], .sub-check[data-scopes*="das"], .sub-check[data-scopes*="irpj_csll"]').forEach(cb => {
+        if (cb.dataset?.scopes?.split(',').some(s => ['impostos','pis_cofins','icms','das','irpj_csll'].includes(s.trim()))) {
+          impostos.push({
+            nome:    cb.dataset?.subLabel || cb.dataset?.subNome || '',
+            checked: cb.checked
+          });
+        }
+      });
+
+      // Subtarefas — obrigações (SPED/EFD + outras)
+      const obrigacoes = [];
+      item.querySelectorAll('.sub-check[data-scopes*="sped"], .sub-check[data-scopes*="obrig"]').forEach(cb => {
+        if (cb.dataset?.scopes?.split(',').some(s => ['sped','obrigacoes'].includes(s.trim()))) {
+          const vencEl = cb.closest('div[style*="border-bottom"]')?.querySelector('span[style*="font-size:0.68rem"]');
+          obrigacoes.push({
+            nome:       cb.dataset?.subLabel || cb.dataset?.subNome || '',
+            vencimento: vencEl?.textContent?.trim() || '',
+            checked:    cb.checked
+          });
+        }
+      });
+
+      dados.push({ nome, regime, checked, movimento, origem, impostos, obrigacoes });
     });
 
-    // Empresas manuais
-    document.querySelectorAll('#manualItemsBody .empresa-item, #manualBody .empresa-item').forEach(item => {
-      const nome    = item.querySelector('.item-title-input')?.value?.trim() || '';
-      const regime  = item.querySelector('.tag-input')?.value?.trim() || '';
-      const checked = item.querySelector('.empresa-check')?.checked || false;
-      if (nome) resultado.push({ nome, regime, checked, origem: 'Manual' });
-    });
-
-    return resultado;
+    return dados;
   }
 
-  window.abrirRelatorio = function() {
-    const competencia  = document.getElementById('competenciaField')?.value || '—';
-    const responsavel  = document.getElementById('responsavelField')?.value || '—';
+  // Aplica filtros de movimento e status ao array
+  function _relFiltrar(dados) {
+    const mov  = document.getElementById('relFiltroMovimento')?.value || 'todos';
+    const sta  = document.getElementById('relFiltroStatus')?.value   || 'todos';
 
+    return dados.filter(e => {
+      const passaMov = mov === 'todos' || e.movimento === mov;
+      const passaSta = sta === 'todos'
+        || (sta === 'done'    &&  e.checked)
+        || (sta === 'pending' && !e.checked);
+      return passaMov && passaSta;
+    });
+  }
+
+  window.relMudarAba = function(aba, btn) {
+    _relAbaAtiva = aba;
+    document.querySelectorAll('.rel-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.rel-tab-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('relPanel' + aba.charAt(0).toUpperCase() + aba.slice(1));
+    if (panel) panel.classList.add('active');
+    relAplicarFiltros();
+  };
+
+  window.relAplicarFiltros = function() {
+    const competencia = document.getElementById('competenciaField')?.value || '—';
+    const responsavel = document.getElementById('responsavelField')?.value || '—';
     document.getElementById('relModalMeta').textContent =
       `Competência: ${competencia}   |   Responsável: ${responsavel}`;
 
-    const empresas = coletarEmpresasParaRelatorio();
-    const tbody    = document.getElementById('relTableBody');
+    const dados    = _relColetarDados();
+    const filtrado = _relFiltrar(dados);
+
+    if (_relAbaAtiva === 'empresas') _relRenderEmpresas(filtrado);
+    else if (_relAbaAtiva === 'impostos') _relRenderImpostos(filtrado);
+    else if (_relAbaAtiva === 'obrigacoes') _relRenderObrigacoes(filtrado);
+  };
+
+  function _relRenderEmpresas(dados) {
+    const tbody  = document.getElementById('relBodyEmpresas');
+    const emptyEl = document.getElementById('relEmptyEmpresas');
     tbody.innerHTML = '';
 
-    // Separa por origem para criar linha de seção
     const origens = ['Painel', 'Manual'];
     let seq = 0;
 
     origens.forEach(origem => {
-      const grupo = empresas.filter(e => e.origem === origem);
+      const grupo = dados.filter(e => e.origem === origem);
       if (!grupo.length) return;
 
       const secRow = document.createElement('tr');
       secRow.className = 'rel-section-row';
-      secRow.innerHTML = `<td colspan="4">${origem === 'Painel' ? '🏢 Do Painel' : '📋 Manual'} — ${grupo.length} empresa${grupo.length !== 1 ? 's' : ''}</td>`;
+      secRow.innerHTML = `<td colspan="5">${origem === 'Painel' ? '🏢 Do Painel' : '📋 Manual'} — ${grupo.length} empresa${grupo.length !== 1 ? 's' : ''}</td>`;
       tbody.appendChild(secRow);
 
       grupo.forEach(emp => {
         seq++;
+        const movLabel = emp.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>' : '<span style="font-size:0.7rem;color:#4caf82;">C/Mov</span>';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${seq}</td>
-          <td>${emp.nome || '—'}</td>
+          <td>${emp.nome}</td>
           <td style="color:#7a92a8;font-size:0.78rem;">${emp.regime || '—'}</td>
+          <td style="text-align:center;">${movLabel}</td>
           <td><span class="${emp.checked ? 'rel-status-ok' : 'rel-status-pend'}" title="${emp.checked ? 'Concluída' : 'Pendente'}"></span></td>`;
         tbody.appendChild(tr);
       });
     });
 
-    const total = empresas.length;
-    const conc  = empresas.filter(e => e.checked).length;
+    const total = dados.length;
+    const conc  = dados.filter(e => e.checked).length;
     document.getElementById('relTotalBadge').textContent =
       `${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}`;
+    emptyEl.style.display = seq === 0 ? '' : 'none';
+  }
 
+  function _relRenderImpostos(dados) {
+    const tbody   = document.getElementById('relBodyImpostos');
+    const emptyEl = document.getElementById('relEmptyImpostos');
+    tbody.innerHTML = '';
+
+    let seq = 0;
+    // Agrupa impostos por nome
+    const porImposto = {};
+
+    dados.forEach(emp => {
+      emp.impostos.forEach(imp => {
+        if (!imp.nome) return;
+        if (!porImposto[imp.nome]) porImposto[imp.nome] = [];
+        porImposto[imp.nome].push({ empresa: emp.nome, checked: imp.checked, movimento: emp.movimento });
+      });
+    });
+
+    const nomes = Object.keys(porImposto).sort();
+    nomes.forEach(nomeImp => {
+      const itens = porImposto[nomeImp];
+      const secRow = document.createElement('tr');
+      secRow.className = 'rel-section-row';
+      const conc = itens.filter(i => i.checked).length;
+      secRow.innerHTML = `<td colspan="5">💰 ${nomeImp} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td>`;
+      tbody.appendChild(secRow);
+
+      itens.forEach(it => {
+        seq++;
+        const movLabel = it.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>' : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${seq}</td>
+          <td style="color:#e8c97a;font-size:0.8rem;">${nomeImp}</td>
+          <td>${it.empresa} ${movLabel}</td>
+          <td style="color:#7a92a8;font-size:0.75rem;">—</td>
+          <td><span class="${it.checked ? 'rel-status-ok' : 'rel-status-pend'}" title="${it.checked ? 'Feito' : 'Pendente'}"></span></td>`;
+        tbody.appendChild(tr);
+      });
+    });
+
+    document.getElementById('relTotalBadge').textContent = `${seq} linha${seq!==1?'s':''} em ${nomes.length} imposto${nomes.length!==1?'s':''}`;
+    emptyEl.style.display = seq === 0 ? '' : 'none';
+  }
+
+  function _relRenderObrigacoes(dados) {
+    const tbody   = document.getElementById('relBodyObrigacoes');
+    const emptyEl = document.getElementById('relEmptyObrigacoes');
+    tbody.innerHTML = '';
+
+    let seq = 0;
+    const porObr = {};
+
+    dados.forEach(emp => {
+      emp.obrigacoes.forEach(obr => {
+        if (!obr.nome) return;
+        if (!porObr[obr.nome]) porObr[obr.nome] = [];
+        porObr[obr.nome].push({ empresa: emp.nome, checked: obr.checked, vencimento: obr.vencimento, movimento: emp.movimento });
+      });
+    });
+
+    const nomes = Object.keys(porObr).sort();
+    nomes.forEach(nomeObr => {
+      const itens = porObr[nomeObr];
+      const secRow = document.createElement('tr');
+      secRow.className = 'rel-section-row';
+      const conc = itens.filter(i => i.checked).length;
+      secRow.innerHTML = `<td colspan="5">📂 ${nomeObr} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td>`;
+      tbody.appendChild(secRow);
+
+      itens.forEach(it => {
+        seq++;
+        const movLabel = it.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>' : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${seq}</td>
+          <td style="color:#4a9eda;font-size:0.8rem;">${nomeObr}</td>
+          <td>${it.empresa} ${movLabel}</td>
+          <td style="color:#7a92a8;font-size:0.75rem;">${it.vencimento || '—'}</td>
+          <td><span class="${it.checked ? 'rel-status-ok' : 'rel-status-pend'}" title="${it.checked ? 'Entregue' : 'Pendente'}"></span></td>`;
+        tbody.appendChild(tr);
+      });
+    });
+
+    document.getElementById('relTotalBadge').textContent = `${seq} linha${seq!==1?'s':''} em ${nomes.length} obrigação${nomes.length!==1?'ões':''}`;
+    emptyEl.style.display = seq === 0 ? '' : 'none';
+  }
+
+  window.abrirRelatorio = function() {
+    // Reseta aba ativa
+    _relAbaAtiva = 'empresas';
+    document.querySelectorAll('.rel-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.rel-tab[data-tab="empresas"]')?.classList.add('active');
+    document.querySelectorAll('.rel-tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('relPanelEmpresas')?.classList.add('active');
+
+    // Sincroniza filtros com os ativos na página principal
+    const movSelect = document.getElementById('relFiltroMovimento');
+    const movPag    = document.getElementById('movimentoChecklistFilter');
+    if (movSelect && movPag && movPag.value !== 'todos') movSelect.value = movPag.value;
+
+    relAplicarFiltros();
     document.getElementById('relModalOverlay').classList.add('open');
   };
 
@@ -3828,98 +4032,165 @@
     if (e.target === this) fecharRelatorio();
   });
 
+  // Gera HTML de impressão conforme aba ativa
   window.imprimirRelatorio = function() {
     const competencia = document.getElementById('competenciaField')?.value || '—';
     const responsavel = document.getElementById('responsavelField')?.value || '—';
-    const empresas    = coletarEmpresasParaRelatorio();
+    const dados       = _relFiltrar(_relColetarDados());
+    const aba         = _relAbaAtiva;
 
-    const origens = ['Painel', 'Manual'];
-    let seq = 0;
+    let titulo = 'Por Empresa';
+    let cabecalho = '<th>#</th><th>Empresa</th><th>Regime</th><th>Movimento</th><th>Status</th>';
     let tabelaHTML = '';
+    let resumo = '';
 
-    origens.forEach(origem => {
-      const grupo = empresas.filter(e => e.origem === origem);
-      if (!grupo.length) return;
-      tabelaHTML += `<tr style="background:#e8f0f8;"><td colspan="4" style="padding:6px 10px;font-size:9pt;font-weight:700;color:#0c2d5a;letter-spacing:0.05em;">${origem === 'Painel' ? '🏢 Do Painel' : '📋 Manual'}</td></tr>`;
-      grupo.forEach(emp => {
-        seq++;
-        tabelaHTML += `<tr>
-          <td style="padding:5px 10px;text-align:center;color:#888;font-size:8.5pt;">${seq}</td>
-          <td style="padding:5px 10px;font-size:9pt;">${emp.nome || '—'}</td>
-          <td style="padding:5px 10px;font-size:8.5pt;color:#555;">${emp.regime || '—'}</td>
-          <td style="padding:5px 10px;text-align:center;font-size:9pt;">${emp.checked ? '✓' : '○'}</td>
-        </tr>`;
+    if (aba === 'empresas') {
+      const origens = ['Painel', 'Manual'];
+      let seq = 0;
+      origens.forEach(origem => {
+        const grupo = dados.filter(e => e.origem === origem);
+        if (!grupo.length) return;
+        tabelaHTML += `<tr style="background:#dce8f5"><td colspan="5" style="padding:5px 10px;font-weight:700;color:#0c2d5a;">${origem}</td></tr>`;
+        grupo.forEach(emp => {
+          seq++;
+          tabelaHTML += `<tr><td style="text-align:center;color:#888;">${seq}</td><td>${emp.nome}</td><td style="color:#555;">${emp.regime||'—'}</td><td style="text-align:center;">${emp.movimento==='sem_movimento'?'S/Mov':'C/Mov'}</td><td style="text-align:center;">${emp.checked?'✓':'○'}</td></tr>`;
+        });
       });
-    });
+      const total = dados.length; const conc = dados.filter(e=>e.checked).length;
+      resumo = `${total} empresa${total!==1?'s':''} · ${conc} concluída${conc!==1?'s':''} · ${total-conc} pendente${(total-conc)!==1?'s':''}`;
 
-    const total = empresas.length;
-    const conc  = empresas.filter(e => e.checked).length;
+    } else if (aba === 'impostos') {
+      titulo = 'Por Imposto';
+      cabecalho = '<th>#</th><th>Imposto</th><th>Empresa</th><th>Periodicidade</th><th>Status</th>';
+      const porImposto = {};
+      dados.forEach(emp => emp.impostos.forEach(imp => {
+        if (!imp.nome) return;
+        if (!porImposto[imp.nome]) porImposto[imp.nome] = [];
+        porImposto[imp.nome].push({ empresa: emp.nome, checked: imp.checked });
+      }));
+      let seq = 0;
+      Object.keys(porImposto).sort().forEach(nome => {
+        const itens = porImposto[nome];
+        const conc = itens.filter(i=>i.checked).length;
+        tabelaHTML += `<tr style="background:#dce8f5"><td colspan="5" style="padding:5px 10px;font-weight:700;color:#0c2d5a;">💰 ${nome} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td></tr>`;
+        itens.forEach(it => { seq++; tabelaHTML += `<tr><td style="text-align:center;color:#888;">${seq}</td><td>${nome}</td><td>${it.empresa}</td><td>—</td><td style="text-align:center;">${it.checked?'✓':'○'}</td></tr>`; });
+      });
+      resumo = `${seq} linha${seq!==1?'s':''}`;
 
-    const win = window.open('', '_blank', 'width=720,height=900');
-    win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-      <title>Relatório de Empresas — ${competencia}</title>
+    } else if (aba === 'obrigacoes') {
+      titulo = 'Por Obrigação';
+      cabecalho = '<th>#</th><th>Obrigação</th><th>Empresa</th><th>Vencimento</th><th>Status</th>';
+      const porObr = {};
+      dados.forEach(emp => emp.obrigacoes.forEach(obr => {
+        if (!obr.nome) return;
+        if (!porObr[obr.nome]) porObr[obr.nome] = [];
+        porObr[obr.nome].push({ empresa: emp.nome, checked: obr.checked, vencimento: obr.vencimento });
+      }));
+      let seq = 0;
+      Object.keys(porObr).sort().forEach(nome => {
+        const itens = porObr[nome];
+        const conc = itens.filter(i=>i.checked).length;
+        tabelaHTML += `<tr style="background:#dce8f5"><td colspan="5" style="padding:5px 10px;font-weight:700;color:#0c2d5a;">📂 ${nome} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td></tr>`;
+        itens.forEach(it => { seq++; tabelaHTML += `<tr><td style="text-align:center;color:#888;">${seq}</td><td>${nome}</td><td>${it.empresa}</td><td style="color:#555;">${it.vencimento||'—'}</td><td style="text-align:center;">${it.checked?'✓':'○'}</td></tr>`; });
+      });
+      resumo = `${seq} linha${seq!==1?'s':''}`;
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+      <title>Relatório ${titulo} — ${competencia}</title>
       <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20mm 15mm; color: #1a1a1a; }
-        h1 { font-size: 14pt; color: #0c2d5a; margin-bottom: 4px; }
-        .meta { font-size: 9pt; color: #555; margin-bottom: 16px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-        th { background: #0c2d5a; color: #fff; padding: 7px 10px; font-size: 9pt; text-align: left; }
-        th:first-child { width: 36px; text-align: center; }
-        th:last-child { width: 70px; text-align: center; }
-        td { border-bottom: 1px solid #e0e0e0; }
-        tr:hover td { background: #f5f8ff; }
-        .rodape { margin-top: 18px; font-size: 8pt; color: #888; }
+        body{font-family:'Segoe UI',Arial,sans-serif;margin:18mm 14mm;color:#1a1a1a;}
+        h1{font-size:13pt;color:#0c2d5a;margin-bottom:2px;}
+        .meta{font-size:8.5pt;color:#555;margin-bottom:14px;}
+        table{border-collapse:collapse;width:100%;margin-top:8px;}
+        th{background:#0c2d5a;color:#fff;padding:6px 10px;font-size:8.5pt;text-align:left;}
+        td{border-bottom:1px solid #e0e0e0;padding:5px 10px;font-size:8.5pt;}
+        .rodape{margin-top:14px;font-size:7.5pt;color:#888;}
       </style>
     </head><body>
-      <h1>📋 Relatório de Empresas — Checklist de Fechamento</h1>
-      <div class="meta">Competência: <strong>${competencia}</strong> &nbsp;|&nbsp; Responsável: <strong>${responsavel}</strong> &nbsp;|&nbsp; ${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}</div>
-      <table>
-        <thead><tr><th>#</th><th>Empresa</th><th>Regime / Classificação</th><th>Status</th></tr></thead>
-        <tbody>${tabelaHTML}</tbody>
-      </table>
-      <div class="rodape">Emitido em: ${new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+      <h1>📊 Relatório ${titulo} — Checklist de Fechamento</h1>
+      <div class="meta">Competência: <strong>${competencia}</strong> &nbsp;|&nbsp; Responsável: <strong>${responsavel}</strong> &nbsp;|&nbsp; ${resumo}</div>
+      <table><thead><tr>${cabecalho}</tr></thead><tbody>${tabelaHTML}</tbody></table>
+      <div class="rodape">Emitido em: ${new Date().toLocaleString('pt-BR')}</div>
     </body></html>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 400);
+    iframe.contentDocument.close();
+    iframe.onload = () => { setTimeout(() => { iframe.contentWindow.print(); setTimeout(() => document.body.removeChild(iframe), 1400); }, 120); };
   };
 
   window.exportRelatorioWord = function() {
     const competencia = document.getElementById('competenciaField')?.value || '—';
     const responsavel = document.getElementById('responsavelField')?.value || '—';
-    const empresas    = coletarEmpresasParaRelatorio();
+    const dados       = _relFiltrar(_relColetarDados());
+    const aba         = _relAbaAtiva;
 
-    const origens = ['Painel', 'Manual'];
-    let seq = 0;
+    let titulo = 'Por Empresa';
+    let cabecalho = '<th>#</th><th>Empresa</th><th>Regime</th><th>Movimento</th><th>Status</th>';
     let rows = '';
+    let resumo = '';
 
-    origens.forEach(origem => {
-      const grupo = empresas.filter(e => e.origem === origem);
-      if (!grupo.length) return;
-      rows += `<tr style="background:#dce8f5"><td colspan="4" style="padding:5px 8px;font-weight:bold;color:#0c2d5a;">${origem === 'Painel' ? 'Do Painel' : 'Manual'}</td></tr>`;
-      grupo.forEach(emp => {
-        seq++;
-        rows += `<tr>
-          <td style="padding:4px 8px;text-align:center;color:#888;">${seq}</td>
-          <td style="padding:4px 8px;">${emp.nome || ''}</td>
-          <td style="padding:4px 8px;color:#555;">${emp.regime || ''}</td>
-          <td style="padding:4px 8px;text-align:center;">${emp.checked ? '✓' : '○'}</td>
-        </tr>`;
+    if (aba === 'empresas') {
+      const origens = ['Painel', 'Manual'];
+      let seq = 0;
+      origens.forEach(origem => {
+        const grupo = dados.filter(e => e.origem === origem);
+        if (!grupo.length) return;
+        rows += `<tr style="background:#dce8f5"><td colspan="5" style="padding:5px 8px;font-weight:bold;color:#0c2d5a;">${origem}</td></tr>`;
+        grupo.forEach(emp => {
+          seq++;
+          rows += `<tr><td style="text-align:center;color:#888;">${seq}</td><td>${emp.nome}</td><td style="color:#555;">${emp.regime||''}</td><td style="text-align:center;">${emp.movimento==='sem_movimento'?'S/Mov':'C/Mov'}</td><td style="text-align:center;">${emp.checked?'✓':'○'}</td></tr>`;
+        });
       });
-    });
+      const total = dados.length; const conc = dados.filter(e=>e.checked).length;
+      resumo = `${total} empresa${total!==1?'s':''} · ${conc} concluída${conc!==1?'s':''} · ${total-conc} pendente${(total-conc)!==1?'s':''}`;
 
-    const total = empresas.length;
-    const conc  = empresas.filter(e => e.checked).length;
+    } else if (aba === 'impostos') {
+      titulo = 'Por Imposto';
+      cabecalho = '<th>#</th><th>Imposto</th><th>Empresa</th><th>Periodicidade</th><th>Status</th>';
+      const porImposto = {};
+      dados.forEach(emp => emp.impostos.forEach(imp => {
+        if (!imp.nome) return;
+        if (!porImposto[imp.nome]) porImposto[imp.nome] = [];
+        porImposto[imp.nome].push({ empresa: emp.nome, checked: imp.checked });
+      }));
+      let seq = 0;
+      Object.keys(porImposto).sort().forEach(nome => {
+        const itens = porImposto[nome];
+        const conc = itens.filter(i=>i.checked).length;
+        rows += `<tr style="background:#dce8f5"><td colspan="5" style="font-weight:bold;color:#0c2d5a;">💰 ${nome} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td></tr>`;
+        itens.forEach(it => { seq++; rows += `<tr><td style="text-align:center;color:#888;">${seq}</td><td>${nome}</td><td>${it.empresa}</td><td>—</td><td style="text-align:center;">${it.checked?'✓':'○'}</td></tr>`; });
+      });
+      resumo = `${seq} linha${seq!==1?'s':''}`;
+
+    } else if (aba === 'obrigacoes') {
+      titulo = 'Por Obrigação';
+      cabecalho = '<th>#</th><th>Obrigação</th><th>Empresa</th><th>Vencimento</th><th>Status</th>';
+      const porObr = {};
+      dados.forEach(emp => emp.obrigacoes.forEach(obr => {
+        if (!obr.nome) return;
+        if (!porObr[obr.nome]) porObr[obr.nome] = [];
+        porObr[obr.nome].push({ empresa: emp.nome, checked: obr.checked, vencimento: obr.vencimento });
+      }));
+      let seq = 0;
+      Object.keys(porObr).sort().forEach(nome => {
+        const itens = porObr[nome];
+        const conc = itens.filter(i=>i.checked).length;
+        rows += `<tr style="background:#dce8f5"><td colspan="5" style="font-weight:bold;color:#0c2d5a;">📂 ${nome} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td></tr>`;
+        itens.forEach(it => { seq++; rows += `<tr><td style="text-align:center;color:#888;">${seq}</td><td>${nome}</td><td>${it.empresa}</td><td style="color:#555;">${it.vencimento||'—'}</td><td style="text-align:center;">${it.checked?'✓':'○'}</td></tr>`; });
+      });
+      resumo = `${seq} linha${seq!==1?'s':''}`;
+    }
 
     const htmlDoc = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-<head><meta charset="utf-8"><title>Relatório de Empresas</title>
-<style>body{font-family:Segoe UI,Arial,sans-serif;font-size:10pt;}h1{font-size:14pt;color:#0c2d5a;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #d0d5db;padding:4px 8px;font-size:9pt;}th{background:#0c2d5a;color:#fff;}</style>
+<head><meta charset="utf-8"><title>Relatório ${titulo}</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;font-size:10pt;}h1{font-size:13pt;color:#0c2d5a;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #d0d5db;padding:4px 8px;font-size:9pt;}th{background:#0c2d5a;color:#fff;}</style>
 </head><body>
-<h1>Relatório de Empresas — Checklist de Fechamento</h1>
+<h1>Relatório ${titulo} — Checklist de Fechamento</h1>
 <p><strong>Competência:</strong> ${competencia} &nbsp; <strong>Responsável:</strong> ${responsavel}</p>
-<p>${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}</p>
-<table><thead><tr><th>#</th><th>Empresa</th><th>Regime / Classificação</th><th>Status</th></tr></thead>
-<tbody>${rows}</tbody></table>
+<p>${resumo}</p>
+<table><thead><tr>${cabecalho}</tr></thead><tbody>${rows}</tbody></table>
 <p style="font-size:8pt;color:#888;">Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
 </body></html>`;
 
@@ -3927,7 +4198,7 @@
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = `relatorio-empresas-${competencia.replace('/', '-')}.doc`;
+    a.download = `relatorio-${aba}-${competencia.replace('/', '-')}.doc`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -4148,27 +4419,61 @@
 <div class="rel-modal-overlay" id="relModalOverlay">
   <div class="rel-modal">
     <div class="rel-modal-head">
-      <div>
-        <h3>📋 Relatório de Empresas</h3>
-        <div class="rel-modal-meta" id="relModalMeta">Competência — Responsável</div>
+      <div class="rel-modal-head-top">
+        <div>
+          <h3>📊 Relatórios de Fechamento</h3>
+          <div class="rel-modal-meta" id="relModalMeta">Competência — Responsável</div>
+        </div>
+        <button class="rel-modal-close" onclick="fecharRelatorio()" title="Fechar">✕</button>
       </div>
-      <button class="rel-modal-close" onclick="fecharRelatorio()" title="Fechar">✕</button>
+      <div class="rel-tabs">
+        <button class="rel-tab active" data-tab="empresas" onclick="relMudarAba('empresas',this)">🏢 Por Empresa</button>
+        <button class="rel-tab" data-tab="impostos" onclick="relMudarAba('impostos',this)">💰 Por Imposto</button>
+        <button class="rel-tab" data-tab="obrigacoes" onclick="relMudarAba('obrigacoes',this)">📂 Por Obrigação</button>
+      </div>
+    </div>
+    <div class="rel-filters">
+      <span class="rel-filter-label">📌 Movimento:</span>
+      <select class="rel-filter-select" id="relFiltroMovimento" onchange="relAplicarFiltros()">
+        <option value="todos">Todas</option>
+        <option value="com_movimento">Com movimento</option>
+        <option value="sem_movimento">Sem movimento</option>
+      </select>
+      <span class="rel-filter-label" style="margin-left:8px;">📋 Status:</span>
+      <select class="rel-filter-select" id="relFiltroStatus" onchange="relAplicarFiltros()">
+        <option value="todos">Todos</option>
+        <option value="done">Concluídas</option>
+        <option value="pending">Pendentes</option>
+      </select>
     </div>
     <div class="rel-modal-body">
-      <table class="rel-table" id="relTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Empresa</th>
-            <th>Regime / Classificação</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="relTableBody"></tbody>
-      </table>
+      <!-- ABA: Por Empresa -->
+      <div class="rel-tab-panel active" id="relPanelEmpresas">
+        <table class="rel-table">
+          <thead><tr><th>#</th><th>Empresa</th><th>Regime / Classificação</th><th>Movimento</th><th>Status</th></tr></thead>
+          <tbody id="relBodyEmpresas"></tbody>
+        </table>
+        <div class="rel-empty" id="relEmptyEmpresas" style="display:none;">Nenhuma empresa encontrada.</div>
+      </div>
+      <!-- ABA: Por Imposto -->
+      <div class="rel-tab-panel" id="relPanelImpostos">
+        <table class="rel-table">
+          <thead><tr><th>#</th><th>Imposto</th><th>Empresa</th><th>Periodicidade</th><th>Status</th></tr></thead>
+          <tbody id="relBodyImpostos"></tbody>
+        </table>
+        <div class="rel-empty" id="relEmptyImpostos" style="display:none;">Nenhum imposto encontrado.</div>
+      </div>
+      <!-- ABA: Por Obrigação -->
+      <div class="rel-tab-panel" id="relPanelObrigacoes">
+        <table class="rel-table">
+          <thead><tr><th>#</th><th>Obrigação</th><th>Empresa</th><th>Vencimento</th><th>Status</th></tr></thead>
+          <tbody id="relBodyObrigacoes"></tbody>
+        </table>
+        <div class="rel-empty" id="relEmptyObrigacoes" style="display:none;">Nenhuma obrigação encontrada.</div>
+      </div>
     </div>
     <div class="rel-modal-footer">
-      <span class="rel-total-badge" id="relTotalBadge">0 empresas</span>
+      <span class="rel-total-badge" id="relTotalBadge">0 registros</span>
       <button type="button" class="btn-secondary" onclick="exportRelatorioWord()"><span class="icon">📄</span> Word</button>
       <button type="button" class="btn-secondary" onclick="imprimirRelatorio()"><span class="icon">🖨</span> Imprimir</button>
     </div>
