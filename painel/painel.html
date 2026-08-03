@@ -1291,6 +1291,68 @@ select option{background:#1b2e42;color:#e8eaf0;}
 .btn-remove-nota-repo:hover{background:#ff7675;color:#0d1b2a;}
 .modal.view-mode .nota-repo-add-row,
 .modal.view-mode .btn-remove-nota-repo{display:none!important;}
+/* Zona de drag & drop */
+.nota-repo-dropzone{
+  position:relative;
+  padding:18px 14px 12px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  background:rgba(201,168,76,0.03);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  transition:background 0.18s, border-color 0.18s;
+  border:2px dashed var(--gold-dim);
+  border-radius:0 0 var(--radius-sm) var(--radius-sm);
+  border-top:none;
+  text-align:center;
+}
+.nota-repo-dropzone:hover,
+.nota-repo-dropzone.dragover{
+  background:rgba(201,168,76,0.10);
+  border-color:var(--gold);
+}
+.nota-repo-dropzone.dragover::after{
+  content:'Solte os arquivos aqui';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:700;
+  color:var(--gold-light);
+  background:rgba(13,27,42,0.72);
+  border-radius:0 0 var(--radius-sm) var(--radius-sm);
+  pointer-events:none;
+}
+.nota-repo-dropzone-icon{font-size:22px;line-height:1;}
+.nota-repo-dropzone-label{font-size:12px;font-weight:600;color:var(--gold-light);font-family:var(--font-body);}
+.nota-repo-dropzone-sub{font-size:10px;color:var(--text-light);font-family:var(--font-mono);}
+.nota-repo-dropzone input[type="file"]{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+  width:100%;
+  height:100%;
+}
+.nota-repo-dropzone-btn{
+  position:relative;
+  z-index:2;
+  pointer-events:none;
+  padding:5px 14px;
+  border-radius:7px;
+  background:rgba(201,168,76,0.15);
+  border:1px solid var(--gold-dim);
+  color:var(--gold-light);
+  font-size:11px;
+  font-weight:600;
+  font-family:var(--font-body);
+  margin-top:2px;
+}
+.modal.view-mode .nota-repo-dropzone{display:none!important;}
 @media(max-width:700px){
   .nota-repo-item{grid-template-columns:1fr;align-items:start;}
   .nota-repo-add-row{grid-template-columns:1fr;}
@@ -5733,6 +5795,7 @@ function openEmpresa(id){
   renderModalImportacoes();
   renderModalImpostos();
   renderRepositorioNotasForModal();
+  setTimeout(initNotaRepoDropzone, 0);
   renderStaticFieldsForModal(e);
   renderModalCamposPersonalizados();
   initCompanyRichFields();
@@ -5904,9 +5967,12 @@ function empresaFormHtml(e){
     <div class="nota-repo-manager">
       <div class="obrig-header" style="grid-template-columns:minmax(180px,1fr) 100px 130px 32px;"><div>Arquivo</div><div>Tamanho</div><div>Anexado em</div><div></div></div>
       <div class="nota-repo-list" id="modalRepositorioNotasList"></div>
-      <div class="nota-repo-add-row">
+      <div class="nota-repo-dropzone" id="notaRepoDropzone" title="Clique ou arraste arquivos aqui">
         <input type="file" id="notaRepositorioInput" multiple accept=".xml,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.csv,.txt,.xlsx,.xls,.doc,.docx,.zip,.rar,image/*" onchange="handleRepositorioNotasInput(this)">
-        <button class="btn-add-obrig" type="button" onclick="$('notaRepositorioInput')?.click()">Anexar arquivo(s)</button>
+        <div class="nota-repo-dropzone-icon">📂</div>
+        <div class="nota-repo-dropzone-label">Clique ou arraste arquivos aqui</div>
+        <div class="nota-repo-dropzone-sub">XML · PDF · Imagem · Planilha · ZIP — até 5 MB por arquivo · múltiplos permitidos</div>
+        <div class="nota-repo-dropzone-btn">Selecionar arquivo(s)</div>
       </div>
     </div>
   </div>
@@ -6547,6 +6613,54 @@ function removeRepositorioNota(i){
   modalRepositorioNotas.splice(i, 1);
   renderRepositorioNotasForModal();
   markCompanyDirtySoft();
+}
+function initNotaRepoDropzone(){
+  const zone = $('notaRepoDropzone');
+  if(!zone) return;
+  zone.addEventListener('dragover', ev => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(isEmpresaInEditMode()) zone.classList.add('dragover');
+  });
+  zone.addEventListener('dragleave', ev => {
+    if(!zone.contains(ev.relatedTarget)) zone.classList.remove('dragover');
+  });
+  zone.addEventListener('drop', async ev => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    zone.classList.remove('dragover');
+    if(!isEmpresaInEditMode()){
+      toast('Clique em Editar para anexar arquivos.', 'error');
+      return;
+    }
+    const files = Array.from(ev.dataTransfer?.files || []);
+    if(!files.length) return;
+    const maxBytes = 5 * 1024 * 1024;
+    const validos = [];
+    const recusados = [];
+    files.forEach(file => {
+      if(file.size > maxBytes) recusados.push(file.name);
+      else validos.push(file);
+    });
+    if(recusados.length){
+      toast(`Arquivo(s) acima de 5 MB ignorado(s): ${recusados.slice(0,2).join(', ')}${recusados.length>2?'...':''}`, 'error');
+    }
+    if(!validos.length) return;
+    try{
+      setCloudStatus('loading', 'Lendo anexos...');
+      const novos = await Promise.all(validos.map(readRepositorioNotaFile));
+      modalRepositorioNotas = (modalRepositorioNotas || []).map(normalizeNotaRepositorioItem).filter(a => a.nome);
+      modalRepositorioNotas.push(...novos);
+      renderRepositorioNotasForModal();
+      markCompanyDirtySoft();
+      setCloudStatus('ok', 'Anexo(s) pronto(s) para salvar');
+      toast(`${novos.length} arquivo(s) anexado(s) via arrastar. Clique em Salvar para gravar.`, 'success');
+    }catch(err){
+      console.error('Erro ao processar drop no repositório:', err);
+      setCloudStatus('error', 'Erro ao ler anexo');
+      toast('Não consegui ler um dos arquivos arrastados.', 'error');
+    }
+  });
 }
 
 function normalizeImpostoItem(item){
