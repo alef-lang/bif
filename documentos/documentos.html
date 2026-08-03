@@ -398,9 +398,16 @@ body {
   padding: 20px 16px; text-align: center; cursor: pointer;
   transition: .18s; background: rgba(201,168,76,0.04);
 }
-.upload-zone:hover { border-color: var(--gold); background: rgba(201,168,76,0.09); }
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.12);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+  transform: translateY(-1px);
+}
+.upload-zone.drag-over .upload-icon { transform: scale(1.08); }
 .upload-zone p { font: 500 12px var(--font-body); color: var(--muted); margin-top: 4px; }
-.upload-zone .upload-icon { font-size: 1.8rem; line-height: 1; }
+.upload-zone .upload-icon { font-size: 1.8rem; line-height: 1; transition: transform .18s; }
 .upload-zone.has-file { border-color: var(--green); background: rgba(76,175,130,0.07); }
 .upload-zone.has-file p { color: var(--green); }
 
@@ -533,6 +540,7 @@ body {
 .file-type-badge.html  { background: rgba(116,167,216,0.14); color: var(--blue); border: 1px solid rgba(116,167,216,0.25); }
 .file-type-badge.doc   { background: rgba(76,175,130,0.12); color: var(--green); border: 1px solid rgba(76,175,130,0.25); }
 .file-type-badge.docx  { background: rgba(76,175,130,0.12); color: var(--green); border: 1px solid rgba(76,175,130,0.25); }
+.file-type-badge.pdf   { background: rgba(224,92,92,0.12); color: #ff9f9f; border: 1px solid rgba(224,92,92,0.28); }
 .upload-hint { font: 400 10px var(--font-mono); color: var(--muted); margin-top: 6px; }
 
 /* ── RESPONSIVE ──────────────────────────── */
@@ -682,6 +690,7 @@ body {
     html[data-bif-theme="light"] h1,html[data-bif-theme="light"] h2,html[data-bif-theme="light"] h3,html[data-bif-theme="light"] h4 { color:#1b2837 !important;text-shadow:none !important; }
     html[data-bif-theme="light"] .muted,html[data-bif-theme="light"] .muted2 { color:#5d6b7a !important; }
     html[data-bif-theme="light"] .chip,html[data-bif-theme="light"] .badge,html[data-bif-theme="light"] .tag { background:rgba(155,118,36,.08) !important;border-color:rgba(155,118,36,.22) !important;color:#7a5c12 !important; }
+    html[data-bif-theme="light"] .file-type-badge.pdf { background:rgba(180,35,24,.08) !important;color:#a01c14 !important;border-color:rgba(180,35,24,.25) !important; }
     html[data-bif-theme="light"] table { background:#ffffff !important;color:#1b2837 !important;border-color:rgba(155,118,36,.14) !important; }
     html[data-bif-theme="light"] thead,html[data-bif-theme="light"] th { background:#f8f6ef !important;color:#344454 !important;border-color:rgba(155,118,36,.18) !important; }
     html[data-bif-theme="light"] td { color:#344454 !important;border-color:rgba(155,118,36,.10) !important; }
@@ -722,7 +731,7 @@ body {
     <div class="logo">🗃</div>
     <div class="head-title">
       <h1>Documentos</h1>
-      <p>Biblioteca de documentos HTML · Busca, seções fixas/dinâmicas e movimentação</p>
+      <p>Biblioteca de documentos HTML, Word e PDF · Busca, seções e movimentação</p>
     </div>
   </div>
   <div class="head-actions">
@@ -764,7 +773,7 @@ body {
     <div class="modal-head">
       <div>
         <h2 id="modalManualTitle">Novo documento</h2>
-        <p id="modalManualSub">Dê um nome, escolha a seção, escolha um ícone e selecione o arquivo</p>
+        <p id="modalManualSub">Dê um nome, escolha a seção, escolha um ícone e selecione ou arraste o arquivo</p>
       </div>
       <button class="modal-close" onclick="closeModal('modalManual')">✕</button>
     </div>
@@ -786,13 +795,13 @@ body {
         <div class="emoji-grid" id="manualEmojiGrid"></div>
       </div>
       <div>
-        <div class="field-label">Arquivo <span id="uploadTypeHint" style="font-weight:400;color:var(--muted)">.html · .htm · .doc · .docx</span></div>
+        <div class="field-label">Arquivo <span id="uploadTypeHint" style="font-weight:400;color:var(--muted)">.html · .htm · .doc · .docx · .pdf</span></div>
         <div class="upload-zone" id="manualUploadZone" onclick="document.getElementById('manualFileInput').click()">
           <div class="upload-icon">📂</div>
-          <p id="manualFileLabel">Clique para selecionar um arquivo HTML, DOC ou DOCX</p>
+          <p id="manualFileLabel">Clique ou arraste um arquivo HTML, DOC, DOCX ou PDF</p>
         </div>
-        <input type="file" id="manualFileInput" accept=".html,.htm,.doc,.docx" hidden/>
-        <div class="upload-hint" id="uploadConversionNote" style="display:none">⚙️ Arquivo DOC/DOCX será convertido para HTML automaticamente.</div>
+        <input type="file" id="manualFileInput" accept=".html,.htm,.doc,.docx,.pdf,application/pdf" hidden/>
+        <div class="upload-hint" id="uploadConversionNote" style="display:none">⚙️ Arquivos DOC/DOCX são convertidos para HTML. PDFs são mantidos no formato original.</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -961,6 +970,7 @@ let editingManualId      = null;
 let movingManualId       = null;
 let editingSectionId     = null;
 let manualFileContent    = null;
+let manualFileInfo       = null;
 let selectedManualEmoji  = EMOJIS[0];
 let selectedSectionEmoji = '📁';
 let modules              = [];
@@ -1056,8 +1066,17 @@ async function loadAll() {
   document.getElementById('mainContent').style.display = 'block';
 }
 
-async function saveDoc(id, content) {
-  const payload = { content, updatedAt: new Date().toISOString() };
+async function saveDoc(id, content, fileInfo = {}) {
+  const payload = {
+    content,
+    updatedAt: new Date().toISOString(),
+    fileType: fileInfo.fileType || 'html',
+    mimeType: fileInfo.mimeType || 'text/html;charset=utf-8',
+    extension: fileInfo.extension || (fileInfo.fileType === 'pdf' ? 'pdf' : 'html')
+  };
+  if (fileInfo.originalName) payload.originalName = fileInfo.originalName;
+  if (fileInfo.sourceType) payload.sourceType = fileInfo.sourceType;
+  if (Number.isFinite(fileInfo.size)) payload.size = fileInfo.size;
   await set(ref(db, `${PATH_DOCS}/${id}`), payload);
   docState[id] = payload;
 }
@@ -1161,6 +1180,7 @@ function cardHTML(m) {
   const st      = docState[m.id];
   const filled  = !!(st && st.content);
   const updated = filled ? fmtDate(st.updatedAt) : '';
+  const fileType = getDocFileType(st);
   const clickFn = filled ? `openDoc('${m.id}')` : `openManualModal('${m.id}')`;
 
   return `
@@ -1169,14 +1189,14 @@ function cardHTML(m) {
         <button class="doc-action-btn move" title="Mover para outra seção" aria-label="Mover para outra seção" onclick="event.stopPropagation(); openMoveModal('${m.id}')">↔</button>
         <button class="doc-action-btn share" title="Copiar link público" aria-label="Copiar link público" onclick="event.stopPropagation(); copyPublicLink('${m.id}')">🔗</button>
         <button class="doc-action-btn download" title="Baixar arquivo" aria-label="Baixar arquivo" onclick="event.stopPropagation(); downloadDoc('${m.id}')">⬇</button>
-        ${filled ? `<button class="doc-action-btn edit-html" title="Editar HTML diretamente" aria-label="Editar HTML" onclick="event.stopPropagation(); openHtmlEditor('${m.id}')">&#60;/&#62;</button>` : ''}
+        ${filled && fileType === 'html' ? `<button class="doc-action-btn edit-html" title="Editar HTML diretamente" aria-label="Editar HTML" onclick="event.stopPropagation(); openHtmlEditor('${m.id}')">&#60;/&#62;</button>` : ''}
         <button class="doc-action-btn" title="Editar / substituir" aria-label="Editar ou substituir" onclick="event.stopPropagation(); openManualModal('${m.id}')">✏️</button>
         <button class="doc-action-btn danger" title="Excluir" aria-label="Excluir" onclick="event.stopPropagation(); confirmDeleteManual('${m.id}')">🗑</button>
       </div>
       <div class="doc-icon ${filled ? 'filled-icon' : ''}">${m.icon || '🗃️'}</div>
       <div class="doc-name">${esc(m.name)}</div>
       <div class="doc-desc">${esc(m.desc || '')}</div>
-      <div class="doc-section-label">${esc(sectionName(m.sectionId || 'sem_secao'))}</div>
+      <div class="doc-section-label">${esc(sectionName(m.sectionId || 'sem_secao'))} ${filled ? `<span class="file-type-badge ${fileType}">${fileType}</span>` : ''}</div>
       <div class="doc-footer">
         <span class="doc-status ${filled ? 'filled-badge' : 'empty-badge'}">
           ${filled ? '● Disponível' : 'Sem arquivo'}
@@ -1230,6 +1250,50 @@ window.expandEmptySections = function() {
   toast(showEmptySections ? 'Seções vazias visíveis.' : 'Seções vazias ocultas.');
 };
 
+/* ── TIPOS DE ARQUIVO / BLOBS ── */
+function getDocFileType(st) {
+  const type = String(st?.fileType || '').toLowerCase();
+  if (type === 'pdf') return 'pdf';
+  return 'html'; // compatibilidade com documentos antigos
+}
+
+function getDocExtension(st) {
+  return String(st?.extension || (getDocFileType(st) === 'pdf' ? 'pdf' : 'html')).replace(/^\./, '').toLowerCase();
+}
+
+function getDocMimeType(st) {
+  return st?.mimeType || (getDocFileType(st) === 'pdf' ? 'application/pdf' : 'text/html;charset=utf-8');
+}
+
+function dataUrlToBlob(dataUrl) {
+  const comma = String(dataUrl).indexOf(',');
+  if (comma < 0) throw new Error('Conteúdo do arquivo inválido.');
+  const header = dataUrl.slice(0, comma);
+  const data = dataUrl.slice(comma + 1);
+  const mime = (header.match(/^data:([^;,]+)/i) || [])[1] || 'application/octet-stream';
+  const isBase64 = /;base64/i.test(header);
+  if (!isBase64) return new Blob([decodeURIComponent(data)], { type: mime });
+
+  const binary = atob(data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+function getDocBlob(st) {
+  if (getDocFileType(st) === 'pdf' && String(st.content || '').startsWith('data:')) {
+    return dataUrlToBlob(st.content);
+  }
+  return new Blob([st.content || ''], { type: getDocMimeType(st) });
+}
+
+function getDownloadFileName(st, meta, id) {
+  const ext = getDocExtension(st);
+  const original = String(st?.originalName || '').replace(/\.[^.]+$/, '');
+  const base = safeDownloadName(meta?.name || original || id);
+  return `${base}.${ext}`;
+}
+
 /* ── LINK PÚBLICO / VISUALIZAÇÃO COMPARTILHADA ── */
 function publicDocUrl(id) {
   const url = new URL(window.location.href);
@@ -1277,19 +1341,29 @@ async function loadPublicDocument(id) {
     const meta = metaSnap.val() || {};
     if (!st || !st.content) throw new Error('Documento não encontrado ou removido.');
 
+    const fileType = getDocFileType(st);
     document.getElementById('publicViewerName').textContent = meta.name || 'Documento compartilhado';
+    document.getElementById('publicViewerInfo').textContent = fileType === 'pdf' ? 'Visualização compartilhada · PDF' : 'Visualização compartilhada · HTML';
     document.title = `${meta.name || 'Documento'} — BIF`;
-    frame.srcdoc = st.content;
+
+    if (fileType === 'pdf') {
+      const pdfUrl = URL.createObjectURL(getDocBlob(st));
+      frame.removeAttribute('srcdoc');
+      frame.src = pdfUrl;
+      window.addEventListener('beforeunload', () => URL.revokeObjectURL(pdfUrl), { once:true });
+    } else {
+      frame.src = 'about:blank';
+      frame.srcdoc = st.content;
+    }
 
     document.getElementById('publicCopyBtn').onclick = async () => {
       try { await copyText(window.location.href); toast('Link copiado! ✓'); }
       catch { toast('Não foi possível copiar o link.', 'error'); }
     };
     document.getElementById('publicDownloadBtn').onclick = () => {
-      const blob = new Blob([st.content], { type:'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(getDocBlob(st));
       const a = document.createElement('a');
-      a.href = url; a.download = `${safeDownloadName(meta.name || id)}.html`;
+      a.href = url; a.download = getDownloadFileName(st, meta, id);
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
@@ -1305,8 +1379,20 @@ async function loadPublicDocument(id) {
 window.openDoc = function(id) {
   const st = docState[id];
   if (!st || !st.content) { toast('Nenhum arquivo carregado.', 'error'); return; }
-  const url = URL.createObjectURL(new Blob([st.content], { type: 'text/html' }));
-  window.open(url, '_blank');
+  try {
+    const url = URL.createObjectURL(getDocBlob(st));
+    const opened = window.open(url, '_blank');
+    if (!opened) {
+      URL.revokeObjectURL(url);
+      toast('O navegador bloqueou a nova aba. Libere pop-ups para abrir o documento.', 'error');
+      return;
+    }
+    try { opened.opener = null; } catch {}
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+  } catch (e) {
+    console.error(e);
+    toast('Não foi possível abrir o arquivo.', 'error');
+  }
 };
 
 function safeDownloadName(name) {
@@ -1322,28 +1408,31 @@ window.downloadDoc = function(id) {
   if (!st || !st.content) { toast('Nenhum arquivo carregado para download.', 'error'); return; }
 
   const m = modules.find(x => x.id === id);
-  const blob = new Blob([st.content], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-
-  a.href = url;
-  a.download = `${safeDownloadName(m?.name || id)}.html`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('Download iniciado. ✓');
+  try {
+    const url = URL.createObjectURL(getDocBlob(st));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = getDownloadFileName(st, m, id);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Download iniciado. ✓');
+  } catch (e) {
+    console.error(e);
+    toast('Não foi possível baixar o arquivo.', 'error');
+  }
 };
 
 /* ── MANUAL: CRIAR / EDITAR ── */
 window.openManualModal = function(id, presetSectionId = '') {
   editingManualId   = id;
   manualFileContent = null;
+  manualFileInfo    = null;
   const existing    = id ? modules.find(m => m.id === id) : null;
 
   document.getElementById('modalManualTitle').textContent = id ? 'Editar documento' : 'Novo documento';
-  document.getElementById('modalManualSub').textContent   = id ? 'Altere os dados, mova de seção ou substitua o arquivo HTML' : 'Dê um nome, escolha a seção, escolha um ícone e selecione o arquivo HTML';
+  document.getElementById('modalManualSub').textContent   = id ? 'Altere os dados, mova de seção ou substitua o arquivo' : 'Selecione ou arraste um arquivo HTML, DOC, DOCX ou PDF';
 
   document.getElementById('manualName').value = existing?.name || '';
   document.getElementById('manualDesc').value = existing?.desc || '';
@@ -1352,9 +1441,14 @@ window.openManualModal = function(id, presetSectionId = '') {
   buildSectionSelect('manualSection', existing?.sectionId || presetSectionId || 'sem_secao');
 
   const hasDoc = id && docState[id]?.content;
-  document.getElementById('manualFileLabel').textContent = hasDoc ? '✓ Arquivo já carregado — selecione para substituir' : 'Clique para selecionar um arquivo .html';
+  const existingType = hasDoc ? getDocFileType(docState[id]).toUpperCase() : '';
+  document.getElementById('manualFileLabel').textContent = hasDoc ? `✓ Arquivo ${existingType} já carregado — clique ou arraste para substituir` : 'Clique ou arraste um arquivo HTML, DOC, DOCX ou PDF';
   document.getElementById('manualUploadZone').classList.toggle('has-file', !!hasDoc);
+  document.getElementById('manualUploadZone').classList.remove('drag-over');
   document.getElementById('manualFileInput').value = '';
+  const convNote = document.getElementById('uploadConversionNote');
+  convNote.style.display = 'none';
+  convNote.textContent = '⚙️ Arquivos DOC/DOCX são convertidos para HTML. PDFs são mantidos no formato original.';
 
   buildEmojiGrid('manualEmojiGrid', selectedManualEmoji, 'selectManualEmoji');
   document.getElementById('modalManual').classList.add('open');
@@ -1383,22 +1477,39 @@ window.selectSectionEmoji = function(e) {
   buildEmojiGrid('sectionEmojiGrid', selectedSectionEmoji, 'selectSectionEmoji');
 };
 
-document.getElementById('manualFileInput').addEventListener('change', async function() {
-  const file = this.files[0]; if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-  const convNote = document.getElementById('uploadConversionNote');
+const ACCEPTED_MANUAL_EXTENSIONS = ['html', 'htm', 'doc', 'docx', 'pdf'];
 
-  if (ext === 'doc' || ext === 'docx') {
-    // Converter DOC/DOCX para HTML via mammoth
+async function handleManualFile(file) {
+  if (!file) return;
+  const ext = String(file.name.split('.').pop() || '').toLowerCase();
+  const convNote = document.getElementById('uploadConversionNote');
+  const zone = document.getElementById('manualUploadZone');
+  const label = document.getElementById('manualFileLabel');
+
+  if (!ACCEPTED_MANUAL_EXTENSIONS.includes(ext)) {
+    manualFileContent = null;
+    manualFileInfo = null;
+    document.getElementById('manualFileInput').value = '';
+    zone.classList.remove('has-file', 'drag-over');
+    label.textContent = 'Clique ou arraste um arquivo HTML, DOC, DOCX ou PDF';
     convNote.style.display = 'block';
-    convNote.textContent = '⚙️ Convertendo ' + file.name + '...';
-    try {
+    convNote.textContent = `✗ Formato .${ext || 'desconhecido'} não permitido.`;
+    toast('Formato não permitido. Use HTML, HTM, DOC, DOCX ou PDF.', 'error');
+    return;
+  }
+
+  manualFileContent = null;
+  manualFileInfo = null;
+  zone.classList.remove('drag-over');
+  convNote.style.display = 'block';
+
+  try {
+    if (ext === 'doc' || ext === 'docx') {
+      convNote.textContent = '⚙️ Convertendo ' + file.name + '...';
       const arrayBuffer = await file.arrayBuffer();
       const result = await mammoth.convertToHtml({ arrayBuffer });
-      if (result.messages && result.messages.length) {
-        console.warn('Mammoth warnings:', result.messages);
-      }
-      // Empacotar em HTML completo com charset
+      if (result.messages && result.messages.length) console.warn('Mammoth warnings:', result.messages);
+
       manualFileContent = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1418,25 +1529,106 @@ document.getElementById('manualFileInput').addEventListener('change', async func
 ${result.value}
 </body>
 </html>`;
-      document.getElementById('manualFileLabel').textContent = `✓ ${file.name} (convertido para HTML)`;
-      document.getElementById('manualUploadZone').classList.add('has-file');
+      manualFileInfo = {
+        fileType: 'html',
+        mimeType: 'text/html;charset=utf-8',
+        extension: 'html',
+        originalName: file.name,
+        sourceType: ext,
+        size: file.size
+      };
+      label.textContent = `✓ ${file.name} (convertido para HTML)`;
       convNote.textContent = '✓ Conversão concluída. O arquivo será salvo como HTML.';
-    } catch(err) {
-      console.error('Erro mammoth:', err);
-      convNote.textContent = '✗ Erro ao converter: ' + (err.message || err);
-      toast('Erro ao converter DOC/DOCX: ' + (err.message || err), 'error');
+    } else if (ext === 'pdf') {
+      convNote.textContent = '⚙️ Preparando ' + file.name + '...';
+      manualFileContent = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = () => reject(reader.error || new Error('Falha ao ler o PDF.'));
+        reader.readAsDataURL(file);
+      });
+      manualFileInfo = {
+        fileType: 'pdf',
+        mimeType: file.type || 'application/pdf',
+        extension: 'pdf',
+        originalName: file.name,
+        sourceType: 'pdf',
+        size: file.size
+      };
+      label.textContent = `✓ ${file.name}`;
+      convNote.textContent = '✓ PDF pronto para salvar no formato original.';
+    } else {
+      manualFileContent = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = () => reject(reader.error || new Error('Falha ao ler o arquivo HTML.'));
+        reader.readAsText(file, 'UTF-8');
+      });
+      manualFileInfo = {
+        fileType: 'html',
+        mimeType: 'text/html;charset=utf-8',
+        extension: 'html',
+        originalName: file.name,
+        sourceType: ext,
+        size: file.size
+      };
+      label.textContent = `✓ ${file.name}`;
+      convNote.style.display = 'none';
     }
-  } else {
-    // HTML/HTM normal
-    convNote.style.display = 'none';
-    const reader = new FileReader();
-    reader.onload = e => {
-      manualFileContent = e.target.result;
-      document.getElementById('manualFileLabel').textContent = `✓ ${file.name}`;
-      document.getElementById('manualUploadZone').classList.add('has-file');
-    };
-    reader.readAsText(file, 'UTF-8');
+
+    zone.classList.add('has-file');
+  } catch (err) {
+    console.error('Erro ao processar arquivo:', err);
+    manualFileContent = null;
+    manualFileInfo = null;
+    zone.classList.remove('has-file');
+    label.textContent = 'Clique ou arraste um arquivo HTML, DOC, DOCX ou PDF';
+    convNote.style.display = 'block';
+    convNote.textContent = '✗ Erro ao processar: ' + (err.message || err);
+    toast('Erro ao processar o arquivo: ' + (err.message || err), 'error');
   }
+}
+
+const manualFileInput = document.getElementById('manualFileInput');
+const manualUploadZone = document.getElementById('manualUploadZone');
+let manualUploadDragDepth = 0;
+
+manualFileInput.addEventListener('change', function() {
+  handleManualFile(this.files[0]);
+});
+
+manualUploadZone.addEventListener('dragenter', e => {
+  if (!Array.from(e.dataTransfer?.types || []).includes('Files')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  manualUploadDragDepth++;
+  manualUploadZone.classList.add('drag-over');
+});
+
+manualUploadZone.addEventListener('dragover', e => {
+  if (!Array.from(e.dataTransfer?.types || []).includes('Files')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect = 'copy';
+  manualUploadZone.classList.add('drag-over');
+});
+
+manualUploadZone.addEventListener('dragleave', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  manualUploadDragDepth = Math.max(0, manualUploadDragDepth - 1);
+  if (!manualUploadDragDepth) manualUploadZone.classList.remove('drag-over');
+});
+
+manualUploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  manualUploadDragDepth = 0;
+  manualUploadZone.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer?.files || []);
+  if (!files.length) return;
+  if (files.length > 1) toast('Arraste apenas um arquivo por documento. O primeiro será utilizado.', 'error');
+  handleManualFile(files[0]);
 });
 
 window.saveManual = async function() {
@@ -1445,7 +1637,7 @@ window.saveManual = async function() {
 
   const isNew    = !editingManualId;
   const hasDoc   = editingManualId && docState[editingManualId]?.content;
-  if (!manualFileContent && !hasDoc) { toast('Selecione um arquivo (.html, .doc ou .docx).', 'error'); return; }
+  if (!manualFileContent && !hasDoc) { toast('Selecione ou arraste um arquivo HTML, DOC, DOCX ou PDF.', 'error'); return; }
 
   const id = editingManualId || slugId('doc');
   const old = editingManualId ? modules.find(x => x.id === editingManualId) : null;
@@ -1463,7 +1655,7 @@ window.saveManual = async function() {
   loading(true, isNew ? 'Criando documento...' : 'Atualizando documento...');
   try {
     await saveMeta(m);
-    if (manualFileContent) await saveDoc(id, manualFileContent);
+    if (manualFileContent) await saveDoc(id, manualFileContent, manualFileInfo || {});
     if (isNew) modules.push(m);
     else { const idx = modules.findIndex(x => x.id === id); if (idx >= 0) modules[idx] = m; }
     toast(isNew ? `Documento "${name}" criado! ✓` : `Documento "${name}" atualizado! ✓`);
@@ -1669,6 +1861,7 @@ let editorView  = 'code'; // 'code' | 'split' | 'preview'
 window.openHtmlEditor = function(id) {
   const st = docState[id];
   if (!st || !st.content) { toast('Nenhum arquivo carregado para editar.', 'error'); return; }
+  if (getDocFileType(st) !== 'html') { toast('O editor de código está disponível apenas para arquivos HTML.', 'error'); return; }
   const meta = modules.find(m => m.id === id) || {};
 
   editorDocId = id;
@@ -1789,7 +1982,15 @@ window.saveHtmlEditor = async function() {
   loading(true, `Salvando "${meta.name || editorDocId}" no Firebase...`);
 
   try {
-    await saveDoc(editorDocId, content);
+    const previous = docState[editorDocId] || {};
+    await saveDoc(editorDocId, content, {
+      fileType: 'html',
+      mimeType: 'text/html;charset=utf-8',
+      extension: 'html',
+      originalName: previous.originalName,
+      sourceType: previous.sourceType || 'html',
+      size: new Blob([content]).size
+    });
     toast(`"${meta.name || editorDocId}" salvo com sucesso! ✓`);
     render();
   } catch(e) {
