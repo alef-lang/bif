@@ -304,6 +304,41 @@
       border-color: var(--gold);
     }
 
+    .btn-backup {
+      background: transparent;
+      border: 1px solid rgba(0,206,201,0.3);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      color: #5eecea;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-backup:hover {
+      background: rgba(0,206,201,0.12);
+      border-color: rgba(0,206,201,0.6);
+    }
+    .btn-backup:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-backup .backup-spinner {
+      display: none;
+      width: 10px;
+      height: 10px;
+      border: 2px solid rgba(94,238,234,0.3);
+      border-top-color: #5eecea;
+      border-radius: 50%;
+      animation: bif-spin 0.7s linear infinite;
+    }
+    .btn-backup.loading .backup-spinner { display: inline-block; }
+    .btn-backup.loading .backup-icon { display: none; }
+    @keyframes bif-spin { to { transform: rotate(360deg); } }
+
     .main {
       padding: 40px 32px 60px;
       max-width: 1280px;
@@ -643,6 +678,10 @@
         <button type="button" class="theme-option" data-theme="dark" aria-pressed="false" title="Usar tema escuro">☾ Escuro</button>
       </div>
       <span class="user-info" id="userEmail"></span>
+      <button class="btn-backup" id="btnBackup" title="Baixar backup completo do Firebase em JSON">
+        <span class="backup-icon">⬇ Backup JSON</span>
+        <span class="backup-spinner"></span>
+      </button>
       <button class="btn-logout" id="btnLogout">Sair</button>
     </div>
   </header>
@@ -1502,6 +1541,58 @@
       applyIndexSearch();
     }
   }
+
+  // ── Backup geral JSON ──
+  const btnBackup = document.getElementById('btnBackup');
+
+  async function fazerBackupGeral() {
+    btnBackup.disabled = true;
+    btnBackup.classList.add('loading');
+    try {
+      // Lê a raiz completa do Realtime Database
+      const snap = await get(ref(db, '/'));
+      if (!snap.exists()) {
+        alert('Nenhum dado encontrado no banco para exportar.');
+        return;
+      }
+      const dados = snap.val();
+
+      // Metadados do backup
+      const agora = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const timestamp = `${agora.getFullYear()}-${pad(agora.getMonth()+1)}-${pad(agora.getDate())}_${pad(agora.getHours())}-${pad(agora.getMinutes())}-${pad(agora.getSeconds())}`;
+
+      const payload = {
+        _backup_meta: {
+          gerado_em: agora.toISOString(),
+          gerado_por: auth.currentUser?.email || 'desconhecido',
+          projeto: 'portal-treinamentos-lang',
+          versao: '1.0'
+        },
+        dados
+      };
+
+      // Download automático
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `bif-backup-${timestamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+    } catch(err) {
+      console.error('Erro no backup:', err);
+      alert('Erro ao gerar backup: ' + (err.message || err));
+    } finally {
+      btnBackup.disabled = false;
+      btnBackup.classList.remove('loading');
+    }
+  }
+
+  btnBackup.addEventListener('click', fazerBackupGeral);
 
   // Navegação entre ferramentas
   window.openTool = function(tool) {
