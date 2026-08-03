@@ -301,16 +301,18 @@
   const FB_NODE = 'bif_controle_ciap';
 
   // Firebase RTDB não aceita '.', '#', '$', '[', ']', '/' em chaves.
-  function fbKey(value) { return String(value).replace(/[.#$\[\]/]/g, '_'); }
+  function fbKey(value) { return String(value).replace(/[^A-Za-z0-9_\- ]/g, '_'); }
 
   // Rede de segurança: mesmo que algum dado corrompido escape das validações
   // do parser, isso impede que ele quebre a gravação inteira no Firebase.
+  // Lista de permissão (em vez de bloquear só alguns caracteres): qualquer
+  // coisa fora de letras/números/espaço/hífen é substituída.
   function sanitizeForFirebase(value){
     if(Array.isArray(value)) return value.map(sanitizeForFirebase);
     if(value && typeof value === 'object'){
       const out = {};
       for(const [key, val] of Object.entries(value)){
-        const safeKey = /^[^.#$\[\]\u0000-\u001F/]{1,200}$/.test(key) ? key : fbKey(key).slice(0,200);
+        const safeKey = (/^[A-Za-z0-9_\- ]{1,200}$/.test(key) ? key : fbKey(key).slice(0,200)) || '_';
         out[safeKey] = sanitizeForFirebase(val);
       }
       return out;
