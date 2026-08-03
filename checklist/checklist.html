@@ -1813,8 +1813,8 @@
       <div class="filter-panel" id="filterBar" aria-label="Filtros do checklist">
         <div class="filter-title"><span class="filter-title-icon">⌁</span> Visualização</div>
         <div class="filter-segments">
-          <span class="cat-chip all" data-filter="all" onclick="aplicarFiltroStatus('all')">Todas</span>
-          <span class="cat-chip pending-filter active" data-filter="pending" onclick="aplicarFiltroStatus('pending')">Pendentes</span>
+          <span class="cat-chip all active" data-filter="all" onclick="aplicarFiltroStatus('all')">Todas</span>
+          <span class="cat-chip pending-filter" data-filter="pending" onclick="aplicarFiltroStatus('pending')">Pendentes</span>
           <span class="cat-chip done-filter" data-filter="done" onclick="aplicarFiltroStatus('done')">Concluídas</span>
         </div>
         <div class="filter-count-hint" id="filterHint">Mostrando pendentes</div>
@@ -1865,7 +1865,7 @@
 
   <script>
     // Filtro por status + escopo fiscal
-    let filtroAtualChecklist = 'pending';
+    let filtroAtualChecklist = 'all';
     let escopoAtualChecklist = 'geral';
     let buscaAtualChecklist = '';
     let movimentoAtualChecklist = 'todos';
@@ -2772,7 +2772,7 @@
       container.innerHTML = '';
       manualSec.style.display = '';
       atualizarTotais();
-      aplicarFiltroStatus('pending');
+      aplicarFiltroStatus(filtroAtualChecklist);
       return;
     }
 
@@ -2799,7 +2799,7 @@
     if (!empresas.length) {
       container.innerHTML = `<div class="section-card from-painel"><div class="section-header"><div class="section-title">Do Painel — ${escChecklist(colaborador)}</div></div><p style="font-size:0.85rem;color:var(--text-muted);padding:8px 0;">Nenhuma empresa encontrada para este colaborador.</p></div>`;
       atualizarTotais();
-      aplicarFiltroStatus('pending');
+      aplicarFiltroStatus(filtroAtualChecklist);
       return;
     }
 
@@ -2974,7 +2974,7 @@
     }));
     filtrarSubtarefasPorEscopo();
     atualizarTotais();
-    aplicarFiltroStatus('pending');
+    aplicarFiltroStatus(filtroAtualChecklist);
   };
 
   window.toggleSubtasks = function(id) {
@@ -3796,28 +3796,35 @@
 
   let _relAbaAtiva = 'empresas';
 
-  // Coleta dados brutos de todas as empresa-items visíveis
+  // Coleta dados brutos de todas as empresa-items
   function _relColetarDados() {
     const dados = [];
 
+    const SCOPES_IMPOSTO   = ['impostos','pis_cofins','icms','das','irpj_csll'];
+    const SCOPES_OBRIGACAO = ['obrigacoes','sped'];
+
+    function getScopes(cb) {
+      return String(cb.dataset?.scopes || '').split(',').map(s => s.trim()).filter(Boolean);
+    }
+
     document.querySelectorAll('.empresa-item').forEach(item => {
-      const nome      = item.querySelector('.item-title-input')?.value?.trim() || '';
+      const nome = item.querySelector('.item-title-input')?.value?.trim() || '';
       if (!nome) return;
 
       const checked   = item.querySelector('.empresa-check')?.checked || false;
       const movimento = item.dataset?.movimento || 'com_movimento';
-      const origemP   = item.closest('.section-card.from-painel');
-      const origem    = origemP ? 'Painel' : 'Manual';
+      const origem    = item.closest('.section-card.from-painel') ? 'Painel' : 'Manual';
 
       // Regime
       const regimeMeta = item.querySelector('.item-meta span:not(.painel-badge):not(.movement-badge)')?.textContent?.trim() || '';
       const regimeTag  = item.querySelector('.tag-input')?.value?.trim() || '';
       const regime     = regimeMeta || regimeTag || '';
 
-      // Subtarefas — impostos
+      // Impostos: qualquer sub-check cujos scopes contenham ao menos um scope de imposto
       const impostos = [];
-      item.querySelectorAll('.sub-check[data-scopes*="imposto"], .sub-check[data-scopes*="pis_cofins"], .sub-check[data-scopes*="icms"], .sub-check[data-scopes*="das"], .sub-check[data-scopes*="irpj_csll"]').forEach(cb => {
-        if (cb.dataset?.scopes?.split(',').some(s => ['impostos','pis_cofins','icms','das','irpj_csll'].includes(s.trim()))) {
+      item.querySelectorAll('.sub-check').forEach(cb => {
+        const scopes = getScopes(cb);
+        if (scopes.some(s => SCOPES_IMPOSTO.includes(s))) {
           impostos.push({
             nome:    cb.dataset?.subLabel || cb.dataset?.subNome || '',
             checked: cb.checked
@@ -3825,11 +3832,19 @@
         }
       });
 
-      // Subtarefas — obrigações (SPED/EFD + outras)
+      // Obrigações: qualquer sub-check cujos scopes contenham ao menos um scope de obrigação,
+      // desde que NÃO seja imposto (evita duplicatas)
       const obrigacoes = [];
-      item.querySelectorAll('.sub-check[data-scopes*="sped"], .sub-check[data-scopes*="obrig"]').forEach(cb => {
-        if (cb.dataset?.scopes?.split(',').some(s => ['sped','obrigacoes'].includes(s.trim()))) {
-          const vencEl = cb.closest('div[style*="border-bottom"]')?.querySelector('span[style*="font-size:0.68rem"]');
+      item.querySelectorAll('.sub-check').forEach(cb => {
+        const scopes = getScopes(cb);
+        const ehImposto   = scopes.some(s => SCOPES_IMPOSTO.includes(s));
+        const ehObrigacao = scopes.some(s => SCOPES_OBRIGACAO.includes(s));
+        if (ehObrigacao && !ehImposto) {
+          // Tenta capturar vencimento: span irmão após o checkbox dentro do mesmo div
+          const parentDiv = cb.parentElement;
+          const vencEl    = parentDiv ? [...parentDiv.querySelectorAll('span')].find(
+            sp => /^\d{2}\/\d{4}$|^\d{2}\/\d{2}\/\d{4}$/.test(sp.textContent?.trim())
+          ) : null;
           obrigacoes.push({
             nome:       cb.dataset?.subLabel || cb.dataset?.subNome || '',
             vencimento: vencEl?.textContent?.trim() || '',
@@ -3844,18 +3859,15 @@
     return dados;
   }
 
-  // Aplica filtros de movimento e status ao array
+  // Filtra por movimento (status é aplicado por aba individualmente)
   function _relFiltrar(dados) {
-    const mov  = document.getElementById('relFiltroMovimento')?.value || 'todos';
-    const sta  = document.getElementById('relFiltroStatus')?.value   || 'todos';
+    const mov = document.getElementById('relFiltroMovimento')?.value || 'todos';
+    return dados.filter(e => mov === 'todos' || e.movimento === mov);
+  }
 
-    return dados.filter(e => {
-      const passaMov = mov === 'todos' || e.movimento === mov;
-      const passaSta = sta === 'todos'
-        || (sta === 'done'    &&  e.checked)
-        || (sta === 'pending' && !e.checked);
-      return passaMov && passaSta;
-    });
+  function _relPassaStatus(checked) {
+    const sta = document.getElementById('relFiltroStatus')?.value || 'todos';
+    return sta === 'todos' || (sta === 'done' && checked) || (sta === 'pending' && !checked);
   }
 
   window.relMudarAba = function(aba, btn) {
@@ -3883,7 +3895,7 @@
   };
 
   function _relRenderEmpresas(dados) {
-    const tbody  = document.getElementById('relBodyEmpresas');
+    const tbody   = document.getElementById('relBodyEmpresas');
     const emptyEl = document.getElementById('relEmptyEmpresas');
     tbody.innerHTML = '';
 
@@ -3891,7 +3903,8 @@
     let seq = 0;
 
     origens.forEach(origem => {
-      const grupo = dados.filter(e => e.origem === origem);
+      // Filtra por status da empresa nesta aba
+      const grupo = dados.filter(e => e.origem === origem && _relPassaStatus(e.checked));
       if (!grupo.length) return;
 
       const secRow = document.createElement('tr');
@@ -3901,7 +3914,9 @@
 
       grupo.forEach(emp => {
         seq++;
-        const movLabel = emp.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>' : '<span style="font-size:0.7rem;color:#4caf82;">C/Mov</span>';
+        const movLabel = emp.movimento === 'sem_movimento'
+          ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>'
+          : '<span style="font-size:0.7rem;color:#4caf82;">C/Mov</span>';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${seq}</td>
@@ -3913,10 +3928,10 @@
       });
     });
 
-    const total = dados.length;
-    const conc  = dados.filter(e => e.checked).length;
+    const totalFiltrado = dados.filter(e => _relPassaStatus(e.checked)).length;
+    const conc  = dados.filter(e => _relPassaStatus(e.checked) && e.checked).length;
     document.getElementById('relTotalBadge').textContent =
-      `${total} empresa${total !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${total - conc} pendente${(total - conc) !== 1 ? 's' : ''}`;
+      `${totalFiltrado} empresa${totalFiltrado !== 1 ? 's' : ''} · ${conc} concluída${conc !== 1 ? 's' : ''} · ${totalFiltrado - conc} pendente${(totalFiltrado - conc) !== 1 ? 's' : ''}`;
     emptyEl.style.display = seq === 0 ? '' : 'none';
   }
 
@@ -3926,12 +3941,12 @@
     tbody.innerHTML = '';
 
     let seq = 0;
-    // Agrupa impostos por nome
     const porImposto = {};
 
     dados.forEach(emp => {
       emp.impostos.forEach(imp => {
-        if (!imp.nome) return;
+        // Filtra por status da subtarefa de imposto
+        if (!imp.nome || !_relPassaStatus(imp.checked)) return;
         if (!porImposto[imp.nome]) porImposto[imp.nome] = [];
         porImposto[imp.nome].push({ empresa: emp.nome, checked: imp.checked, movimento: emp.movimento });
       });
@@ -3940,27 +3955,28 @@
     const nomes = Object.keys(porImposto).sort();
     nomes.forEach(nomeImp => {
       const itens = porImposto[nomeImp];
+      const conc = itens.filter(i => i.checked).length;
       const secRow = document.createElement('tr');
       secRow.className = 'rel-section-row';
-      const conc = itens.filter(i => i.checked).length;
-      secRow.innerHTML = `<td colspan="5">💰 ${nomeImp} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td>`;
+      secRow.innerHTML = `<td colspan="5">💰 ${nomeImp} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok · ${itens.length-conc} pend.</td>`;
       tbody.appendChild(secRow);
 
       itens.forEach(it => {
         seq++;
-        const movLabel = it.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>' : '';
+        const movLabel = it.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;"> S/Mov</span>' : '';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${seq}</td>
           <td style="color:#e8c97a;font-size:0.8rem;">${nomeImp}</td>
-          <td>${it.empresa} ${movLabel}</td>
+          <td>${it.empresa}${movLabel}</td>
           <td style="color:#7a92a8;font-size:0.75rem;">—</td>
           <td><span class="${it.checked ? 'rel-status-ok' : 'rel-status-pend'}" title="${it.checked ? 'Feito' : 'Pendente'}"></span></td>`;
         tbody.appendChild(tr);
       });
     });
 
-    document.getElementById('relTotalBadge').textContent = `${seq} linha${seq!==1?'s':''} em ${nomes.length} imposto${nomes.length!==1?'s':''}`;
+    document.getElementById('relTotalBadge').textContent =
+      `${seq} linha${seq!==1?'s':''} em ${nomes.length} imposto${nomes.length!==1?'s':''}`;
     emptyEl.style.display = seq === 0 ? '' : 'none';
   }
 
@@ -3974,7 +3990,8 @@
 
     dados.forEach(emp => {
       emp.obrigacoes.forEach(obr => {
-        if (!obr.nome) return;
+        // Filtra por status da subtarefa de obrigação
+        if (!obr.nome || !_relPassaStatus(obr.checked)) return;
         if (!porObr[obr.nome]) porObr[obr.nome] = [];
         porObr[obr.nome].push({ empresa: emp.nome, checked: obr.checked, vencimento: obr.vencimento, movimento: emp.movimento });
       });
@@ -3983,27 +4000,28 @@
     const nomes = Object.keys(porObr).sort();
     nomes.forEach(nomeObr => {
       const itens = porObr[nomeObr];
+      const conc = itens.filter(i => i.checked).length;
       const secRow = document.createElement('tr');
       secRow.className = 'rel-section-row';
-      const conc = itens.filter(i => i.checked).length;
-      secRow.innerHTML = `<td colspan="5">📂 ${nomeObr} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok</td>`;
+      secRow.innerHTML = `<td colspan="5">📂 ${nomeObr} — ${itens.length} empresa${itens.length!==1?'s':''} · ${conc} ok · ${itens.length-conc} pend.</td>`;
       tbody.appendChild(secRow);
 
       itens.forEach(it => {
         seq++;
-        const movLabel = it.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;">S/Mov</span>' : '';
+        const movLabel = it.movimento === 'sem_movimento' ? '<span style="font-size:0.7rem;color:#7a92a8;"> S/Mov</span>' : '';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${seq}</td>
           <td style="color:#4a9eda;font-size:0.8rem;">${nomeObr}</td>
-          <td>${it.empresa} ${movLabel}</td>
+          <td>${it.empresa}${movLabel}</td>
           <td style="color:#7a92a8;font-size:0.75rem;">${it.vencimento || '—'}</td>
           <td><span class="${it.checked ? 'rel-status-ok' : 'rel-status-pend'}" title="${it.checked ? 'Entregue' : 'Pendente'}"></span></td>`;
         tbody.appendChild(tr);
       });
     });
 
-    document.getElementById('relTotalBadge').textContent = `${seq} linha${seq!==1?'s':''} em ${nomes.length} obrigação${nomes.length!==1?'ões':''}`;
+    document.getElementById('relTotalBadge').textContent =
+      `${seq} linha${seq!==1?'s':''} em ${nomes.length} obrigação${nomes.length!==1?'ões':''}`;
     emptyEl.style.display = seq === 0 ? '' : 'none';
   }
 
