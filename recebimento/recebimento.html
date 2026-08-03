@@ -1163,10 +1163,8 @@ const state = {
   authUser: null,
   dataSource: 'inicial',
   firebaseEmpresas: [],
-  indexEmpresas: [],
   empresasTodas: [],
   colaboradorFiltro: COLABORADOR_ALVO,
-  indexFetchDone: false,
   cardSizeLevel: 3,
   docFontSizeLevel: 2,
   expandedCards: {}
@@ -1483,7 +1481,6 @@ function setEmpresasCompletas(reason, preferCloudStatus=true) {
   }
   const allMerged = mergeEmpresasTodas(
     state.firebaseEmpresas,
-    semFirebaseKeys(state.indexEmpresas),
     semFirebaseKeys(fromLocal),
     semFirebaseKeys(FALLBACK_ALEF_EMPRESAS),
     semFirebaseKeys(PAINEL_INDEX_ALEF_EMBARCADO),
@@ -1493,14 +1490,13 @@ function setEmpresasCompletas(reason, preferCloudStatus=true) {
   state.empresas = allMerged.filter(empresaPassaFiltroColaborador);
   const fontes = [];
   if((state.firebaseEmpresas || []).length) fontes.push(`Firebase ${state.firebaseEmpresas.length}`);
-  if((state.indexEmpresas || []).length) fontes.push(`Index ${state.indexEmpresas.length}`);
   if(fromLocal.length) fontes.push(`cache ${fromLocal.length}`);
   if(typeof PAINEL_INDEX_TODAS_EMBARCADO !== 'undefined') fontes.push(`base painel ${PAINEL_INDEX_TODAS_EMBARCADO.length}`);
   state.dataSource = fontes.join(' + ');
   renderColaboradorFilter();
   updateFonteInfo();
   if(preferCloudStatus) {
-    const kind = (state.firebaseEmpresas || []).length ? 'ok' : ((state.indexEmpresas || []).length || fromLocal.length ? 'offline' : 'error');
+    const kind = (state.firebaseEmpresas || []).length ? 'ok' : (fromLocal.length ? 'offline' : 'error');
     setCloudStatus(kind, `${reason} • ${state.empresas.length}/${state.empresasTodas.length} empresas (${colaboradorLabelAtual()})`);
   }
   try {
@@ -1525,68 +1521,9 @@ function setEmpresasCompletas(reason, preferCloudStatus=true) {
   if(qs('newOverlay')?.classList.contains('open')) renderNewEmpresaOptions();
 }
 
-function extractFirstArrayAfter(html, idx) {
-  const start = String(html || '').indexOf('[', idx);
-  if(start < 0) return '';
-  let depth = 0, str = '', quote = '', escp = false;
-  for(let i=start; i<html.length; i++) {
-    const ch = html[i];
-    if(str) {
-      if(escp) escp = false;
-      else if(ch === '\\') escp = true;
-      else if(ch === quote) str = '';
-    } else {
-      if(ch === '"' || ch === "'" || ch === '`') { str = ch; quote = ch; }
-      else if(ch === '[') depth++;
-      else if(ch === ']') { depth--; if(depth === 0) return html.slice(start, i+1); }
-    }
-  }
-  return '';
-}
-
-function extractEmpresasFromIndexHtml(html) {
-  const text = String(html || '');
-  const encontrados = [];
-  const patterns = [
-    /(?:const|let|var)\s+BASE_EMPRESAS\w*\s*=\s*\[/g,
-    /(?:const|let|var)\s+EMPRESAS\w*\s*=\s*\[/g,
-    /(?:const|let|var)\s+.*?EMPRESAS.*?\s*=\s*\[/g
-  ];
-  for(const rx of patterns) {
-    let m;
-    while((m = rx.exec(text))) {
-      const arrTxt = extractFirstArrayAfter(text, m.index);
-      if(!arrTxt || !arrTxt.includes('colaborador') || !arrTxt.includes('cnpj')) continue;
-      try {
-        const arr = JSON.parse(arrTxt);
-        if(Array.isArray(arr)) encontrados.push(...arr.map(normalizeEmpresa).filter(e => recordKeyEmpresa(e)));
-      } catch(e) {}
-    }
-  }
-  return mergeEmpresasTodas(encontrados);
-}
-
-async function carregarEmpresasDoIndexHtml(force=false) {
-  if(state.indexFetchDone && !force) return;
-  state.indexFetchDone = true;
-  const caminhos = [
-    './index.html', 'index.html', '../index.html', '../../index.html',
-    './painel.html', '../painel.html', './painel/index.html', '../painel/index.html'
-  ];
-  for(const url of caminhos) {
-    try {
-      const resp = await fetch(url, {cache:'no-store'});
-      if(!resp.ok) continue;
-      const html = await resp.text();
-      const lista = extractEmpresasFromIndexHtml(html);
-      if(lista.length) {
-        state.indexEmpresas = lista;
-        setEmpresasCompletas(`Painel/Index lido automaticamente`, true);
-        return;
-      }
-    } catch(e) {}
-  }
-}
+// carregarEmpresasDoIndexHtml removido: fetch de HTML era a causa dos 404s em loop.
+// A fonte de empresas é exclusivamente Firebase (onValue em painel/empresas) +
+// bases embarcadas (FALLBACK_ALEF_EMPRESAS, PAINEL_INDEX_ALEF_EMBARCADO) + cache local.
 
 async function atualizarListaEmpresas(silent=false) {
   if(!silent) setCloudStatus('loading', 'Atualizando lista de empresas do Painel...');
@@ -1605,13 +1542,11 @@ async function atualizarListaEmpresas(silent=false) {
         toast('Firebase não retornou empresas agora; mantive a lista já carregada.', 'warn');
       }
     }
-    state.indexFetchDone = false;
-    await carregarEmpresasDoIndexHtml(true);
     setEmpresasCompletas(silent ? (mudouFirebase ? 'Painel atualizado automaticamente' : 'Painel conferido automaticamente') : 'Lista de empresas atualizada pelo Painel', true);
     renderNewEmpresaOptions();
     if(!silent) toast(`Lista atualizada: ${state.empresas.length}/${state.empresasTodas.length || state.empresas.length} empresa(s).`, 'ok');
   } catch(e) {
-    console.error(e);
+    console.error('atualizarListaEmpresas:', e.code || e.message || e);
     setEmpresasCompletas('Falha parcial na atualização; cache preservado', true);
     if(!silent) toast('Não consegui atualizar pela nuvem agora. Mantive a lista/cache atual.', 'warn');
   }
@@ -1620,7 +1555,6 @@ async function atualizarListaEmpresas(silent=false) {
 function useFallbackEmpresas(reason) {
   state.movimentos = loadLocalForCompetencia(state.competencia);
   setEmpresasCompletas(reason, true);
-  carregarEmpresasDoIndexHtml();
 }
 function getEmpresaByKey(key) {
   const found = (state.empresas || []).find(e => recordKeyEmpresa(e) === key) || (state.empresasTodas || []).find(e => recordKeyEmpresa(e) === key);
@@ -2348,9 +2282,11 @@ function watchMovimentos() {
     setCloudStatus('ok', `Nuvem sincronizada • ${state.empresas.length}/${state.empresasTodas.length || state.empresas.length} empresas (${colaboradorLabelAtual()})`);
     renderAll();
   }, err => {
-    console.error(err);
+    const code = err && (err.code || err.message || String(err));
+    console.error('watchMovimentos ERRO:', code, err);
+    toast(`Erro ao ler controles: ${code}`, 'err');
     state.movimentos = loadLocalForCompetencia(state.competencia);
-    setCloudStatus('error', 'Erro nos controles • usando cache local');
+    setCloudStatus('error', `Erro nos controles (${code}) • usando cache local`);
     renderAll();
   });
 }
@@ -2360,7 +2296,6 @@ function attachEmpresasFirebase() {
   if(!state.firebaseReady || !state.database) { useFallbackEmpresas('Firebase indisponível'); return; }
   const { ref, onValue } = window.__firebaseFns;
   setCloudStatus('loading', 'Ouvindo empresas do Painel em tempo real...');
-  carregarEmpresasDoIndexHtml();
   let received = false;
   state.empresasUnsub = onValue(ref(state.database, PAINEL_EMPRESAS_FB_PATH), snap => {
     received = true;
@@ -2373,8 +2308,7 @@ function attachEmpresasFirebase() {
       setEmpresasCompletas(mudou ? 'Painel atualizado ao vivo' : 'Painel ao vivo sincronizado', true);
       if(mudou) toast('Lista do Painel atualizada automaticamente.', 'ok');
     } else {
-      setEmpresasCompletas('Nenhuma empresa no Firebase; completando pelo Index', true);
-      carregarEmpresasDoIndexHtml();
+      setEmpresasCompletas('Nenhuma empresa no Firebase; usando bases embarcadas/cache', true);
     }
   }, err => {
     received = true;
@@ -2523,7 +2457,6 @@ function init() {
   applyDocButtonSize();
   renderStatusOptions();
   renderAll();
-  carregarEmpresasDoIndexHtml();
   startPainelAutoSync();
   bootFirebase();
 }
