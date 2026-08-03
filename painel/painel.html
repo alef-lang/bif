@@ -2846,6 +2846,70 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
         </div>
         <div id="cfgTagsList" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;"></div>
       </div>
+
+      <div class="config-section">
+        <h3>💰 Catálogo de Impostos</h3>
+        <p>Cadastre os impostos disponíveis para seleção na ficha de cada empresa. A periodicidade padrão é aplicada automaticamente.</p>
+        <div class="config-row" style="gap:6px;">
+          <input type="text" id="cfgNovoImposto" placeholder="Nome do imposto (ex: MIT)" style="flex:1;">
+          <select id="cfgNovoImpostoPeriodo" style="max-width:150px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+            <option value="Mensal">Mensal</option>
+            <option value="Trimestral">Trimestral</option>
+            <option value="Anual">Anual</option>
+            <option value="Eventual">Eventual</option>
+            <option value="Conforme movimento">Conf. movimento</option>
+          </select>
+          <input type="text" id="cfgNovoImpostoObs" placeholder="Obs / vencimento" style="max-width:150px;">
+          <button class="btn-primary" onclick="addCatalogoImposto()">Adicionar</button>
+        </div>
+        <div id="cfgImpostoList" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="config-section" style="border:1.5px solid rgba(201,168,76,0.35);border-radius:12px;padding:16px;">
+        <h3>⚡ Aplicar Imposto em Lote</h3>
+        <p style="margin-bottom:12px;">Inclui um imposto do catálogo em todas as empresas que correspondem ao colaborador e regime selecionados. Empresas que já possuem o imposto não são duplicadas.</p>
+        <div class="config-row" style="flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="loteImposto" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Selecione o imposto...</option>
+            </select>
+            <select id="loteImpostoColaborador" style="flex:1;min-width:140px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Todos os colaboradores</option>
+            </select>
+            <select id="loteImpostoRegime" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Todos os regimes</option>
+              <option value="simples">Simples Nacional</option>
+              <option value="presumido">Lucro Presumido</option>
+              <option value="real">Lucro Real</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div id="loteImpostoPreview" style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);min-height:18px;"></div>
+          <button class="btn-primary" onclick="aplicarImpostoEmLote()" style="align-self:flex-start;background:linear-gradient(135deg,rgba(201,168,76,0.35),rgba(201,168,76,0.2));border-color:var(--gold);">⚡ Aplicar em lote</button>
+        </div>
+      </div>
+
+      <div class="config-section" style="border:1.5px solid rgba(255,118,117,0.35);border-radius:12px;padding:16px;">
+        <h3>🚫 Definir Sem Movimento em Lote</h3>
+        <p style="margin-bottom:12px;">Filtre as empresas por colaborador e marque individualmente quais estão sem movimento neste mês.</p>
+        <div class="config-row" style="gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <select id="loteMovColaborador" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;" onchange="renderMovimentoLote()">
+            <option value="">Selecione o colaborador...</option>
+          </select>
+          <select id="loteMovRegime" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;" onchange="renderMovimentoLote()">
+            <option value="">Todos os regimes</option>
+            <option value="simples">Simples Nacional</option>
+            <option value="presumido">Lucro Presumido</option>
+            <option value="real">Lucro Real</option>
+            <option value="outros">Outros</option>
+          </select>
+          <button class="btn-primary" onclick="selecionarTodasMovimento()" style="white-space:nowrap;">Marcar todas</button>
+          <button class="btn-secondary" onclick="desmarcarTodasMovimento()" style="white-space:nowrap;">Desmarcar todas</button>
+        </div>
+        <div id="loteMovLista" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg-card2);"></div>
+        <div id="loteMovInfo" style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);min-height:18px;margin-bottom:10px;"></div>
+        <button class="btn-primary" onclick="salvarMovimentoEmLote()" style="align-self:flex-start;background:linear-gradient(135deg,rgba(255,118,117,0.3),rgba(255,118,117,0.15));border-color:#ff7675;color:#ff7675;">💾 Salvar alterações de movimento</button>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modalConfig')">Fechar</button>
@@ -2952,6 +3016,21 @@ let S = {
     {nome:'DeSTDA',             vencimento:'20/mês'},
     {nome:'GIA',                vencimento:'16/mês'},
     {nome:'REINF',              vencimento:'15/mês'}
+  ],
+  catalogoImpostos: [
+    {nome:'DAS',         periodicidade:'Mensal',    observacao:''},
+    {nome:'ICMS',        periodicidade:'Mensal',    observacao:''},
+    {nome:'ISS',         periodicidade:'Mensal',    observacao:''},
+    {nome:'PIS',         periodicidade:'Mensal',    observacao:''},
+    {nome:'COFINS',      periodicidade:'Mensal',    observacao:''},
+    {nome:'IRPJ',        periodicidade:'Trimestral',observacao:''},
+    {nome:'CSLL',        periodicidade:'Trimestral',observacao:''},
+    {nome:'IPI',         periodicidade:'Mensal',    observacao:''},
+    {nome:'INSS',        periodicidade:'Mensal',    observacao:''},
+    {nome:'FGTS',        periodicidade:'Mensal',    observacao:''},
+    {nome:'DIFAL',       periodicidade:'Mensal',    observacao:''},
+    {nome:'SIMEI',       periodicidade:'Mensal',    observacao:''},
+    {nome:'ICMS-ST',     periodicidade:'Mensal',    observacao:''}
   ],
   searchTerm: '',
   empresas: []
@@ -3242,6 +3321,11 @@ async function init(){
   }
   // Garantir que filterObrigacoes sempre reflita o catálogo
   S.filterObrigacoes = S.catalogoObrigacoes.map(o => o.nome);
+  // Catálogo de impostos — inicialização
+  if (!Array.isArray(S.catalogoImpostos) || !S.catalogoImpostos.length) {
+    S.catalogoImpostos = ['DAS','ICMS','ISS','PIS','COFINS','IRPJ','CSLL','IPI','INSS','FGTS','DIFAL','SIMEI','ICMS-ST']
+      .map(nome => ({nome, periodicidade:'Mensal', observacao:''}));
+  }
 
   updateHeaderName();
   updateStickyHeaderOffset();
@@ -5642,6 +5726,7 @@ function openEmpresa(id){
   $('modalEmpresaSubtitle').textContent = empresaSubtitle(e);
   $('modalEmpresaBody').innerHTML = empresaFormHtml(e);
   renderObrigSelectModal();
+  renderImpostoSelectModal();
   renderModalObrigacoes();
   renderModalCredenciais();
   renderEmpresaTagsPicker();
@@ -5766,10 +5851,10 @@ function empresaFormHtml(e){
       <div class="obrig-header" style="grid-template-columns:1fr 120px minmax(140px,1fr) 32px;"><div>Imposto</div><div>Periodicidade</div><div>Vencimento / observação</div><div></div></div>
       <div class="impostos-list" id="modalImpostosList"></div>
       <div class="imposto-add-row obrig-add-row">
-        <input id="newImpostoNome" placeholder="Ex: DAS, ICMS, ISS, PIS, COFINS" list="impostoSuggestions">
-        <datalist id="impostoSuggestions">
-          <option value="DAS"><option value="ICMS"><option value="ISS"><option value="PIS"><option value="COFINS"><option value="IRPJ"><option value="CSLL"><option value="IPI"><option value="INSS"><option value="FGTS"><option value="DIFAL"><option value="RETENÇÕES"><option value="SIMEI"><option value="ICMS-ST">
-        </datalist>
+        <select id="newImpostoNome" style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-input);color:var(--text);font-family:var(--font-body);font-size:12px;outline:none;" onchange="preencherPeriodoImposto()">
+          <option value="">Selecione o imposto...</option>
+        </select>
+        <input id="newImpostoNomeCustom" placeholder="Nome do imposto" style="display:none;flex:1;">
         <select id="newImpostoPeriodo">
           <option value="Mensal">Mensal</option>
           <option value="Trimestral">Trimestral</option>
@@ -6496,19 +6581,272 @@ function renderModalImpostos(){
   </div>`).join('');
 }
 function addImpostoToModal(){
-  const nome = $('newImpostoNome')?.value?.trim() || '';
-  if(!nome){ toast('Informe o nome do imposto.', 'error'); return; }
+  const selEl = $('newImpostoNome');
+  const customEl = $('newImpostoNomeCustom');
+  let nome = '';
+  if(selEl && selEl.value === '__outro__'){
+    nome = customEl ? customEl.value.trim() : '';
+  } else {
+    nome = selEl ? selEl.value.trim() : '';
+  }
+  if(!nome){ toast('Selecione ou informe o nome do imposto.', 'error'); return; }
   modalImpostos = (modalImpostos || []).map(normalizeImpostoItem).filter(i => i.nome);
-  if(modalImpostos.some(i => i.nome.toLowerCase() === nome.toLowerCase())){ toast('Esse imposto já está cadastrado para a empresa.', 'error'); return; }
-  modalImpostos.push({
-    nome,
-    periodicidade: $('newImpostoPeriodo')?.value || 'Mensal',
-    observacao: $('newImpostoObs')?.value?.trim() || ''
-  });
-  if($('newImpostoNome')) $('newImpostoNome').value = '';
+  if(modalImpostos.some(i => norm(i.nome) === norm(nome))){ toast('Esse imposto já está cadastrado para a empresa.', 'error'); return; }
+  const periodicidade = $('newImpostoPeriodo')?.value || 'Mensal';
+  const observacao = $('newImpostoObs')?.value?.trim() || '';
+  modalImpostos.push({nome, periodicidade, observacao});
+  // Adiciona ao catálogo se for nome customizado e ainda não existir
+  if(selEl && selEl.value === '__outro__' && nome){
+    if(!Array.isArray(S.catalogoImpostos)) S.catalogoImpostos=[];
+    if(!S.catalogoImpostos.some(o=>o.nome===nome)){
+      S.catalogoImpostos.push({nome, periodicidade, observacao});
+      saveState(); renderCfgImpostoList(); renderImpostoSelectModal();
+    }
+  }
+  if(selEl){ selEl.value=''; }
+  if(customEl){ customEl.value=''; customEl.style.display='none'; }
   if($('newImpostoObs')) $('newImpostoObs').value = '';
   renderModalImpostos();
   markCompanyDirtySoft();
+}
+
+// ── Atualiza o select de impostos dentro do modal de empresa ──
+function renderImpostoSelectModal(){
+  const sel = $('newImpostoNome');
+  if(!sel) return;
+  const cat = Array.isArray(S.catalogoImpostos) ? S.catalogoImpostos : [];
+  const current = sel.value;
+  sel.innerHTML = `<option value="">Selecione o imposto...</option>
+    ${cat.map(o=>`<option value="${esc(o.nome)}" data-periodo="${esc(o.periodicidade||'Mensal')}" data-obs="${esc(o.observacao||'')}">${esc(o.nome)} — ${esc(o.periodicidade||'Mensal')}</option>`).join('')}
+    <option value="__outro__">+ Outro (digitar)</option>`;
+  if(current) sel.value = current;
+}
+
+function preencherPeriodoImposto(){
+  const sel = $('newImpostoNome');
+  const periodEl = $('newImpostoPeriodo');
+  const obsEl = $('newImpostoObs');
+  const customEl = $('newImpostoNomeCustom');
+  if(!sel) return;
+  const val = sel.value;
+  if(val === '__outro__'){
+    if(customEl){ customEl.style.display=''; customEl.focus(); }
+    return;
+  }
+  if(customEl) customEl.style.display='none';
+  const opt = sel.options[sel.selectedIndex];
+  if(!opt) return;
+  if(periodEl && opt.dataset.periodo) periodEl.value = opt.dataset.periodo;
+  if(obsEl && opt.dataset.obs) obsEl.value = opt.dataset.obs;
+}
+
+// ── Catálogo de impostos em Configurações ──
+function addCatalogoImposto(){
+  const nome = ($('cfgNovoImposto')||{}).value?.trim() || '';
+  const periodicidade = ($('cfgNovoImpostoPeriodo')||{}).value || 'Mensal';
+  const observacao = ($('cfgNovoImpostoObs')||{}).value?.trim() || '';
+  if(!nome){ toast('Informe o nome do imposto.', 'error'); return; }
+  if(!Array.isArray(S.catalogoImpostos)) S.catalogoImpostos = [];
+  if(S.catalogoImpostos.some(o=>o.nome===nome)){ toast('Imposto já existe no catálogo.', 'error'); return; }
+  S.catalogoImpostos.push({nome, periodicidade, observacao});
+  if($('cfgNovoImposto')) $('cfgNovoImposto').value='';
+  if($('cfgNovoImpostoObs')) $('cfgNovoImpostoObs').value='';
+  saveState(); renderCfgImpostoList(); renderImpostoSelectModal();
+  toast('Imposto "'+nome+'" adicionado ao catálogo.', 'success');
+}
+
+function removeCatalogoImposto(i){
+  if(!Array.isArray(S.catalogoImpostos)) return;
+  S.catalogoImpostos.splice(i,1);
+  saveState(); renderCfgImpostoList(); renderImpostoSelectModal();
+}
+
+function renderCfgImpostoList(){
+  const el = $('cfgImpostoList');
+  if(!el) return;
+  const cat = Array.isArray(S.catalogoImpostos) ? S.catalogoImpostos : [];
+  if(!cat.length){
+    el.innerHTML = '<div style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);padding:6px 0;">Nenhum imposto cadastrado.</div>';
+    return;
+  }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--text-light);font-family:var(--font-mono);text-transform:uppercase;border-bottom:1px solid var(--border);">Imposto</th>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--text-light);font-family:var(--font-mono);text-transform:uppercase;border-bottom:1px solid var(--border);">Periodicidade</th>
+      <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--text-light);font-family:var(--font-mono);text-transform:uppercase;border-bottom:1px solid var(--border);">Obs</th>
+      <th style="width:32px;border-bottom:1px solid var(--border);"></th>
+    </tr></thead>
+    <tbody>${cat.map((o,i)=>`<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+      <td style="padding:7px 8px;font-weight:600;">${esc(o.nome)}</td>
+      <td style="padding:7px 8px;color:var(--text-light);font-family:var(--font-mono);">${esc(o.periodicidade||'Mensal')}</td>
+      <td style="padding:7px 8px;color:var(--text-light);font-family:var(--font-mono);">${esc(o.observacao||'—')}</td>
+      <td style="padding:4px 8px;"><button style="background:none;border:none;color:#ff7675;cursor:pointer;font-size:14px;line-height:1;" title="Remover" onclick="removeCatalogoImposto(${i})">✕</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ── Aplicação de imposto em lote ──
+function atualizarLoteImpostoPreview(){
+  const impNome = ($('loteImposto')||{}).value;
+  const colab = ($('loteImpostoColaborador')||{}).value;
+  const regime = ($('loteImpostoRegime')||{}).value;
+  const prev = $('loteImpostoPreview');
+  if(!prev) return;
+  if(!impNome){ prev.textContent='Selecione um imposto para visualizar o impacto.'; return; }
+  const alvos = (S.empresas||[]).filter(e=>{
+    if(e.fechada) return false;
+    if(colab && norm(e.colaborador||'') !== norm(colab)) return false;
+    if(regime && e.regime !== regime) return false;
+    return true;
+  });
+  const jatem = alvos.filter(e=>impostosEmpresa(e).some(i=>norm(i.nome||'')===norm(impNome)));
+  const serao = alvos.length - jatem.length;
+  prev.textContent = `${alvos.length} empresa(s) correspondem ao filtro — ${serao} receberão o imposto, ${jatem.length} já possuem.`;
+}
+
+async function aplicarImpostoEmLote(){
+  const impNome = ($('loteImposto')||{}).value;
+  const colab = ($('loteImpostoColaborador')||{}).value;
+  const regime = ($('loteImpostoRegime')||{}).value;
+  if(!impNome){ toast('Selecione um imposto.', 'error'); return; }
+  const catItem = (S.catalogoImpostos||[]).find(o=>o.nome===impNome) || {nome:impNome, periodicidade:'Mensal', observacao:''};
+  const alvos = (S.empresas||[]).filter(e=>{
+    if(e.fechada) return false;
+    if(colab && norm(e.colaborador||'') !== norm(colab)) return false;
+    if(regime && e.regime !== regime) return false;
+    if(impostosEmpresa(e).some(i=>norm(i.nome||'')===norm(impNome))) return false;
+    return true;
+  });
+  if(!alvos.length){ toast('Nenhuma empresa nova para adicionar — todas já possuem o imposto ou não correspondem ao filtro.', 'info'); return; }
+  const conf = confirm(`Adicionar "${impNome}" em ${alvos.length} empresa(s)?\n\nColaborador: ${colab||'todos'}\nRegime: ${regime ? regimeLabel(regime) : 'todos'}\n\nEsta ação não pode ser desfeita em lote.`);
+  if(!conf) return;
+  const prev = $('loteImpostoPreview');
+  if(prev) prev.textContent = 'Salvando...';
+  let ok = 0, fail = 0;
+  for(const emp of alvos){
+    emp.impostos = [...(impostosEmpresa(emp)), {nome:catItem.nome, periodicidade:catItem.periodicidade||'Mensal', observacao:catItem.observacao||''}];
+    try{ await saveEmpresa(emp); ok++; }
+    catch(e){ fail++; console.error('Lote imposto saveEmpresa erro:', e); }
+  }
+  atualizarLoteImpostoPreview();
+  if(fail===0) toast(`✅ "${impNome}" adicionado em ${ok} empresa(s) com sucesso.`, 'success');
+  else toast(`⚠️ ${ok} salvas, ${fail} com erro. Verifique o console.`, 'error');
+}
+
+function popularSelectsLoteImposto(){
+  const selImp = $('loteImposto');
+  const selCol = $('loteImpostoColaborador');
+  if(!selImp||!selCol) return;
+  selImp.innerHTML = '<option value="">Selecione o imposto...</option>' +
+    (S.catalogoImpostos||[]).map(o=>`<option value="${esc(o.nome)}">${esc(o.nome)} — ${esc(o.periodicidade||'Mensal')}</option>`).join('');
+  selCol.innerHTML = '<option value="">Todos os colaboradores</option>' +
+    getAllColaboradores().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  ['loteImposto','loteImpostoColaborador','loteImpostoRegime'].forEach(id=>{
+    const el=$(id); if(el) el.onchange=atualizarLoteImpostoPreview;
+  });
+}
+
+// ── Sem Movimento em lote ──
+let _movimentoLoteEstado = {}; // {empresaId: true/false}
+
+function popularSelectMovimento(){
+  const sel = $('loteMovColaborador');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Selecione o colaborador...</option>' +
+    getAllColaboradores().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+}
+
+function renderMovimentoLote(){
+  const colab = ($('loteMovColaborador')||{}).value;
+  const regime = ($('loteMovRegime')||{}).value;
+  const lista = $('loteMovLista');
+  const info = $('loteMovInfo');
+  if(!lista) return;
+  if(!colab){ lista.innerHTML='<div style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);padding:8px;">Selecione um colaborador para listar as empresas.</div>'; if(info) info.textContent=''; return; }
+  const empresas = (S.empresas||[]).filter(e=>{
+    if(e.fechada) return false;
+    if(norm(e.colaborador||'') !== norm(colab)) return false;
+    if(regime && e.regime !== regime) return false;
+    return true;
+  }).sort((a,b)=>norm(a.nome||'').localeCompare(norm(b.nome||''),'pt-BR'));
+  if(!empresas.length){ lista.innerHTML='<div style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);padding:8px;">Nenhuma empresa encontrada para este filtro.</div>'; if(info) info.textContent=''; return; }
+  // Inicializa estado com valor atual de cada empresa
+  empresas.forEach(e=>{ if(!(e.id in _movimentoLoteEstado)) _movimentoLoteEstado[e.id] = !!e.semMovimento; });
+  lista.innerHTML = empresas.map(e=>{
+    const checked = _movimentoLoteEstado[e.id] ? 'checked' : '';
+    const regimeCls = e.regime||'outros';
+    return `<label style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''" >
+      <input type="checkbox" ${checked} onchange="_movimentoLoteEstado['${e.id}']=this.checked;atualizarInfoMovimento()"
+        style="width:16px;height:16px;accent-color:#ff7675;cursor:pointer;flex-shrink:0;">
+      <span class="regime-pill ${regimeCls}" style="font-size:9px;padding:2px 7px;flex-shrink:0;">${esc(regimeLabel(e.regime))}</span>
+      <span style="font-size:12px;font-weight:600;flex:1;">${esc(e.nome)}</span>
+      <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-light);">${esc(e.cnpj||'')}</span>
+    </label>`;
+  }).join('');
+  atualizarInfoMovimento();
+}
+
+function atualizarInfoMovimento(){
+  const info = $('loteMovInfo');
+  if(!info) return;
+  const total = Object.keys(_movimentoLoteEstado).length;
+  const marcadas = Object.values(_movimentoLoteEstado).filter(Boolean).length;
+  info.textContent = `${marcadas} empresa(s) marcadas como sem movimento de ${total} listadas.`;
+}
+
+function selecionarTodasMovimento(){
+  const colab = ($('loteMovColaborador')||{}).value;
+  const regime = ($('loteMovRegime')||{}).value;
+  (S.empresas||[]).filter(e=>{
+    if(e.fechada||!colab) return false;
+    if(norm(e.colaborador||'')!==norm(colab)) return false;
+    if(regime && e.regime!==regime) return false;
+    return true;
+  }).forEach(e=>{ _movimentoLoteEstado[e.id]=true; });
+  renderMovimentoLote();
+}
+
+function desmarcarTodasMovimento(){
+  const colab = ($('loteMovColaborador')||{}).value;
+  const regime = ($('loteMovRegime')||{}).value;
+  (S.empresas||[]).filter(e=>{
+    if(e.fechada||!colab) return false;
+    if(norm(e.colaborador||'')!==norm(colab)) return false;
+    if(regime && e.regime!==regime) return false;
+    return true;
+  }).forEach(e=>{ _movimentoLoteEstado[e.id]=false; });
+  renderMovimentoLote();
+}
+
+async function salvarMovimentoEmLote(){
+  const ids = Object.keys(_movimentoLoteEstado);
+  if(!ids.length){ toast('Nenhuma empresa na lista para salvar.', 'error'); return; }
+  // Detecta mudanças em relação ao estado atual do Firebase
+  const mudancas = ids.filter(id=>{
+    const emp = (S.empresas||[]).find(e=>e.id===id);
+    if(!emp) return false;
+    return !!emp.semMovimento !== !!_movimentoLoteEstado[id];
+  });
+  if(!mudancas.length){ toast('Nenhuma alteração detectada.', 'info'); return; }
+  const marcarSem = mudancas.filter(id=>!!_movimentoLoteEstado[id]).length;
+  const marcarCom = mudancas.filter(id=>!_movimentoLoteEstado[id]).length;
+  const conf = confirm(`Salvar alterações de movimento?\n\n• ${marcarSem} empresa(s) serão marcadas como SEM MOVIMENTO\n• ${marcarCom} empresa(s) serão marcadas como COM MOVIMENTO`);
+  if(!conf) return;
+  const info = $('loteMovInfo');
+  if(info) info.textContent = 'Salvando...';
+  let ok = 0, fail = 0;
+  for(const id of mudancas){
+    const emp = (S.empresas||[]).find(e=>e.id===id);
+    if(!emp) continue;
+    emp.semMovimento = !!_movimentoLoteEstado[id];
+    try{ await saveEmpresa(emp); ok++; }
+    catch(e){ fail++; console.error('Lote movimento saveEmpresa erro:', e); }
+  }
+  // Limpa estado após salvar
+  _movimentoLoteEstado = {};
+  atualizarInfoMovimento();
+  if(fail===0) toast(`✅ ${ok} empresa(s) atualizadas com sucesso.`, 'success');
+  else toast(`⚠️ ${ok} salvas, ${fail} com erro. Verifique o console.`, 'error');
 }
 function removeImpostoFromModal(i){
   modalImpostos = (modalImpostos || []).map(normalizeImpostoItem).filter(x => x.nome);
@@ -6618,10 +6956,16 @@ function openConfigModal(){
   if($('cfgPrintFont')) $('cfgPrintFont').value = S.printFont || 'Arial';
   if($('cfgPrintFontSize')) $('cfgPrintFontSize').value = S.printFontSize || '10.5pt';
   if($('cfgNovoCampoEstatico')) $('cfgNovoCampoEstatico').value = '';
+  if($('cfgNovoImposto')) $('cfgNovoImposto').value = '';
+  if($('cfgNovoImpostoObs')) $('cfgNovoImpostoObs').value = '';
+  _movimentoLoteEstado = {};
   renderCfgObrigList();
+  renderCfgImpostoList();
   renderCfgCamposEstaticosList();
   refreshRelatorioLogoPreviews();
   popularSelectsLote();
+  popularSelectsLoteImposto();
+  popularSelectMovimento();
   openModal('modalConfig');
 }
 function saveOfficeName(){
