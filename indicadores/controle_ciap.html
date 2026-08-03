@@ -332,80 +332,23 @@
     'backupInput','clearBtn','csvBtn','helpBtn','helpModal','closeHelpBtn','toast'
   ].map(id => [id, document.getElementById(id)]));
 
-  let storageAvailable = true;
   let db = emptyDB();
   let selectedCompany = null;
   let selectedPeriod = null;
 
   function emptyDB(){ return { version: 1, updatedAt: new Date().toISOString(), companies: {} }; }
 
-  function readLocalCache(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return null;
-      const parsed = JSON.parse(raw);
-      if(!parsed || typeof parsed !== 'object' || !parsed.companies) return null;
-      return parsed;
-    }catch(err){
-      console.warn('Falha ao ler cache local', err);
-      return null;
-    }
-  }
-
-  function writeLocalCache(){
-    try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-      storageAvailable = true;
-    }catch(err){
-      storageAvailable = false;
-      console.warn('Cache local indisponível', err);
-    }
-  }
-
-  // Carrega do Firebase (fonte autoritativa). Se o nó estiver vazio e houver
-  // dados antigos só no navegador, migra automaticamente (uma única vez).
+  // Carrega do Firebase. Sem cache local: se o Firebase não responder, mostra
+  // erro claro em vez de usar dados salvos no navegador.
   async function loadDB(){
-    let firebaseValue = null;
-    try{
-      const snap = await get(ref(fbDb, FB_NODE));
-      firebaseValue = snap.val();
-    }catch(error){
-      console.error('PERMISSION_DENIED ou falha ao ler Firebase:', error);
-      const cached = readLocalCache();
-      setImportLog('error', 'Sem conexão com o banco de dados. Mostrando dados salvos neste navegador (podem estar desatualizados).');
-      return cached || emptyDB();
-    }
-
-    if(firebaseValue && firebaseValue.companies && Object.keys(firebaseValue.companies).length){
-      writeLocalCacheFrom(firebaseValue);
-      return firebaseValue;
-    }
-
-    // Nó vazio no Firebase: verifica se há histórico antigo só no navegador para migrar.
-    const cached = readLocalCache();
-    if(cached && cached.companies && Object.keys(cached.companies).length){
-      try{
-        await set(ref(fbDb, FB_NODE), sanitizeForFirebase(cached));
-        setImportLog('ok', 'Histórico deste navegador foi migrado para o banco de dados.');
-        return cached;
-      }catch(error){
-        console.error('PERMISSION_DENIED ao migrar histórico local:', error);
-        setImportLog('error', 'Não foi possível migrar o histórico local. Verifique a regra do nó bif_controle_ciap.');
-        return cached;
-      }
-    }
-    return emptyDB();
-  }
-
-  function writeLocalCacheFrom(value){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(value)); storageAvailable = true; }
-    catch(err){ storageAvailable = false; console.warn('Cache local indisponível', err); }
+    const snap = await get(ref(fbDb, FB_NODE));
+    const value = snap.val();
+    return (value && value.companies) ? value : emptyDB();
   }
 
   // touched: 'clear' | 'restore' | array de CNPJs alterados nesta operação
   async function saveDB(touched){
     db.updatedAt = new Date().toISOString();
-    writeLocalCache();
 
     try{
       if(touched === 'clear'){
@@ -419,10 +362,11 @@
         }
         await update(ref(fbDb, FB_NODE), updates);
       }
+      setImportLog('ok', `Salvo no Firebase às ${new Date().toLocaleTimeString('pt-BR')}`);
       return true;
     }catch(error){
       console.error('PERMISSION_DENIED ou falha ao salvar no Firebase:', error);
-      toast('Não foi possível salvar no banco de dados. Os dados ficaram só neste navegador.');
+      toast('Não foi possível salvar no banco de dados. Verifique a conexão e tente novamente.');
       return false;
     }
   }
@@ -921,10 +865,18 @@
 
   async function init(){
     setImportLog('warn', 'Carregando histórico...');
-    db = await loadDB();
-    selectedCompany = Object.keys(db.companies)[0] || null;
-    selectedPeriod = selectedCompany ? latestPeriodKey(db.companies[selectedCompany]) : null;
-    render();
+    try{
+      db = await loadDB();
+      selectedCompany = Object.keys(db.companies)[0] || null;
+      selectedPeriod = selectedCompany ? latestPeriodKey(db.companies[selectedCompany]) : null;
+      render();
+      setImportLog('ok', '☁ Firebase conectado');
+    }catch(error){
+      console.error('PERMISSION_DENIED ou falha ao carregar o histórico:', error);
+      setImportLog('error', 'Não foi possível carregar os dados do Firebase. Verifique a regra do nó bif_controle_ciap e a conexão.');
+      db = emptyDB();
+      render();
+    }
   }
 
   init();
