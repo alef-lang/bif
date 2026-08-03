@@ -303,6 +303,21 @@
   // Firebase RTDB não aceita '.', '#', '$', '[', ']', '/' em chaves.
   function fbKey(value) { return String(value).replace(/[.#$\[\]/]/g, '_'); }
 
+  // Rede de segurança: mesmo que algum dado corrompido escape das validações
+  // do parser, isso impede que ele quebre a gravação inteira no Firebase.
+  function sanitizeForFirebase(value){
+    if(Array.isArray(value)) return value.map(sanitizeForFirebase);
+    if(value && typeof value === 'object'){
+      const out = {};
+      for(const [key, val] of Object.entries(value)){
+        const safeKey = /^[^.#$\[\]\u0000-\u001F/]{1,200}$/.test(key) ? key : fbKey(key).slice(0,200);
+        out[safeKey] = sanitizeForFirebase(val);
+      }
+      return out;
+    }
+    return value;
+  }
+
   const STORAGE_KEY = 'controle_ciap_v1';
   const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   const number2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -368,7 +383,7 @@
     const cached = readLocalCache();
     if(cached && cached.companies && Object.keys(cached.companies).length){
       try{
-        await set(ref(fbDb, FB_NODE), cached);
+        await set(ref(fbDb, FB_NODE), sanitizeForFirebase(cached));
         setImportLog('ok', 'Histórico deste navegador foi migrado para o banco de dados.');
         return cached;
       }catch(error){
@@ -394,11 +409,11 @@
       if(touched === 'clear'){
         await remove(ref(fbDb, FB_NODE));
       }else if(touched === 'restore'){
-        await set(ref(fbDb, FB_NODE), db);
+        await set(ref(fbDb, FB_NODE), sanitizeForFirebase(db));
       }else if(Array.isArray(touched)){
         const updates = { updatedAt: db.updatedAt };
         for(const cnpj of touched){
-          updates[`companies/${fbKey(cnpj)}`] = db.companies[cnpj] ?? null;
+          updates[`companies/${fbKey(cnpj)}`] = sanitizeForFirebase(db.companies[cnpj] ?? null);
         }
         await update(ref(fbDb, FB_NODE), updates);
       }
@@ -491,7 +506,7 @@
     for(const line of lines){
       const f = recordFields(line);
       const reg = f[0];
-      if(!reg) continue;
+      if(!reg || !/^[A-Za-z0-9]{2,6}$/.test(reg)) continue; // linha corrompida/binária: ignora em vez de virar chave inválida
       records[reg] = (records[reg] || 0) + 1;
 
       if(reg === '0000'){
