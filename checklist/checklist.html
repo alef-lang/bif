@@ -1168,6 +1168,23 @@
     .obr-btn-ghost { background:rgba(201,168,76,0.1); color:#e8c97a; border:1px solid rgba(201,168,76,0.28); }
     .obr-btn:hover { opacity:0.85; }
 
+    /* ── DROPZONE DARF no modal de guia ── */
+    .guia-darf-dropzone {
+      border: 2px dashed rgba(94,238,234,0.28); border-radius: 10px;
+      background: rgba(0,206,201,0.03); min-height: 72px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      padding: 14px 16px; margin-bottom: 14px;
+    }
+    .guia-darf-dropzone:hover,
+    .guia-darf-dropzone.drag-over { border-color: #5eecea; background: rgba(0,206,201,0.08); }
+    .guia-darf-dropzone .dz-icon { font-size: 1.4rem; }
+    .guia-darf-dropzone .dz-text { font-size: 0.78rem; color: #7a92a8; font-family: 'DM Mono', monospace; line-height: 1.4; }
+    .guia-darf-dropzone .dz-text strong { color: #5eecea; font-weight: 600; }
+    .guia-darf-dropzone.loading .dz-icon { animation: obr-pulse 0.9s infinite; }
+    .guia-darf-ok   { background: rgba(76,175,130,0.08); border: 1px solid rgba(76,175,130,0.3); border-radius: 8px; padding: 7px 11px; font-size: 0.74rem; font-family: 'DM Mono', monospace; color: #4caf82; margin-bottom: 12px; display: none; }
+    .guia-darf-warn { background: rgba(232,160,58,0.08); border: 1px solid rgba(232,160,58,0.3); border-radius: 8px; padding: 7px 11px; font-size: 0.74rem; font-family: 'DM Mono', monospace; color: #e8a03a; margin-bottom: 12px; display: none; }
+
     /* ── MODAL ENVIO DE GUIA — REFINADO ── */
     .guia-modal-overlay {
       position: fixed;
@@ -3170,6 +3187,7 @@
     window._guiaModalTipo    = label;
 
     document.getElementById('guiaModalOverlay').classList.add('open');
+    _guiaResetDarf();
     setTimeout(() => document.getElementById('gVencimento').focus(), 150);
   };
 
@@ -3180,6 +3198,134 @@
     window._guiaMainCb = null;
     window._guiaEmpresaId = null;
   };
+
+  // ── IMPORTAÇÃO DE DARF PDF NO MODAL DE GUIA ─────────────────────────────────
+  function _guiaParseDarf(texto) {
+    // Competência: "Julho/2026", "07/2026", "07/2026"
+    const mesNomes = {janeiro:'01',fevereiro:'02',março:'03',marco:'03',abril:'04',maio:'05',junho:'06',julho:'07',agosto:'08',setembro:'09',outubro:'10',novembro:'11',dezembro:'12'};
+    let competencia = '';
+    const mExtenso = texto.match(/\b(janeiro|fevereiro|mar[çc]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)[\/\s]+(\d{4})\b/i);
+    if (mExtenso) {
+      const mn = mesNomes[mExtenso[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')];
+      if (mn) competencia = `${mExtenso[2]}-${mn}`;
+    }
+    if (!competencia) {
+      const mNum = texto.match(/Per[íi]odo de Apura[çc][ãa]o\s+(\d{2})\/(\d{4})/i) || texto.match(/\b(0[1-9]|1[0-2])\/(\d{4})\b/);
+      if (mNum) competencia = `${mNum[2]}-${mNum[1]}`;
+    }
+
+    // Vencimento: "25/08/2026" ou "Data de Vencimento ... 25/08/2026"
+    let vencimento = '';
+    const mVenc = texto.match(/(?:Data\s+de\s+Vencimento|Pagar\s+(?:este\s+documento\s+)?at[ée])[^\d]*(\d{2})\/(\d{2})\/(\d{4})/i)
+                || texto.match(/Pagar\s+at[ée]:\s*(\d{2})\/(\d{2})\/(\d{4})/i)
+                || texto.match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/);
+    if (mVenc) vencimento = `${mVenc[3]}-${mVenc[2]}-${mVenc[1]}`;
+
+    // Valor total — última ocorrência de número com vírgula (mais robusto)
+    let valor = '';
+    const mValor = texto.match(/Valor\s+Total\s+do\s+Documento\s+([\d.,]+)/i)
+                 || texto.match(/Valor:\s*([\d.,]+)/i)
+                 || texto.match(/Totais\s+([\d.,]+)\s+\1/i);
+    if (mValor) valor = mValor[1].replace(/\./g,'').replace(',','.');
+
+    // Código de barras — sequência de 47-48 dígitos (com ou sem espaços)
+    let codBarras = '';
+    const mCod = texto.match(/\b(\d[\d\s]{44,55}\d)\b/);
+    if (mCod) codBarras = mCod[1].replace(/\s+/g,'');
+
+    // Número do documento
+    const mNum = texto.match(/N[úu]mero\s*(?:do\s*Documento)?:?\s*([\d.]+[\d\-]+[\d\-]+)/i)
+               || texto.match(/\b(\d{2}\.\d{2}\.\d{5}\.\d{7}-\d)\b/);
+    const numDoc = mNum ? mNum[1] : '';
+
+    // Composição — detectar PIS / COFINS separados
+    let pisPrincipal = 0, cofinsPrincipal = 0;
+    const mCofins = texto.match(/2172[^\n]*?\n[^\n]*?([\d.,]+)\s+([\d.,]+)/);
+    const mPis    = texto.match(/8109[^\n]*?\n[^\n]*?([\d.,]+)\s+([\d.,]+)/);
+    const parseBR = s => parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
+    if (mCofins) cofinsPrincipal = parseBR(mCofins[1]);
+    if (mPis)    pisPrincipal    = parseBR(mPis[1]);
+
+    // fallback linha única
+    if (!cofinsPrincipal && !pisPrincipal && valor) {
+      // sem decomposição disponível, deixa valor total no campo valor
+    }
+
+    return { competencia, vencimento, valor, codBarras, numDoc, pisPrincipal, cofinsPrincipal };
+  }
+
+  async function _guiaProcessarDarf(file) {
+    const dz   = document.getElementById('guiaDarfDropzone');
+    const okEl = document.getElementById('guiaDarfOk');
+    const wnEl = document.getElementById('guiaDarfWarn');
+    okEl.style.display = wnEl.style.display = 'none';
+    dz.classList.add('loading');
+    dz.querySelector('.dz-text').innerHTML = '<strong>Lendo DARF...</strong>';
+
+    try {
+      const buf   = await file.arrayBuffer();
+      const texto = await _obrExtrairTexto(buf);   // reutiliza o extrator existente
+      const d = _guiaParseDarf(texto);
+
+      // Preenche campos do modal
+      if (d.competencia) document.getElementById('gCompetencia').value = d.competencia;
+      if (d.vencimento)  document.getElementById('gVencimento').value  = d.vencimento;
+      if (d.valor)       document.getElementById('gValor').value       = parseFloat(d.valor).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      if (d.codBarras)   document.getElementById('gCodBarras').value   = d.codBarras;
+      if (d.numDoc && !d.codBarras) document.getElementById('gCodBarras').value = d.numDoc;
+
+      // Obs automática com composição PIS/COFINS se disponível
+      if (d.pisPrincipal || d.cofinsPrincipal) {
+        const n2 = v => v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+        document.getElementById('gObs').value = `PIS: R$ ${n2(d.pisPrincipal)} | COFINS: R$ ${n2(d.cofinsPrincipal)}`;
+      }
+
+      const campos = [d.competencia, d.vencimento, d.valor].filter(Boolean).length;
+      if (campos >= 2) {
+        okEl.textContent = `✓ DARF lido — ${campos} campo(s) preenchido(s) automaticamente. Confira antes de confirmar.`;
+        okEl.style.display = '';
+      } else {
+        wnEl.textContent = '⚠ Leitura parcial — confira os campos e complete o que faltar.';
+        wnEl.style.display = '';
+      }
+      dz.querySelector('.dz-text').innerHTML = `<strong>${file.name}</strong>`;
+    } catch(err) {
+      console.error('Erro ao ler DARF:', err);
+      wnEl.textContent = '⚠ Não foi possível ler o PDF. Preencha os campos manualmente.';
+      wnEl.style.display = '';
+      dz.querySelector('.dz-text').innerHTML = '<strong>Importar guia DARF (PDF)</strong><br>Clique ou arraste o arquivo aqui';
+    }
+    dz.classList.remove('loading');
+  }
+
+  window.guiaDarfOnFile = e => { const f = e.target.files[0]; if (f) _guiaProcessarDarf(f); };
+  window.guiaDzOver  = e => { e.preventDefault(); document.getElementById('guiaDarfDropzone').classList.add('drag-over'); };
+  window.guiaDzLeave = ()  => document.getElementById('guiaDarfDropzone').classList.remove('drag-over');
+  window.guiaDzDrop  = e  => {
+    e.preventDefault();
+    document.getElementById('guiaDarfDropzone').classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type === 'application/pdf') _guiaProcessarDarf(f);
+    else if (f) {
+      document.getElementById('guiaDarfWarn').textContent = '⚠ Envie um arquivo PDF.';
+      document.getElementById('guiaDarfWarn').style.display = '';
+    }
+  };
+
+  // Reset da dropzone ao abrir o modal
+  function _guiaResetDarf() {
+    const dz = document.getElementById('guiaDarfDropzone');
+    if (dz) {
+      dz.classList.remove('loading','drag-over');
+      dz.querySelector('.dz-text').innerHTML = '<strong>Importar guia DARF (PDF)</strong><br>Clique ou arraste o arquivo aqui — campos preenchidos automaticamente';
+    }
+    const inp = document.getElementById('guiaDarfInput');
+    if (inp) inp.value = '';
+    const ok = document.getElementById('guiaDarfOk');
+    const wn = document.getElementById('guiaDarfWarn');
+    if (ok) ok.style.display = 'none';
+    if (wn) wn.style.display = 'none';
+  }
 
   window.confirmarGuiaModal = async function() {
     const vencimentoEl = document.getElementById('gVencimento');
@@ -3916,6 +4062,18 @@
       ⚠ Esta subtarefa só será concluída após o registro do envio. Preencha os dados da guia.
     </div>
     <div class="guia-modal-body">
+      <!-- ── Importar DARF ── -->
+      <div class="guia-darf-dropzone" id="guiaDarfDropzone"
+           tabindex="0" role="button" aria-label="Importar DARF PDF"
+           onclick="document.getElementById('guiaDarfInput').click()"
+           ondragover="guiaDzOver(event)" ondragleave="guiaDzLeave()" ondrop="guiaDzDrop(event)">
+        <span class="dz-icon">📄</span>
+        <span class="dz-text"><strong>Importar guia DARF (PDF)</strong><br>Clique ou arraste o arquivo aqui — campos preenchidos automaticamente</span>
+      </div>
+      <input type="file" id="guiaDarfInput" accept="application/pdf" style="display:none" onchange="guiaDarfOnFile(event)">
+      <div class="guia-darf-ok"   id="guiaDarfOk"></div>
+      <div class="guia-darf-warn" id="guiaDarfWarn"></div>
+      <!-- ── campos manuais ── -->
       <div class="guia-field-row">
         <div class="guia-field">
           <label>Competência *</label>
