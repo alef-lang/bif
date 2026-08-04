@@ -2972,6 +2972,34 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
         <div id="loteMovInfo" style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);min-height:18px;margin-bottom:10px;"></div>
         <button class="btn-primary" onclick="salvarMovimentoEmLote()" style="align-self:flex-start;background:linear-gradient(135deg,rgba(255,118,117,0.3),rgba(255,118,117,0.15));border-color:#ff7675;color:#ff7675;">💾 Salvar alterações de movimento</button>
       </div>
+
+      <div class="config-section" style="border:1.5px solid rgba(201,168,76,0.35);border-radius:12px;padding:16px;">
+        <h3>🏷️ Aplicar Tag em Lote</h3>
+        <p style="margin-bottom:12px;">Adiciona ou remove uma tag em todas as empresas filtradas por colaborador e/ou regime. Empresas que já possuem a tag não são duplicadas.</p>
+        <div class="config-row" style="flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="loteTagNome" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Selecione a tag...</option>
+            </select>
+            <select id="loteTagColaborador" style="flex:1;min-width:140px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Todos os colaboradores</option>
+            </select>
+            <select id="loteTagRegime" style="flex:1;min-width:160px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-card2);color:var(--text);font-family:var(--font-body);font-size:12px;">
+              <option value="">Todos os regimes</option>
+              <option value="simples">Simples Nacional</option>
+              <option value="presumido">Lucro Presumido</option>
+              <option value="real">Lucro Real</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div id="loteTagPreview" style="font-size:11px;color:var(--text-light);font-family:var(--font-mono);min-height:18px;"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-primary" onclick="aplicarTagEmLote('adicionar')" style="align-self:flex-start;background:linear-gradient(135deg,rgba(201,168,76,0.35),rgba(201,168,76,0.2));border-color:var(--gold);">⚡ Adicionar tag em lote</button>
+            <button class="btn-primary" onclick="aplicarTagEmLote('remover')" style="align-self:flex-start;background:linear-gradient(135deg,rgba(255,118,117,0.25),rgba(255,118,117,0.1));border-color:#ff7675;color:#ff7675;">✕ Remover tag em lote</button>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modalConfig')">Fechar</button>
@@ -7080,6 +7108,7 @@ function openConfigModal(){
   popularSelectsLote();
   popularSelectsLoteImposto();
   popularSelectMovimento();
+  popularSelectsLoteTag();
   openModal('modalConfig');
 }
 function saveOfficeName(){
@@ -7239,6 +7268,100 @@ function popularSelectsLote(){
   ['loteObrig','loteColaborador','loteRegime'].forEach(id=>{
     const el=$(id); if(el) el.onchange=atualizarLotePreview;
   });
+}
+
+// ── Tag em lote ──
+function popularSelectsLoteTag(){
+  const selTag = $('loteTagNome');
+  const selCol = $('loteTagColaborador');
+  if(!selTag || !selCol) return;
+  selTag.innerHTML = '<option value="">Selecione a tag...</option>' +
+    (S.empresaTags||[]).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  selCol.innerHTML = '<option value="">Todos os colaboradores</option>' +
+    getAllColaboradores().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  ['loteTagNome','loteTagColaborador','loteTagRegime'].forEach(id=>{
+    const el=$(id); if(el) el.onchange=atualizarLoteTagPreview;
+  });
+  atualizarLoteTagPreview();
+}
+
+function _getLoteTagAlvos(){
+  const tagNome = ($('loteTagNome')||{}).value;
+  const colab   = ($('loteTagColaborador')||{}).value;
+  const regime  = ($('loteTagRegime')||{}).value;
+  if(!tagNome) return { tagNome:'', alvos:[] };
+  const alvos = (S.empresas||[]).filter(e=>{
+    if(e.fechada) return false;
+    if(colab && (e.colaborador||'') !== colab) return false;
+    if(regime && e.regime !== regime) return false;
+    return true;
+  });
+  return { tagNome, colab, regime, alvos };
+}
+
+function atualizarLoteTagPreview(){
+  const prev = $('loteTagPreview');
+  if(!prev) return;
+  const { tagNome, alvos } = _getLoteTagAlvos();
+  if(!tagNome){ prev.textContent = 'Selecione uma tag para ver o preview.'; return; }
+  if(!alvos.length){ prev.textContent = 'Nenhuma empresa ativa encontrada com esses filtros.'; return; }
+  const comTag    = alvos.filter(e=>(e.tags||[]).includes(tagNome)).length;
+  const semTag    = alvos.length - comTag;
+  prev.innerHTML = `<strong>${alvos.length}</strong> empresa(s) no filtro — `+
+    `<span style="color:var(--gold-light)">${semTag} sem a tag</span> · `+
+    `<span style="color:var(--text-light)">${comTag} já possuem</span>`;
+}
+
+async function aplicarTagEmLote(acao){
+  const { tagNome, colab, regime, alvos } = _getLoteTagAlvos();
+  if(!tagNome){ toast('Selecione uma tag.', 'error'); return; }
+  if(!alvos.length){ toast('Nenhuma empresa encontrada com esses filtros.', 'error'); return; }
+
+  const label = acao === 'adicionar' ? 'Adicionar' : 'Remover';
+  const conf = confirm(
+    `${label} a tag "${tagNome}" em ${alvos.length} empresa(s)?\n\n`+
+    `Colaborador: ${colab||'todos'}\nRegime: ${regime ? regimeLabel(regime) : 'todos'}\n\n`+
+    (acao==='adicionar'
+      ? 'Empresas que já possuem a tag não serão duplicadas.'
+      : 'A tag será removida de todas as empresas do filtro.')
+  );
+  if(!conf) return;
+
+  let alteradas = 0;
+  const promises = [];
+
+  for(const emp of alvos){
+    if(!Array.isArray(emp.tags)) emp.tags = [];
+    const possuiTag = emp.tags.includes(tagNome);
+    if(acao === 'adicionar' && !possuiTag){
+      emp.tags.push(tagNome);
+      alteradas++;
+      promises.push(saveEmpresa(emp));
+    } else if(acao === 'remover' && possuiTag){
+      emp.tags = emp.tags.filter(t=>t!==tagNome);
+      alteradas++;
+      promises.push(saveEmpresa(emp));
+    }
+  }
+
+  if(!alteradas){
+    toast(acao==='adicionar'
+      ? 'Todas as empresas já possuem essa tag.'
+      : 'Nenhuma empresa possuía essa tag no filtro.', 'error');
+    return;
+  }
+
+  try {
+    await Promise.all(promises);
+    renderAll();
+    atualizarLoteTagPreview();
+    toast(`Tag "${tagNome}" ${acao==='adicionar'?'adicionada em':'removida de'} ${alteradas} empresa(s).`, 'success');
+    setCloudStatus('saved', `Tag em lote salva — ${alteradas} empresa(s)`);
+  } catch(e) {
+    console.error('Erro ao aplicar tag em lote:', e);
+    toast('Erro ao salvar no Firebase: ' + (e.message||e.code||e), 'error');
+    setCloudStatus('error', 'Erro ao salvar tag em lote');
+  }
 }
 
 function copiarCnpjLista(cnpjSoNumeros, btn){
