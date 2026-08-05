@@ -2616,8 +2616,10 @@ function printBriefingForm() {
     state.briefingDraft[ta.dataset.key] = ta.value;
   });
 
-  const lista = (state.empresasTodas || []).filter(e => !isSemRecebimento(recordKeyEmpresa(e)));
+  // usa state.empresas: já filtrado pelo colaborador selecionado na toolbar
+  const lista = (state.empresas || []).filter(e => !isSemRecebimento(recordKeyEmpresa(e)));
   if(!lista.length) { toast('Nenhuma empresa para imprimir no briefing.', 'warn'); return; }
+  const colaboradorLabel = colaboradorLabelAtual();
 
   function empresaRow(e, idx) {
     const key = recordKeyEmpresa(e);
@@ -2650,7 +2652,7 @@ function printBriefingForm() {
     </style></head><body>
     <div style="border-bottom:2px solid #111;padding-bottom:7px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start">
       <div><h1 style="font-size:16pt;margin:0 0 3px">Briefing — Documentos por Empresa</h1>
-        <div style="font-size:9.5pt;color:#444">Levantamento de documentos mensais • Emitido em ${esc(printedAt)}</div></div>
+        <div style="font-size:9.5pt;color:#444">Levantamento de documentos mensais • ${esc(colaboradorLabel)} • Emitido em ${esc(printedAt)}</div></div>
       <div style="border:1px solid #111;padding:6px 10px;font-size:8.5pt;text-align:right">
         <strong>BIF — Fluignos</strong><br>Controle de Recebimento</div>
     </div>
