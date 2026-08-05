@@ -137,6 +137,23 @@ select option{background:#1b2e42;color:#e8eaf0}
 .toast.ok{color:var(--ok);border-color:rgba(0,206,201,.32);background:rgba(0,206,201,.10)}
 .toast.err{color:var(--danger);border-color:rgba(255,118,117,.32);background:rgba(255,118,117,.10)}
 .toast.warn{color:var(--warn);border-color:rgba(253,203,110,.32);background:rgba(253,203,110,.10)}
+.sem-rec-item{display:flex;align-items:center;gap:10px;border:1.5px solid rgba(201,168,76,.18);background:rgba(255,255,255,.03);border-radius:13px;padding:10px 12px;cursor:pointer;transition:.16s}
+.sem-rec-item:hover{border-color:var(--gold);background:rgba(201,168,76,.07)}
+.sem-rec-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--danger);flex:0 0 auto}
+.sem-rec-item.marcada{border-color:rgba(255,118,117,.38);background:rgba(255,118,117,.07)}
+.sem-rec-item .sr-nome{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
+.sem-rec-item .sr-cnpj{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px}
+.briefing-row{border:1.5px solid rgba(201,168,76,.18);background:rgba(255,255,255,.03);border-radius:14px;padding:11px 13px;transition:.16s}
+.briefing-row.has-docs{border-color:rgba(0,206,201,.32)}
+.briefing-row.sem-rec-flag{border-color:rgba(255,118,117,.30);opacity:.6}
+.briefing-row .br-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:7px}
+.briefing-row .br-nome{font-size:13px;font-weight:800;color:var(--text);line-height:1.2}
+.briefing-row .br-cnpj{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px}
+.briefing-row .br-badge{font-family:var(--font-mono);font-size:9px;border-radius:999px;padding:3px 8px;border:1px solid rgba(255,118,117,.4);color:var(--danger);background:rgba(255,118,117,.08)}
+.briefing-row textarea{width:100%;border:1.5px solid rgba(201,168,76,.20);background:rgba(13,27,42,.35);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px;outline:none;resize:vertical;min-height:46px;font-family:var(--font-body)}
+.briefing-row textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.btn.blue{background:rgba(116,185,255,.12);border-color:rgba(116,185,255,.30);color:var(--blue)}
+.btn.blue:hover{background:rgba(116,185,255,.22);border-color:var(--blue)}
 @media(max-width:1180px){.toolbar{grid-template-columns:repeat(3,1fr)}.dashboard{grid-template-columns:repeat(3,1fr)}.suggestions{grid-template-columns:1fr}.flow{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.header{align-items:flex-start}.title h1{white-space:normal}.toolbar{grid-template-columns:1fr}.dashboard{grid-template-columns:repeat(2,1fr);padding:12px}.content,.suggestions,.toolbar,.header{padding-left:12px;padding-right:12px}.form-grid,.form-grid.two{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}.docs-editor{grid-template-columns:1fr}.doc-edit-row{grid-template-columns:1fr}.doc-remove{width:100%}.kanban{grid-template-columns:1fr}.card{aspect-ratio:auto;min-height:160px}}
 
@@ -442,6 +459,9 @@ body.doc-font-xl{--doc-btn-font:15px;--doc-btn-pad:9px 10px;--doc-mark-size:24px
     <button type="button" class="btn" id="btnExport">⬇ CSV</button>
     <button type="button" class="btn" id="btnBackup">🧾 Backup</button>
     <button type="button" class="btn" id="btnPrint">🖨️ Imprimir</button>
+    <button type="button" class="btn warn" id="btnRelatorioDocsReceber">📄 Relatório Docs</button>
+    <button type="button" class="btn blue" id="btnBriefing">📋 Briefing</button>
+    <button type="button" class="btn ghost" id="btnConfigSemRecebimento">🚫 Sem recebimento</button>
   </div>
 </header>
 
@@ -600,11 +620,66 @@ body.doc-font-xl{--doc-btn-font:15px;--doc-btn-pad:9px 10px;--doc-mark-size:24px
   </div>
 </div>
 
+<!-- Modal: Configurar empresas sem recebimento -->
+<div class="modal-overlay" id="semRecebimentoOverlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:660px">
+    <div class="modal-head">
+      <div>
+        <h2>🚫 Empresas sem recebimento</h2>
+        <p>Empresas marcadas aqui são excluídas do Relatório de Documentos a Receber.</p>
+      </div>
+      <button type="button" class="btn ghost" id="btnCloseSemRec">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="doc-helper">Marque as empresas que <strong>não enviam documentos</strong> ao escritório (holding pura, imóvel próprio sem movimento, etc.). Essa configuração é salva no Firebase e vale para todos os relatórios.</p>
+      <div class="field" style="margin-bottom:12px">
+        <label>Buscar empresa</label>
+        <input id="semRecSearch" type="search" placeholder="Filtrar lista..." />
+      </div>
+      <div id="semRecList" style="display:grid;gap:7px;max-height:420px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn ghost" id="btnCancelSemRec">Fechar</button>
+      <button type="button" class="btn primary" id="btnSaveSemRec">💾 Salvar no Firebase</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Briefing de documentos -->
+<div class="modal-overlay" id="briefingOverlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:820px">
+    <div class="modal-head">
+      <div>
+        <h2>📋 Briefing — Levantamento de documentos por empresa</h2>
+        <p>Defina quais documentos cada empresa deve enviar mensalmente. Salvo no Firebase.</p>
+      </div>
+      <button type="button" class="btn ghost" id="btnCloseBriefing">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="doc-helper">Para cada empresa, liste os documentos esperados separados por vírgula (ex.: <em>XML NF-e, Extrato bancário, Folha de pagamento</em>). Empresas marcadas como "sem recebimento" são ignoradas no relatório.</p>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:12px;align-items:end">
+        <div class="field" style="margin:0">
+          <label>Buscar empresa</label>
+          <input id="briefingSearch" type="search" placeholder="Filtrar lista..." />
+        </div>
+        <button type="button" class="btn ok" id="btnBriefingPrint">🖨️ Imprimir Briefing</button>
+      </div>
+      <div id="briefingList" style="display:grid;gap:10px;max-height:460px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn ghost" id="btnCancelBriefing">Fechar</button>
+      <button type="button" class="btn primary" id="btnSaveBriefing">💾 Salvar tudo no Firebase</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const COLABORADOR_ALVO = 'ALEF';
 const CONTROLES_PATH = 'bif_controle_recebimento_movimentos';
+const SEM_RECEBIMENTO_PATH = 'bif_recebimento_sem_recebimento';
+const BRIEFING_DOCS_PATH = 'bif_recebimento_briefing_docs';
 const CACHE_KEY = 'bif_controle_recebimento_movimentos_v1';
 const PAINEL_CACHE_KEY = 'gestao_v3';
 const PAINEL_CACHE_KEYS = ['gestao_v3','gestao_empresas','painel','painel_gestao_empresas'];
@@ -2213,6 +2288,395 @@ function cobrancaGeral() {
   copyText(`Controle de recebimento — ${colaboradorLabelAtual()} — competência ${compLabel(state.competencia)}\n\nEmpresas que ainda precisam de ação:\n${linhas || 'Nenhuma pendência no filtro atual.'}${more}`);
 }
 
+// ══════════════════════════════════════════════════════════════
+//  SEM RECEBIMENTO — configuração de empresas que não enviam docs
+// ══════════════════════════════════════════════════════════════
+// state.semRecebimento: Set de empresaKey que não têm recebimento
+// Carregado do Firebase em bif_recebimento_sem_recebimento
+// ──────────────────────────────────────────────────────────────
+function isSemRecebimento(key) {
+  return !!(state.semRecebimento && state.semRecebimento.has(key));
+}
+
+function watchSemRecebimento() {
+  if(!state.firebaseReady || !state.database) return;
+  const { ref, onValue } = window.__firebaseFns;
+  onValue(ref(state.database, SEM_RECEBIMENTO_PATH), snap => {
+    const val = snap.exists() ? snap.val() : {};
+    state.semRecebimento = new Set(
+      val && typeof val === 'object' ? Object.keys(val).filter(k => val[k] === true) : []
+    );
+  }, err => {
+    console.warn('Erro ao ler sem_recebimento:', err.code || err.message);
+  });
+}
+
+function openSemRecebimento() {
+  state.semRecDraft = new Set(state.semRecebimento || new Set());
+  renderSemRecList('');
+  qs('semRecSearch').value = '';
+  qs('semRecebimentoOverlay').classList.add('open');
+  qs('semRecebimentoOverlay').setAttribute('aria-hidden','false');
+}
+function closeSemRecebimento() {
+  qs('semRecebimentoOverlay').classList.remove('open');
+  qs('semRecebimentoOverlay').setAttribute('aria-hidden','true');
+}
+function renderSemRecList(q) {
+  const norm2 = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const lista = (state.empresasTodas || []).filter(e => {
+    if(!q) return true;
+    return norm2(e.nome).includes(norm2(q)) || (e.cnpj||'').includes(q.replace(/\D/g,''));
+  });
+  const box = qs('semRecList');
+  if(!lista.length) { box.innerHTML = '<div class="empty">Nenhuma empresa encontrada.</div>'; return; }
+  box.innerHTML = lista.map(e => {
+    const key = recordKeyEmpresa(e);
+    const marcada = state.semRecDraft && state.semRecDraft.has(key);
+    return `<label class="sem-rec-item${marcada?' marcada':''}" data-key="${esc(key)}">
+      <input type="checkbox" ${marcada?'checked':''} data-key="${esc(key)}" onchange="toggleSemRecDraft(this)" />
+      <div>
+        <div class="sr-nome">${esc(e.nome)}</div>
+        <div class="sr-cnpj">${esc(cnpjFmt(e.cnpj))} • ${esc(regimeLabel(e.regime))}</div>
+      </div>
+    </label>`;
+  }).join('');
+}
+window.toggleSemRecDraft = function(input) {
+  const key = input.dataset.key;
+  if(!state.semRecDraft) state.semRecDraft = new Set();
+  if(input.checked) state.semRecDraft.add(key);
+  else state.semRecDraft.delete(key);
+  const item = input.closest('.sem-rec-item');
+  if(item) item.classList.toggle('marcada', input.checked);
+};
+async function saveSemRecebimento() {
+  if(!state.firebaseReady || !state.database) return toast('Firebase indisponível.', 'err');
+  const { ref, set } = window.__firebaseFns;
+  const payload = {};
+  (state.semRecDraft || new Set()).forEach(k => { payload[k] = true; });
+  try {
+    await set(ref(state.database, SEM_RECEBIMENTO_PATH), payload);
+    state.semRecebimento = new Set(state.semRecDraft);
+    toast(`Configuração salva: ${(state.semRecDraft||new Set()).size} empresa(s) marcadas como sem recebimento.`, 'ok');
+    closeSemRecebimento();
+  } catch(e) {
+    console.error(e);
+    toast(`Erro ao salvar: ${e.code||e.message}`, 'err');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  BRIEFING — levantamento de documentos esperados por empresa
+// ══════════════════════════════════════════════════════════════
+// state.briefingDocs: { [empresaKey]: "doc1, doc2, doc3" }
+// Salvo em bif_recebimento_briefing_docs no Firebase
+// ──────────────────────────────────────────────────────────────
+function watchBriefingDocs() {
+  if(!state.firebaseReady || !state.database) return;
+  const { ref, onValue } = window.__firebaseFns;
+  onValue(ref(state.database, BRIEFING_DOCS_PATH), snap => {
+    state.briefingDocs = snap.exists() ? (snap.val() || {}) : {};
+  }, err => {
+    console.warn('Erro ao ler briefing_docs:', err.code || err.message);
+  });
+}
+
+function openBriefing() {
+  state.briefingDraft = Object.assign({}, state.briefingDocs || {});
+  renderBriefingList('');
+  qs('briefingSearch').value = '';
+  qs('briefingOverlay').classList.add('open');
+  qs('briefingOverlay').setAttribute('aria-hidden','false');
+}
+function closeBriefing() {
+  qs('briefingOverlay').classList.remove('open');
+  qs('briefingOverlay').setAttribute('aria-hidden','true');
+}
+function renderBriefingList(q) {
+  const norm2 = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const lista = (state.empresasTodas || []).filter(e => {
+    if(!q) return true;
+    return norm2(e.nome).includes(norm2(q)) || (e.cnpj||'').includes(q.replace(/\D/g,''));
+  });
+  const box = qs('briefingList');
+  if(!lista.length) { box.innerHTML = '<div class="empty">Nenhuma empresa encontrada.</div>'; return; }
+  box.innerHTML = lista.map(e => {
+    const key = recordKeyEmpresa(e);
+    const semRec = isSemRecebimento(key);
+    const docs = (state.briefingDraft && state.briefingDraft[key]) || '';
+    return `<div class="briefing-row${docs?' has-docs':''}${semRec?' sem-rec-flag':''}" data-key="${esc(key)}">
+      <div class="br-head">
+        <div>
+          <div class="br-nome">${esc(e.nome)}</div>
+          <div class="br-cnpj">${esc(cnpjFmt(e.cnpj))} • ${esc(regimeLabel(e.regime))}</div>
+        </div>
+        ${semRec ? '<span class="br-badge">🚫 Sem recebimento</span>' : ''}
+      </div>
+      <textarea data-key="${esc(key)}" placeholder="Documentos esperados separados por vírgula (ex.: XML NF-e, Extrato bancário, Folha)"
+        oninput="updateBriefingDraft(this)">${esc(docs)}</textarea>
+    </div>`;
+  }).join('');
+}
+window.updateBriefingDraft = function(ta) {
+  const key = ta.dataset.key;
+  if(!state.briefingDraft) state.briefingDraft = {};
+  state.briefingDraft[key] = ta.value;
+  const row = ta.closest('.briefing-row');
+  if(row) row.classList.toggle('has-docs', !!ta.value.trim());
+};
+async function saveBriefingDocs() {
+  if(!state.firebaseReady || !state.database) return toast('Firebase indisponível.', 'err');
+  const { ref, set } = window.__firebaseFns;
+  // Coleta todos os textareas abertos para garantir que o draft está atualizado
+  qs('briefingList').querySelectorAll('textarea[data-key]').forEach(ta => {
+    if(!state.briefingDraft) state.briefingDraft = {};
+    state.briefingDraft[ta.dataset.key] = ta.value;
+  });
+  // Remover chaves vazias para não poluir o Firebase
+  const payload = {};
+  Object.entries(state.briefingDraft || {}).forEach(([k,v]) => { if(String(v||'').trim()) payload[k] = String(v).trim(); });
+  try {
+    await set(ref(state.database, BRIEFING_DOCS_PATH), payload);
+    state.briefingDocs = Object.assign({}, payload);
+    toast(`Briefing salvo: ${Object.keys(payload).length} empresa(s) com documentos definidos.`, 'ok');
+    closeBriefing();
+  } catch(e) {
+    console.error(e);
+    toast(`Erro ao salvar briefing: ${e.code||e.message}`, 'err');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RELATÓRIO DE DOCUMENTOS A RECEBER
+// ══════════════════════════════════════════════════════════════
+function printRelatorioDocsReceber() {
+  const comp = state.competencia || currentMonth();
+  const compLabel2 = compLabel(comp);
+
+  // Pega todas as empresas com recebimento criado na competência, excluindo as sem recebimento
+  const keys = recebimentoKeys();
+  const linhas = keys
+    .filter(key => !isSemRecebimento(key))
+    .map(key => {
+      const e = getEmpresaByKey(key);
+      if(!e) return null;
+      const rec = getRecord(key);
+      // Docs esperados: vem do briefing ou dos docDefs já cadastrados no card
+      const briefingRaw = (state.briefingDocs && state.briefingDocs[key]) || '';
+      const briefingDocs = briefingRaw ? briefingRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const cardDefs = recordDocs(rec); // docDefs salvos no card
+      // Constrói lista de docs: usa briefing como referência se existir, senão usa card
+      let docsEsperados = [];
+      if(briefingDocs.length) {
+        docsEsperados = briefingDocs.map(label => {
+          // Verifica se tem correspondência no card (por nome normalizado)
+          const norm2 = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+          const def = cardDefs.find(d => norm2(d.label) === norm2(label));
+          const recebido = def ? !!(rec.docs && rec.docs[def.id]) : false;
+          const data = def && rec.docReceivedAt && rec.docReceivedAt[def.id] ? moneylessDate(rec.docReceivedAt[def.id]) : '';
+          return { label, recebido, data };
+        });
+      } else {
+        docsEsperados = cardDefs.map(d => ({
+          label: d.label,
+          recebido: !!(rec.docs && rec.docs[d.id]),
+          data: rec.docReceivedAt && rec.docReceivedAt[d.id] ? moneylessDate(rec.docReceivedAt[d.id]) : ''
+        }));
+      }
+      const pendentes = docsEsperados.filter(d => !d.recebido);
+      const recebidos = docsEsperados.filter(d => d.recebido);
+      return { e, rec, docsEsperados, pendentes, recebidos, key };
+    })
+    .filter(Boolean);
+
+  // Separa entre empresas com e sem docs cadastrados no briefing/card
+  const comDocs = linhas.filter(l => l.docsEsperados.length > 0);
+  const semDocs = linhas.filter(l => l.docsEsperados.length === 0);
+
+  const printedAt = new Date().toLocaleString('pt-BR');
+
+  function docRow(d, idx) {
+    const statusHtml = d.recebido
+      ? `<td style="color:#1a6b4a;font-weight:700">✓ Recebido</td><td style="color:#1a6b4a">${esc(d.data||'sem data')}</td>`
+      : `<td style="color:#b42318;font-weight:700">⏳ Pendente</td><td>—</td>`;
+    const bg = idx % 2 === 0 ? '#f9f9f9' : '#fff';
+    return `<tr style="background:${bg}">
+      <td style="padding:5px 7px">${esc(d.label)}</td>
+      ${statusHtml}
+    </tr>`;
+  }
+
+  function empresaBlock(l) {
+    const status = statusInfo(l.rec.status);
+    const totalDocs = l.docsEsperados.length;
+    const nRec = l.recebidos.length;
+    const pct = totalDocs ? Math.round(nRec/totalDocs*100) : 0;
+    const semBar = `<div style="background:#ddd;border-radius:3px;height:7px;margin-top:4px">
+      <div style="background:${pct===100?'#1a6b4a':'#c9a84c'};width:${pct}%;height:7px;border-radius:3px"></div></div>`;
+    return `<div style="break-inside:avoid;margin-bottom:14px;border:1px solid #ddd;border-radius:6px;overflow:hidden">
+      <div style="background:#0d1b2a;color:#fff;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:13pt;font-weight:700">${esc(l.e.nome)}</div>
+          <div style="font-size:8.5pt;color:#ccc;margin-top:2px">${esc(cnpjFmt(l.e.cnpj))} • ${esc(regimeLabel(l.e.regime))}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10pt;font-weight:700;color:#e8c97a">${nRec}/${totalDocs} docs</div>
+          ${semBar}
+          <div style="font-size:8pt;color:#aaa;margin-top:3px">${status.label}</div>
+        </div>
+      </div>
+      ${totalDocs ? `<table style="width:100%;border-collapse:collapse;font-size:9.5pt">
+        <thead><tr style="background:#f0f0f0"><th style="text-align:left;padding:5px 7px;border-bottom:1px solid #ccc">Documento</th>
+        <th style="width:120px;border-bottom:1px solid #ccc">Status</th>
+        <th style="width:100px;border-bottom:1px solid #ccc">Data recebido</th></tr></thead>
+        <tbody>${l.docsEsperados.map((d,i) => docRow(d,i)).join('')}</tbody>
+      </table>` : '<div style="padding:8px 12px;color:#888;font-size:9pt">Nenhum documento cadastrado no briefing ou card.</div>'}
+    </div>`;
+  }
+
+  const resumo = (() => {
+    const total = linhas.length;
+    const completos = linhas.filter(l => isConcluido(l.rec)).length;
+    const pendentes = linhas.filter(l => l.pendentes.length > 0 && !isConcluido(l.rec)).length;
+    const totalDocs = linhas.reduce((a,l) => a + l.docsEsperados.length, 0);
+    const recebidos = linhas.reduce((a,l) => a + l.recebidos.length, 0);
+    return `<table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9.5pt">
+      <tr style="background:#f4f4f4">
+        <td style="padding:6px 10px;border:1px solid #ddd"><strong>Empresas no relatório</strong></td><td style="border:1px solid #ddd;padding:6px 10px">${total}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd"><strong>Concluídas</strong></td><td style="border:1px solid #ddd;padding:6px 10px">${completos}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd"><strong>Com pendência</strong></td><td style="border:1px solid #ddd;padding:6px 10px">${pendentes}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd"><strong>Docs recebidos</strong></td><td style="border:1px solid #ddd;padding:6px 10px">${recebidos}/${totalDocs}</td>
+      </tr>
+    </table>`;
+  })();
+
+  const semDocsBlock = semDocs.length ? `
+    <h2 style="font-size:11pt;margin:18px 0 8px;border-bottom:1px solid #bbb;padding-bottom:4px;text-transform:uppercase;letter-spacing:.04em">
+      Empresas sem documentos cadastrados (${semDocs.length})</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:9.5pt;margin-bottom:14px">
+      <thead><tr style="background:#f0f0f0">
+        <th style="text-align:left;padding:5px 8px;border:1px solid #ccc">Empresa</th>
+        <th style="padding:5px 8px;border:1px solid #ccc">CNPJ</th>
+        <th style="padding:5px 8px;border:1px solid #ccc">Status</th>
+      </tr></thead>
+      <tbody>${semDocs.map((l,i) => {
+        const bg = i%2===0?'#f9f9f9':'#fff';
+        return `<tr style="background:${bg}">
+          <td style="padding:5px 8px;border:1px solid #ddd">${esc(l.e.nome)}</td>
+          <td style="padding:5px 8px;border:1px solid #ddd;font-family:monospace">${esc(cnpjFmt(l.e.cnpj))}</td>
+          <td style="padding:5px 8px;border:1px solid #ddd">${esc(statusInfo(l.rec.status).label)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>` : '';
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+    <title>Relatório Documentos a Receber — ${esc(compLabel2)}</title>
+    <style>@page{size:A4 portrait;margin:12mm}
+    *{box-sizing:border-box}
+    body{margin:0;background:#fff;color:#111;font-family:Arial,sans-serif;font-size:10pt;line-height:1.4}
+    h1{font-size:16pt;margin:0 0 3px}h2{margin:0}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    </style></head><body>
+    <div style="border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h1>Documentos a Receber</h1>
+        <div style="font-size:9.5pt;color:#444">Competência: <strong>${esc(compLabel2)}</strong> • Gerado em ${esc(printedAt)}</div>
+      </div>
+      <div style="border:1px solid #111;padding:6px 10px;font-size:8.5pt;text-align:right;min-width:130px">
+        <strong>BIF — Fluignos</strong><br>Controle de Recebimento
+      </div>
+    </div>
+    <h2 style="font-size:11pt;margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em">Resumo da competência</h2>
+    ${resumo}
+    <h2 style="font-size:11pt;margin:0 0 10px;border-bottom:1px solid #bbb;padding-bottom:4px;text-transform:uppercase;letter-spacing:.04em">
+      Empresas com documentos cadastrados (${comDocs.length})</h2>
+    ${comDocs.map(empresaBlock).join('')}
+    ${semDocsBlock}
+  </body></html>`;
+
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(iframe);
+  iframe.srcdoc = html;
+  iframe.onload = () => setTimeout(() => {
+    try { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+    finally { setTimeout(() => iframe.remove(), 1400); }
+  }, 120);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PRINT BRIEFING — impressão do formulário de levantamento
+// ══════════════════════════════════════════════════════════════
+function printBriefingForm() {
+  const printedAt = new Date().toLocaleString('pt-BR');
+  // Coleta draft atualizado dos textareas abertos
+  qs('briefingList').querySelectorAll('textarea[data-key]').forEach(ta => {
+    if(!state.briefingDraft) state.briefingDraft = {};
+    state.briefingDraft[ta.dataset.key] = ta.value;
+  });
+
+  const lista = (state.empresasTodas || []).filter(e => !isSemRecebimento(recordKeyEmpresa(e)));
+  if(!lista.length) { toast('Nenhuma empresa para imprimir no briefing.', 'warn'); return; }
+
+  function empresaRow(e, idx) {
+    const key = recordKeyEmpresa(e);
+    const docs = (state.briefingDraft && state.briefingDraft[key]) || '';
+    const docList = docs ? docs.split(',').map(s=>s.trim()).filter(Boolean) : [];
+    const bg = idx%2===0?'#f9f9f9':'#fff';
+    const docsHtml = docList.length
+      ? docList.map(d => `<div style="display:inline-flex;align-items:center;gap:6px;margin:3px 4px 0 0">
+          <span style="width:14px;height:14px;border:1px solid #666;border-radius:2px;display:inline-block"></span>
+          <span style="font-size:9pt">${esc(d)}</span>
+        </div>`).join('')
+      : '<div style="border:1px dashed #bbb;border-radius:4px;height:28px;margin-top:4px"></div>';
+    return `<tr style="background:${bg};break-inside:avoid">
+      <td style="padding:7px 9px;border:1px solid #ddd;vertical-align:top">
+        <div style="font-weight:700;font-size:10.5pt">${esc(e.nome)}</div>
+        <div style="font-family:monospace;font-size:8pt;color:#555">${esc(cnpjFmt(e.cnpj))}</div>
+        <div style="font-size:8.5pt;color:#666">${esc(regimeLabel(e.regime))}</div>
+      </td>
+      <td style="padding:7px 9px;border:1px solid #ddd;vertical-align:top">${docsHtml}</td>
+      <td style="padding:7px 9px;border:1px solid #ddd;width:120px"></td>
+    </tr>`;
+  }
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+    <title>Briefing — Documentos por Empresa</title>
+    <style>@page{size:A4 portrait;margin:12mm}
+    *{box-sizing:border-box}
+    body{margin:0;background:#fff;color:#111;font-family:Arial,sans-serif;font-size:10pt;line-height:1.4}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    </style></head><body>
+    <div style="border-bottom:2px solid #111;padding-bottom:7px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start">
+      <div><h1 style="font-size:16pt;margin:0 0 3px">Briefing — Documentos por Empresa</h1>
+        <div style="font-size:9.5pt;color:#444">Levantamento de documentos mensais • Emitido em ${esc(printedAt)}</div></div>
+      <div style="border:1px solid #111;padding:6px 10px;font-size:8.5pt;text-align:right">
+        <strong>BIF — Fluignos</strong><br>Controle de Recebimento</div>
+    </div>
+    <p style="font-size:9pt;color:#555;margin:0 0 10px">
+      Use esta folha para confirmar com cada cliente quais documentos devem ser enviados mensalmente ao escritório.
+      Coluna <strong>Obs./Confirmação</strong>: data de confirmação, e-mail ou observação relevante.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:9.5pt">
+      <thead style="background:#0d1b2a;color:#fff"><tr>
+        <th style="text-align:left;padding:6px 9px;width:36%">Empresa</th>
+        <th style="text-align:left;padding:6px 9px">Documentos esperados</th>
+        <th style="text-align:left;padding:6px 9px;width:20%">Obs. / Confirmação</th>
+      </tr></thead>
+      <tbody>${lista.map((e,i) => empresaRow(e,i)).join('')}</tbody>
+    </table>
+  </body></html>`;
+
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(iframe);
+  iframe.srcdoc = html;
+  iframe.onload = () => setTimeout(() => {
+    try { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+    finally { setTimeout(() => iframe.remove(), 1400); }
+  }, 120);
+}
+
 function bindEvents() {
   qs('competencia').value = state.competencia;
   qs('competencia').addEventListener('change', () => { state.competencia = qs('competencia').value || currentMonth(); localWrite(); watchMovimentos(); renderAll(); });
@@ -2232,6 +2696,22 @@ function bindEvents() {
   qs('btnDocFonteMais').addEventListener('click', () => changeDocButtonSize(1));
   qs('btnNovoRecebimento').addEventListener('click', openNewRecebimento);
   qs('btnCobrancaLote').addEventListener('click', cobrancaGeral);
+  qs('btnRelatorioDocsReceber').addEventListener('click', printRelatorioDocsReceber);
+  qs('btnBriefing').addEventListener('click', openBriefing);
+  qs('btnConfigSemRecebimento').addEventListener('click', openSemRecebimento);
+  // Modal sem recebimento
+  qs('btnCloseSemRec').addEventListener('click', closeSemRecebimento);
+  qs('btnCancelSemRec').addEventListener('click', closeSemRecebimento);
+  qs('btnSaveSemRec').addEventListener('click', saveSemRecebimento);
+  qs('semRecebimentoOverlay').addEventListener('click', e => { if(e.target.id==='semRecebimentoOverlay') closeSemRecebimento(); });
+  qs('semRecSearch').addEventListener('input', e => renderSemRecList(e.target.value));
+  // Modal briefing
+  qs('btnCloseBriefing').addEventListener('click', closeBriefing);
+  qs('btnCancelBriefing').addEventListener('click', closeBriefing);
+  qs('btnSaveBriefing').addEventListener('click', saveBriefingDocs);
+  qs('btnBriefingPrint').addEventListener('click', printBriefingForm);
+  qs('briefingOverlay').addEventListener('click', e => { if(e.target.id==='briefingOverlay') closeBriefing(); });
+  qs('briefingSearch').addEventListener('input', e => renderBriefingList(e.target.value));
   qs('btnCloseNew').addEventListener('click', closeNewRecebimento);
   qs('btnCancelNew').addEventListener('click', closeNewRecebimento);
   qs('btnCreateRecebimento').addEventListener('click', createRecebimentoFromPicker);
@@ -2435,6 +2915,8 @@ async function bootFirebase() {
       }
       attachEmpresasFirebase();
       watchMovimentos();
+      watchSemRecebimento();
+      watchBriefingDocs();
       atualizarListaEmpresas(true);
     });
   } catch(e) {
@@ -2450,6 +2932,8 @@ function init() {
   state.competencia = cache.lastCompetencia || currentMonth();
   state.movimentos = {};
   state.empresas = []; state.empresasTodas = [];
+  state.semRecebimento = new Set();
+  state.briefingDocs = {};
   try { state.cardSizeLevel = Number(localStorage.getItem(CARD_SIZE_KEY)); if(!Number.isFinite(state.cardSizeLevel)) state.cardSizeLevel = 3; } catch(e) { state.cardSizeLevel = 3; }
   try { state.docFontSizeLevel = Number(localStorage.getItem(DOC_FONT_SIZE_KEY)); if(!Number.isFinite(state.docFontSizeLevel)) state.docFontSizeLevel = 2; } catch(e) { state.docFontSizeLevel = 2; }
   bindEvents();
