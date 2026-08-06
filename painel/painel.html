@@ -2419,7 +2419,7 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
     <span class="search-icon">🔎</span>
     <input type="search" autocomplete="off" placeholder="Buscar empresa, CNPJ, colaborador ou atividade..." oninput="doSearch(this.value)" id="searchInput">
   </div>
-  <button type="button" class="fixed-search-clear" onclick="clearSearchFixed()">Limpar</button>
+  <button type="button" class="fixed-search-clear" onclick="clearFilters()">Limpar</button>
   <div class="search-panel-actions">
     <button type="button" class="search-panel-btn" id="filterPanelButton" onclick="toggleFilterPanel()" aria-expanded="false" aria-controls="filterPanelBody">
       <span>🔍</span><span>Filtros e obrigações</span>
@@ -2585,7 +2585,7 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
       </div>
       <div class="modal-header-actions">
         <button class="btn-delete-subtle" id="btnDeleteFromModal" onclick="askDelete(currentEditId)" title="Excluir empresa" style="padding:5px 10px;font-size:11px;">🗑</button>
-        <button class="btn-secondary btn-sm" id="btnPrintEmpresa" onclick="printEmpresa()" title="Imprimir A4" style="padding:5px 10px;font-size:11px;">🖨️</button>
+        <button class="btn-secondary btn-sm" id="btnPrintEmpresa" onclick="openPrintSelModal()" title="Imprimir A4" style="padding:5px 10px;font-size:11px;">🖨️</button>
         <button class="btn-edit-mode btn-sm" id="btnEditMode" onclick="enableEditMode()" style="padding:5px 12px;font-size:11px;">✏️ Editar</button>
         <button class="btn-primary btn-sm" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;padding:5px 12px;font-size:11px;">💾 Salvar</button>
         <button class="btn-close-modal" onclick="closeModal('modalEmpresa')" style="margin-left:4px;">✕</button>
@@ -8849,5 +8849,176 @@ document.addEventListener('keydown', ev => {
 </script>
 
 <link rel="stylesheet" href="../tema-bif.css?v=20260714-light8"/>
+
+<!-- MODAL: SELEÇÃO DE IMPRESSÃO -->
+<div class="modal-overlay" id="modalPrintSel" style="display:none;z-index:1400;" onclick="if(event.target===this)closePrintSelModal()">
+  <div class="modal modal-md" style="max-width:520px;padding:0;overflow:hidden;">
+    <div class="modal-header" style="padding:14px 18px 12px;border-bottom:1px solid var(--border);">
+      <h2 style="font-size:14px;font-weight:700;font-family:var(--font-title);color:var(--gold-light);">🖨️ Opções de Impressão</h2>
+      <button class="btn-close-modal" onclick="closePrintSelModal()">✕</button>
+    </div>
+    <div style="padding:16px 18px 6px;">
+      <p style="font-size:11px;color:var(--text-light);margin-bottom:12px;font-family:var(--font-mono);">Selecione as seções que deseja incluir na impressão:</p>
+
+      <!-- Ação rápida: tudo -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button onclick="printSelToggleAll(true)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--gold-dim);background:var(--gold-dim);color:var(--gold-light);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">✅ Selecionar tudo</button>
+        <button onclick="printSelToggleAll(false)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-light);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">☐ Desmarcar tudo</button>
+      </div>
+
+      <!-- Checkboxes das seções -->
+      <div id="printSelList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-bottom:16px;"></div>
+    </div>
+    <div style="padding:10px 18px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border);">
+      <button onclick="closePrintSelModal()" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-light);font-size:12px;cursor:pointer;font-weight:600;font-family:var(--font-body);">Cancelar</button>
+      <button onclick="executePrint()" style="padding:7px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">🖨️ Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── IMPRESSÃO SELETIVA ─────────────────────────────────────────── */
+
+const PRINT_SECTIONS = [
+  { id:'dados',       label:'📋 Dados cadastrais',           default:true },
+  { id:'contato',     label:'📍 Contato e localização',      default:true },
+  { id:'obrigacoes',  label:'📅 Obrigações acessórias',      default:true },
+  { id:'importacoes', label:'📥 Importações XML',             default:false },
+  { id:'repositorio', label:'📁 Repositório de notas',       default:false },
+  { id:'parametros',  label:'⚙️ Parâmetros',                 default:true },
+  { id:'regras',      label:'📏 Regras / Procedimentos',      default:true },
+  { id:'observacoes', label:'💬 Observações',                 default:true },
+  { id:'followup',    label:'🔄 Rotina de Follow-up',         default:false },
+  { id:'comunicacao', label:'📨 Comunicação / Guias',         default:false },
+  { id:'acessos',     label:'🔑 Acesso a sistemas',           default:false },
+  { id:'apoio',       label:'📝 Apoio à escrituração',        default:false },
+  { id:'ocorrencias', label:'⚠️ Ocorrências',                 default:false },
+  { id:'estaticos',   label:'🗂️ Campos estáticos',           default:false },
+  { id:'custom',      label:'✏️ Campos personalizados',       default:false },
+];
+
+function openPrintSelModal(){
+  const e = S.empresas.find(x=>x.id===currentEditId);
+  if(!e){ toast('Abra uma empresa para imprimir.','error'); return; }
+  const list = document.getElementById('printSelList');
+  list.innerHTML = PRINT_SECTIONS.map(s=>`
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;font-family:var(--font-body);color:var(--text);padding:4px 6px;border-radius:7px;border:1px solid var(--border);background:var(--bg-input);transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <input type="checkbox" data-sec="${s.id}" ${s.default?'checked':''} style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;">
+      <span>${s.label}</span>
+    </label>
+  `).join('');
+  document.getElementById('modalPrintSel').style.display='flex';
+}
+
+function closePrintSelModal(){
+  document.getElementById('modalPrintSel').style.display='none';
+}
+
+function printSelToggleAll(check){
+  document.querySelectorAll('#printSelList input[type=checkbox]').forEach(cb=>cb.checked=check);
+}
+
+function getSelectedSections(){
+  const sel = {};
+  document.querySelectorAll('#printSelList input[type=checkbox]').forEach(cb=>{
+    sel[cb.dataset.sec] = cb.checked;
+  });
+  return sel;
+}
+
+function executePrint(){
+  const e = S.empresas.find(x=>x.id===currentEditId);
+  if(!e){ toast('Empresa não encontrada.','error'); return; }
+  const data = $('modalEmpresa')?.classList.contains('open') ? collectCompanyFormData() : {...e};
+  const sel = getSelectedSections();
+  closePrintSelModal();
+  const html = buildEmpresaPrintHtmlSel(data, sel);
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(iframe);
+  iframe.srcdoc = html;
+  iframe.onload = () => {
+    setTimeout(()=>{
+      try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+      finally{ setTimeout(()=>iframe.remove(),1400); }
+    },120);
+  };
+}
+
+function buildEmpresaPrintHtmlSel(e, sel){
+  const all = !sel || Object.values(sel).every(v=>!v); // se nada marcado, imprime tudo
+  const show = id => all || sel[id];
+
+  const obrigacoes = (e.obrigacoes||[]).map(o=>`<tr><td>${esc(o.nome)}</td><td>${esc(o.vencimento||'—')}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>';
+  const importacoes = (e.importacoes||[]).map(i=>`<span class="pill">${esc(i)}</span>`).join('')||'<span class="muted">—</span>';
+  const notasRepo = (e.repositorioNotas||[]).map(normalizeNotaRepositorioItem).filter(a=>a.nome);
+  const notasRepoRows = notasRepo.map(a=>`<tr><td>${esc(a.nome)}</td><td>${esc(a.tipo||'—')}</td><td>${esc(formatFileSize(a.tamanho))}</td><td>${esc(formatDateTimeBR(a.adicionadoEm))}</td></tr>`).join('')||'<tr><td colspan="4">—</td></tr>';
+  const staticSections = show('estaticos') ? (S.camposEstaticos||[]).map(c=>printRichSection(c.label||'Campo estático',(e.camposEstaticosData||{})[c.id]||'')).join('') : '';
+  const custom = show('custom') ? (e.camposPersonalizados||[]).map(c=>printRichSection(c.label||'Campo personalizado',c.content||'')).join('') : '';
+  const status = e.fechada ? 'Empresa fechada / encerrada' : 'Empresa aberta';
+  const printedAt = new Date().toLocaleString('pt-BR');
+
+  const secoesSelecionadas = PRINT_SECTIONS.filter(s=>show(s.id)).map(s=>s.label.replace(/^[^ ]+ /,'')).join(' • ');
+
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(e.nome||'Ficha da Empresa')}</title>
+  <style>
+    @page{size:A4;margin:12mm;}
+    *{box-sizing:border-box;}
+    body{margin:0;background:#fff;color:#111;font-family:${printFontStack()};font-size:${printFontSize()};line-height:1.35;}
+    .page{width:100%;}
+    .p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+    .p-title{font-size:18pt;font-weight:700;letter-spacing:.02em;margin:0 0 3px;}
+    .p-sub{font-size:9pt;color:#333;margin:0;}
+    .stamp{border:1px solid #111;padding:5px 8px;font-size:8.5pt;text-align:right;min-width:145px;}
+    .stamp-secs{font-size:7pt;color:#555;margin-top:3px;word-break:break-word;max-width:160px;}
+    .p-section{margin-top:12px;break-inside:avoid;page-break-inside:avoid;}
+    .p-section h2{font-size:11pt;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #111;margin:0 0 6px;padding-bottom:3px;}
+    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;border:1px solid #999;border-bottom:none;}
+    .p-field{display:grid;grid-template-columns:37% 63%;min-height:24px;border-bottom:1px solid #999;break-inside:avoid;}
+    .p-label{font-size:8pt;font-weight:700;text-transform:uppercase;background:#eee;border-right:1px solid #999;padding:5px 6px;}
+    .p-value{padding:5px 6px;overflow-wrap:break-word;word-break:normal;}
+    table{width:100%;border-collapse:collapse;break-inside:avoid;}
+    th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top;}
+    th{background:#eee;text-transform:uppercase;font-size:8pt;letter-spacing:.04em;}
+    .p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word;word-break:normal;}
+    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important;}
+    .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
+    .p-rich table{width:100%;border-collapse:collapse;margin:6px 0;table-layout:auto;}
+    .p-rich table td,.p-rich table th{border:1px solid #999;padding:4px 5px;vertical-align:top;overflow-wrap:anywhere;}
+    .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt;}
+    .muted{color:#666;}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{break-after:auto;}}
+  </style></head><body><main class="page">
+    <header class="p-header">
+      <div><h1 class="p-title">${esc(e.nome||'Ficha da Empresa')}</h1><p class="p-sub">${esc(regimeLabel(e.regime))} • ${esc(status)}</p></div>
+      <div class="stamp"><strong>Ficha da Empresa</strong><br>Impresso em ${esc(printedAt)}<div class="stamp-secs">${esc(secoesSelecionadas)}</div></div>
+    </header>
+
+    ${show('dados')?`<section class="p-section"><h2>Dados cadastrais</h2><div class="p-grid">
+      ${printRow('Razão Social',e.nome)}${printRow('CNPJ',e.cnpj)}${printRow('Regime',regimeLabel(e.regime))}${printRow('Categoria',categoriaEmpresaLabel(e))}${printRow('Status',status)}
+      ${printRow('Atividade Econômica',e.atividade)}${printRow('Colaborador',e.colaborador)}${printRow('Inscrição Estadual',e.inscricaoEstadual)}${printRow('Inscrição Municipal',e.inscricaoMunicipal)}${printRow('Código ERP',e.codigoErp)}
+    </div></section>`:''}
+
+    ${show('contato')?`<section class="p-section"><h2>Contato e localização</h2><div class="p-grid">
+      ${printRow('Endereço',e.endereco)}${printRow('CEP',e.cep)}${printRow('Cidade',e.cidade)}${printRow('UF',e.uf)}
+      ${printRow('Responsável',e.responsavel)}${printRow('E-mail',e.email)}${printRow('Telefone',e.telefone)}${printRow('Data de abertura',e.dataAbertura)}${printRow('Capital Social',e.capitalSocial)}
+    </div></section>`:''}
+
+    ${show('obrigacoes')?`<section class="p-section"><h2>Obrigações acessórias</h2><table><thead><tr><th>Obrigação</th><th>Vencimento</th></tr></thead><tbody>${obrigacoes}</tbody></table></section>`:''}
+    ${show('importacoes')?`<section class="p-section"><h2>Importações XML</h2><div>${importacoes}</div></section>`:''}
+    ${show('repositorio')?`<section class="p-section"><h2>Repositório de Notas</h2><table><thead><tr><th>Arquivo</th><th>Tipo</th><th>Tamanho</th><th>Anexado em</th></tr></thead><tbody>${notasRepoRows}</tbody></table></section>`:''}
+    ${show('parametros')?printRichSection('Parâmetros',e.parametros):''}
+    ${show('regras')?printRichSection('Regras / Procedimentos',e.regras):''}
+    ${show('observacoes')?printRichSection('Observações',e.observacoes):''}
+    ${show('followup')?printRichSection('Rotina de Follow-up',e.followup):''}
+    ${show('comunicacao')?printRichSection('Comunicação / Envio de guias',e.comunicacaoGuias):''}
+    ${show('acessos')?printRichSection('Acesso a sistemas',e.acessosSistemas):''}
+    ${show('apoio')?printRichSection('Apoio à escrituração',e.apoioEscrituracao):''}
+    ${show('ocorrencias')?printRichSection('Ocorrências',e.ocorrencias):''}
+    ${staticSections}
+    ${custom}
+  </main></body></html>`;
+}
+</script>
 </body>
 </html>
