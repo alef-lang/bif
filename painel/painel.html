@@ -300,6 +300,21 @@ body{font-family:var(--font-body);background:var(--bg);background-image:radial-g
 /* FORM */
 .form-section{margin-bottom:24px;}
 .form-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gold);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);font-family:var(--font-mono);display:flex;align-items:center;gap:6px;}
+/* ── impressão seletiva ── */
+.print-sec-cb{margin-left:auto;display:flex;align-items:center;gap:5px;cursor:pointer;opacity:0.35;transition:opacity 0.18s;flex-shrink:0;}
+.print-sec-cb:hover{opacity:1;}
+.print-sec-cb input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;cursor:pointer;margin:0;}
+.print-sec-cb input[type=checkbox]:checked~span{color:var(--gold-light);}
+.print-sec-cb.checked{opacity:1;}
+.print-sec-cb span{font-size:9px;color:var(--text-light);font-family:var(--font-mono);letter-spacing:0.3px;white-space:nowrap;}
+#printFloatBar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1500;background:linear-gradient(135deg,#1b2e42,#0d1b2a);border:1.5px solid var(--gold);border-radius:14px;padding:10px 18px;display:none;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.55);font-family:var(--font-body);}
+#printFloatBar.visible{display:flex;}
+#printFloatBarCount{font-size:12px;color:var(--gold-light);font-weight:700;}
+#printFloatBarInfo{font-size:11px;color:var(--text-light);}
+#printFloatBarBtn{padding:7px 18px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+#printFloatBarBtn:hover{filter:brightness(1.1);}
+#printFloatBarClear{padding:5px 10px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text-light);font-size:11px;cursor:pointer;}
+#printFloatBarClear:hover{border-color:var(--gold);color:var(--gold-light);}
 .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 16px;}
 .form-grid.cols-3{grid-template-columns:repeat(3,1fr);}
 .form-grid.cols-1{grid-template-columns:1fr;}
@@ -2419,7 +2434,7 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
     <span class="search-icon">🔎</span>
     <input type="search" autocomplete="off" placeholder="Buscar empresa, CNPJ, colaborador ou atividade..." oninput="doSearch(this.value)" id="searchInput">
   </div>
-  <button type="button" class="fixed-search-clear" onclick="clearFilters()">Limpar</button>
+  <button type="button" class="fixed-search-clear" onclick="clearSearchFixed()">Limpar</button>
   <div class="search-panel-actions">
     <button type="button" class="search-panel-btn" id="filterPanelButton" onclick="toggleFilterPanel()" aria-expanded="false" aria-controls="filterPanelBody">
       <span>🔍</span><span>Filtros e obrigações</span>
@@ -2585,7 +2600,7 @@ html[data-bif-theme="light"] mark.ficha-hl{background:rgba(201,168,76,.30);color
       </div>
       <div class="modal-header-actions">
         <button class="btn-delete-subtle" id="btnDeleteFromModal" onclick="askDelete(currentEditId)" title="Excluir empresa" style="padding:5px 10px;font-size:11px;">🗑</button>
-        <button class="btn-secondary btn-sm" id="btnPrintEmpresa" onclick="openPrintSelModal()" title="Imprimir A4" style="padding:5px 10px;font-size:11px;">🖨️</button>
+        <button class="btn-secondary btn-sm" id="btnPrintEmpresa" onclick="printEmpresa()" title="Imprimir A4" style="padding:5px 10px;font-size:11px;">🖨️</button>
         <button class="btn-edit-mode btn-sm" id="btnEditMode" onclick="enableEditMode()" style="padding:5px 12px;font-size:11px;">✏️ Editar</button>
         <button class="btn-primary btn-sm" id="btnSaveEmpresa" onclick="saveCompany()" style="display:none;padding:5px 12px;font-size:11px;">💾 Salvar</button>
         <button class="btn-close-modal" onclick="closeModal('modalEmpresa')" style="margin-left:4px;">✕</button>
@@ -5865,8 +5880,8 @@ function empresaFormHtml(e){
   const apuracaoLabel = {apurada:'✅ Apurada',nao_apurada:'⏳ Não apurada',pendente_info:'🔴 Aguardando info'}[e.statusApuracao||'nao_apurada'] || '⏳ Não apurada';
   return `
 
-  <div class="form-section">
-    <div class="form-section-title">🏢 Dados da Empresa</div>
+  <div class="form-section" data-print-sec="dados">
+    <div class="form-section-title">🏢 Dados da Empresa<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <div class="form-grid">
       <div class="form-group full"><label>Razão Social</label><input id="f_nome" value="${esc(e.nome)}"></div>
       <div class="form-group">
@@ -5920,8 +5935,8 @@ function empresaFormHtml(e){
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">📍 Contato e Localização</div>
+  <div class="form-section" data-print-sec="contato">
+    <div class="form-section-title">📍 Contato e Localização<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <div class="form-grid">
       <div class="form-group full"><label>Endereço</label><input id="f_endereco" value="${esc(e.endereco)}"></div>
       <div class="form-group"><label>CEP</label><input id="f_cep" value="${esc(e.cep)}"></div>
@@ -5935,8 +5950,8 @@ function empresaFormHtml(e){
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">💰 Impostos</div>
+  <div class="form-section" data-print-sec="impostos">
+    <div class="form-section-title">💰 Impostos<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Informe os impostos que a empresa paga. Esta seção é fixa em todas as empresas.</p>
     <div class="impostos-manager">
       <div class="obrig-header" style="grid-template-columns:1fr 120px minmax(140px,1fr) 32px;"><div>Imposto</div><div>Periodicidade</div><div>Vencimento / observação</div><div></div></div>
@@ -5959,8 +5974,8 @@ function empresaFormHtml(e){
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">📋 Obrigações Acessórias Ativas</div>
+  <div class="form-section" data-print-sec="obrigacoes">
+    <div class="form-section-title">📋 Obrigações Acessórias Ativas<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Registre as obrigações que a empresa possui. O controle de envio é feito no status de apuração acima.</p>
     <div class="obrig-manager">
       <div class="obrig-header" style="grid-template-columns:1fr 140px 32px;"><div>Obrigação</div><div>Vencimento</div><div></div></div>
@@ -5977,8 +5992,8 @@ function empresaFormHtml(e){
       </div>
     </div>
   </div>
-  <div class="form-section">
-    <div class="form-section-title">📂 Importações XML</div>
+  <div class="form-section" data-print-sec="importacoes">
+    <div class="form-section-title">📂 Importações XML<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Arquivos XML que a empresa importa mensalmente. Viram subtarefas no Checklist.</p>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:28px;" id="modalImportacoesTags"></div>
     <div class="obrig-add-row">
@@ -5990,7 +6005,7 @@ function empresaFormHtml(e){
     </div>
   </div>
   <div class="form-section">
-    <div class="form-section-title">🗂️ Repositório de Notas <span class="nota-repo-counter" id="modalRepositorioNotasCount">0 arquivo(s)</span></div>
+    <div class="form-section-title">🗂️ Repositório de Notas <span class="nota-repo-counter" id="modalRepositorioNotasCount">0 arquivo(s)</span><label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Seção fixa da ficha para guardar XML, DANFE/PDF, imagens, planilhas ou comprovantes vinculados à empresa.</p>
     <div class="nota-repo-manager">
       <div class="obrig-header" style="grid-template-columns:minmax(180px,1fr) 100px 130px 32px;"><div>Arquivo</div><div>Tamanho</div><div>Anexado em</div><div></div></div>
@@ -6009,28 +6024,28 @@ function empresaFormHtml(e){
     <div class="form-section-title">📝 Manual, Regras e Parâmetros</div>
     <div class="rich-hint">💡 Selecione um trecho para abrir o menu flutuante. Cole uma faixa do Excel para virar tabela automaticamente. Imagens entram por Ctrl+V, arraste ou 🖼️; clique na imagem para redimensionar ou excluir.</div>
     <div class="form-grid cols-1">
-      <div class="form-group"><label>Parâmetros</label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
-      <div class="form-group"><label>Regras / Procedimentos</label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
-      <div class="form-group"><label>Observações</label><div class="rich-field" id="f_observacoes" contenteditable="true">${e.observacoes||''}</div></div>
+      <div class="form-group" data-print-field="parametros"><label style="display:flex;align-items:center;gap:6px;">Parâmetros<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️</span></label></label><div class="rich-field" id="f_parametros" contenteditable="true">${e.parametros||''}</div></div>
+      <div class="form-group" data-print-field="regras"><label style="display:flex;align-items:center;gap:6px;">Regras / Procedimentos<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️</span></label></label><div class="rich-field" id="f_regras" contenteditable="true">${e.regras||''}</div></div>
+      <div class="form-group" data-print-field="observacoes"><label style="display:flex;align-items:center;gap:6px;">Observações<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️</span></label></label><div class="rich-field" id="f_observacoes" contenteditable="true">${e.observacoes||''}</div></div>
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">🔁 Rotina de Follow-up</div>
+  <div class="form-section" data-print-sec="followup">
+    <div class="form-section-title">🔁 Rotina de Follow-up<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Rotina de Follow-up</label><div class="rich-field" id="f_followup" contenteditable="true">${e.followup||''}</div></div>
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">📨 Comunicação / Envio de guias</div>
+  <div class="form-section" data-print-sec="comunicacao">
+    <div class="form-section-title">📨 Comunicação / Envio de guias<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Comunicação / Envio de guias</label><div class="rich-field" id="f_comunicacaoGuias" contenteditable="true">${e.comunicacaoGuias||''}</div></div>
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">🔐 Acesso a sistemas</div>
+  <div class="form-section" data-print-sec="acessos">
+    <div class="form-section-title">🔐 Acesso a sistemas<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:10px;font-family:var(--font-mono);">Credenciais de sistemas. Senhas ficam mascaradas e podem ser reveladas individualmente. Copie login e senha com um clique.</p>
     <div class="cred-manager">
       <div class="cred-header-row"><div>Sistema</div><div>Login / Usuário</div><div>Senha</div><div style="text-align:center;">Copiar</div><div style="text-align:center;">Remover</div></div>
@@ -6050,28 +6065,28 @@ function empresaFormHtml(e){
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">📚 Apoio à escrituração</div>
+  <div class="form-section" data-print-sec="apoio">
+    <div class="form-section-title">📚 Apoio à escrituração<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Apoio à escrituração</label><div class="rich-field" id="f_apoioEscrituracao" contenteditable="true">${e.apoioEscrituracao||''}</div></div>
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">⚠️ Ocorrências</div>
+  <div class="form-section" data-print-sec="ocorrencias">
+    <div class="form-section-title">⚠️ Ocorrências<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <div class="form-grid cols-1">
       <div class="form-group"><label>Ocorrências</label><div class="rich-field" id="f_ocorrencias" contenteditable="true">${e.ocorrencias||''}</div></div>
     </div>
   </div>
 
-  <div class="form-section" id="staticFieldsSection">
-    <div class="form-section-title">📌 Campos estáticos</div>
+  <div class="form-section" id="staticFieldsSection" data-print-sec="estaticos">
+    <div class="form-section-title">📌 Campos estáticos<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Campos definidos em Configurações. Eles aparecem em todas as empresas, mas o preenchimento é individual.</p>
     <div id="staticFieldsList"></div>
   </div>
 
-  <div class="form-section">
-    <div class="form-section-title">➕ Campos dinâmicos</div>
+  <div class="form-section" data-print-sec="custom">
+    <div class="form-section-title">➕ Campos dinâmicos<label class="print-sec-cb" title="Marcar para impressão"><input type="checkbox" onchange="updatePrintBar()"><span>🖨️ imprimir</span></label></div>
     <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;font-family:var(--font-mono);">Crie campos sob medida para esta empresa. Cada campo aceita texto formatado, marca-texto, imagens e impressão.</p>
     <div class="custom-fields-list" id="customFieldsList"></div>
     <div class="custom-field-add">
@@ -8850,94 +8865,142 @@ document.addEventListener('keydown', ev => {
 
 <link rel="stylesheet" href="../tema-bif.css?v=20260714-light8"/>
 
-<!-- MODAL: SELEÇÃO DE IMPRESSÃO -->
-<div class="modal-overlay" id="modalPrintSel" style="display:none;z-index:1400;" onclick="if(event.target===this)closePrintSelModal()">
-  <div class="modal modal-md" style="max-width:520px;padding:0;overflow:hidden;">
-    <div class="modal-header" style="padding:14px 18px 12px;border-bottom:1px solid var(--border);">
-      <h2 style="font-size:14px;font-weight:700;font-family:var(--font-title);color:var(--gold-light);">🖨️ Opções de Impressão</h2>
-      <button class="btn-close-modal" onclick="closePrintSelModal()">✕</button>
-    </div>
-    <div style="padding:16px 18px 6px;">
-      <p style="font-size:11px;color:var(--text-light);margin-bottom:12px;font-family:var(--font-mono);">Selecione as seções que deseja incluir na impressão:</p>
-
-      <!-- Ação rápida: tudo -->
-      <div style="display:flex;gap:8px;margin-bottom:14px;">
-        <button onclick="printSelToggleAll(true)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--gold-dim);background:var(--gold-dim);color:var(--gold-light);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">✅ Selecionar tudo</button>
-        <button onclick="printSelToggleAll(false)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-light);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">☐ Desmarcar tudo</button>
-      </div>
-
-      <!-- Checkboxes das seções -->
-      <div id="printSelList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-bottom:16px;"></div>
-    </div>
-    <div style="padding:10px 18px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border);">
-      <button onclick="closePrintSelModal()" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-light);font-size:12px;cursor:pointer;font-weight:600;font-family:var(--font-body);">Cancelar</button>
-      <button onclick="executePrint()" style="padding:7px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">🖨️ Imprimir</button>
-    </div>
-  </div>
+<!-- BARRA FLUTUANTE DE IMPRESSÃO SELETIVA -->
+<div id="printFloatBar">
+  <span id="printFloatBarCount"></span>
+  <span id="printFloatBarInfo">seção(ões) marcada(s)</span>
+  <button id="printFloatBarClear" onclick="clearPrintSections()">✕ Limpar</button>
+  <button id="printFloatBarBtn" onclick="printSelectedSections()">🖨️ Imprimir selecionadas</button>
 </div>
 
 <script>
-/* ─── IMPRESSÃO SELETIVA ─────────────────────────────────────────── */
+/* ─── IMPRESSÃO SELETIVA POR SEÇÃO ─────────────────────────────── */
 
-const PRINT_SECTIONS = [
-  { id:'dados',       label:'📋 Dados cadastrais',           default:true },
-  { id:'contato',     label:'📍 Contato e localização',      default:true },
-  { id:'obrigacoes',  label:'📅 Obrigações acessórias',      default:true },
-  { id:'importacoes', label:'📥 Importações XML',             default:false },
-  { id:'repositorio', label:'📁 Repositório de notas',       default:false },
-  { id:'parametros',  label:'⚙️ Parâmetros',                 default:true },
-  { id:'regras',      label:'📏 Regras / Procedimentos',      default:true },
-  { id:'observacoes', label:'💬 Observações',                 default:true },
-  { id:'followup',    label:'🔄 Rotina de Follow-up',         default:false },
-  { id:'comunicacao', label:'📨 Comunicação / Guias',         default:false },
-  { id:'acessos',     label:'🔑 Acesso a sistemas',           default:false },
-  { id:'apoio',       label:'📝 Apoio à escrituração',        default:false },
-  { id:'ocorrencias', label:'⚠️ Ocorrências',                 default:false },
-  { id:'estaticos',   label:'🗂️ Campos estáticos',           default:false },
-  { id:'custom',      label:'✏️ Campos personalizados',       default:false },
-];
-
-function openPrintSelModal(){
-  const e = S.empresas.find(x=>x.id===currentEditId);
-  if(!e){ toast('Abra uma empresa para imprimir.','error'); return; }
-  const list = document.getElementById('printSelList');
-  list.innerHTML = PRINT_SECTIONS.map(s=>`
-    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;font-family:var(--font-body);color:var(--text);padding:4px 6px;border-radius:7px;border:1px solid var(--border);background:var(--bg-input);transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-      <input type="checkbox" data-sec="${s.id}" ${s.default?'checked':''} style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;">
-      <span>${s.label}</span>
-    </label>
-  `).join('');
-  document.getElementById('modalPrintSel').style.display='flex';
+function updatePrintBar(){
+  const cbs = document.querySelectorAll('#modalEmpresaBody .print-sec-cb input[type=checkbox]');
+  const checked = Array.from(cbs).filter(cb=>cb.checked);
+  cbs.forEach(cb=>cb.closest('.print-sec-cb').classList.toggle('checked', cb.checked));
+  const bar = document.getElementById('printFloatBar');
+  const cnt = document.getElementById('printFloatBarCount');
+  if(!bar) return;
+  if(checked.length > 0){
+    bar.classList.add('visible');
+    cnt.textContent = checked.length;
+  } else {
+    bar.classList.remove('visible');
+  }
 }
 
-function closePrintSelModal(){
-  document.getElementById('modalPrintSel').style.display='none';
-}
-
-function printSelToggleAll(check){
-  document.querySelectorAll('#printSelList input[type=checkbox]').forEach(cb=>cb.checked=check);
-}
-
-function getSelectedSections(){
-  const sel = {};
-  document.querySelectorAll('#printSelList input[type=checkbox]').forEach(cb=>{
-    sel[cb.dataset.sec] = cb.checked;
+function clearPrintSections(){
+  document.querySelectorAll('#modalEmpresaBody .print-sec-cb input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+    cb.closest('.print-sec-cb').classList.remove('checked');
   });
-  return sel;
+  const bar = document.getElementById('printFloatBar');
+  if(bar) bar.classList.remove('visible');
 }
 
-function executePrint(){
+function printSelectedSections(){
   const e = S.empresas.find(x=>x.id===currentEditId);
-  if(!e){ toast('Empresa não encontrada.','error'); return; }
-  const data = $('modalEmpresa')?.classList.contains('open') ? collectCompanyFormData() : {...e};
-  const sel = getSelectedSections();
-  closePrintSelModal();
-  const html = buildEmpresaPrintHtmlSel(data, sel);
+  if(!e){ toast('Nenhuma empresa aberta.','error'); return; }
+
+  // Coletar dados atuais do formulário
+  const data = (typeof collectCompanyFormData === 'function' && document.getElementById('modalEmpresa')?.classList.contains('open'))
+    ? collectCompanyFormData() : {...e};
+
+  // Itens marcados: podem ser data-print-sec (seção) ou data-print-field (campo individual)
+  const items = [];
+  document.querySelectorAll('#modalEmpresaBody [data-print-sec], #modalEmpresaBody [data-print-field]').forEach(el=>{
+    const cb = el.querySelector(':scope > label.print-sec-cb > input[type=checkbox], :scope > .form-group > label > label.print-sec-cb > input[type=checkbox], :scope label.print-sec-cb input[type=checkbox]');
+    // Para data-print-field o checkbox está no label do form-group
+    const ownCb = el.querySelector(':scope > label > label.print-sec-cb input[type=checkbox]') ||
+                  el.querySelector(':scope > .form-section-title > label.print-sec-cb input[type=checkbox]');
+    const check = ownCb || cb;
+    if(check && check.checked) items.push(el);
+  });
+
+  if(!items.length){ toast('Marque pelo menos um campo.','warning'); return; }
+
+  const printedAt = new Date().toLocaleString('pt-BR');
+
+  // Montar labels para o stamp
+  const itemLabels = items.map(el=>{
+    if(el.dataset.printField){
+      // pegar texto do label (sem o label do checkbox)
+      const lbl = el.querySelector('label');
+      return lbl ? Array.from(lbl.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim() : el.dataset.printField;
+    }
+    const t = el.querySelector('.form-section-title');
+    return t ? Array.from(t.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim() : el.dataset.printSec;
+  }).join(' • ');
+
+  // Construir body de impressão
+  let body = '';
+  // Agrupar campos individuais da mesma seção-pai num único bloco
+  const manualFields = items.filter(el=>el.dataset.printField);
+  const secItems     = items.filter(el=>el.dataset.printSec);
+
+  // Seções inteiras
+  secItems.forEach(sec=>{
+    const secId = sec.dataset.printSec;
+    const titleEl = sec.querySelector('.form-section-title');
+    const titleText = titleEl ? Array.from(titleEl.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim() : secId;
+    body += `<section class="p-section"><h2>${esc(titleText)}</h2>${buildSecPrintContent(secId, data, e)}</section>`;
+  });
+
+  // Campos individuais (ex: Parâmetros, Regras, Observações)
+  if(manualFields.length){
+    body += `<section class="p-section"><h2>Manual, Regras e Parâmetros</h2>`;
+    manualFields.forEach(fg=>{
+      const fid = fg.dataset.printField;
+      const lblEl = fg.querySelector('label');
+      const lblText = lblEl ? Array.from(lblEl.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim() : fid;
+      body += buildFieldPrintContent(fid, lblText, data, e);
+    });
+    body += `</section>`;
+  }
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(data.nome||'Ficha')}</title>
+  <style>
+    @page{size:A4;margin:12mm;}
+    *{box-sizing:border-box;}
+    body{margin:0;background:#fff;color:#111;font-family:${printFontStack()};font-size:${printFontSize()};line-height:1.4;}
+    .p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+    .p-title{font-size:16pt;font-weight:700;margin:0 0 2px;}
+    .p-sub{font-size:9pt;color:#333;margin:0;}
+    .stamp{border:1px solid #111;padding:5px 8px;font-size:8pt;text-align:right;min-width:140px;}
+    .stamp-secs{font-size:7pt;color:#555;margin-top:3px;max-width:160px;word-break:break-word;}
+    .p-section{margin-top:14px;break-inside:avoid;page-break-inside:avoid;}
+    .p-section h2{font-size:10pt;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #111;margin:0 0 6px;padding-bottom:3px;}
+    .p-field-label{font-size:8pt;font-weight:700;text-transform:uppercase;margin:8px 0 3px;color:#333;}
+    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;border:1px solid #999;border-bottom:none;}
+    .p-field{display:grid;grid-template-columns:38% 62%;min-height:22px;border-bottom:1px solid #999;break-inside:avoid;}
+    .p-label{font-size:8pt;font-weight:700;text-transform:uppercase;background:#eee;border-right:1px solid #999;padding:4px 6px;}
+    .p-value{padding:4px 6px;overflow-wrap:break-word;}
+    table{width:100%;border-collapse:collapse;break-inside:avoid;}
+    th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;}
+    th{background:#eee;text-transform:uppercase;font-size:8pt;letter-spacing:.04em;}
+    .p-rich{border:1px solid #999;padding:8px;min-height:24px;overflow-wrap:break-word;}
+    .p-rich *{max-width:100%;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important;}
+    .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
+    .p-rich table{width:100%;border-collapse:collapse;margin:4px 0;}
+    .p-rich table td,.p-rich table th{border:1px solid #999;padding:3px 5px;}
+    .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 3px 3px 0;font-size:9pt;}
+    .muted{color:#666;}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+  </style></head><body>
+  <header class="p-header">
+    <div><h1 class="p-title">${esc(data.nome||'Ficha da Empresa')}</h1><p class="p-sub">${esc(regimeLabel(data.regime))} • ${esc(data.fechada?'Empresa fechada':'Empresa aberta')}</p></div>
+    <div class="stamp"><strong>Ficha da Empresa</strong><br>Impresso em ${esc(printedAt)}<div class="stamp-secs">${esc(itemLabels)}</div></div>
+  </header>
+  ${body}
+  </body></html>`;
+
   const iframe = document.createElement('iframe');
   iframe.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
   document.body.appendChild(iframe);
   iframe.srcdoc = html;
-  iframe.onload = () => {
+  iframe.onload = ()=>{
     setTimeout(()=>{
       try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }
       finally{ setTimeout(()=>iframe.remove(),1400); }
@@ -8945,79 +9008,78 @@ function executePrint(){
   };
 }
 
-function buildEmpresaPrintHtmlSel(e, sel){
-  const all = !sel || Object.values(sel).every(v=>!v); // se nada marcado, imprime tudo
-  const show = id => all || sel[id];
+function buildFieldPrintContent(fieldId, label, data, e){
+  const rich = html=>{
+    const clean = sanitizeRichForPrint(html||'');
+    const has = clean.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim().length || /<img/i.test(clean);
+    return `<div class="p-rich">${has?clean:'<span class="muted">—</span>'}</div>`;
+  };
+  const fieldMap = {
+    parametros: data.parametros,
+    regras:     data.regras,
+    observacoes:data.observacoes,
+    followup:   data.followup,
+    comunicacao:data.comunicacaoGuias,
+    acessos:    data.acessosSistemas,
+    apoio:      data.apoioEscrituracao,
+    ocorrencias:data.ocorrencias,
+  };
+  return `<p class="p-field-label">${esc(label)}</p>${rich(fieldMap[fieldId])}`;
+}
 
-  const obrigacoes = (e.obrigacoes||[]).map(o=>`<tr><td>${esc(o.nome)}</td><td>${esc(o.vencimento||'—')}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>';
-  const importacoes = (e.importacoes||[]).map(i=>`<span class="pill">${esc(i)}</span>`).join('')||'<span class="muted">—</span>';
-  const notasRepo = (e.repositorioNotas||[]).map(normalizeNotaRepositorioItem).filter(a=>a.nome);
-  const notasRepoRows = notasRepo.map(a=>`<tr><td>${esc(a.nome)}</td><td>${esc(a.tipo||'—')}</td><td>${esc(formatFileSize(a.tamanho))}</td><td>${esc(formatDateTimeBR(a.adicionadoEm))}</td></tr>`).join('')||'<tr><td colspan="4">—</td></tr>';
-  const staticSections = show('estaticos') ? (S.camposEstaticos||[]).map(c=>printRichSection(c.label||'Campo estático',(e.camposEstaticosData||{})[c.id]||'')).join('') : '';
-  const custom = show('custom') ? (e.camposPersonalizados||[]).map(c=>printRichSection(c.label||'Campo personalizado',c.content||'')).join('') : '';
-  const status = e.fechada ? 'Empresa fechada / encerrada' : 'Empresa aberta';
-  const printedAt = new Date().toLocaleString('pt-BR');
+function buildSecPrintContent(secId, data, e){
+  const pr = (label,val)=>printRow(label,val);
+  const rich = (html)=>{
+    const clean = sanitizeRichForPrint(html||'');
+    const has = clean.replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim().length || /<img/i.test(clean);
+    return `<div class="p-rich">${has?clean:'<span class="muted">—</span>'}</div>`;
+  };
 
-  const secoesSelecionadas = PRINT_SECTIONS.filter(s=>show(s.id)).map(s=>s.label.replace(/^[^ ]+ /,'')).join(' • ');
+  switch(secId){
+    case 'dados': return `<div class="p-grid">${pr('Razão Social',data.nome)}${pr('CNPJ',data.cnpj)}${pr('Regime',regimeLabel(data.regime))}${pr('Categoria',categoriaEmpresaLabel(data))}${pr('Atividade',data.atividade)}${pr('Colaborador',data.colaborador)}${pr('IE',data.inscricaoEstadual)}${pr('IM',data.inscricaoMunicipal)}${pr('Cód. ERP',data.codigoErp)}</div>`;
+    case 'contato': return `<div class="p-grid">${pr('Endereço',data.endereco)}${pr('CEP',data.cep)}${pr('Cidade',data.cidade)}${pr('UF',data.uf)}${pr('Responsável',data.responsavel)}${pr('E-mail',data.email)}${pr('Telefone',data.telefone)}${pr('Abertura',data.dataAbertura)}${pr('Capital Social',data.capitalSocial)}</div>`;
+    case 'impostos':{
+      const rows = (e.impostos||[]).map(i=>`<tr><td>${esc(i.nome||'—')}</td><td>${esc(i.periodo||'—')}</td><td>${esc(i.obs||'—')}</td></tr>`).join('')||'<tr><td colspan="3">—</td></tr>';
+      return `<table><thead><tr><th>Imposto</th><th>Periodicidade</th><th>Observação</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    case 'obrigacoes':{
+      const rows = (e.obrigacoes||[]).map(o=>`<tr><td>${esc(o.nome)}</td><td>${esc(o.vencimento||'—')}</td></tr>`).join('')||'<tr><td colspan="2">—</td></tr>';
+      return `<table><thead><tr><th>Obrigação</th><th>Vencimento</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    case 'importacoes':{
+      const pills = (e.importacoes||[]).map(i=>`<span class="pill">${esc(i)}</span>`).join('')||'<span class="muted">—</span>';
+      return `<div style="padding:6px;">${pills}</div>`;
+    }
+    case 'repositorio':{
+      const notas = (e.repositorioNotas||[]).map(normalizeNotaRepositorioItem).filter(a=>a.nome);
+      const rows = notas.map(a=>`<tr><td>${esc(a.nome)}</td><td>${esc(a.tipo||'—')}</td><td>${esc(formatFileSize(a.tamanho))}</td><td>${esc(formatDateTimeBR(a.adicionadoEm))}</td></tr>`).join('')||'<tr><td colspan="4">—</td></tr>';
+      return `<table><thead><tr><th>Arquivo</th><th>Tipo</th><th>Tamanho</th><th>Anexado em</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    case 'manual': return `${rich(data.parametros)}<p style="margin:4px 0 2px;font-size:8pt;font-weight:700;text-transform:uppercase;">Regras / Procedimentos</p>${rich(data.regras)}<p style="margin:4px 0 2px;font-size:8pt;font-weight:700;text-transform:uppercase;">Observações</p>${rich(data.observacoes)}`;
+    case 'followup': return rich(data.followup);
+    case 'comunicacao': return rich(data.comunicacaoGuias);
+    case 'acessos': return rich(data.acessosSistemas);
+    case 'apoio': return rich(data.apoioEscrituracao);
+    case 'ocorrencias': return rich(data.ocorrencias);
+    case 'estaticos': return (S.camposEstaticos||[]).map(c=>{
+      const val = sanitizeRichForPrint((e.camposEstaticosData||{})[c.id]||'');
+      return `<p style="margin:4px 0 2px;font-size:8pt;font-weight:700;text-transform:uppercase;">${esc(c.label||'Campo')}</p><div class="p-rich">${val||'<span class="muted">—</span>'}</div>`;
+    }).join('')||'<span class="muted">—</span>';
+    case 'custom': return (e.camposPersonalizados||[]).map(c=>{
+      const val = sanitizeRichForPrint(c.content||'');
+      return `<p style="margin:4px 0 2px;font-size:8pt;font-weight:700;text-transform:uppercase;">${esc(c.label||'Campo')}</p><div class="p-rich">${val||'<span class="muted">—</span>'}</div>`;
+    }).join('')||'<span class="muted">—</span>';
+    default: return '<span class="muted">—</span>';
+  }
+}
 
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${esc(e.nome||'Ficha da Empresa')}</title>
-  <style>
-    @page{size:A4;margin:12mm;}
-    *{box-sizing:border-box;}
-    body{margin:0;background:#fff;color:#111;font-family:${printFontStack()};font-size:${printFontSize()};line-height:1.35;}
-    .page{width:100%;}
-    .p-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
-    .p-title{font-size:18pt;font-weight:700;letter-spacing:.02em;margin:0 0 3px;}
-    .p-sub{font-size:9pt;color:#333;margin:0;}
-    .stamp{border:1px solid #111;padding:5px 8px;font-size:8.5pt;text-align:right;min-width:145px;}
-    .stamp-secs{font-size:7pt;color:#555;margin-top:3px;word-break:break-word;max-width:160px;}
-    .p-section{margin-top:12px;break-inside:avoid;page-break-inside:avoid;}
-    .p-section h2{font-size:11pt;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #111;margin:0 0 6px;padding-bottom:3px;}
-    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;border:1px solid #999;border-bottom:none;}
-    .p-field{display:grid;grid-template-columns:37% 63%;min-height:24px;border-bottom:1px solid #999;break-inside:avoid;}
-    .p-label{font-size:8pt;font-weight:700;text-transform:uppercase;background:#eee;border-right:1px solid #999;padding:5px 6px;}
-    .p-value{padding:5px 6px;overflow-wrap:break-word;word-break:normal;}
-    table{width:100%;border-collapse:collapse;break-inside:avoid;}
-    th,td{border:1px solid #999;padding:5px 6px;text-align:left;vertical-align:top;}
-    th{background:#eee;text-transform:uppercase;font-size:8pt;letter-spacing:.04em;}
-    .p-rich{border:1px solid #999;padding:8px;min-height:28px;overflow-wrap:break-word;word-break:normal;}
-    .p-rich *{max-width:100%;overflow-wrap:break-word;word-break:normal;font-family:inherit!important;font-size:inherit!important;color:#111!important;background:transparent!important;}
-    .p-rich img{max-width:100%;height:auto;filter:grayscale(100%);}
-    .p-rich table{width:100%;border-collapse:collapse;margin:6px 0;table-layout:auto;}
-    .p-rich table td,.p-rich table th{border:1px solid #999;padding:4px 5px;vertical-align:top;overflow-wrap:anywhere;}
-    .pill{display:inline-block;border:1px solid #111;border-radius:999px;padding:2px 7px;margin:0 4px 4px 0;font-size:9pt;}
-    .muted{color:#666;}
-    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page{break-after:auto;}}
-  </style></head><body><main class="page">
-    <header class="p-header">
-      <div><h1 class="p-title">${esc(e.nome||'Ficha da Empresa')}</h1><p class="p-sub">${esc(regimeLabel(e.regime))} • ${esc(status)}</p></div>
-      <div class="stamp"><strong>Ficha da Empresa</strong><br>Impresso em ${esc(printedAt)}<div class="stamp-secs">${esc(secoesSelecionadas)}</div></div>
-    </header>
-
-    ${show('dados')?`<section class="p-section"><h2>Dados cadastrais</h2><div class="p-grid">
-      ${printRow('Razão Social',e.nome)}${printRow('CNPJ',e.cnpj)}${printRow('Regime',regimeLabel(e.regime))}${printRow('Categoria',categoriaEmpresaLabel(e))}${printRow('Status',status)}
-      ${printRow('Atividade Econômica',e.atividade)}${printRow('Colaborador',e.colaborador)}${printRow('Inscrição Estadual',e.inscricaoEstadual)}${printRow('Inscrição Municipal',e.inscricaoMunicipal)}${printRow('Código ERP',e.codigoErp)}
-    </div></section>`:''}
-
-    ${show('contato')?`<section class="p-section"><h2>Contato e localização</h2><div class="p-grid">
-      ${printRow('Endereço',e.endereco)}${printRow('CEP',e.cep)}${printRow('Cidade',e.cidade)}${printRow('UF',e.uf)}
-      ${printRow('Responsável',e.responsavel)}${printRow('E-mail',e.email)}${printRow('Telefone',e.telefone)}${printRow('Data de abertura',e.dataAbertura)}${printRow('Capital Social',e.capitalSocial)}
-    </div></section>`:''}
-
-    ${show('obrigacoes')?`<section class="p-section"><h2>Obrigações acessórias</h2><table><thead><tr><th>Obrigação</th><th>Vencimento</th></tr></thead><tbody>${obrigacoes}</tbody></table></section>`:''}
-    ${show('importacoes')?`<section class="p-section"><h2>Importações XML</h2><div>${importacoes}</div></section>`:''}
-    ${show('repositorio')?`<section class="p-section"><h2>Repositório de Notas</h2><table><thead><tr><th>Arquivo</th><th>Tipo</th><th>Tamanho</th><th>Anexado em</th></tr></thead><tbody>${notasRepoRows}</tbody></table></section>`:''}
-    ${show('parametros')?printRichSection('Parâmetros',e.parametros):''}
-    ${show('regras')?printRichSection('Regras / Procedimentos',e.regras):''}
-    ${show('observacoes')?printRichSection('Observações',e.observacoes):''}
-    ${show('followup')?printRichSection('Rotina de Follow-up',e.followup):''}
-    ${show('comunicacao')?printRichSection('Comunicação / Envio de guias',e.comunicacaoGuias):''}
-    ${show('acessos')?printRichSection('Acesso a sistemas',e.acessosSistemas):''}
-    ${show('apoio')?printRichSection('Apoio à escrituração',e.apoioEscrituracao):''}
-    ${show('ocorrencias')?printRichSection('Ocorrências',e.ocorrencias):''}
-    ${staticSections}
-    ${custom}
-  </main></body></html>`;
+// Limpar checkboxes ao fechar a ficha
+const _origCloseModal = window.closeModal;
+if(typeof _origCloseModal === 'function'){
+  window.closeModal = function(id){
+    if(id === 'modalEmpresa') clearPrintSections();
+    _origCloseModal(id);
+  };
 }
 </script>
 </body>
